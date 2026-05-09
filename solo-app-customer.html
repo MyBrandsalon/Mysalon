@@ -1116,7 +1116,7 @@ loadHome();
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function toast(msg)     { var t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2500); }
-function logout()       { sessionStorage.clear(); window.location.href='solo-index.html'; }
+function logout()       { sessionStorage.clear(); window.location.href='index.html'; }
 
 // ── BRANDING ──
 (function loadCustomerBranding(){
