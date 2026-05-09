@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Salon Pro – Hairstylist</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+:root{
+  /* BACKGROUND & SURFACES */
+  --bg:#F5F5F0;
+  --surface:#FFFFFF;
+  --surface2:#F0F0EA;
+  --surface3:#E8E8E0;
+  --border:#DDDDD5;
+
+  /* BRAND */
+  --accent:#007A56;
+  --accent2:#005F42;
+  --gold:#F5E030;
+  --gold-dark:#C8A800;
+
+  /* TEXT */
+  --white:#1A1A14;
+  --muted:#666660;
+  --muted2:#999990;
+
+  /* STATUS */
+  --danger:#DC3545;
+  --green:#16A34A;
+  --orange:#F97316;
+  --blue:#1D6DB5;
+  --warn:#C2410C;
+  --purple:#6D28D9;
+
+  /* LAYOUT */
+  --r:12px;--rs:8px;
+  --BF:'Barlow',sans-serif;
+  --HF:'Bebas Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15px;min-height:100vh;overflow-x:hidden}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;min-height:54px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.logo{background:var(--gold);border-radius:6px;padding:3px 10px;display:inline-flex;align-items:center;margin:9px 12px 9px 0;flex-shrink:0}
+.logo span{color:#003D2B!important;font-family:var(--HF);font-size:16px;color:#1A2420;line-height:1;letter-spacing:1px}
+.tb-center{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tb-name{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-outlet{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.tb-right{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.tb-role{background:rgba(46,196,160,.15);border:1px solid rgba(46,196,160,.3);color:var(--accent);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.tb-out{background:none;border:1px solid rgba(224,112,112,.4);color:var(--danger);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--BF)}
+
+/* NAV TABS */
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 2px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nt{flex-shrink:0;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--BF)}
+.nt.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* PANELS */
+.panel{display:none;padding:14px;padding-bottom:44px}
+.panel.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.sc.a{border-left:3px solid var(--accent)}.sc.g{border-left:3px solid #D97706}.sc.b{border-left:3px solid var(--blue)}.sc.gr{border-left:3px solid var(--green)}.sc.w{border-left:3px solid var(--warn)}.sc.p{border-left:3px solid var(--purple)}
+.sc-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.sc-val{font-family:var(--HF);font-size:22px;color:var(--white);letter-spacing:.5px;line-height:1}
+.sc.a .sc-val{color:var(--accent)}.sc.g .sc-val{color:#D97706}.sc.b .sc-val{color:var(--blue)}.sc.gr .sc-val{color:var(--green)}.sc.w .sc-val{color:var(--warn)}.sc.p .sc-val{color:var(--purple)}
+
+/* SERVICE CHIPS */
+.svc-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.chip{padding:7px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF);user-select:none}
+.chip:active{transform:scale(.95)}
+.chip.on{background:rgba(46,196,160,.18);border-color:var(--accent);color:var(--accent)}
+.chip-code{font-size:9px;font-weight:800;letter-spacing:.5px;opacity:.7;margin-right:2px}
+
+/* SELECTED AREA */
+.sel-area{background:var(--surface);border:1.5px dashed var(--muted2);border-radius:var(--rs);padding:9px 11px;min-height:40px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:12px}
+.sel-tag{background:rgba(46,196,160,.15);border:1px solid var(--accent);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:6px;display:flex;align-items:center;gap:5px;font-weight:700}
+.sel-tag .rm{cursor:pointer;opacity:.6;font-size:13px;line-height:1}
+.sel-empty{color:var(--muted2);font-size:12px;font-style:italic}
+
+/* IFIELD */
+.ifield label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.ifield input,.ifield select,.fi{width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:14px;outline:none;transition:border-color .2s;font-family:var(--BF);-webkit-appearance:none}
+.ifield input:focus,.ifield select:focus,.fi:focus{border-color:var(--accent)}
+.ifield input::placeholder,.fi::placeholder{color:var(--muted2)}
+.btn-add{background:var(--accent);border:none;color:#fff;width:44px;height:44px;border-radius:var(--rs);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-weight:700;flex-shrink:0}
+.btn-add:active{transform:scale(.92)}
+
+/* TOTALS BAR */
+.tot-bar{background:var(--surface);border-radius:var(--rs);padding:9px 13px;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;border-left:3px solid var(--accent)}
+.tot-item{font-size:12px;color:var(--muted)}
+.tot-item b{color:var(--white);font-size:13px;margin-left:3px}
+
+/* CARD-LIST layout for Today's Customers (Fix 2) */
+.cust-card{background:var(--surface);border-radius:var(--r);padding:12px 14px;border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.cust-card-ico{width:36px;height:36px;border-radius:50%;background:rgba(46,196,160,.15);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cust-card-body{flex:1;min-width:0}
+.cust-card-svc{font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cust-card-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.cust-card-right{text-align:right;flex-shrink:0}
+.cust-card-total{font-size:14px;font-weight:800;color:var(--accent)}
+.cust-card-tip{font-size:11px;color:var(--warn);margin-top:2px}
+
+/* SUMMARY BOX */
+.summary-box{background:var(--surface);border-radius:var(--r);padding:13px 15px;margin-bottom:12px;border-left:3px solid var(--accent)}
+.sb-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.sb-row:last-child{border-bottom:none;padding-top:7px;margin-top:3px}
+.sb-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.sb-val{font-size:13px;font-weight:800}
+.sb-total .sb-lbl{color:var(--accent);font-size:12px}
+.sb-total .sb-val{font-size:17px;color:var(--accent);font-family:var(--HF)}
+
+/* COUNTER BOX */
+.counter-box{border-radius:var(--r);padding:13px 14px;margin-bottom:12px;border:2px solid}
+.counter-box.cash-in{background:rgba(93,191,138,.08);border-color:rgba(93,191,138,.35)}
+.counter-box.expense{background:rgba(232,107,91,.08);border-color:rgba(232,107,91,.35)}
+.counter-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}
+.counter-title.cash-in{color:var(--green)}
+.counter-title.expense{color:var(--danger)}
+.counter-total{font-family:var(--HF);font-size:24px;line-height:1}
+.counter-box.cash-in .counter-total{color:var(--green)}
+.counter-box.expense .counter-total{color:var(--danger)}
+.counter-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+.counter-inp{flex:1;min-width:80px;padding:8px 11px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:13px;outline:none;font-family:var(--BF)}
+.counter-inp:focus{border-color:var(--accent)}
+.counter-btn{padding:8px 12px;border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);border:1.5px solid;transition:all .15s;white-space:nowrap}
+.counter-btn.ci{background:rgba(93,191,138,.15);border-color:var(--green);color:var(--green)}
+.counter-btn.ex{background:rgba(232,107,91,.15);border-color:var(--danger);color:var(--danger)}
+.counter-log{font-size:11px;color:var(--muted2);line-height:1.6;max-height:60px;overflow-y:auto}
+.counter-log-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.counter-log-item:last-child{border-bottom:none}
+
+/* COMPACT ENTRY TABLE (Fix 1+2) */
+.entry-tbl{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.entry-tbl thead tr{background:rgba(46,196,160,.12)}
+.entry-tbl thead th{padding:7px 6px;text-align:center;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);white-space:nowrap}
+.entry-tbl thead th:nth-child(3){text-align:left}
+.entry-tbl tbody tr{border-bottom:1px solid var(--border)}
+.entry-tbl tbody tr:last-child{border-bottom:none}
+.entry-tbl tbody tr:hover{background:rgba(255,255,255,.025)}
+.entry-tbl tbody td{padding:8px 6px;text-align:center;vertical-align:middle;white-space:nowrap}
+.entry-tbl tbody td:nth-child(3){text-align:left;white-space:normal;line-height:1.3;min-width:80px}
+.entry-tbl tbody td.num{font-size:10px;color:var(--muted2);width:20px}
+.entry-tbl tbody td.tm{font-size:11px;color:var(--muted);width:44px}
+.entry-tbl tbody td.ph{color:var(--blue);font-weight:600}
+.entry-tbl tbody td.ca{color:var(--green);font-weight:600}
+.entry-tbl tbody td.tp{color:var(--warn);font-weight:600}
+.entry-tbl tbody td.tot{color:var(--accent);font-weight:700}
+.tbl-scroll{overflow-x:auto;border-radius:var(--r);margin-bottom:2px}
+
+/* ATTENDANCE CALENDAR — compact, half-screen */
+.att-mini-cal{display:grid;grid-template-columns:repeat(7,24px);gap:3px;margin-top:5px}
+.att-mini-day{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:var(--bg);color:var(--muted2)}
+.att-mini-day.in{background:rgba(46,196,160,.3);color:var(--accent)}
+.att-mini-day.half{background:rgba(249,115,22,.18);color:#F97316}
+.att-mini-day.off{background:rgba(224,112,112,.12);color:var(--danger)}
+.att-mini-day.today{outline:1.5px solid var(--accent);outline-offset:-1px;font-weight:800}
+.att-stat-row{display:flex;gap:6px;margin-top:7px}
+.att-stat-pill{flex:1;text-align:center;background:var(--surface2);border-radius:var(--rs);padding:6px 3px;border:1px solid var(--border)}
+.att-stat-pill .asp-num{font-family:var(--HF);font-size:20px;line-height:1}
+.att-stat-pill .asp-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;color:var(--muted2)}
+
+/* FILTER TOGGLE (Fix 3) */
+.filter-toggle{display:flex;gap:6px;margin-bottom:10px}
+.ft-btn{flex:1;padding:8px 10px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF);text-align:center}
+.ft-btn.on{background:rgba(46,196,160,.15);border-color:var(--accent);color:var(--accent)}
+.att-btn{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border-radius:var(--r);border:2px solid;font-family:var(--BF);font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.att-btn.in{background:rgba(46,196,160,.15);border-color:var(--accent);color:var(--accent)}
+.att-btn.out{background:rgba(224,112,112,.12);border-color:var(--danger);color:var(--danger)}
+.att-btn:active{transform:scale(.97)}
+.att-record{background:var(--surface);border-radius:var(--r);padding:12px 14px;border:1px solid var(--border);margin-bottom:10px}
+.att-record-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.att-record-row:last-child{border-bottom:none}
+
+/* DATE MULTI-SELECT (Fix 7) */
+.date-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.dc{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF)}
+.dc.on{background:rgba(46,196,160,.18);border-color:var(--accent);color:var(--accent)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.filter-row .ifield{flex:1;min-width:120px}
+
+/* SEC HEADER */
+.sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin:14px 0 8px;display:flex;align-items:center;gap:7px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec:first-child{margin-top:0}
+.btn-sm{padding:9px 13px;background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:var(--BF)}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+
+/* SCAN */
+.scan-box{background:var(--surface);border:2px dashed var(--muted2);border-radius:var(--r);padding:28px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px;user-select:none;-webkit-user-select:none}
+.scan-box:active{border-color:var(--accent);background:rgba(46,196,160,.05)}
+.sc-corners{width:60px;height:60px;position:relative;margin:0 auto 12px}
+.sc-corners::before,.sc-corners::after,.sc-i::before,.sc-i::after{content:'';position:absolute;width:15px;height:15px;border-color:var(--accent);border-style:solid}
+.sc-corners::before{top:0;left:0;border-width:3px 0 0 3px}
+.sc-corners::after{top:0;right:0;border-width:3px 3px 0 0}
+.sc-i::before{bottom:0;left:0;border-width:0 0 3px 3px}
+.sc-i::after{bottom:0;right:0;border-width:0 3px 3px 0}
+.scan-line{position:absolute;left:8px;right:8px;height:2px;top:8px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:ss 2s ease-in-out infinite}
+@keyframes ss{0%,100%{top:8px}50%{top:46px}}
+
+/* QR SCANNER VIDEO */
+.qr-video-wrap{position:relative;width:100%;max-height:280px;overflow:hidden;border-radius:var(--r);background:#000;margin-bottom:12px;display:none}
+.qr-video-wrap.active{display:block}
+#qrVideo{width:100%;display:block;object-fit:cover;border-radius:var(--r)}
+.qr-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.qr-frame{width:180px;height:180px;border:3px solid var(--accent);border-radius:8px;box-shadow:0 0 0 4000px rgba(0,0,0,.5)}
+
+/* CAMERA */
+.cam-modal{position:fixed;inset:0;background:#000;z-index:900;display:none;flex-direction:column}
+.cam-modal.open{display:flex}
+#camVideo{width:100%;flex:1;object-fit:cover}
+.cam-ctrl{background:#111;padding:16px;display:flex;align-items:center;justify-content:space-between}
+.cam-btn{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+.cam-cap{width:68px;height:68px;background:#fff;border:4px solid rgba(0,0,0,.20)}
+.cam-cap:active{transform:scale(.93)}
+.cam-side{background:rgba(0,0,0,.12);color:#fff}
+.cam-lbl{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+
+/* ZONES */
+.zones{display:grid;grid-template-areas:". fr ." "le to ri" "le cr ri" ". ba .";grid-template-columns:1fr 1fr 1fr;gap:4px;margin:7px 0 12px}
+.zc{background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:9px 5px;text-align:center;cursor:pointer;transition:all .2s}
+.zc.lit{border-color:var(--accent);background:rgba(46,196,160,.1)}
+.zc[data-z="fr"]{grid-area:fr}.zc[data-z="to"]{grid-area:to}.zc[data-z="cr"]{grid-area:cr}.zc[data-z="ba"]{grid-area:ba}
+.zc[data-z="le"]{grid-area:le;min-height:72px;display:flex;flex-direction:column;justify-content:center}
+.zc[data-z="ri"]{grid-area:ri;min-height:72px;display:flex;flex-direction:column;justify-content:center}
+.zc-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)}
+.zc-v{font-size:12px;font-weight:700;color:var(--white);margin-top:2px}
+.zc.lit .zc-l{color:var(--accent)}.zc.lit .zc-v{color:var(--accent)}
+
+/* PHOTOS */
+.ph-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:7px 0 12px}
+.ps{aspect-ratio:1;background:var(--surface2);border:2px dashed var(--muted2);border-radius:var(--rs);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9px;font-weight:600;text-transform:uppercase;color:var(--muted2);overflow:hidden;cursor:pointer;transition:all .2s}
+.ps:hover{border-color:var(--accent);color:var(--accent)}
+.ps.has{border-style:solid;border-color:var(--accent);background:rgba(46,196,160,.08)}
+.ps img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:center;justify-content:center;padding:14px}
+.modal-bg.open{display:flex}
+.modal-sheet{background:var(--surface);border-radius:var(--r);padding:20px;width:100%;max-width:440px;border:1px solid rgba(46,196,160,.25);animation:mIn .2s ease;max-height:90dvh;overflow-y:auto}
+@keyframes mIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-hdr h3{font-size:14px;font-weight:700;color:var(--white)}
+.btn-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.modal-actions{display:flex;gap:9px;margin-top:16px}
+
+/* BUTTONS */
+.btn-primary{padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF);width:100%}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-cancel{flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);font-size:13px;cursor:pointer;font-family:var(--BF)}
+
+/* CHIP GROUPS */
+.cg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:3px}
+.cchip{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--BF)}
+.cchip.on{border-color:var(--accent);background:rgba(46,196,160,.12);color:var(--accent)}
+
+/* SYNC + TOAST */
+.notes-card{background:rgba(46,196,160,.07);border-left:3px solid var(--accent);border-radius:6px;padding:11px 13px;margin-top:8px}
+.sync-pill{display:none;align-items:center;gap:5px;font-size:11px;padding:4px 9px;border-radius:20px}
+.sync-pill.show{display:inline-flex}
+.sync-pill.syncing{background:rgba(109,184,212,.12);color:var(--blue)}
+.sync-pill.ok{background:rgba(46,196,160,.12);color:var(--accent)}
+.sync-pill.err{background:rgba(224,112,112,.12);color:var(--danger)}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast-el{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--white);color:var(--white);padding:10px 20px;border-radius:50px;font-size:13px;z-index:999;display:none;border:1px solid rgba(46,196,160,.3);box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:90vw;text-align:center}
+
+/* FORM SECTION */
+.form-section{background:var(--surface);border-radius:var(--r);padding:14px;border:1px solid var(--border);margin-bottom:12px}
+.form-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:11px}
+
+/* MY PROFILE (Fix 10) */
+.profile-section{background:var(--surface);border-radius:var(--r);padding:14px;border:1px solid var(--border);margin-bottom:12px}
+.profile-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.salary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.salary-row:last-child{border-bottom:none;padding-top:10px;margin-top:4px}
+.salary-lbl{color:var(--muted)}
+.salary-val{font-weight:700;color:var(--white)}
+.salary-row.net .salary-lbl{color:var(--accent);font-size:14px;font-weight:800}
+.salary-row.net .salary-val{font-size:20px;color:var(--accent);font-family:var(--HF)}
+.salary-row.deduct .salary-val{color:var(--danger)}
+.salary-row.add .salary-val{color:var(--green)}
+.att-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.att-day{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--surface2);color:var(--muted2)}
+.att-day.in{background:rgba(46,196,160,.2);border:1.5px solid var(--accent);color:var(--accent)}
+.att-day.half{background:rgba(249,115,22,.15);border:1.5px solid #F97316;color:#F97316}
+.att-day.off{background:rgba(224,112,112,.1);border:1.5px solid var(--danger);color:var(--danger)}
+.advance-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.advance-row:last-child{border-bottom:none}
+
+@media(max-width:360px){
+  .nt{padding:9px 10px;font-size:10px}
+}
+
+/* ── SETUP BANNER ── */
+#setup-banner{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#setup-banner.show{display:flex}
+.sb-logo{background:var(--gold);border-radius:10px;padding:10px 24px;margin-bottom:24px;display:inline-block}
+.sb-logo-text{font-family:var(--HF);font-size:32px;color:#003D2B;line-height:1;letter-spacing:2px;display:block}
+.sb-title{font-size:20px;font-weight:800;color:var(--white);margin-bottom:8px}
+.sb-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;max-width:320px}
+.sb-card{background:var(--surface2);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:20px;width:100%;max-width:360px;margin-bottom:16px}
+.sb-url-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;text-align:left}
+.sb-url-input{width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid rgba(0,0,0,.08);border-radius:var(--rs);color:var(--white);font-size:12px;font-family:var(--BF);outline:none;margin-bottom:10px}
+.sb-url-input:focus{border-color:var(--accent)}
+.sb-btn-restore{width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--rs);color:#0F1E18;font-family:var(--BF);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;margin-bottom:10px}
+.sb-btn-skip{width:100%;padding:10px;background:transparent;border:1px solid rgba(0,0,0,.12);border-radius:var(--rs);color:var(--muted);font-family:var(--BF);font-size:12px;font-weight:700;cursor:pointer}
+.sb-status{font-size:12px;margin-top:10px;min-height:20px;color:var(--muted)}
+
+
+/* ── LIGHT THEME OVERRIDES ── */
+body { background: var(--bg) !important; color: var(--white) !important; }
+.topbar { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.nav-tabs { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; }
+.panel { background: var(--bg); }
+
+/* Cards and surfaces */
+.sc, .salon-card, .month-chart, .tbl-wrap, .modal-box,
+.sheets-box, .cash-counter, .bc-card, .tot-bar,
+.pnl-section, .role-card, .outlet-summary,
+.mgr-ci-wrap, .att-card, .br-card { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Stat card values — keep accent colors readable on light */
+.sc-val { color: var(--white) !important; }
+.sc.accent .sc-val { color: var(--accent) !important; }
+.sc.gold   .sc-val { color: #D97706 !important; }
+.sc.danger .sc-val { color: var(--danger) !important; }
+.sc.b      .sc-val { color: var(--blue) !important; }
+.sc.g      .sc-val { color: var(--green) !important; }
+.sc.warn   .sc-val { color: var(--warn) !important; }
+.sc.gr     .sc-val { color: var(--green) !important; }
+
+/* Inputs */
+input, select, textarea {
+  background: var(--surface2) !important;
+  color: var(--white) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder { color: var(--muted2) !important; }
+select option { background: var(--surface) !important; color: var(--white) !important; }
+
+/* Table rows */
+.tbl-head { background: var(--accent) !important; color: #fff !important; }
+.tbl-body .tbl-row { border-bottom-color: var(--border) !important; }
+.tbl-body .tbl-row:hover { background: var(--surface2) !important; }
+
+/* Modal overlay */
+.modal-bg { background: rgba(0,0,0,.4) !important; }
+.modal-box { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Nav tab active */
+.nt { color: var(--muted) !important; }
+.nt.on { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+
+/* Buttons */
+.btn-sm { background: var(--surface2) !important; border-color: var(--border) !important; color: var(--white) !important; }
+.btn-sm:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
+.btn-sm.on { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+.btn-primary { background: var(--accent) !important; color: #fff !important; }
+.btn-cancel { border-color: var(--border) !important; color: var(--muted) !important; }
+
+/* Toast */
+.toast-el { background: var(--white) !important; color: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Logo — always gold box, dark text */
+.logo { background: var(--gold) !important; }
+.logo span { color: #003D2B !important; }
+
+/* PNL section in light mode */
+.pnl-input { background: var(--surface2) !important; color: var(--white) !important; border-color: var(--border) !important; }
+.pnl-row span:first-child { color: var(--muted) !important; }
+.pnl-row.pnl-total-row { background: var(--surface2) !important; }
+.pnl-row.pnl-auto { background: rgba(0,0,0,.02) !important; }
+
+/* Muted labels */
+.sc-lbl, .ifield label, .role-lbl, .bar-lbl { color: var(--muted) !important; }
+
+/* Section headers */
+.sec-title { color: var(--white) !important; }
+
+/* Charts bars stay accent */
+.bar { background: var(--accent) !important; }
+
+/* Outlet summary boxes */
+.os-box.ci  { background: rgba(22,163,74,.08) !important; border-color: rgba(22,163,74,.2) !important; }
+.os-box.ex  { background: rgba(220,53,69,.06) !important; border-color: rgba(220,53,69,.15) !important; }
+.os-box.net { background: rgba(29,109,181,.06) !important; border-color: rgba(29,109,181,.15) !important; }
+
+/* Badges */
+.badge-green  { background: rgba(22,163,74,.10) !important; color: var(--green) !important; border-color: rgba(22,163,74,.2) !important; }
+.badge-blue   { background: rgba(29,109,181,.08) !important; color: var(--blue) !important; border-color: rgba(29,109,181,.2) !important; }
+.badge-red    { background: rgba(220,53,69,.08) !important; color: var(--danger) !important; border-color: rgba(220,53,69,.2) !important; }
+.badge-gold   { background: rgba(217,119,6,.08) !important; color: #D97706 !important; border-color: rgba(217,119,6,.2) !important; }
+.badge-purple { background: rgba(109,40,217,.08) !important; color: var(--purple) !important; border-color: rgba(109,40,217,.2) !important; }
+
+</style>
+</head>
+<body>
+<div id="app-content">
+<div class="topbar">
+  <div class="logo" id="topbarLogo"><span id="topbarLogoText">SP</span></div>
+  <div class="tb-center">
+    <div class="tb-name" id="tbName">Hairstylist</div>
+    <div class="tb-outlet" id="tbOutlet">Loading…</div>
+  </div>
+  <div class="tb-right">
+    <span class="tb-role">✂️</span>
+    <span id="lastSyncTime" style="font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.3px;white-space:nowrap;margin-right:2px"></span><div class="sync-pill" id="syncPill"></div>
+    <button class="tb-out" onclick="logout()">Out</button>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nt on" id="nt-billing"  onclick="showTab('billing')">✂️ Billing</button>
+  <button class="nt"    id="nt-mysales"  onclick="showTab('mysales')">📋 My Sales</button>
+  <button class="nt"    id="nt-scan"     onclick="showTab('scan')">📷 Scan</button>
+  <button class="nt"    id="nt-style"    onclick="showTab('style')">💈 Style Card</button>
+  <button class="nt"    id="nt-profile"  onclick="showTab('profile')">👤 My Profile</button>
+</div>
+
+<!-- ════ BILLING TAB ════ -->
+<div class="panel on" id="pn-billing">
+  <!-- Clock In/Out at top of billing -->
+  <div id="att-btn-wrap-billing" style="margin-bottom:10px"></div>
+
+  <div class="sec">Select Services</div>
+  <div class="svc-grid" id="svc-chips"></div>
+  <div class="sel-area" id="sel-area"><span class="sel-empty">Tap services above…</span></div>
+
+  <!-- Customer Phone + Name (auto-fill) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
+    <div class="ifield">
+      <label>Customer Phone</label>
+      <input type="tel" id="inp-cust-phone" class="fi" placeholder="10-digit" maxlength="10" inputmode="numeric"
+        oninput="this.value=this.value.replace(/\D/g,'');billAutoFillName(this.value)">
+    </div>
+    <div class="ifield">
+      <label>Customer Name &nbsp;<span id="bill-name-status" style="font-size:9px;font-weight:700;color:var(--accent)"></span></label>
+      <input type="text" id="inp-cust-name" class="fi" placeholder="Walk-in">
+    </div>
+  </div>
+
+  <!-- Offer selector — shown only when customer phone is entered -->
+  <div id="offer-selector-wrap" style="display:none;margin-bottom:10px">
+    <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">🎁 Apply Offer / Discount</label>
+    <select id="inp-offer" class="fi" onchange="applyOfferDiscount()" style="width:100%">
+      <option value="savings">💳 Savings Card (auto)</option>
+    </select>
+    <div id="offer-discount-preview" style="display:none;margin-top:5px;padding:6px 10px;background:rgba(0,122,86,.1);border:1px solid rgba(0,122,86,.25);border-radius:var(--rs);font-size:12px;font-weight:700;color:var(--accent)"></div>
+  </div>
+
+  <!-- Payment: PhonePe + Cash with separate tips -->
+  <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin-bottom:6px">
+    <div class="ifield"><label>PhonePe (₹)</label><input type="number" id="inp-ph" placeholder="0" min="0" inputmode="numeric" oninput="applyOfferDiscount()"></div>
+    <div class="ifield"><label>Cash (₹)</label><input type="number" id="inp-cash" placeholder="0" min="0" inputmode="numeric" oninput="applyOfferDiscount()"></div>
+    <button class="btn-add" onclick="addBill()" title="Add">+</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px">
+    <div class="ifield"><label style="color:rgba(232,166,66,.8)">PhonePe Tip (₹)</label><input type="number" id="inp-ph-tip" placeholder="0" min="0" inputmode="numeric" style="border-color:rgba(232,166,66,.3)"></div>
+    <div class="ifield"><label style="color:rgba(232,166,66,.8)">Cash Tip (₹)</label><input type="number" id="inp-cash-tip" placeholder="0" min="0" inputmode="numeric" style="border-color:rgba(232,166,66,.3)"></div>
+  </div>
+
+  <div class="tot-bar" id="bill-totbar"></div>
+
+  <!-- Fix 2: Card-list layout instead of cramped table; Fix 3: "Today's Customers" -->
+  <div class="sec">Today's Customers</div>
+  <div id="bill-body"><div style="padding:24px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">No customers yet today</div></div>
+
+  <!-- EXPENSES SECTION -->
+  <div class="sec">Expenses</div>
+  <div class="counter-box expense">
+    <div class="counter-title expense">
+      <span>🧾 Expenses Today</span>
+      <span class="counter-total" id="exp-total">₹0</span>
+    </div>
+    <div class="counter-row">
+      <input type="text" class="counter-inp" id="exp-desc" placeholder="Description…" style="flex:1.5">
+      <input type="number" class="counter-inp" id="exp-amt" placeholder="₹" min="0" inputmode="numeric" style="flex:.8;min-width:68px">
+      <button class="counter-btn ex" id="exp-add-btn" onclick="addExpense()">+ Add</button>
+    </div>
+    <div id="exp-edit-hint" style="display:none;font-size:10px;color:var(--warn);margin:4px 0 2px">✏️ Editing — update fields and tap Save</div>
+    <div class="counter-log" id="exp-log"><span style="color:var(--muted2);font-style:italic">No expenses yet</span></div>
+  </div>
+</div>
+
+<!-- ════ MY SALES TAB ════ -->
+<div class="panel" id="pn-mysales">
+  <!-- Fix 3+4: Customers stats -->
+  <div class="sg" id="my-stats"></div>
+
+  <!-- Fix 3: Mutually exclusive filter — Day Range OR Month -->
+  <div class="sec">Filter</div>
+  <div class="filter-toggle">
+    <button class="ft-btn on" id="ft-day" onclick="setFilterMode('day')">📅 Day / Range</button>
+    <button class="ft-btn"    id="ft-mon" onclick="setFilterMode('month')">📆 Month</button>
+    <button class="btn-sm" onclick="clearAllFilters()" style="flex-shrink:0">Clear</button>
+  </div>
+  <div id="filter-day-inputs" class="filter-row" style="margin-bottom:10px">
+    <div class="ifield" style="flex:1"><label>From</label><input type="date" id="ms-from" onchange="renderMySalesTable()"></div>
+    <div class="ifield" style="flex:1"><label>To</label><input type="date" id="ms-to" onchange="renderMySalesTable()"></div>
+  </div>
+  <div id="filter-month-inputs" style="display:none;margin-bottom:10px">
+    <div class="ifield"><label>Month</label><input type="month" id="ms-month" onchange="onMonthFilter()"></div>
+  </div>
+
+  <!-- Fix 7: "Summary" section heading -->
+  <div id="summary-box" style="display:none">
+    <div class="sec">Summary</div>
+    <div class="summary-box" id="summary-inner"></div>
+  </div>
+
+  <!-- Fix 2: Card-list layout for entries -->
+  <div class="sec">Entries</div>
+  <div id="ms-body"><div style="padding:24px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">Loading…</div></div>
+</div>
+
+<!-- ════ SCAN QR TAB ════ (Fix 6: real camera scan) -->
+<div class="panel" id="pn-scan">
+  <!-- Camera QR reader -->
+  <div class="qr-video-wrap" id="qrVideoWrap">
+    <video id="qrVideo" autoplay playsinline muted></video>
+    <div class="qr-overlay"><div class="qr-frame"></div></div>
+  </div>
+
+  <div class="scan-box" id="scanTrigger" onclick="startQRScan()">
+    <div class="sc-corners"><div class="sc-i"></div><div class="scan-line"></div></div>
+    <div style="font-size:14px;font-weight:700">📷 Tap to Open Camera & Scan</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:5px">Scans customer QR code automatically</div>
+  </div>
+  <button class="btn-sm" id="stopScanBtn" style="display:none;width:100%;margin-bottom:10px;color:var(--danger);border-color:rgba(224,112,112,.3)" onclick="stopQRScan()">✕ Stop Camera</button>
+
+  <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px">— or enter card code manually —</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <input type="text" class="fi" id="scanCode" placeholder="e.g. BB-2841" style="flex:1">
+    <button class="btn-sm" onclick="doScanManual()">Find</button>
+  </div>
+  <div id="scanResult"></div>
+  <canvas id="qrCanvas" style="display:none"></canvas>
+</div>
+
+<!-- ════ STYLE CARD TAB ════ -->
+<div class="panel" id="pn-style">
+  <div class="sec">New Haircut Blueprint</div>
+  <div style="background:rgba(46,196,160,.1);border:1px solid rgba(46,196,160,.25);border-radius:var(--rs);padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;gap:9px">
+    <span style="font-size:16px">✂️</span>
+    <div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">Creating as Barber</div>
+      <div style="font-size:14px;font-weight:800;color:var(--accent)" id="styleBarberName">—</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Customer Info</div>
+    <!-- Fix 9: Customer Name added -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
+      <div class="ifield"><label>Customer Name</label><input type="text" class="fi" id="csCustName" placeholder="Customer name" list="cust-name-list"><datalist id="cust-name-list"></datalist></div>
+      <div class="ifield"><label>Phone *</label><input type="tel" class="fi" id="csPhone" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'');autoFillCustName(this.value)"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:0">
+      <div class="ifield"><label>Style Name *</label><input type="text" class="fi" id="csName" placeholder="e.g. Classic Fade"></div>
+      <div class="ifield"><label>Top Length</label><select class="fi" id="csTop"><option>½ inch</option><option>1 inch</option><option selected>2 inches</option><option>2.5 inches</option><option>3 inches</option><option>3+ inches</option></select></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Style Details</div>
+    <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Top Texture</div>
+      <div class="cg" id="cg-tex">
+        <div class="cchip on" data-val="Blunt" onclick="sc(this,'cg-tex')">Blunt</div>
+        <div class="cchip" data-val="Layered" onclick="sc(this,'cg-tex')">Layered</div>
+        <div class="cchip" data-val="Textured" onclick="sc(this,'cg-tex')">Textured</div>
+        <div class="cchip" data-val="Messy" onclick="sc(this,'cg-tex')">Messy</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Fade Type</div>
+      <div class="cg" id="cg-fade">
+        <div class="cchip" data-val="Low Fade" onclick="sc(this,'cg-fade')">Low Fade</div>
+        <div class="cchip on" data-val="Mid Fade" onclick="sc(this,'cg-fade')">Mid Fade</div>
+        <div class="cchip" data-val="High Fade" onclick="sc(this,'cg-fade')">High Fade</div>
+        <div class="cchip" data-val="Taper" onclick="sc(this,'cg-fade')">Taper</div>
+        <div class="cchip" data-val="Skin Fade" onclick="sc(this,'cg-fade')">Skin Fade</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Guard Numbers</div>
+      <div class="cg" id="cg-grd">
+        <div class="cchip" data-val="#0" onclick="sc(this,'cg-grd')">#0</div>
+        <div class="cchip" data-val="#0.5" onclick="sc(this,'cg-grd')">#0.5</div>
+        <div class="cchip" data-val="#1" onclick="sc(this,'cg-grd')">#1</div>
+        <div class="cchip on" data-val="#2" onclick="sc(this,'cg-grd')">#2</div>
+        <div class="cchip" data-val="#3" onclick="sc(this,'cg-grd')">#3</div>
+        <div class="cchip" data-val="#4" onclick="sc(this,'cg-grd')">#4</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Neckline</div>
+      <div class="cg" id="cg-nck">
+        <div class="cchip on" data-val="Natural" onclick="sc(this,'cg-nck')">Natural</div>
+        <div class="cchip" data-val="Tapered" onclick="sc(this,'cg-nck')">Tapered</div>
+        <div class="cchip" data-val="Blocked" onclick="sc(this,'cg-nck')">Blocked</div>
+        <div class="cchip" data-val="Rounded" onclick="sc(this,'cg-nck')">Rounded</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Beard Style</div>
+      <div class="cg" id="cg-brd">
+        <div class="cchip" data-val="Clean Shave" onclick="sc(this,'cg-brd')">Clean Shave</div>
+        <div class="cchip on" data-val="Stubble" onclick="sc(this,'cg-brd')">Stubble</div>
+        <div class="cchip" data-val="Short Beard" onclick="sc(this,'cg-brd')">Short Beard</div>
+        <div class="cchip" data-val="Full Beard" onclick="sc(this,'cg-brd')">Full Beard</div>
+      </div>
+    </div>
+    <div class="ifield"><label>Styling Product</label>
+      <select class="fi" id="csProduct"><option>None</option><option>Matte Pomade</option><option>Clay</option><option>Wax</option><option>Mousse</option><option>Sea Salt Spray</option></select>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Barber Notes</div>
+    <textarea class="fi" id="csNotes" placeholder="Cowlick, parting, special notes…" style="resize:vertical;min-height:64px"></textarea>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Zone Blueprint <span style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(tap each zone)</span></div>
+    <div class="zones">
+      <div class="zc lit" data-z="fr" onclick="openZone('fr','Front')"><div class="zc-l">Front</div><div class="zc-v" id="zv-fr">2"</div></div>
+      <div class="zc lit" data-z="to" onclick="openZone('to','Top')"><div class="zc-l">Top</div><div class="zc-v" id="zv-to">2"</div></div>
+      <div class="zc" data-z="le" onclick="openZone('le','Left')"><div class="zc-l">Left</div><div class="zc-v" id="zv-le">#2</div></div>
+      <div class="zc" data-z="cr" onclick="openZone('cr','Crown')"><div class="zc-l">Crown</div><div class="zc-v" id="zv-cr">1.5"</div></div>
+      <div class="zc" data-z="ri" onclick="openZone('ri','Right')"><div class="zc-l">Right</div><div class="zc-v" id="zv-ri">#2</div></div>
+      <div class="zc" data-z="ba" onclick="openZone('ba','Back')"><div class="zc-l">Back</div><div class="zc-v" id="zv-ba">#1.5</div></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">Reference Photos <span style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(tap to capture)</span></div>
+    <div class="ph-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div class="ps" id="ps-front"     onclick="openCam('front')"><span style="font-size:20px">📷</span><span>Front</span></div>
+      <div class="ps" id="ps-back"      onclick="openCam('back')"><span style="font-size:20px">📷</span><span>Back</span></div>
+      <div class="ps" id="ps-left"      onclick="openCam('left')"><span style="font-size:20px">📷</span><span>Left Side</span></div>
+      <div class="ps" id="ps-right"     onclick="openCam('right')"><span style="font-size:20px">📷</span><span>Right Side</span></div>
+      <div class="ps" id="ps-top"       onclick="openCam('top')"><span style="font-size:20px">📷</span><span>Top</span></div>
+    </div>
+    <input type="file" id="fi-front" accept="image/*" style="display:none" onchange="handleFile(this,'front')">
+    <input type="file" id="fi-back"  accept="image/*" style="display:none" onchange="handleFile(this,'back')">
+    <input type="file" id="fi-left"  accept="image/*" style="display:none" onchange="handleFile(this,'left')">
+    <input type="file" id="fi-right" accept="image/*" style="display:none" onchange="handleFile(this,'right')">
+    <input type="file" id="fi-top"   accept="image/*" style="display:none" onchange="handleFile(this,'top')">
+  </div>
+  <div id="card-save-status" style="display:none;margin-bottom:10px"></div>
+  <button class="btn-primary" id="saveCardBtn" onclick="saveCard()">✓ Save Style Card</button>
+</div>
+
+<!-- ════ MY PROFILE TAB ════ -->
+<div class="panel" id="pn-profile">
+
+  <!-- Fix 2: Medium-size calendar with month navigation filter -->
+  <div class="profile-section">
+    <div class="profile-section-title">
+      <span>📅 Attendance</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button onclick="shiftAttMonth(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
+        <span id="att-month-label" style="font-size:12px;font-weight:700;color:var(--white);min-width:80px;text-align:center"></span>
+        <button onclick="shiftAttMonth(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
+      </div>
+    </div>
+    <!-- Day-of-week headers -->
+    <div style="display:grid;grid-template-columns:repeat(7,24px);gap:3px;margin-bottom:2px">
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">S</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">M</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">T</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">W</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">T</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">F</div>
+      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase">S</div>
+    </div>
+    <div class="att-mini-cal" id="att-calendar"></div>
+    <div class="att-stat-row">
+      <div class="att-stat-pill"><div class="asp-num" style="color:var(--accent)" id="att-present">0</div><div class="asp-lbl" style="color:var(--accent)">Present</div></div>
+      <div class="att-stat-pill"><div class="asp-num" style="color:#F97316"        id="att-half">0</div><div class="asp-lbl" style="color:#F97316">Half Day</div></div>
+      <div class="att-stat-pill"><div class="asp-num" style="color:var(--danger)" id="att-absent">0</div><div class="asp-lbl" style="color:var(--danger)">Absent</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:5px;font-size:8px">
+      <span style="color:var(--accent)">■ Present</span>
+      <span style="color:#F97316">■ Half Day</span>
+      <span style="color:var(--danger)">■ Absent</span>
+    </div>
+    <div id="att-day-detail"></div>
+  </div>
+  <input type="month" id="att-month" style="display:none">
+
+  <!-- Fix 10b: Advance Capture -->
+  <div class="profile-section">
+    <div class="profile-section-title"><span>💳 Advance Taken</span></div>
+    <div style="display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap">
+      <input type="date" class="fi" id="adv-date" style="flex:1.5;min-width:120px">
+      <input type="number" class="fi" id="adv-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:1;min-width:80px">
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button id="adv-mode-cash" onclick="setAdvMode('cash')" style="flex:1;padding:8px;border-radius:var(--rs);border:1.5px solid var(--green);background:rgba(0,196,140,.15);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">💵 Cash</button>
+      <button id="adv-mode-phonePe" onclick="setAdvMode('phonePe')" style="flex:1;padding:8px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">📱 PhonePe</button>
+      <button class="btn-sm" onclick="addAdvance()" style="color:var(--purple);border-color:rgba(155,127,212,.4)">+ Add</button>
+    </div>
+    <div id="adv-log"></div>
+  </div>
+
+  <!-- Fix 10c-vi: Net Salary Calculation -->
+  <div class="profile-section">
+    <div class="profile-section-title">
+      <span>💰 Salary Calculator</span>
+      <input type="month" id="sal-month" class="fi" style="width:auto;padding:4px 8px;font-size:12px" onchange="renderSalary()">
+    </div>
+    <div id="salary-breakdown"></div>
+  </div>
+</div>
+
+<!-- ════ SETTINGS TAB ════ -->
+
+<!-- ZONE MODAL -->
+<div class="modal-bg" id="zoneModal" onclick="if(event.target===this)closeModal('zoneModal')">
+  <div class="modal-sheet">
+    <div class="modal-hdr"><h3>Set Zone: <span id="zoneName" style="color:var(--accent)"></span></h3><button class="btn-close" onclick="closeModal('zoneModal')">✕</button></div>
+    <div class="ifield"><label>Length / Technique</label><input type="text" class="fi" id="zoneInput" placeholder='e.g. 2", #2, Skin Fade…'></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('zoneModal')">Cancel</button>
+      <button class="btn-primary" style="flex:1;padding:11px" onclick="saveZone()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE MODAL -->
+<div class="modal-bg" id="noteModal" onclick="if(event.target===this)closeModal('noteModal')">
+  <div class="modal-sheet">
+    <div class="modal-hdr"><h3>Record Visit Note</h3><button class="btn-close" onclick="closeModal('noteModal')">✕</button></div>
+    <textarea class="fi" id="noteInput" placeholder="Notes from this session…" style="resize:vertical;min-height:80px"></textarea>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-cancel" onclick="closeModal('noteModal')">Cancel</button>
+      <button class="btn-primary" style="flex:1;padding:11px" onclick="saveNote()">✓ Record Visit</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div class="cam-modal" id="camModal">
+  <div style="position:relative;flex:1">
+    <video id="camVideo" autoplay playsinline></video>
+    <div class="cam-lbl" id="camLbl">FRONT VIEW</div>
+    <canvas id="camCanvas" style="display:none"></canvas>
+  </div>
+  <div class="cam-ctrl">
+    <button class="cam-btn cam-side" onclick="closeCam()">✕</button>
+    <button class="cam-btn cam-cap" onclick="capturePhoto()">⬤</button>
+    <button class="cam-btn cam-side" onclick="flipCam()">🔄</button>
+  </div>
+</div>
+
+<div class="toast-el" id="toastEl"></div>
+
+<script>
+
+// ════════════════════════════════════════════════════════════════
+//  BUDGET BARBER — SUPABASE DATA LAYER  (shared across all pages)
+//  Replace placeholders before deploying:
+//    YOUR_SUPABASE_URL   →  https://xxxx.supabase.co
+//    YOUR_SUPABASE_ANON_KEY  →  eyJ...
+// ════════════════════════════════════════════════════════════════
+
+var SUPA_URL  = 'https://socgmrzzovpqaekpsklv.supabase.co';
+var SUPA_KEY  = 'sb_publishable_l48tcr0wuHPZCrMuDtj-pQ_dXZtgyrj';
+
+// ── Low-level REST helpers ──────────────────────────────────────
+function _supaHeaders(){
+  return {
+    'Content-Type':  'application/json',
+    'apikey':        SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Prefer':        'return=representation'
+  };
+}
+
+function _supaFetch(path, opts){
+  return fetch(SUPA_URL + '/rest/v1/' + path, Object.assign({
+    headers: _supaHeaders()
+  }, opts)).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
+    var ct = r.headers.get('content-type')||'';
+    return ct.indexOf('application/json') !== -1 ? r.json() : [];
+  });
+}
+
+// ── CRUD wrappers ───────────────────────────────────────────────
+// SELECT  — table, optional query-string filters e.g. "salonId=eq.S1&role=eq.barber"
+function sbSelect(table, qs){
+  return _supaFetch(table + (qs ? '?' + qs : ''), { method:'GET' });
+}
+
+// INSERT single row — returns the new row
+function sbInsert(table, row){
+  return _supaFetch(table, { method:'POST', body: JSON.stringify(row) })
+    .then(function(rows){ return Array.isArray(rows) ? rows[0] : rows; });
+}
+
+// UPSERT — insert or update by id
+function sbUpsert(table, row){
+  return _supaFetch(table + '?on_conflict=id', {
+    method: 'POST',
+    headers: Object.assign(_supaHeaders(), { 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+    body: JSON.stringify(row)
+  }).then(function(rows){ return Array.isArray(rows) ? rows[0] : rows; });
+}
+
+// UPDATE by id
+function sbUpdate(table, id, patch){
+  return _supaFetch(table + '?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    body: JSON.stringify(patch)
+  }).then(function(rows){ return Array.isArray(rows) ? rows[0] : rows; });
+}
+
+// DELETE by id
+function sbDelete(table, id){
+  return _supaFetch(table + '?id=eq.' + encodeURIComponent(id), { method:'DELETE' });
+}
+
+// ── Named table accessors (mirrors old sheet names) ─────────────
+// Each returns a Promise
+
+var SB = {
+  // ─ READ ALL (used for bootstrap cache) ─
+  readAll: function(){
+    return Promise.all([
+      sbSelect('staff'),
+      sbSelect('salons'),
+      sbSelect('customers'),
+      sbSelect('entries'),
+      sbSelect('cash_in'),
+      sbSelect('expenses'),
+      sbSelect('attendance'),
+      sbSelect('style_cards'),
+      sbSelect('visits'),
+      sbSelect('advances'),
+      sbSelect('mgr_cash_in'),
+      sbSelect('mgr_expenses'),
+      sbSelect('deductions'),
+      sbSelect('att_overrides')
+    ]).then(function(results){
+      return {
+        staff:        results[0]  || [],
+        salons:       results[1]  || [],
+        customers:    results[2]  || [],
+        entries:      results[3]  || [],
+        cashIn:       results[4]  || [],
+        expenses:     results[5]  || [],
+        attendance:   results[6]  || [],
+        styleCards:   results[7]  || [],
+        visits:       results[8]  || [],
+        advances:     results[9]  || [],
+        mgrCashIn:    results[10] || [],
+        mgrExpenses:  results[11] || [],
+        deductions:   results[12] || [],
+        attOverrides: results[13] || []
+      };
+    });
+  },
+
+  // ─ ENTRIES ─
+  insertEntry:  function(r){ return sbInsert('entries', r); },
+  updateEntry:  function(r){ return sbUpdate('entries', r.id, r); },
+  deleteEntry:  function(id){ return sbDelete('entries', id); },
+
+  // ─ STAFF ─
+  insertStaff:  function(r){ return sbInsert('staff', r); },
+  updateStaff:  function(r){ return sbUpdate('staff', r.id, r); },
+  deleteStaff:  function(id){ return sbDelete('staff', id); },
+
+  // ─ SALONS ─
+  insertSalon:  function(r){ return sbInsert('salons', r); },
+  updateSalon:  function(r){ return sbUpdate('salons', r.id, r); },
+  deleteSalon:  function(id){ return sbDelete('salons', id); },
+
+  // ─ CUSTOMERS ─
+  insertCustomer: function(r){ return sbInsert('customers', r); },
+  updateCustomer: function(r){ return sbUpdate('customers', r.id, r); },
+  deleteCustomer: function(id){ return sbDelete('customers', id); },
+
+  // ─ CASH IN ─
+  insertCashIn: function(r){ return sbInsert('cash_in', r); },
+
+  // ─ EXPENSES ─
+  insertExpense: function(r){ return sbInsert('expenses', r); },
+
+  // ─ ATTENDANCE ─
+  insertAttendance: function(r){ return sbInsert('attendance', r); },
+
+  // ─ STYLE CARDS ─
+  insertStyleCard: function(r){ return sbInsert('style_cards', r); },
+  updateStyleCard: function(r){ return sbUpdate('style_cards', r.id, r); },
+
+  // ─ VISITS ─
+  insertVisit: function(r){ return sbInsert('visits', r); },
+
+  // ─ ADVANCES ─
+  insertAdvance: function(r){ return sbInsert('advances', r); },
+
+  // ─ MANAGER CASH IN ─
+  insertMgrCashIn: function(r){ return sbInsert('mgr_cash_in', r); },
+
+  // ─ MANAGER EXPENSES ─
+  insertMgrExpense: function(r){ return sbInsert('mgr_expenses', r); },
+
+  // ─ DEDUCTIONS ─
+  upsertDeductions: function(staffId, month, items){
+    // delete existing then insert new
+    return _supaFetch('deductions?staff_id=eq.'+encodeURIComponent(staffId)+'&month=eq.'+encodeURIComponent(month),{method:'DELETE'})
+      .then(function(){
+        if(!items||!items.length) return [];
+        var rows = items.map(function(d){ return {staff_id:staffId,month:month,desc:d.desc,amount:d.amount}; });
+        return sbInsert('deductions', rows);
+      });
+  },
+
+  // ─ ATT OVERRIDES ─
+  upsertAttOverride: function(staffId, month, obj){
+    return _supaFetch('att_overrides?staff_id=eq.'+encodeURIComponent(staffId)+'&month=eq.'+encodeURIComponent(month),{method:'DELETE'})
+      .then(function(){
+        return sbInsert('att_overrides',{staff_id:staffId,month:month,present:obj.present,half:obj.half,absent:obj.absent});
+      });
+  }
+};
+
+// ── Bootstrap: load all data → localStorage, then call cb ───────
+// Advances are MERGED so locally-saved entries are never lost before Supabase insert completes.
+function supaBootstrap(onDone, onError){
+  // Snapshot local advances BEFORE any clearing
+  var localAdv = LS.get('advances') || [];
+  SB.readAll().then(function(data){
+    ['entries','staff','salons','customers','cashIn','expenses',
+     'attendance','styleCards','visits','advances','mgrCashIn','mgrExpenses'].forEach(function(k){
+      localStorage.removeItem('bb_'+k);
+    });
+    applyRestoredData(data);
+    // Merge back any local advances whose ts is not yet in Supabase
+    var remoteAdv = LS.get('advances') || [];
+    var remoteTsSet = {};
+    remoteAdv.forEach(function(r){ if(r.ts) remoteTsSet[String(r.ts)] = true; });
+    var merged = remoteAdv.slice();
+    localAdv.forEach(function(r){
+      if(r.ts && !remoteTsSet[String(r.ts)]) merged.push(r);
+    });
+    if(merged.length !== remoteAdv.length) LS.set('advances', merged);
+    if(onDone) onDone(data);
+  }).catch(function(err){
+    console.warn('[BB] Supabase fetch failed, using cached data:', err);
+    if(onError) onError(err);
+  });
+}
+
+// ── applyRestoredData — writes supabase data into localStorage ──
+// (identical shape to old Google Sheets restore — keeps all app
+//  render functions working without change)
+function applyRestoredData(d){
+  function toStr(r, keys){
+    keys.forEach(function(k){ if(r[k]!==undefined&&r[k]!==null) r[k]=String(r[k]); });
+    return r;
+  }
+  if(d.entries      && d.entries.length)      LS.set('entries',      d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
+  if(d.staff        && d.staff.length)         LS.set('staff',        d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
+  if(d.salons       && d.salons.length)        LS.set('salons',       d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.customers    && d.customers.length)     LS.set('customers',    d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
+  if(d.cashIn       && d.cashIn.length)        LS.set('cashIn',       d.cashIn.map(function(r){return toStr(r,['barberId']);}));
+  if(d.expenses     && d.expenses.length)      LS.set('expenses',     d.expenses.map(function(r){return toStr(r,['barberId']);}));
+  if(d.attendance   && d.attendance.length)    LS.set('attendance',   d.attendance.map(function(r){return toStr(r,['barberId']);}));
+  if(d.styleCards   && d.styleCards.length)    LS.set('styleCards',   d.styleCards.map(function(r){return toStr(r,['id','customerId','barberId','salonId']);}));
+  if(d.visits       && d.visits.length)        LS.set('visits',       d.visits.map(function(r){return toStr(r,['id','customerId','barberId','salonId']);}));
+  if(d.advances     && d.advances.length)      LS.set('advances',     d.advances.map(function(r){return toStr(r,['barberId']);}));
+  if(d.mgrCashIn    && d.mgrCashIn.length)     LS.set('mgrCashIn',    d.mgrCashIn.map(function(r){return toStr(r,['managerId','salonId']);}));
+  if(d.mgrExpenses  && d.mgrExpenses.length)   LS.set('mgrExpenses',  d.mgrExpenses.map(function(r){return toStr(r,['managerId','salonId']);}));
+  if(d.deductions   && d.deductions.length){
+    var dg={};
+    d.deductions.forEach(function(r){
+      var k='ded_'+(r.staff_id||r.staffId)+'_'+r.month;
+      if(!dg[k])dg[k]=[];
+      dg[k].push({desc:r.desc,amount:r.amount});
+    });
+    Object.keys(dg).forEach(function(k){LS.set(k,dg[k]);});
+  }
+  if(d.attOverrides && d.attOverrides.length){
+    d.attOverrides.forEach(function(r){
+      LS.set('att_'+(r.staff_id||r.staffId)+'_'+r.month,{present:r.present,half:r.half,absent:r.absent});
+    });
+  }
+}
+
+// ── Compatibility shims (replaces JSONP functions) ───────────────
+// These match the exact call signatures used throughout all app files
+// so zero changes needed in business logic.
+
+function appendRowToSheet(sheetName, rowObj, onDone){
+  var tbl = _sheetToTable(sheetName);
+  if(!tbl){ if(onDone)onDone(false); return; }
+  sbInsert(tbl, rowObj)
+    .then(function(){ if(onDone)onDone(true); })
+    .catch(function(e){ console.warn('[BB] insert '+tbl, e); if(onDone)onDone(false); });
+}
+
+function updateRowInSheet(sheetName, rowObj, onDone){
+  var tbl = _sheetToTable(sheetName);
+  if(!tbl||!rowObj.id){ if(onDone)onDone(false); return; }
+  sbUpdate(tbl, rowObj.id, rowObj)
+    .then(function(){ if(onDone)onDone(true); })
+    .catch(function(e){ console.warn('[BB] update '+tbl, e); if(onDone)onDone(false); });
+}
+
+function deleteRowFromSheet(sheetName, id, onDone){
+  var tbl = _sheetToTable(sheetName);
+  if(!tbl){ if(onDone)onDone(false); return; }
+  sbDelete(tbl, id)
+    .then(function(){ if(onDone)onDone(true); })
+    .catch(function(e){ console.warn('[BB] delete '+tbl, e); if(onDone)onDone(false); });
+}
+
+function fetchSheetRows(sheetName, filters, onDone){
+  var tbl = _sheetToTable(sheetName);
+  if(!tbl){ onDone([]); return; }
+  var qs = '';
+  if(filters) qs = Object.keys(filters).map(function(k){ return k+'=eq.'+encodeURIComponent(filters[k]); }).join('&');
+  sbSelect(tbl, qs)
+    .then(function(rows){ onDone(rows||[]); })
+    .catch(function(){ onDone([]); });
+}
+
+function fetchFromSheets(url, onSuccess, onError){
+  // url param ignored — we always use Supabase
+  SB.readAll()
+    .then(function(data){ onSuccess(data); })
+    .catch(function(err){ onError(err&&err.message?err.message:String(err)); });
+}
+
+// Map Google Sheets tab names → Supabase table names
+function _sheetToTable(name){
+  var map = {
+    'Entries':      'entries',
+    'Staff':        'staff',
+    'Salons':       'salons',
+    'Customers':    'customers',
+    'CashIn':       'cash_in',
+    'Expenses':     'expenses',
+    'Attendance':   'attendance',
+    'StyleCards':   'style_cards',
+    'Visits':       'visits',
+    'Advances':     'advances',
+    'MgrCashIn':    'mgr_cash_in',
+    'MgrExpenses':  'mgr_expenses',
+    'Deductions':   'deductions',
+    'AttOverrides': 'att_overrides'
+  };
+  return map[name] || null;
+}
+
+var SESSION_PHONE = sessionStorage.getItem('bb_phone');
+var SESSION_ROLE  = sessionStorage.getItem('bb_role');
+if (!SESSION_PHONE || SESSION_ROLE !== 'barber') { window.location.href = 'solo-login-stylist.html'; }
+
+// ── STORAGE ──
+var LS = {
+  get: function(k){ try{ return JSON.parse(localStorage.getItem('bb_'+k)); } catch(e){ return null; } },
+  set: function(k,v){ try{ localStorage.setItem('bb_'+k,JSON.stringify(v)); return true; } catch(e){ return false; } }
+};
+
+// ── Fix 11: Updated Services List ──
+var SERVICES_LIST = [
+  {code:'H',  label:'Haircut'},
+  {code:'S',  label:'Shave'},
+  {code:'T',  label:'Trim'},
+  {code:'CB', label:'Combo'},
+  {code:'HM', label:'Head Massage'},
+  {code:'F',  label:'Facial'},
+  {code:'C',  label:'Colour'},
+  {code:'B',  label:'Beard'},
+  {code:'D',  label:'Detan'},
+  {code:'HSpa',label:'Hair Spa'},
+  {code:'FS', label:'Face Scrub'},
+  {code:'HS', label:'Hair Styling'},
+  {code:'Oth', label:'Others'}
+];
+var selectedSvcs = [];
+// ── HELPERS ──
+function today()    { return new Date().toLocaleDateString('en-IN'); }
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+function fmtINR(n)  { return '₹'+Number(n||0).toLocaleString('en-IN'); }
+function getEntries()  { return LS.get('entries')  || []; }
+function filterByDate(entries, ds) {
+  if (!ds) return entries;
+  var p = ds.split('-'); var local = parseInt(p[2])+'/'+parseInt(p[1])+'/'+p[0];
+  return entries.filter(function(e){ return e.date===local; });
+}
+function filterByMonth(entries, mo) {
+  if (!mo) return entries;
+  var p = mo.split('-');
+  return entries.filter(function(e){
+    var d=(e.date||'').split('/');
+    return parseInt(d[1])===parseInt(p[1]) && parseInt(d[2])===parseInt(p[0]);
+  });
+}
+function isoToLocal(ds) {
+  if (!ds) return '';
+  var p=ds.split('-'); return parseInt(p[2])+'/'+parseInt(p[1])+'/'+p[0];
+}
+function localToISO(ds) {
+  if (!ds) return '';
+  var p=ds.split('/');
+  return p[2]+'-'+(p[1].length<2?'0':'')+p[1]+'-'+(p[0].length<2?'0':'')+p[0];
+}
+function svcIcon(services) {
+  if (!services) return '✂️';
+  var s = services.toLowerCase();
+  if (s.includes('colour') || s.includes('color')) return '🎨';
+  if (s.includes('facial') || s.includes('scrub')) return '💆';
+  if (s.includes('spa') || s.includes('massage')) return '🧖';
+  if (s.includes('beard')) return '🧔';
+  if (s.includes('combo')) return '✂️💈';
+  return '✂️';
+}
+// ── INIT ──
+var ME = null;
+// ── AUTO-LOAD FROM SUPABASE ON START ──
+(function autoLoad(){
+  supaBootstrap(
+    function(data){
+      try{ renderDash();  } catch(e){}
+      try{ renderSales(); } catch(e){}
+      try{ init();        } catch(e){}
+    },
+    function(err){
+      console.warn('[BB] Supabase auto-load failed, using cached data:', err);
+    }
+  );
+})();
+
+
+(function(){
+  var staff=LS.get('staff')||[];
+  for(var i=0;i<staff.length;i++){
+    if(staff[i].phone===SESSION_PHONE && staff[i].role==='barber'){ ME=staff[i]; break; }
+  }
+  if(!ME){
+    // No staff record found — device needs to restore from Google Sheets
+    // Show setup prompt instead of creating a ghost account
+    document.getElementById('app-content').style.display='none';
+      }
+// ── BRANDING ──
+function loadSalonBranding(salonId){
+  if(!salonId) return;
+  sbSelect('salon_branding','salon_id=eq.'+encodeURIComponent(salonId))
+    .then(function(rows){
+      if(!rows||!rows.length) return;
+      var b=rows[0];
+      var logoEl=document.getElementById('topbarLogo');
+      if(b.logo_url && logoEl){
+        logoEl.innerHTML='<img src="'+b.logo_url+'" alt="Logo" style="height:28px;max-width:80px;object-fit:contain;border-radius:4px">';
+      } else if(b.salon_name && logoEl){
+        document.getElementById('topbarLogoText').textContent=(b.salon_name||'SP').substring(0,4);
+      }
+      if(b.primary_color){
+        document.documentElement.style.setProperty('--accent',b.primary_color);
+        document.documentElement.style.setProperty('--accent2',b.primary_color);
+      }
+    }).catch(function(){});
+}
+
+// Load branding after ME is known
+  document.getElementById('tbName').textContent    = ME.name;
+  var salons=LS.get('salons')||[];
+  var mySalon=salons.find(function(s){return s.id===ME.salonId;});
+  var mySalonName=mySalon?mySalon.name:'Salon Pro';
+  document.getElementById('tbOutlet').textContent  = '📍 '+mySalonName;
+  document.getElementById('styleBarberName').textContent = ME.name;
+  loadSalonBranding(ME.salonId);
+
+  // Build service chips
+  var chipsEl=document.getElementById('svc-chips');
+  SERVICES_LIST.forEach(function(s){
+    var btn=document.createElement('button');
+    btn.className='chip';
+    btn.innerHTML='<span class="chip-code">'+s.code+'</span> '+s.label;
+    btn.setAttribute('data-code',s.code);
+    btn.onclick=function(){ toggleSvc(s.code); };
+    chipsEl.appendChild(btn);
+  });
+
+  document.getElementById('ms-from').value = todayISO();
+  document.getElementById('ms-to').value   = todayISO();
+  document.getElementById('att-month').value = new Date().toISOString().slice(0,7);
+  document.getElementById('sal-month').value = new Date().toISOString().slice(0,7);
+  document.getElementById('adv-date').value  = todayISO();
+  setAdvMode('cash');
+  renderBilling();
+  renderAttBtnWrap();
+})();
+function showTab(tab){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pn-'+tab).classList.add('on');
+  document.getElementById('nt-'+tab).classList.add('on');
+  if(tab==='billing'){
+      supaBootstrap(function(){
+        renderBilling(); renderCashCounter(); renderExpenseCounter(); renderAttBtnWrapBilling();
+      }, function(){
+        renderBilling(); renderCashCounter(); renderExpenseCounter(); renderAttBtnWrapBilling();
+      });
+    }
+    if(tab==='mysales'){
+      // Always reset to today when opening tab
+      var fromEl = document.getElementById('ms-from');
+      var toEl   = document.getElementById('ms-to');
+      if(fromEl) fromEl.value = todayISO();
+      if(toEl)   toEl.value   = todayISO();
+      // Fetch fresh from Supabase then render
+      supaBootstrap(function(){
+        renderMySales();
+      }, function(){
+        renderMySales();
+      });
+    }
+    if(tab==='scan'){ supaBootstrap(function(){ stopQRScan(); document.getElementById('scanResult').innerHTML=''; document.getElementById('scanCode').value=''; },function(){}); }
+    if(tab==='profile'){
+      var curMo = new Date().toISOString().slice(0,7);
+      var salEl = document.getElementById('sal-month');
+      var attEl = document.getElementById('att-month');
+      if(salEl && !salEl.value) salEl.value = curMo;
+      if(attEl && !attEl.value) attEl.value = curMo;
+      // Render immediately from local cache so fresh advances are visible
+      renderAttendance();
+      renderAdvanceLog();
+      renderSalary();
+      // Background sync — merge remote advances with local (don't wipe local)
+      SB.readAll().then(function(data){
+        // Merge advances: keep all local entries, add any remote ones not present locally
+        var localAdv = LS.get('advances') || [];
+        var remoteAdv = (data.advances || []).map(function(r){
+          return {date:r.date,amount:Number(r.amount||0),barberId:String(r.barberId||r.barber_id||''),ts:r.ts||0,mode:r.mode||'cash',id:r.id};
+        });
+        var localTs = {};
+        localAdv.forEach(function(r){ if(r.ts) localTs[r.ts]=true; });
+        remoteAdv.forEach(function(r){
+          if(r.ts && !localTs[r.ts]) localAdv.push(r);
+        });
+        LS.set('advances', localAdv);
+        // Update other tables normally
+        if(data.staff&&data.staff.length) LS.set('staff', data.staff);
+        if(data.attendance&&data.attendance.length) LS.set('attendance', data.attendance);
+        if(data.deductions&&data.deductions.length){
+          var dg={};
+          data.deductions.forEach(function(r){
+            var sid=String(r.staff_id||r.staffId||'');
+            var k='ded_'+sid+'_'+r.month;
+            if(!dg[k])dg[k]=[];
+            dg[k].push({desc:r.desc||'',amount:Number(r.amount||0)});
+          });
+          Object.keys(dg).forEach(function(k){LS.set(k,dg[k]);});
+          LS.set('deductions',data.deductions);
+        }
+        renderAttendance();
+        renderAdvanceLog();
+        renderSalary();
+      }).catch(function(){
+        // Silently ignore — already rendered from cache
+      });
+    }
+}
+
+// ── BILLING ──
+function renderBilling(){
+  renderCashCounter();
+  var my=getEntries().filter(function(e){ return e.barberId===ME.id && e.date===today(); });
+  var totPh  =my.reduce(function(a,e){return a+Number(e.phPay||0);},0);
+  var totCash=my.reduce(function(a,e){return a+Number(e.cash||0);},0);
+  var totTip =my.reduce(function(a,e){return a+Number(e.tip||0);},0);
+  var totSales=totPh+totCash;
+
+  // Clock In/Out at top of billing tab
+  renderAttBtnWrapBilling();
+
+  document.getElementById('bill-totbar').innerHTML=
+    '<div class="tot-item">Customers: <b>'+my.length+'</b></div>'+
+    '<div class="tot-item">PhonePe: <b style="color:var(--blue)">'+fmtINR(totPh)+'</b></div>'+
+    '<div class="tot-item">Cash: <b style="color:var(--green)">'+fmtINR(totCash)+'</b></div>'+
+    '<div class="tot-item">Tips: <b style="color:var(--warn)">'+fmtINR(totTip)+'</b>'+
+      (totTip>0?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(Ph: '+fmtINR(my.reduce(function(a,e){return a+Number(e.phTip||0);},0))+' | Cash: '+fmtINR(my.reduce(function(a,e){return a+Number(e.cashTip||0);},0))+')</span>':'')+
+    '</b></div>'+
+    '<div class="tot-item">Sales: <b style="color:var(--accent)">'+fmtINR(totSales)+'</b></div>';
+
+  var sel=document.getElementById('sel-area');
+  sel.innerHTML=selectedSvcs.length ?
+    selectedSvcs.map(function(s){ return '<span class="sel-tag"><span class="chip-code">'+s.code+'</span>'+s.label+' <span class="rm" onclick="removeSvc(\''+s.code+'\')">✕</span></span>'; }).join('') :
+    '<span class="sel-empty">Tap services above…</span>';
+
+  document.querySelectorAll('#svc-chips .chip').forEach(function(btn){
+    var code=btn.getAttribute('data-code');
+    btn.classList.toggle('on', !!selectedSvcs.find(function(s){return s.code===code;}));
+  });
+
+  // Today's Customers table
+  var el=document.getElementById('bill-body');
+  if(!my.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">No customers yet today</div>';
+  } else {
+    var rows=my.slice().reverse().map(function(e,i){
+      var sales=Number(e.phPay||0)+Number(e.cash||0);
+      var phTip=Number(e.phTip||0);
+      var cashTip=Number(e.cashTip||0);
+      return '<tr>'+
+        '<td class="num">'+(my.length-i)+'</td>'+
+        '<td class="tm">'+e.time+'</td>'+
+        '<td style="font-size:11px;color:var(--muted);max-width:90px;line-height:1.3">'+(e.customerName&&e.customerName!=='Walk-in'?'<span style="color:var(--white);font-weight:600">'+e.customerName+'</span><br>':'')+(e.customerPhone?e.customerPhone:'<span style="color:var(--muted2)">Walk-in</span>')+'</td>'+
+        '<td style="font-size:12px;color:var(--white);font-weight:600">'+e.services+'</td>'+
+        '<td style="font-size:10px;white-space:nowrap">'+(e.offerDiscount>0?'<span style="color:var(--accent);font-weight:700">'+e.offerName+'<br>−₹'+e.offerDiscount+'</span>':'<span style="color:var(--muted2)">—</span>')+'</td>'+
+        '<td class="ph">'+(Number(e.phPay||0)>0?fmtINR(e.phPay):'—')+'</td>'+
+        '<td class="ca">'+(Number(e.cash||0)>0?fmtINR(e.cash):'—')+'</td>'+
+        '<td class="tp">'+(phTip>0?fmtINR(phTip):'—')+'</td>'+
+        '<td class="tp">'+(cashTip>0?fmtINR(cashTip):'—')+'</td>'+
+        '<td class="tot">'+fmtINR(sales)+'</td>'+
+        '<td><button style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:0" onclick="delEntry('+e.id+')">✕</button></td>'+
+      '</tr>';
+    }).join('');
+    el.innerHTML='<div class="tbl-scroll"><table class="entry-tbl">'+
+      '<thead><tr><th>#</th><th>Time</th><th>Customer</th><th>Services</th><th>Offer</th><th>PhPay</th><th>Cash</th><th>Ph Tip</th><th>Cash Tip</th><th>Total</th><th></th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>';
+  }
+  renderCashInCounter();
+  renderExpenseCounter();
+}
+
+function toggleSvc(code){
+  var s=SERVICES_LIST.find(function(x){return x.code===code;});
+  var idx=-1; selectedSvcs.forEach(function(x,i){if(x.code===code)idx=i;});
+  if(idx>-1)selectedSvcs.splice(idx,1); else selectedSvcs.push(s);
+  renderBilling();
+}
+function removeSvc(code){toggleSvc(code);}
+
+function billAutoFillName(phone){
+  var nameEl   = document.getElementById('inp-cust-name');
+  var statusEl = document.getElementById('bill-name-status');
+  if(!nameEl) return;
+  if(phone.length < 10){
+    if(statusEl) statusEl.textContent='';
+    hideOfferSelector();
+    return;
+  }
+  // Check customers cache first
+  var customers = LS.get('customers') || [];
+  var found = customers.find(function(c){ return String(c.phone)===String(phone); });
+  if(found && found.name){
+    nameEl.value = found.name;
+    if(statusEl) statusEl.textContent = '✓ Found';
+    showOfferSelector(phone);
+    return;
+  }
+  // Fallback — check previous entries with same phone
+  var entries = getEntries().filter(function(e){
+    return e.customerPhone===phone && e.customerName && e.customerName!=='Walk-in';
+  });
+  if(entries.length){
+    nameEl.value = entries[entries.length-1].customerName;
+    if(statusEl) statusEl.textContent = '✓ Found';
+    showOfferSelector(phone);
+    return;
+  }
+  nameEl.value = '';
+  if(statusEl) statusEl.textContent = 'New';
+  showOfferSelector(phone);
+}
+
+function hideOfferSelector(){
+  var w = document.getElementById('offer-selector-wrap');
+  if(w) w.style.display='none';
+  var p = document.getElementById('offer-discount-preview');
+  if(p) p.style.display='none';
+}
+
+function showOfferSelector(phone){
+  var w = document.getElementById('offer-selector-wrap');
+  if(!w) return;
+  w.style.display='block';
+  var sel = document.getElementById('inp-offer');
+  if(!sel) return;
+  // Count past visits for savings card tier
+  var visitCount = getEntries().filter(function(e){ return e.customerPhone===phone; }).length;
+  var TIERS = [{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
+  var tier = visitCount < TIERS.length ? TIERS[visitCount] : TIERS[TIERS.length-1];
+  var savingsLabel = '💳 Savings Card — Visit '+(visitCount+1)+' → '+tier.pct+'% OFF (Min ₹299)';
+  // Rebuild options: savings card first, then active offers for this salon
+  sel.innerHTML = '<option value="savings" data-pct="'+tier.pct+'" data-minbill="299">'+savingsLabel+'</option>';
+  // Load active offers for this salon
+  var salonId = ME ? (ME.salonId||'') : '';
+  var qs = salonId
+    ? 'active=eq.true&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)&order=created_at.desc'
+    : 'active=eq.true&is_global=eq.true&order=created_at.desc';
+  sbSelect('offers', qs).then(function(offers){
+    var now = new Date();
+    (offers||[]).filter(function(o){ return !o.expires_at||new Date(o.expires_at)>now; })
+    .forEach(function(o){
+      if(!o.discount_pct) return;
+      var opt = document.createElement('option');
+      opt.value = 'offer_'+o.id;
+      opt.setAttribute('data-pct', o.discount_pct);
+      opt.setAttribute('data-minbill', o.min_billing||0);
+      opt.textContent = (o.emoji||'🎁')+' '+o.title+' — '+o.discount_pct+'% OFF'+(o.min_billing?' (Min ₹'+o.min_billing+')':'');
+      sel.appendChild(opt);
+    });
+    // Add "No offer" option at end
+    var noOpt = document.createElement('option');
+    noOpt.value = 'none'; noOpt.textContent = '— No Offer';
+    sel.appendChild(noOpt);
+    applyOfferDiscount();
+  }).catch(function(){ applyOfferDiscount(); });
+}
+
+function applyOfferDiscount(){
+  var sel = document.getElementById('inp-offer');
+  var preview = document.getElementById('offer-discount-preview');
+  if(!sel || !preview) return;
+  var selected = sel.options[sel.selectedIndex];
+  if(!selected || sel.value==='none'){
+    preview.style.display='none';
+    return;
+  }
+  var pct = parseFloat(selected.getAttribute('data-pct'))||0;
+  var minBill = parseFloat(selected.getAttribute('data-minbill'))||0;
+  if(!pct){ preview.style.display='none'; return; }
+  var ph   = parseFloat(document.getElementById('inp-ph').value)||0;
+  var cash = parseFloat(document.getElementById('inp-cash').value)||0;
+  var subtotal = ph+cash;
+  if(minBill && subtotal < minBill){
+    preview.style.display='block';
+    preview.style.background='rgba(220,53,69,.08)';
+    preview.style.borderColor='rgba(220,53,69,.25)';
+    preview.style.color='var(--danger)';
+    preview.textContent='⚠ Min billing ₹'+minBill+' required for this offer';
+    return;
+  }
+  if(subtotal>0){
+    var disc = Math.round(subtotal*pct/100);
+    preview.style.display='block';
+    preview.style.background='rgba(0,122,86,.1)';
+    preview.style.borderColor='rgba(0,122,86,.25)';
+    preview.style.color='var(--accent)';
+    preview.textContent='✓ '+pct+'% discount = −₹'+disc+' → Final: ₹'+(subtotal-disc);
+  } else {
+    preview.style.display='none';
+  }
+}
+
+function addBill(){
+  if(!selectedSvcs.length){toast('Select at least one service');return;}
+  var ph      = parseFloat(document.getElementById('inp-ph').value)||0;
+  var cash    = parseFloat(document.getElementById('inp-cash').value)||0;
+  var phTip   = parseFloat(document.getElementById('inp-ph-tip').value)||0;
+  var cashTip = parseFloat(document.getElementById('inp-cash-tip').value)||0;
+  var tip     = phTip+cashTip;
+  if(ph+cash===0){toast('Enter PhonePe or Cash amount');return;}
+  var custPhone = (document.getElementById('inp-cust-phone').value||'').trim();
+  var custName  = (document.getElementById('inp-cust-name').value||'').trim()||'Walk-in';
+
+  // Resolve offer/discount
+  var offerName='', offerPct=0, offerDiscount=0;
+  var sel = document.getElementById('inp-offer');
+  if(custPhone.length===10 && sel && sel.value!=='none'){
+    var selOpt = sel.options[sel.selectedIndex];
+    offerPct = parseFloat(selOpt.getAttribute('data-pct'))||0;
+    var minBill = parseFloat(selOpt.getAttribute('data-minbill'))||0;
+    if(offerPct>0 && (!minBill || (ph+cash)>=minBill)){
+      offerDiscount = Math.round((ph+cash)*offerPct/100);
+      offerName = selOpt.textContent.split(' — ')[0].trim();
+      // Apply discount to cash first, then phonePe
+      var rem = offerDiscount;
+      if(cash >= rem){ cash = Math.round(cash-rem); rem=0; }
+      else { rem -= cash; cash=0; ph = Math.round(ph-rem); }
+    }
+  }
+
+  var now=new Date();
+  var entry={
+    id:Date.now(),date:today(),
+    time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    barberId:ME.id,barberName:ME.name,salonId:ME.salonId,
+    services:selectedSvcs.map(function(s){return s.label;}).join(', '),
+    phPay:ph,cash:cash,tip:tip,phTip:phTip,cashTip:cashTip,
+    total:ph+cash,
+    customerName:custName,customerPhone:custPhone,
+    offerName:offerName,offerPct:offerPct,offerDiscount:offerDiscount
+  };
+  var entries=getEntries();
+  entries.push(entry);
+  LS.set('entries',entries);
+  appendRowToSheet('Entries',entry,function(ok){if(!ok)toast('⚠ Saved locally — will sync');});
+
+  // Create customer in Supabase if real phone provided and not already known
+  if(custPhone.length===10){
+    var customers = LS.get('customers')||[];
+    var existing = customers.find(function(c){ return String(c.phone)===custPhone; });
+    if(!existing){
+      var newCust = {
+        phone:      custPhone,
+        name:       custName!=='Walk-in' ? custName : 'Customer '+custPhone.slice(-4),
+        salonId:    ME.salonId,
+        role:       'customer',
+        hairType:   '', faceShape:'', density:'', growthNotes:'', loginPin:''
+      };
+      sbInsert('customers', newCust).then(function(saved){
+        var c = saved || newCust;
+        if(!c.id) c.id = 'c'+Date.now();
+        var custs = LS.get('customers')||[];
+        custs.push(c);
+        LS.set('customers', custs);
+      }).catch(function(e){ console.warn('[BB] Customer insert failed:', e); });
+    }
+  }
+
+  // Clear form
+  selectedSvcs=[];
+  document.getElementById('inp-ph').value='';
+  document.getElementById('inp-cash').value='';
+  document.getElementById('inp-ph-tip').value='';
+  document.getElementById('inp-cash-tip').value='';
+  document.getElementById('inp-cust-phone').value='';
+  document.getElementById('inp-cust-name').value='';
+  var statusEl=document.getElementById('bill-name-status');
+  if(statusEl) statusEl.textContent='';
+  hideOfferSelector();
+  var discMsg = offerDiscount>0 ? ' · 🎁 −₹'+offerDiscount+' offer' : '';
+  toast('✅ '+custName+' — '+entry.services+(tip>0?' · Tip '+fmtINR(tip):'')+discMsg);
+  renderBilling();
+}
+
+function delEntry(id){
+  if(!confirm('Delete this entry?'))return;
+  LS.set('entries', getEntries().filter(function(e){return e.id!==id;}));
+  deleteRowFromSheet('Entries',id,function(){});
+  toast('Entry deleted');
+  renderBilling();
+  if(document.getElementById('pn-mysales').classList.contains('on')) renderMySalesTable();
+}
+
+// ── CASH HANDLING REMOVED ──
+// Cash handling section removed — stubs so existing call sites don't crash
+function renderCashInCounter(){ /* removed */ }
+function renderCashCounter(){ /* removed */ }
+function addHandover(){ /* removed */ }
+function deleteHandover(ts){ /* removed */ }
+function addPrevMonthCash(){ /* removed */ }
+function deletePrevMonthCash(ts){ /* removed */ }
+function renderPrevCashLog(log){ /* removed */ }
+
+// ── EXPENSES ──
+var _editExpenseTs = null; // tracks which expense is being edited
+
+function addExpense(){
+  var desc=document.getElementById('exp-desc').value.trim();
+  var amt=parseFloat(document.getElementById('exp-amt').value)||0;
+  if(!desc){toast('Enter description');return;}
+  if(amt<=0){toast('Enter amount');return;}
+  var log=LS.get('expenses')||[];
+  if(_editExpenseTs!==null){
+    // UPDATE existing entry
+    var idx=log.findIndex(function(e){return e.ts===_editExpenseTs;});
+    if(idx>-1){
+      log[idx].desc=desc;
+      log[idx].amount=amt;
+      LS.set('expenses',log);
+    }
+    _editExpenseTs=null;
+    document.getElementById('exp-add-btn').textContent='+ Add';
+    document.getElementById('exp-add-btn').style.background='';
+    document.getElementById('exp-add-btn').style.borderColor='';
+    document.getElementById('exp-add-btn').style.color='';
+    document.getElementById('exp-edit-hint').style.display='none';
+    toast('🧾 Expense updated');
+  } else {
+    // NEW entry
+    var now=new Date();
+    var entry={desc:desc,amount:amt,time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),date:today(),barberId:String(ME.id),barber_id:String(ME.id),ts:Date.now()};
+    log.push(entry);
+    LS.set('expenses',log);
+    // Send to Supabase with both column name formats
+    sbInsert('expenses',{barber_id:String(ME.id),barberId:String(ME.id),date:entry.date,time:entry.time,desc:entry.desc,amount:entry.amount,ts:entry.ts})
+      .then(function(saved){
+        // Write back Supabase-assigned id so delete works later
+        if(saved && saved.id){
+          var cur=LS.get('expenses')||[];
+          var idx=cur.findIndex(function(r){return r.ts===entry.ts;});
+          if(idx>-1){cur[idx].id=saved.id; LS.set('expenses',cur);}
+        }
+      })
+      .catch(function(e){ console.warn('[BB] expense insert failed:',e); toast('⚠ Saved locally — sync pending'); });
+    toast('🧾 Expense recorded');
+  }
+  document.getElementById('exp-desc').value='';
+  document.getElementById('exp-amt').value='';
+  renderExpenseCounter();
+  renderCashInCounter();
+}
+
+function editExpense(ts){
+  var log=LS.get('expenses')||[];
+  var entry=log.find(function(e){return e.ts===ts;});
+  if(!entry){return;}
+  // Only allow editing today's expenses
+  if(entry.date!==today()){toast('Only today\'s expenses can be edited');return;}
+  _editExpenseTs=ts;
+  document.getElementById('exp-desc').value=entry.desc;
+  document.getElementById('exp-amt').value=entry.amount;
+  var btn=document.getElementById('exp-add-btn');
+  btn.textContent='💾 Save';
+  btn.style.background='rgba(249,115,22,.15)';
+  btn.style.borderColor='var(--orange)';
+  btn.style.color='var(--orange)';
+  document.getElementById('exp-edit-hint').style.display='block';
+  document.getElementById('exp-desc').focus();
+}
+
+function cancelEditExpense(){
+  _editExpenseTs=null;
+  document.getElementById('exp-desc').value='';
+  document.getElementById('exp-amt').value='';
+  var btn=document.getElementById('exp-add-btn');
+  btn.textContent='+ Add';
+  btn.style.background='';
+  btn.style.borderColor='';
+  btn.style.color='';
+  document.getElementById('exp-edit-hint').style.display='none';
+}
+
+function renderExpenseCounter(){
+  var log=(LS.get('expenses')||[]).filter(function(e){return e.date===today()&&String(e.barberId)===String(ME.id);});
+  var total=log.reduce(function(a,e){return a+Number(e.amount||0);},0);
+  document.getElementById('exp-total').textContent=fmtINR(total);
+  var el=document.getElementById('exp-log');
+  if(!log.length){
+    el.innerHTML='<span style="color:var(--muted2);font-style:italic">No expenses yet</span>';
+    return;
+  }
+  el.innerHTML=log.slice().reverse().map(function(e){
+    var isEditing=_editExpenseTs===e.ts;
+    return '<div class="counter-log-item" style="display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06);'+(isEditing?'background:rgba(249,115,22,.07);border-radius:6px;padding:5px 6px;':'')+'">' +
+      '<span style="flex:1;font-size:11px">'+e.time+' — <b style="color:var(--white)">'+e.desc+'</b></span>'+
+      '<span style="color:var(--danger);font-weight:700;white-space:nowrap;font-size:12px">'+fmtINR(e.amount)+'</span>'+
+      '<button onclick="editExpense('+e.ts+')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0" title="Edit">✏️</button>'+
+      '<button onclick="deleteExpense('+e.ts+')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0" title="Delete">✕</button>'+
+    '</div>';
+  }).join('');
+}
+
+function deleteExpense(ts){
+  if(_editExpenseTs===ts) cancelEditExpense();
+  if(!confirm('Delete this expense?'))return;
+  var log=LS.get('expenses')||[];
+  var target=log.find(function(e){return e.ts===ts;});
+  log=log.filter(function(e){return e.ts!==ts;});
+  LS.set('expenses',log);
+  // Delete from Supabase if we have the server-assigned id
+  if(target && target.id) sbDelete('expenses', target.id).catch(function(){});
+  renderExpenseCounter();
+  renderCashInCounter();
+  toast('Expense deleted');
+}
+
+// ── MY SALES ── Fix 3+4+7
+function renderMySales(){
+  var all=getEntries().filter(function(e){return e.barberId===ME.id;});
+  var td=all.filter(function(e){return e.date===today();});
+  var mo=filterByMonth(all,new Date().toISOString().slice(0,7));
+  var tdSales=td.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var moSales=mo.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var moTip  =mo.reduce(function(a,e){return a+Number(e.tip||0);},0);
+
+  // Fix 3: Bills→Customers; Fix 4: Monthly Customers = total bills
+  document.getElementById('my-stats').innerHTML=
+    '<div class="sc a"><div class="sc-lbl">Today Customers</div><div class="sc-val">'+td.length+'</div></div>'+
+    '<div class="sc g"><div class="sc-lbl">Today Sales</div><div class="sc-val" style="font-size:18px">'+fmtINR(tdSales)+'</div></div>'+
+    '<div class="sc b"><div class="sc-lbl">Month Customers</div><div class="sc-val">'+mo.length+'</div></div>'+
+    '<div class="sc gr"><div class="sc-lbl">Month Sales</div><div class="sc-val" style="font-size:18px">'+fmtINR(moSales)+'</div></div>'+
+    '<div class="sc w" style="grid-column:span 2"><div class="sc-lbl">Month Tips (separate)</div><div class="sc-val" style="font-size:18px">'+fmtINR(moTip)+'</div></div>';
+
+  renderMySalesTable();
+}
+
+// Fix 3: Filter mode toggle — day range OR month, never both
+var filterMode = 'day'; // 'day' | 'month'
+function setFilterMode(mode){
+  filterMode = mode;
+  document.getElementById('ft-day').classList.toggle('on', mode==='day');
+  document.getElementById('ft-mon').classList.toggle('on', mode==='month');
+  document.getElementById('filter-day-inputs').style.display  = mode==='day'   ? 'flex' : 'none';
+  document.getElementById('filter-month-inputs').style.display = mode==='month' ? 'block': 'none';
+  renderMySalesTable();
+}
+
+function onMonthFilter(){
+  var mo=document.getElementById('ms-month').value;
+  if(!mo)return;
+  renderMySalesTable();
+}
+
+function clearAllFilters(){
+  document.getElementById('ms-from').value=todayISO();
+  document.getElementById('ms-to').value=todayISO();
+  document.getElementById('ms-month').value='';
+  filterMode='day';
+  setFilterMode('day');
+}
+
+function renderMySalesTable(){
+  var all=getEntries().filter(function(e){return e.barberId===ME.id;});
+  var filtered;
+
+  if(filterMode==='month'){
+    var mo=document.getElementById('ms-month').value;
+    filtered = mo ? filterByMonth(all, mo) : all;
+  } else {
+    var fromVal=document.getElementById('ms-from').value;
+    var toVal=document.getElementById('ms-to').value;
+    filtered=all.filter(function(e){
+      var d=localToISO(e.date);
+      if(fromVal && d<fromVal) return false;
+      if(toVal   && d>toVal)   return false;
+      return true;
+    });
+  }
+
+  filtered=filtered.slice().sort(function(a,b){
+    var da=localToISO(a.date), db=localToISO(b.date);
+    if(da!==db) return db.localeCompare(da);
+    return (b.time||'').localeCompare(a.time||'');
+  });
+
+  // Summary box
+  var sBox=document.getElementById('summary-box');
+  if(filtered.length>0){
+    var sPh  =filtered.reduce(function(a,e){return a+Number(e.phPay||0);},0);
+    var sCash=filtered.reduce(function(a,e){return a+Number(e.cash||0);},0);
+    var sTip =filtered.reduce(function(a,e){return a+Number(e.tip||0);},0);
+    var sTot =sPh+sCash;
+    var label='';
+    if(filterMode==='month'){
+      var mv=document.getElementById('ms-month').value;
+      label=mv?new Date(mv+'-01').toLocaleString('default',{month:'long',year:'numeric'}):'All';
+    } else {
+      var fv=document.getElementById('ms-from').value, tv=document.getElementById('ms-to').value;
+      label=fv===tv?('📅 '+isoToLocal(fv)):('📅 '+isoToLocal(fv)+' – '+isoToLocal(tv));
+    }
+    document.getElementById('summary-inner').innerHTML=
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:7px">'+label+'</div>'+
+      '<div class="sb-row"><span class="sb-lbl">Customers</span><span class="sb-val">'+filtered.length+'</span></div>'+
+      '<div class="sb-row"><span class="sb-lbl">PhonePe</span><span class="sb-val" style="color:var(--blue)">'+fmtINR(sPh)+'</span></div>'+
+      '<div class="sb-row"><span class="sb-lbl">Cash</span><span class="sb-val" style="color:var(--green)">'+fmtINR(sCash)+'</span></div>'+
+      '<div class="sb-row"><span class="sb-lbl">Tips</span><span class="sb-val" style="color:var(--warn)">'+fmtINR(sTip)+'</span></div>'+
+      '<div class="sb-row sb-total"><span class="sb-lbl">Sales Total</span><span class="sb-val">'+fmtINR(sTot)+'</span></div>';
+    sBox.style.display='block';
+  } else { sBox.style.display='none'; }
+
+  var el=document.getElementById('ms-body');
+  if(!filtered.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">No entries for this period.</div>';
+    return;
+  }
+  // My Sales entries table with PhPay Tip + Cash Tip columns
+  var rows=filtered.map(function(e,i){
+    var sales=Number(e.phPay||0)+Number(e.cash||0);
+    var phTip=Number(e.phTip||0);
+    var cashTip=Number(e.cashTip||0);
+    return '<tr>'+
+      '<td class="num">'+(i+1)+'</td>'+
+      '<td class="tm" style="font-size:10px;line-height:1.3">'+e.date+'<br>'+e.time+'</td>'+
+      '<td style="font-size:11px;color:var(--muted);max-width:90px;line-height:1.3">'+(e.customerName&&e.customerName!=='Walk-in'?'<span style="color:var(--white);font-weight:600">'+e.customerName+'</span><br>':'')+(e.customerPhone?e.customerPhone:'<span style="color:var(--muted2)">Walk-in</span>')+'</td>'+
+      '<td style="font-size:12px;color:var(--white);font-weight:600">'+e.services+'</td>'+
+      '<td class="ph">'+(Number(e.phPay||0)>0?fmtINR(e.phPay):'—')+'</td>'+
+      '<td class="ca">'+(Number(e.cash||0)>0?fmtINR(e.cash):'—')+'</td>'+
+      '<td class="tp">'+(phTip>0?fmtINR(phTip):'—')+'</td>'+
+      '<td class="tp">'+(cashTip>0?fmtINR(cashTip):'—')+'</td>'+
+      '<td class="tot">'+fmtINR(sales)+'</td>'+
+      '<td><button style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:0" onclick="delEntry('+e.id+')">✕</button></td>'+
+    '</tr>';
+  }).join('');
+  el.innerHTML='<div class="tbl-scroll"><table class="entry-tbl">'+
+    '<thead><tr><th>#</th><th>Date/Time</th><th>Customer</th><th>Services</th><th>PhPay</th><th>Cash</th><th>Ph Tip</th><th>Cash Tip</th><th>Total</th><th></th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table></div>';
+}
+
+// ── FIX 6: QR CAMERA SCAN ──
+var qrStream=null, qrScanning=false, qrAnimFrame=null;
+
+function startQRScan(){
+  var wrap=document.getElementById('qrVideoWrap');
+  var vid=document.getElementById('qrVideo');
+  var trig=document.getElementById('scanTrigger');
+  var stopBtn=document.getElementById('stopScanBtn');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('Camera not available on this device/browser');return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+    .then(function(stream){
+      qrStream=stream; qrScanning=true;
+      vid.srcObject=stream;
+      vid.play();
+      wrap.classList.add('active');
+      trig.style.display='none';
+      stopBtn.style.display='block';
+      toast('📷 Camera open — point at QR code');
+      qrAnimFrame=requestAnimationFrame(qrScanLoop);
+    })
+    .catch(function(err){
+      toast('Cannot access camera: '+err.message);
+    });
+}
+
+function qrScanLoop(){
+  if(!qrScanning)return;
+  var vid=document.getElementById('qrVideo');
+  var canvas=document.getElementById('qrCanvas');
+  if(vid.readyState>=2 && vid.videoWidth>0){
+    canvas.width=vid.videoWidth;
+    canvas.height=vid.videoHeight;
+    var ctx=canvas.getContext('2d');
+    ctx.drawImage(vid,0,0);
+    // Try jsQR first (works on all browsers including iOS Safari)
+    if(window.jsQR){
+      var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      var code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
+      if(code){
+        stopQRScan();
+        handleQRResult(code.data);
+        return;
+      }
+    } else if(window.BarcodeDetector){
+      // Fallback: BarcodeDetector API (Android Chrome)
+      var bd=new BarcodeDetector({formats:['qr_code']});
+      bd.detect(canvas).then(function(codes){
+        if(codes.length>0){stopQRScan();handleQRResult(codes[0].rawValue);}
+      }).catch(function(){});
+    }
+  }
+  qrAnimFrame=requestAnimationFrame(qrScanLoop);
+}
+
+function stopQRScan(){
+  qrScanning=false;
+  if(qrAnimFrame){cancelAnimationFrame(qrAnimFrame);qrAnimFrame=null;}
+  if(qrStream){qrStream.getTracks().forEach(function(t){t.stop();}); qrStream=null;}
+  var wrap=document.getElementById('qrVideoWrap');
+  if(wrap)wrap.classList.remove('active');
+  var trig=document.getElementById('scanTrigger');
+  if(trig)trig.style.display='block';
+  var stopBtn=document.getElementById('stopScanBtn');
+  if(stopBtn)stopBtn.style.display='none';
+}
+
+function handleQRResult(raw){
+  // raw is like "BBCARD-BB-2841" or "BB-CUST-9876543210"
+  var code='';
+  if(raw.startsWith('BBCARD-')){ code=raw.replace('BBCARD-',''); }
+  else if(raw.startsWith('BB-')){ code=raw; }
+  else { code=raw; }
+  document.getElementById('scanCode').value=code;
+  doScanManual();
+}
+
+function doScanManual(){
+  var code=document.getElementById('scanCode').value.trim();
+  if(!code){toast('Enter a card code');return;}
+  var cards=LS.get('styleCards')||[];
+  var card=cards.find(function(c){return(c.cardId||'BB-'+c.id).toLowerCase()===code.toLowerCase();});
+  if(!card){
+    document.getElementById('scanResult').innerHTML='<div style="text-align:center;color:var(--muted);padding:18px;background:var(--surface);border-radius:var(--r)">Card <b>'+code+'</b> not found.</div>';
+    return;
+  }
+  var customers=LS.get('customers')||[];
+  var cust=customers.find(function(c){return c.id===card.customerId;});
+  document.getElementById('scanResult').innerHTML=
+    '<div style="background:var(--surface2);border-radius:var(--r);padding:14px;border:2px solid var(--accent)">'+
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:4px">'+(cust?cust.name:'Customer')+'</div>'+
+      '<div style="font-size:19px;font-weight:800;color:var(--white);margin-bottom:12px">'+card.name+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">'+
+        mkInfo('Fade',card.fade,true)+mkInfo('Guard',card.guard,true)+
+        mkInfo('Top',card.topLength,false)+mkInfo('Neckline',card.neckline,false)+
+        mkInfo('Beard',card.beard,false)+mkInfo('Product',card.product,false)+
+      '</div>'+
+      (card.notes?'<div class="notes-card"><div style="font-size:10px;font-weight:800;color:var(--accent);margin-bottom:3px;letter-spacing:1px;text-transform:uppercase">⚠ Notes</div><div style="font-size:12px;color:var(--white)">'+card.notes+'</div></div>':'')+
+      '<button class="btn-primary" style="margin-top:10px" onclick="openNote(\'scan\','+card.id+')">+ Record Visit</button>'+
+    '</div>';
+  pendingNoteCardId=card.id;
+}
+function mkInfo(label,val,big){
+  return '<div style="background:var(--surface2);padding:9px;border-radius:7px">'+
+    '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">'+label+'</div>'+
+    '<div style="font-size:'+(big?'17':'12')+'px;font-weight:700;color:var(--white);margin-top:2px">'+(val||'—')+'</div>'+
+  '</div>';
+}
+
+var pendingNoteCardId=null;
+function openNote(src,cardId){pendingNoteCardId=cardId;document.getElementById('noteInput').value='';openModal('noteModal');}
+function saveNote(){
+  var note=document.getElementById('noteInput').value.trim();
+  if(pendingNoteCardId===null){closeModal('noteModal');return;}
+  var cards=LS.get('styleCards')||[];
+  var card=cards.find(function(c){return c.id===pendingNoteCardId;});
+  if(card){
+    var visits=LS.get('visits')||[];
+    visits.push({id:Date.now(),customerId:card.customerId,barberId:ME.id,barberName:ME.name,salonId:ME.salonId,salonName:'Budget Barber',styleName:card.name,date:today(),note:note});
+    LS.set('visits',visits);
+    var _vrow=visits[visits.length-1];
+    appendRowToSheet('Visits',_vrow,function(){});
+  }
+  closeModal('noteModal');
+  document.getElementById('scanResult').innerHTML='';
+  document.getElementById('scanCode').value='';
+  toast('✓ Visit recorded');
+}
+
+// ── STYLE CARD ──
+var photos={front:null,back:null,left:null,right:null,top:null}, activeZoneKey='';
+
+// Fix 9: autofill customer name from phone
+function autoFillCustName(phone){
+  if(phone.length<10)return;
+  var customers=LS.get('customers')||[];
+  var c=customers.find(function(x){return x.phone===phone;});
+  if(c && !document.getElementById('csCustName').value) document.getElementById('csCustName').value=c.name;
+}
+
+function sc(el,gid){document.querySelectorAll('#'+gid+' .cchip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');}
+function cv(gid){var c=document.querySelector('#'+gid+' .cchip.on');return c?c.getAttribute('data-val')||c.textContent.trim():'';}
+function openZone(key,label){activeZoneKey=key;document.getElementById('zoneName').textContent=label;document.getElementById('zoneInput').value=document.getElementById('zv-'+key).textContent;openModal('zoneModal');setTimeout(function(){document.getElementById('zoneInput').focus();},80);}
+function saveZone(){var v=document.getElementById('zoneInput').value.trim();if(v&&activeZoneKey){document.getElementById('zv-'+activeZoneKey).textContent=v;document.querySelector('.zc[data-z="'+activeZoneKey+'"]').classList.add('lit');}closeModal('zoneModal');}
+
+var camStream=null,camFacing='environment',camTarget='front';
+function openCam(target){camTarget=target;var labels={front:'FRONT VIEW',back:'BACK VIEW',left:'LEFT SIDE',right:'RIGHT SIDE',top:'TOP VIEW'};document.getElementById('camLbl').textContent=labels[target]||target.toUpperCase();document.getElementById('camModal').classList.add('open');startCam();}
+function startCam(){if(camStream)camStream.getTracks().forEach(function(t){t.stop();});navigator.mediaDevices.getUserMedia({video:{facingMode:camFacing},audio:false}).then(function(s){camStream=s;document.getElementById('camVideo').srcObject=s;}).catch(function(){closeCam();document.getElementById('fi-'+camTarget).click();});}
+function flipCam(){camFacing=(camFacing==='environment'?'user':'environment');startCam();}
+function closeCam(){if(camStream){camStream.getTracks().forEach(function(t){t.stop();});camStream=null;}document.getElementById('camModal').classList.remove('open');}
+function capturePhoto(){var v=document.getElementById('camVideo'),c=document.getElementById('camCanvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);setPhoto(camTarget,c.toDataURL('image/jpeg',0.75));closeCam();toast('📸 '+camTarget+' captured!');}
+function handleFile(input,target){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){setPhoto(target,e.target.result);toast('📸 '+target+' added');};r.readAsDataURL(f);input.value='';}
+function setPhoto(target,dataUrl){photos[target]=dataUrl;var el=document.getElementById('ps-'+target);el.classList.add('has');el.innerHTML='<img src="'+dataUrl+'" alt="'+target+'">';}
+
+function saveCard(){
+  var cphone=document.getElementById('csPhone').value.trim();
+  var custName=document.getElementById('csCustName').value.trim();
+  var name=document.getElementById('csName').value.trim();
+  if(!name){toast('⚠️ Enter Style Name');document.getElementById('csName').focus();return;}
+  if(cphone.length<10){toast('⚠️ Enter 10-digit phone');document.getElementById('csPhone').focus();return;}
+  var btn=document.getElementById('saveCardBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    var ts=Date.now(),cardCode='BB-'+Math.floor(1000+Math.random()*9000);
+    function zv(id){var el=document.getElementById(id);return el?el.textContent.trim():'';}
+    var zones={front:zv('zv-fr'),top:zv('zv-to'),crown:zv('zv-cr'),left:zv('zv-le'),right:zv('zv-ri'),back:zv('zv-ba')};
+    var customers=LS.get('customers')||[];
+    var custId=null;
+    for(var i=0;i<customers.length;i++){if(customers[i].phone===cphone){custId=customers[i].id;break;}}
+
+    // Build the style card and visit save function — called after custId is confirmed
+    function _saveCardAndVisit(confirmedCustId){
+      var newCard={id:cardCode+'-'+ts,customerId:confirmedCustId,barberId:ME.id,salonId:ME.salonId,name:name,cardId:cardCode,
+        topLength:document.getElementById('csTop').value,texture:cv('cg-tex'),fade:cv('cg-fade'),guard:cv('cg-grd'),
+        neckline:cv('cg-nck'),beard:cv('cg-brd'),product:document.getElementById('csProduct').value,
+        notes:document.getElementById('csNotes').value.trim(),zones:zones,
+        photos:{front:photos.front,back:photos.back,left:photos.left,right:photos.right,top:photos.top},createdAt:today(),isDefault:false};
+      var cards=LS.get('styleCards')||[];
+      cards.push(newCard);
+      if(!LS.set('styleCards',cards)){newCard.photos={front:null,back:null,left:null,right:null,top:null};cards[cards.length-1]=newCard;if(!LS.set('styleCards',cards)){cards.pop();btn.disabled=false;btn.textContent='✓ Save Style Card';toast('❌ Storage full');return;}}
+      var visits=LS.get('visits')||[];
+      visits.push({id:ts+1,customerId:confirmedCustId,barberId:ME.id,barberName:ME.name,salonId:ME.salonId,salonName:'Budget Barber',styleName:name,date:today(),note:''});
+      LS.set('visits',visits);
+      // Save to Supabase
+      appendRowToSheet('StyleCards',{id:newCard.id,cardId:cardCode,customerId:confirmedCustId,
+        barberId:ME.id,salonId:ME.salonId,name:newCard.name,createdAt:newCard.createdAt,
+        topLength:newCard.topLength,texture:newCard.texture,fade:newCard.fade,
+        guard:newCard.guard,neckline:newCard.neckline,beard:newCard.beard,
+        product:newCard.product,notes:newCard.notes,
+        zoneFront:zones.front||'',zoneTop:zones.top||'',zoneCrown:zones.crown||'',
+        zoneLeft:zones.left||'',zoneRight:zones.right||'',zoneBack:zones.back||''},function(){});
+      var _visits=LS.get('visits')||[];
+      var _lastVisit=_visits[_visits.length-1];
+      if(_lastVisit) appendRowToSheet('Visits',_lastVisit,function(){});
+      // Reset form
+      document.getElementById('csPhone').value='';document.getElementById('csCustName').value='';
+      document.getElementById('csName').value='';document.getElementById('csNotes').value='';
+      photos={front:null,back:null,left:null,right:null,top:null};
+      var photoLabels={front:'Front',back:'Back',left:'Left Side',right:'Right Side',top:'Top'};
+      ['front','back','left','right','top'].forEach(function(s){var el=document.getElementById('ps-'+s);if(el){el.classList.remove('has');el.innerHTML='<span style="font-size:20px">📷</span><span>'+(photoLabels[s]||s)+'</span>';}});
+      var zd={fr:'2"',to:'2"',cr:'1.5"',le:'#2',ri:'#2',ba:'#1.5'};
+      Object.keys(zd).forEach(function(k){var el=document.getElementById('zv-'+k);if(el)el.textContent=zd[k];var zc=document.querySelector('.zc[data-z="'+k+'"]');if(zc)zc.classList.remove('lit');});
+      function rg(gid,di){var chips=document.querySelectorAll('#'+gid+' .cchip');chips.forEach(function(c,i){c.classList.toggle('on',i===di);});}
+      rg('cg-tex',0);rg('cg-fade',1);rg('cg-grd',3);rg('cg-nck',0);rg('cg-brd',1);
+      btn.disabled=false;btn.textContent='✓ Save Style Card';
+      var statusEl=document.getElementById('card-save-status');
+      if(statusEl){
+        statusEl.style.display='block';
+        statusEl.innerHTML='<div style="background:rgba(0,196,140,.15);border:1.5px solid var(--accent);border-radius:var(--rs);padding:11px 14px;text-align:center;font-size:13px;font-weight:700;color:var(--accent)">✅ Style Card Saved! Code: <span style="font-family:var(--HF);font-size:18px;letter-spacing:2px">'+cardCode+'</span></div>';
+        setTimeout(function(){statusEl.style.display='none';},5000);
+      }
+      toast('✅ "'+name+'" saved! Code: '+cardCode);
+    }
+
+    if(custId){
+      // Existing customer — update name if better name provided
+      if(custName){
+        customers.forEach(function(c){if(c.id===custId && c.name.startsWith('Customer '))c.name=custName;});
+        LS.set('customers',customers);
+      }
+      _saveCardAndVisit(custId);
+    } else {
+      // New customer — save to Supabase FIRST to get the real persisted ID
+      var finalName=custName||('Customer '+cphone.slice(-4));
+      var newCustRow={phone:cphone,name:finalName,salonId:ME.salonId,role:'customer',hairType:'',faceShape:'',density:'',growthNotes:'',loginPin:''};
+      sbInsert('customers', newCustRow).then(function(saved){
+        // Use the Supabase-assigned ID so visits and style cards link correctly
+        var confirmedId = (saved && saved.id) ? String(saved.id) : ('c'+ts);
+        newCustRow.id = confirmedId;
+        var custs=LS.get('customers')||[];
+        custs.push(newCustRow);
+        LS.set('customers',custs);
+        _saveCardAndVisit(confirmedId);
+      }).catch(function(){
+        // Fallback — use local id but warn
+        var fallbackId='c'+ts;
+        newCustRow.id=fallbackId;
+        var custs=LS.get('customers')||[];
+        custs.push(newCustRow);
+        LS.set('customers',custs);
+        _saveCardAndVisit(fallbackId);
+        toast('⚠ Customer saved locally only — check connectivity');
+      });
+    }
+  }catch(err){console.error(err);btn.disabled=false;btn.textContent='✓ Save Style Card';toast('❌ Error: '+(err.message||'Try again'));}
+}
+
+// ── FIX 5: ATTENDANCE ──
+function renderAttBtnWrap(){
+  // Clock in/out now lives in billing tab only
+  renderAttBtnWrapBilling();
+}
+function recordAtt(type){
+  var log=LS.get('attendance')||[];
+  var now=new Date();
+  log.push({type:type,date:today(),time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),ts:Date.now(),barberId:ME.id});
+  LS.set('attendance',log);
+  appendRowToSheet('Attendance',log[log.length-1],function(ok){if(!ok)toast('⚠ Attendance saved locally');});
+  toast(type==='in'?'✅ Clocked In!':'✅ Clocked Out!');
+  renderAttBtnWrap();
+  renderAttBtnWrapBilling();
+  renderAttendance();
+}
+
+// Clock In/Out for Billing tab
+function renderAttBtnWrapBilling(){
+  var el=document.getElementById('att-btn-wrap-billing');
+  if(!el)return;
+  var log=LS.get('attendance')||[];
+  var todayRec=log.filter(function(r){return r.date===today()&&r.barberId===ME.id;});
+  var lastIn=null,lastOut=null;
+  todayRec.forEach(function(r){if(r.type==='in')lastIn=r;if(r.type==='out')lastOut=r;});
+  var isIn=lastIn&&(!lastOut||lastIn.ts>lastOut.ts);
+  var html='<div style="background:var(--surface2);border-radius:var(--rs);padding:9px 12px;margin-bottom:8px;border:1px solid rgba(0,0,0,.06)">';
+  // Button row
+  html+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">';
+  if(!isIn){
+    html+='<button class="att-btn in" onclick="recordAtt(\'in\')" style="padding:8px 16px;font-size:12px">🟢 Clock In</button>';
+  } else {
+    html+='<button class="att-btn out" onclick="recordAtt(\'out\')" style="padding:8px 16px;font-size:12px">🔴 Clock Out</button>';
+  }
+  html+='</div>';
+  // Show all in/out times captured today
+  if(todayRec.length){
+    html+='<div style="display:flex;gap:14px;flex-wrap:wrap">';
+    var inRecs =todayRec.filter(function(r){return r.type==='in';});
+    var outRecs=todayRec.filter(function(r){return r.type==='out';});
+    if(inRecs.length) html+='<span style="font-size:11px;color:var(--accent)">🟢 In: '+inRecs.map(function(r){return r.time;}).join(', ')+'</span>';
+    if(outRecs.length) html+='<span style="font-size:11px;color:var(--danger)">🔴 Out: '+outRecs.map(function(r){return r.time;}).join(', ')+'</span>';
+    html+='</div>';
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// ── ATTENDANCE HELPERS ──
+function parseTimeToMins(timeStr){
+  // timeStr is "HH:MM" or "H:MM AM/PM" from toLocaleTimeString
+  if(!timeStr) return null;
+  // Handle 12-hour format (e.g., "09:30 am" or "9:30 AM")
+  var ampm = timeStr.match(/([ap]m)/i);
+  var parts = timeStr.replace(/[^0-9:]/g,'').split(':');
+  if(parts.length < 2) return null;
+  var h = parseInt(parts[0]), mn = parseInt(parts[1]);
+  if(isNaN(h)||isNaN(mn)) return null;
+  if(ampm){
+    var ap = ampm[1].toLowerCase();
+    if(ap==='pm' && h!==12) h+=12;
+    if(ap==='am' && h===12) h=0;
+  }
+  return h*60+mn;
+}
+
+function calcHoursWorked(recs){
+  // recs: attendance records for one day for one barber
+  var inRecs  = recs.filter(function(r){return r.type==='in';});
+  var outRecs = recs.filter(function(r){return r.type==='out';});
+  if(!inRecs.length) return 0;
+  // Use earliest in and latest out
+  var inMins  = inRecs.map(function(r){return parseTimeToMins(r.time);}).filter(function(v){return v!==null;});
+  var outMins = outRecs.map(function(r){return parseTimeToMins(r.time);}).filter(function(v){return v!==null;});
+  if(!inMins.length) return 0;
+  var minIn  = Math.min.apply(null, inMins);
+  if(!outMins.length) return -1; // -1 = clocked in but not out yet
+  var maxOut = Math.max.apply(null, outMins);
+  if(maxOut <= minIn) return -1; // out before in — data issue, treat as incomplete
+  return (maxOut - minIn) / 60; // hours worked as decimal
+}
+
+function getAttStatus(recs){
+  // Returns: 'present' | 'half' | 'incomplete' | 'absent'
+  if(!recs || !recs.length) return 'absent';
+  var hours = calcHoursWorked(recs);
+  if(hours === -1) return 'half';   // clocked in but no valid out = half
+  if(hours === 0)  return 'absent';
+  if(hours >= 6)   return 'present'; // 6+ hours = full day
+  return 'half';                     // < 6 hours = half day
+}
+
+function renderAttendance(){
+  // Use selected month from hidden field (default = current month)
+  var now=new Date();
+  var currentMo=now.getFullYear()+'-'+(now.getMonth()+1<10?'0':'')+(now.getMonth()+1);
+  var mo=document.getElementById('att-month').value||currentMo;
+  if(!mo) mo=currentMo;
+  document.getElementById('att-month').value=mo;
+
+  var yr=parseInt(mo.split('-')[0]), m=parseInt(mo.split('-')[1]);
+  var days=new Date(yr,m,0).getDate();
+  var todayD=(mo===currentMo)?now.getDate():0; // highlight today only if current month
+  var isCurrent=(mo===currentMo);
+
+  // Month label e.g. "Mar 2026"
+  var mName=new Date(yr,m-1,1).toLocaleString('default',{month:'short',year:'numeric'});
+  document.getElementById('att-month-label').textContent=mName;
+
+  // First day of month (0=Sun … 6=Sat) for offset blank cells
+  var firstDow=new Date(yr,m-1,1).getDay(); // 0=Sun
+
+  var log=LS.get('attendance')||[];
+  var html='';
+  var present=0, half=0, absent=0;
+
+  // Blank cells for offset
+  for(var b=0;b<firstDow;b++){
+    html+='<div class="att-mini-day" style="background:transparent;color:transparent">·</div>';
+  }
+
+  for(var d=1;d<=days;d++){
+    var ds=d+'/'+m+'/'+yr;
+    var recs=log.filter(function(r){return r.date===ds&&r.barberId===ME.id;});
+    var status = getAttStatus(recs);
+    var cls='att-mini-day';
+    if(d===todayD) cls+=' today';
+    if(status==='present'){cls+=' in';present++;}
+    else if(status==='half'){cls+=' half';half++;}
+    else if(d<todayD||!isCurrent){cls+=' off';absent++;}
+    // Add hours tooltip for days with records
+    var hoursWorked = recs.length ? calcHoursWorked(recs) : 0;
+    var hoursLabel = hoursWorked>0 ? Math.round(hoursWorked*10)/10+'h' : '';
+    html+='<div class="'+cls+'" onclick="showAttDayDetail(\''+ds+'\')" style="cursor:pointer" title="'+(hoursLabel?hoursLabel+' worked':'')+'" data-tip="'+hoursLabel+'">'+d+'</div>';
+  }
+
+  document.getElementById('att-calendar').innerHTML=html;
+  document.getElementById('att-present').textContent=present;
+  document.getElementById('att-half').textContent=half;
+  document.getElementById('att-absent').textContent=absent;
+  // Clear previous detail
+  var dd=document.getElementById('att-day-detail');
+  if(dd) dd.innerHTML='';
+}
+
+function showAttDayDetail(ds){
+  var log=LS.get('attendance')||[];
+  var recs=log.filter(function(r){return r.date===ds&&r.barberId===ME.id;});
+  var dd=document.getElementById('att-day-detail');
+  if(!dd)return;
+  if(!recs.length){dd.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:5px 0">No records for '+ds+'</div>';return;}
+  dd.innerHTML='<div style="background:var(--surface2);border-radius:var(--rs);padding:9px 12px;margin-top:7px;font-size:12px">'+
+    '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">'+ds+'</div>'+
+    recs.map(function(r){
+      return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)">'+
+        '<span style="color:'+(r.type==='in'?'var(--accent)':'var(--danger)')+'">'+r.type.toUpperCase()+'</span>'+
+        '<span>'+r.time+'</span></div>';
+    }).join('')+
+    (function(){
+      var h=calcHoursWorked(recs);
+      if(h===-1) return '<div style="font-size:11px;color:#F97316;margin-top:5px">⏱ Still clocked in (half day)</div>';
+      if(h>0) return '<div style="font-size:11px;color:'+(h>=6?'var(--accent)':'#F97316')+';margin-top:5px">⏱ '+Math.round(h*10)/10+' hrs worked — '+(h>=6?'Full Day':'Half Day (< 6 hrs)')+'</div>';
+      return '';
+    })()+
+  '</div>';
+}
+
+function shiftAttMonth(delta){
+  var mo=document.getElementById('att-month').value||new Date().toISOString().slice(0,7);
+  var yr=parseInt(mo.split('-')[0]), m=parseInt(mo.split('-')[1]);
+  m+=delta;
+  if(m>12){m=1;yr++;}
+  if(m<1) {m=12;yr--;}
+  var newMo=yr+'-'+(m<10?'0':'')+m;
+  // Don't allow future months
+  var nowMo=new Date().toISOString().slice(0,7);
+  if(newMo>nowMo) return;
+  document.getElementById('att-month').value=newMo;
+  renderAttendance();
+}
+
+// ── FIX 10b: ADVANCE ──
+var _advMode='cash';
+function setAdvMode(mode){
+  _advMode=mode;
+  var cashBtn=document.getElementById('adv-mode-cash');
+  var ppBtn=document.getElementById('adv-mode-phonePe');
+  if(cashBtn){ cashBtn.style.background=mode==='cash'?'rgba(77,201,138,.15)':'transparent'; cashBtn.style.borderColor=mode==='cash'?'var(--green)':'var(--border)'; cashBtn.style.color=mode==='cash'?'var(--green)':'var(--muted)'; }
+  if(ppBtn){   ppBtn.style.background=mode==='phonePe'?'rgba(91,196,240,.15)':'transparent'; ppBtn.style.borderColor=mode==='phonePe'?'var(--blue)':'var(--border)'; ppBtn.style.color=mode==='phonePe'?'var(--blue)':'var(--muted)'; }
+}
+function addAdvance(){
+  var d=document.getElementById('adv-date').value;
+  var amt=parseFloat(document.getElementById('adv-amt').value)||0;
+  if(!d||amt<=0){toast('Enter date and amount');return;}
+  var ts=Date.now();
+  var row={date:isoToLocal(d),amount:amt,barberId:String(ME.id),ts:ts,mode:_advMode};
+  var log=LS.get('advances')||[];
+  log.push(row);
+  LS.set('advances',log);
+  // Save to Supabase, then write returned id back into localStorage so merge/delete work
+  sbInsert('advances',{date:row.date,amount:amt,barberId:String(ME.id),ts:ts,mode:_advMode})
+    .then(function(saved){
+      if(saved && saved.id){
+        var cur=LS.get('advances')||[];
+        var idx=cur.findIndex(function(r){return r.ts===ts;});
+        if(idx>-1){cur[idx].id=saved.id; LS.set('advances',cur);}
+      }
+    })
+    .catch(function(){
+      toast('⚠ Advance saved locally — will sync later');
+    });
+  document.getElementById('adv-amt').value='';
+  renderAdvanceLog();
+  renderSalary();
+  renderCashInCounter();
+  toast('💳 Advance ('+(_advMode==='phonePe'?'PhonePe':'Cash')+') '+fmtINR(amt)+' recorded');
+}
+function renderAdvanceLog(){
+  var mo=document.getElementById('sal-month').value||new Date().toISOString().slice(0,7);
+  var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);
+  var log=(LS.get('advances')||[]).filter(function(r){
+    if(String(r.barberId)!==String(ME.id))return false;
+    var p=(r.date||'').split('/');
+    return parseInt(p[1])===m&&parseInt(p[2])===yr;
+  });
+  var cashTotal=log.filter(function(r){return !r.mode||r.mode==='cash';}).reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var ppTotal  =log.filter(function(r){return r.mode==='phonePe';}).reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var total=cashTotal+ppTotal;
+  var el=document.getElementById('adv-log');
+  if(!log.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2);font-style:italic">No advances this month</div>';return;}
+  el.innerHTML=log.map(function(r){
+    var isPhone=r.mode==='phonePe';
+    var modeTag=isPhone
+      ?'<span style="font-size:10px;background:rgba(29,109,181,.12);color:var(--blue);border-radius:4px;padding:1px 5px;margin-left:5px">📱 PhonePe</span>'
+      :'<span style="font-size:10px;background:rgba(22,163,74,.10);color:var(--green);border-radius:4px;padding:1px 5px;margin-left:5px">💵 Cash</span>';
+    return '<div class="advance-row" style="display:flex;align-items:center;gap:5px">'+
+      '<span style="flex:1;min-width:0">'+r.date+modeTag+'</span>'+
+      '<span style="color:var(--purple);font-weight:700;white-space:nowrap">'+fmtINR(r.amount)+'</span>'+
+      '<button onclick="deleteAdvance('+r.ts+')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0" title="Delete">✕</button>'+
+    '</div>';
+  }).join('')+
+  '<div style="text-align:right;font-size:12px;color:var(--purple);font-weight:800;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">'+
+    'Cash: <span style="color:var(--green)">'+fmtINR(cashTotal)+'</span> &nbsp;|&nbsp; PhonePe: <span style="color:var(--blue)">'+fmtINR(ppTotal)+'</span> &nbsp;|&nbsp; Total: '+fmtINR(total)+
+  '</div>';
+}
+
+function deleteAdvance(ts){
+  if(!confirm('Delete this advance entry?'))return;
+  // Find the record to get Supabase id if present
+  var log=LS.get('advances')||[];
+  var target=log.find(function(r){return r.ts===ts;});
+  log=log.filter(function(r){return r.ts!==ts;});
+  LS.set('advances',log);
+  // Try to delete from Supabase by id (bigserial) if available
+  if(target && target.id){
+    sbDelete('advances',target.id).catch(function(){});
+  }
+  renderAdvanceLog();
+  renderSalary();
+  renderCashInCounter();
+  toast('Advance entry deleted');
+}
+
+// ── FIX 10c: SALARY ──
+function renderSalary(){
+  var mo=document.getElementById('sal-month').value||new Date().toISOString().slice(0,7);
+  var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);
+
+  // Staff data
+  var staff=LS.get('staff')||[];
+  var me=staff.find(function(u){return String(u.id)===String(ME.id);})||{};
+  var fixedSalary   = Number(me.fixedSalary||0);
+  var foodMoney     = Number(me.foodMoney||0);
+  var cleaningMoney = Number(me.cleaningMoney||0);
+
+  // ── Attendance-prorated Month Salary ──
+  // Use all calendar days in the month (including Sundays)
+  var daysInMonth = new Date(yr,m,0).getDate();
+
+  // Count barber's present & half days this month
+  var attLog = LS.get('attendance')||[];
+  var presentDays=0, halfDays=0;
+  for(var dd=1;dd<=daysInMonth;dd++){
+    var ds=dd+'/'+m+'/'+yr;
+    var recs=attLog.filter(function(r){return r.date===ds&&String(r.barberId)===String(ME.id);});
+    var status=getAttStatus(recs);
+    if(status==='present') presentDays++;
+    else if(status==='half') halfDays++;
+  }
+  // Month Salary = Fixed × (Present + Half×0.5) / Total Days in Month
+  var effectiveDays = presentDays + halfDays * 0.5;
+  var monthSalary = daysInMonth > 0
+    ? Math.round(fixedSalary * effectiveDays / daysInMonth)
+    : 0;
+
+  // Sales + tips this month
+  var moEntries=filterByMonth(getEntries().filter(function(e){return String(e.barberId)===String(ME.id);}),mo);
+  var moSales  =moEntries.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
+  var moPhTips =moEntries.reduce(function(a,e){return a+Number(e.phTip||0);},0);
+
+  // Incentives = max(0, (Sales − Fixed) × 10%)
+  var incentives=Math.max(0,Math.round((moSales-fixedSalary)*0.10));
+
+  // All advances this month
+  var allAdv=(LS.get('advances')||[]).filter(function(r){
+    if(String(r.barberId)!==String(ME.id))return false;
+    var p=(r.date||'').split('/');
+    return parseInt(p[1])===m&&parseInt(p[2])===yr;
+  });
+  var cashAdv  =allAdv.filter(function(r){return !r.mode||r.mode==='cash';}).reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var ppAdv    =allAdv.filter(function(r){return r.mode==='phonePe';}).reduce(function(a,r){return a+Number(r.amount||0);},0);
+
+  // Read all deductions for this staff+month from Supabase-synced cache
+  var allDedRaw=(LS.get('deductions')||[]).filter(function(r){
+    var sid=String(r.staff_id||r.staffId||r.barberId||'');
+    return sid===String(ME.id) && r.month===mo;
+  });
+  // OT is stored as a special __OT__ entry by the manager — read it separately
+  var otEntry=allDedRaw.find(function(r){return r.desc==='__OT__';});
+  var totalOT=otEntry?Number(otEntry.amount||0):0;
+  // Fallback: also check local ot_ key (set when manager is on same device)
+  if(!totalOT){
+    var _otLocal=LS.get('ot_'+ME.id+'_'+mo)||{amount:0};
+    totalOT=Number(_otLocal.amount||0);
+  }
+  // Regular deductions — exclude __OT__
+  var allDed=allDedRaw.filter(function(r){return r.desc!=='__OT__';});
+  var totalDed=allDed.reduce(function(a,r){return a+Number(r.amount||0);},0);
+
+  // Net = Month Salary + Food + Cleaning + Incentives + PhPe Tips + OT − Cash Adv − PhPe Adv − Deductions
+  var net=monthSalary+foodMoney+cleaningMoney+incentives+moPhTips+totalOT-cashAdv-ppAdv-totalDed;
+  var mName=new Date(yr,m-1,1).toLocaleString('default',{month:'long',year:'numeric'});
+
+  renderAdvanceLog();
+
+  document.getElementById('salary-breakdown').innerHTML=
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">'+mName+' · Sales: '+fmtINR(moSales)+'</div>'+
+    '<div class="salary-row" style="background:rgba(46,196,160,.07);border-radius:6px;padding:7px 10px;margin-bottom:6px">'+
+      '<span class="salary-lbl" style="font-size:11px;color:var(--muted)">Fixed Salary</span>'+
+      '<span class="salary-val" style="font-size:12px;color:var(--muted)">'+fmtINR(fixedSalary)+'</span>'+
+    '</div>'+
+    '<div class="salary-row" style="background:rgba(46,196,160,.12);border-radius:6px;padding:7px 10px;margin-bottom:6px;border-left:3px solid var(--accent)">'+
+      '<span class="salary-lbl" style="font-size:11px;font-weight:800;color:var(--accent)">Month Salary <span style="font-size:9px;font-weight:600;color:var(--muted)">('+presentDays+' full + '+halfDays+' half / '+daysInMonth+' days)</span></span>'+
+      '<span class="salary-val" style="font-size:15px;color:var(--accent);font-weight:800">'+fmtINR(monthSalary)+'</span>'+
+    '</div>'+
+    '<div class="salary-row add"><span class="salary-lbl">Food Money</span><span class="salary-val">'+fmtINR(foodMoney)+'</span></div>'+
+    '<div class="salary-row add"><span class="salary-lbl">Cleaning Money</span><span class="salary-val">'+fmtINR(cleaningMoney)+'</span></div>'+
+    '<div class="salary-row add"><span class="salary-lbl">Incentives (Sales−Fixed)×10%</span><span class="salary-val">'+fmtINR(incentives)+'</span></div>'+
+    '<div class="salary-row add"><span class="salary-lbl">PhonePe Tips</span><span class="salary-val">'+fmtINR(moPhTips)+'</span></div>'+
+    (totalOT>0?'<div class="salary-row add"><span class="salary-lbl">Overtime (OT by Manager)</span><span class="salary-val">'+fmtINR(totalOT)+'</span></div>':'')+
+    '<div class="salary-row deduct"><span class="salary-lbl">Advances — Cash</span><span class="salary-val">− '+fmtINR(cashAdv)+'</span></div>'+
+    '<div class="salary-row deduct"><span class="salary-lbl">Advances — PhonePe</span><span class="salary-val">− '+fmtINR(ppAdv)+'</span></div>'+
+    (totalDed>0?'<div class="salary-row deduct"><span class="salary-lbl">Deductions (by Manager)</span><span class="salary-val">− '+fmtINR(totalDed)+'</span></div>':'')+
+    '<div class="salary-row net"><span class="salary-lbl">Net Salary</span><span class="salary-val">'+fmtINR(net)+'</span></div>'+
+    (fixedSalary===0?'<div style="font-size:11px;color:var(--warn);margin-top:8px">⚠ Fixed salary not set — contact your manager.</div>':'');
+}
+
+function applyRestoredData(d){
+  var toStr=function(rec,fields){
+    if(!rec)return rec;
+    fields.forEach(function(f){if(rec[f]!==undefined&&rec[f]!==null&&rec[f]!=='')rec[f]=String(rec[f]);});
+    return rec;
+  };
+  if(d.entries&&d.entries.length)    LS.set('entries',    d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
+  if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
+  if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
+  if(d.cashIn&&d.cashIn.length)      LS.set('cashIn',     d.cashIn.map(function(r){return toStr(r,['barberId']);}));
+  if(d.expenses&&d.expenses.length)  LS.set('expenses',   d.expenses.map(function(r){return toStr(r,['barberId']);}));
+  if(d.attendance&&d.attendance.length)LS.set('attendance',d.attendance.map(function(r){return toStr(r,['barberId']);}));
+  if(d.styleCards&&d.styleCards.length)LS.set('styleCards',d.styleCards.map(function(r){return toStr(r,['id','customerId','barberId','salonId']);}));
+  if(d.visits&&d.visits.length)      LS.set('visits',     d.visits.map(function(r){return toStr(r,['id','customerId','barberId','salonId']);}));
+  if(d.advances&&d.advances.length)  LS.set('advances',   d.advances.map(function(r){return toStr(r,['barberId']);}));
+  if(d.mgrCashIn&&d.mgrCashIn.length)  LS.set('mgrCashIn',  d.mgrCashIn.map(function(r){return toStr(r,['managerId','salonId']);}));
+  if(d.mgrExpenses&&d.mgrExpenses.length)LS.set('mgrExpenses',d.mgrExpenses.map(function(r){return toStr(r,['managerId','salonId']);}));
+  if(d.deductions&&d.deductions.length){
+    // Store flat array for barber profile view
+    LS.set('deductions', d.deductions.map(function(r){
+      return {
+        staffId: String(r.staff_id||r.staffId||''),
+        month:   r.month||'',
+        desc:    r.desc||r['desc']||'',
+        amount:  Number(r.amount||0)
+      };
+    }));
+    // Also store per-key for manager salary modal
+    var dg={};
+    d.deductions.forEach(function(r){
+      var sid=String(r.staff_id||r.staffId||'');
+      var k='ded_'+sid+'_'+r.month;
+      if(!dg[k])dg[k]=[];
+      dg[k].push({desc:r.desc||r['desc']||'',amount:Number(r.amount||0)});
+    });
+    Object.keys(dg).forEach(function(k){LS.set(k,dg[k]);});
+  }
+  if(d.attOverrides&&d.attOverrides.length){
+    d.attOverrides.forEach(function(r){LS.set('att_'+r.staffId+'_'+r.month,{present:r.present,half:r.half,absent:r.absent});});
+  }
+}
+
+
+// ── DIRECT SHEETS WRITE ──
+// Appends a single row directly to Supabase
+// Fetch fresh data from Supabase and update localStorage, then call onDone
+function refreshFromSheets(onDone){
+  var url=BB_SHEET_URL||SUPA_URL;
+  if(!url){ onDone&&onDone(); return; }
+  fetchFromSheets(url, function(d){
+    applyRestoredData(d);  // update local cache from Sheets
+    onDone&&onDone(d);
+  }, function(err){
+    console.warn('refreshFromSheets failed:',err);
+    onDone&&onDone(null);
+  });
+}
+
+// ── JSONP fetch from Sheets (works on all devices) ──
+function restoreFromSheets(){
+  if(!confirm('Replace ALL local data with latest data from Supabase?'))return;
+  showSyncStatus('⬇ Loading from Supabase…','loading');
+  SB.readAll().then(function(data){
+    applyRestoredData(data);
+    showSyncStatus('✅ Data refreshed from Supabase!','ok');
+    toast('✅ Refreshed — reloading…');
+    setTimeout(function(){location.reload();},1500);
+  }).catch(function(err){
+    showSyncStatus('❌ Failed: '+err,'err');
+    toast('❌ Refresh failed: '+err);
+  });
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function showSyncPill(){var p=document.getElementById('syncPill');if(p){p.className='sync-pill show syncing';p.innerHTML='<span>↻</span>';}}
+function hideSyncPill(){var p=document.getElementById('syncPill');if(p){p.className='sync-pill show ok';p.innerHTML='✓';setTimeout(function(){p.className='sync-pill';},2000);}}
+function toast(msg){var t=document.getElementById('toastEl');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},3000);}
+function logout(){stopQRScan();sessionStorage.clear();window.location.href='solo-index.html';}
+</script>
+  
+</div><!-- /app-content -->
+</body>
+</html>

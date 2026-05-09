@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Salon Pro – Customer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  /* BACKGROUND & SURFACES */
+  --bg:#F5F5F0;
+  --surface:#FFFFFF;
+  --surface2:#F0F0EA;
+  --surface3:#E8E8E0;
+  --border:#DDDDD5;
+
+  /* BRAND — matches barber app exactly */
+  --accent:#007A56;
+  --accent2:#005F42;
+  --gold:#F5E030;
+  --gold-dark:#C8A800;
+
+  /* TEXT */
+  --white:#1A1A14;
+  --muted:#666660;
+  --muted2:#999990;
+
+  /* STATUS */
+  --danger:#DC3545;
+  --green:#16A34A;
+  --orange:#F97316;
+  --blue:#1D6DB5;
+  --warn:#C2410C;
+  --purple:#6D28D9;
+
+  /* LAYOUT */
+  --r:12px;--rs:8px;
+  --BF:'Barlow',sans-serif;
+  --HF:'Bebas Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);max-width:430px;margin:0 auto;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--accent);padding:0 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.15);min-height:54px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.logo-box{background:var(--gold);border-radius:6px;padding:3px 10px;display:inline-flex;align-items:center;margin:9px 10px 9px 0;flex-shrink:0}
+.logo-box span{font-family:var(--HF);font-size:16px;color:#003D2B!important;line-height:1;letter-spacing:1px}
+.tb-r{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.tb-n{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-role{background:rgba(245,224,48,.2);border:1px solid rgba(245,224,48,.4);color:var(--gold);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.tb-out{background:none;border:1px solid rgba(255,255,255,.35);color:rgba(255,255,255,.8);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--BF);font-weight:600}
+
+/* ── PAGES & BOTTOM NAV ── */
+.page{display:none;padding-bottom:90px;min-height:80vh;animation:fi .2s ease}
+.page.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px 7px;cursor:pointer;color:var(--muted2);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:none;border:none;transition:color .2s;position:relative}
+.nb.on{color:var(--accent)}
+.nb.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:3px;background:var(--accent);border-radius:3px 3px 0 0}
+.ni{font-size:18px;line-height:1}
+
+/* ── HERO ── */
+.hero{background:var(--accent);padding:20px 16px 0;position:relative;overflow:hidden}
+.hero::after{content:'✂';position:absolute;right:-10px;bottom:-20px;font-size:120px;opacity:.05;transform:rotate(-20deg)}
+.hero-greet{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.5);margin-bottom:4px}
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.1;margin-bottom:14px}
+.hero-name span{color:var(--gold)}
+
+/* ── SPEND SUMMARY STRIP ── */
+.spend-strip{background:rgba(0,0,0,.25);padding:14px 16px 14px;display:flex;gap:0;border-top:1px solid rgba(0,0,0,.08)}
+.ss-item{flex:1;text-align:center;border-right:1px solid rgba(0,0,0,.08)}
+.ss-item:last-child{border-right:none}
+.ss-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:1px;line-height:1}
+.ss-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(245,224,48,.5);margin-top:3px}
+
+/* ── ACTIVE STYLE STRIP ── */
+.active-strip{background:var(--gold);padding:14px 16px}
+.as-pulse{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,61,43,.45);margin-bottom:5px}
+.as-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.as-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:1px;margin-bottom:7px}
+.as-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.as-tag{background:rgba(0,61,43,.12);border:1px solid rgba(0,61,43,.2);color:var(--accent);font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px}
+
+/* ── CARDS & PADDING ── */
+.pad{padding:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card-hdr{padding:12px 16px;border-bottom:1px solid #F0F2EE;display:flex;align-items:center;justify-content:space-between;background:#FAFCF9}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.8px}
+.card-body{padding:14px 16px}
+
+/* ── SECTION LABEL ── */
+.sec{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec:first-child{margin-top:6px}
+
+/* ── STAT BOXES ── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-row.three{grid-template-columns:1fr 1fr 1fr}
+.stat-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px 10px;text-align:center}
+.stat-box.green{background:var(--accent);border-color:var(--accent)}
+.stat-box.yellow{background:var(--gold);border-color:var(--gold-dark)}
+.stat-box.blue{background:#EFF6FF;border-color:#BFDBFE}
+.stat-box.purple{background:#F5F3FF;border-color:#DDD6FE}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;letter-spacing:.5px}
+.stat-box.green .sn{color:var(--gold);font-size:22px}
+.stat-box.yellow .sn{color:var(--accent);font-size:20px}
+.stat-box.blue .sn{color:var(--blue);font-size:20px}
+.stat-box.purple .sn{color:var(--purple);font-size:20px}
+.sl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-top:4px}
+.stat-box.green .sl{color:rgba(245,224,48,.5)}
+.stat-box.yellow .sl{color:rgba(0,61,43,.45)}
+
+/* ── BILLING ENTRY ROW ── */
+.bill-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #F0F2EE;cursor:pointer;transition:background .15s}
+.bill-row:last-child{border-bottom:none}
+.bill-row:hover{background:#FAFCF9}
+.br-icon{width:38px;height:38px;border-radius:50%;background:rgba(0,61,43,.08);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.br-body{flex:1}
+.br-svc{font-size:14px;font-weight:700;color:var(--white);margin-bottom:2px}
+.br-meta{font-size:12px;color:var(--muted);line-height:1.4}
+.br-right{text-align:right}
+.br-total{font-size:15px;font-weight:800;color:var(--accent)}
+.br-date{font-size:11px;color:var(--muted2);margin-top:2px}
+
+/* ── PAYMENT PILLS ── */
+.pay-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;border:1px solid}
+.p-cash{background:#ECFDF5;border-color:#A7F3D0;color:#065f46}
+.p-pp{background:#F5F3FF;border-color:#C4B5FD;color:var(--purple)}
+
+/* ── STYLE CARD ── */
+.sci{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.sci::after{content:'✂';position:absolute;right:-6px;top:-4px;font-size:56px;opacity:.04;transform:rotate(-20deg)}
+.sci-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--accent);text-transform:uppercase}
+.sci-id{font-size:10px;color:var(--muted2);letter-spacing:1px;margin-top:2px}
+.sci-tags{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0}
+.sci-tag{background:rgba(0,61,43,.07);border:1px solid rgba(0,61,43,.15);color:var(--accent);font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px}
+
+/* ── INFO ROW ── */
+.ir{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F0F2EE}
+.ir:last-child{border-bottom:none}
+.ir-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.ir-v{font-size:14px;font-weight:600;text-align:right;color:var(--white);max-width:60%}
+
+/* ── ZONE BLUEPRINT ── */
+.zones{display:grid;grid-template-areas:". fr ." "le to ri" "le cr ri" ". ba .";grid-template-columns:1fr 1fr 1fr;gap:5px;margin:10px 0}
+.zc{background:#F5FAF5;border:1.5px solid var(--border);border-radius:7px;padding:10px 6px;text-align:center}
+.zc.lit{border-color:var(--accent);background:rgba(0,61,43,.07)}
+.zc[data-z="fr"]{grid-area:fr}.zc[data-z="to"]{grid-area:to}.zc[data-z="cr"]{grid-area:cr}.zc[data-z="ba"]{grid-area:ba}
+.zc[data-z="le"]{grid-area:le;min-height:78px;display:flex;flex-direction:column;justify-content:center}
+.zc[data-z="ri"]{grid-area:ri;min-height:78px;display:flex;flex-direction:column;justify-content:center}
+.zc-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)}
+.zc-v{font-size:13px;font-weight:700;color:var(--white);margin-top:2px}
+.zc.lit .zc-l{color:var(--accent)}.zc.lit .zc-v{color:var(--accent)}
+
+/* ── PHOTOS ── */
+.photos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0}
+.ph{aspect-ratio:1;background:#F0F5F0;border:1.5px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2);overflow:hidden}
+.ph.has{border-style:solid;border-color:var(--accent);background:rgba(0,61,43,.04)}
+.ph img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+
+/* ── VISIT TIMELINE ── */
+.vt{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #F0F2EE}
+.vt:last-child{border-bottom:none}
+.vt-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.vt-dot.dim{background:var(--border)}
+.vt-date{font-size:11px;color:var(--muted2);font-weight:600;margin-bottom:2px}
+.vt-svc{font-size:14px;font-weight:800;color:var(--white)}
+.vt-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.vt-note{font-size:12px;font-style:italic;color:#555;margin-top:6px;background:rgba(0,61,43,.05);padding:8px 10px;border-radius:5px;border-left:3px solid var(--accent)}
+.vt-bills{margin-top:7px}
+
+/* ── BAR CHART ── */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:100px;margin-top:10px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--accent);min-height:4px;transition:height .6s ease;cursor:pointer;position:relative}
+.bar:hover::after{content:attr(data-tip);position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--gold);font-size:10px;padding:3px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;font-weight:700}
+.bar-lbl{font-size:9px;color:var(--muted2);text-align:center;font-weight:600}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.bg-g{background:rgba(0,61,43,.1);border:1px solid rgba(0,61,43,.2);color:var(--accent)}
+.bg-y{background:var(--gold);color:var(--accent)}
+.bg-blue{background:#EFF6FF;border:1px solid #BFDBFE;color:var(--blue)}
+.bg-pp{background:#F5F3FF;border:1px solid #DDD6FE;color:var(--purple)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:8px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;border:none;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn-g{background:var(--accent);color:var(--gold)}.btn-g:hover{background:var(--accent2)}
+.btn-y{background:var(--gold);color:var(--accent)}
+.btn-s{background:var(--surface);border:1.5px solid var(--border);color:#444}
+.btn-sm{padding:7px 12px;font-size:11px}
+.btn-full{width:100%}
+.btn-inline{width:auto}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal-sheet{background:var(--surface);border-radius:16px 16px 0 0;border-top:3px solid var(--accent);width:100%;max-width:430px;padding:22px 18px 40px;animation:su .3s ease;max-height:92dvh;overflow-y:auto}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.mh{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.mt{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.ms{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* ── QR ── */
+.qr-wrap{background:#fff;border:2px solid var(--border);padding:16px;border-radius:12px;display:inline-block}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:32px 16px;color:var(--muted2)}
+.empty-icon{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty p{font-size:13px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:var(--gold);padding:11px 22px;border-radius:24px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── FILTER ROW ── */
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.fr .ifield{flex:1;min-width:120px}
+.ifield label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ifield input,.ifield select{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;color:var(--white);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.ifield input:focus,.ifield select:focus{border-color:var(--accent)}
+.btn-filter{padding:9px 14px;background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
+.btn-filter:hover{border-color:var(--accent);color:var(--accent)}
+.btn-filter.on{background:var(--accent);color:var(--gold);border-color:var(--accent)}
+
+/* ── PROFILE ── */
+.prof-ava{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);margin:0 auto 12px;letter-spacing:1px}
+
+/* ── LOYALTY BAR ── */
+.loyalty-card{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.loyalty-card::after{content:'⭐';position:absolute;right:-10px;bottom:-16px;font-size:80px;opacity:.08}
+.lc-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:6px}
+.lc-visits{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);line-height:1;letter-spacing:1px}
+.lc-sub{font-size:12px;color:rgba(0,0,0,.40);margin-top:4px}
+.lc-bar-track{background:rgba(0,0,0,.12);height:6px;border-radius:3px;margin-top:12px;overflow:hidden}
+.lc-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .8s ease}
+.lc-next{font-size:11px;color:rgba(245,224,48,.55);margin-top:6px}
+
+/* ── MONTH CHIPS ── */
+.month-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.mchip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Barlow',sans-serif}
+.mchip:hover{border-color:var(--accent);color:var(--accent)}
+.mchip.on{background:var(--accent);color:var(--gold);border-color:var(--accent)}
+
+/* ── SPEND BREAKDOWN ── */
+.spend-meter{margin:10px 0}
+.sm-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sm-lbl{font-size:12px;color:var(--muted);min-width:72px;font-weight:600}
+.sm-track{flex:1;height:6px;background:#EEF2EE;border-radius:3px;overflow:hidden}
+.sm-fill{height:100%;border-radius:3px;transition:width .7s ease}
+.sm-val{font-size:12px;font-weight:700;color:var(--white);min-width:44px;text-align:right}
+
+/* ── LIGHT THEME OVERRIDES ── */
+body { background: var(--bg) !important; color: var(--white) !important; }
+.topbar { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.nav-tabs { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; }
+.panel { background: var(--bg); }
+
+/* Cards and surfaces */
+.sc, .salon-card, .month-chart, .tbl-wrap, .modal-box,
+.sheets-box, .cash-counter, .bc-card, .tot-bar,
+.pnl-section, .role-card, .outlet-summary,
+.mgr-ci-wrap, .att-card, .br-card { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Stat card values — keep accent colors readable on light */
+.sc-val { color: var(--white) !important; }
+.sc.accent .sc-val { color: var(--accent) !important; }
+.sc.gold   .sc-val { color: #8B6F00 !important; }
+.sc.danger .sc-val { color: var(--danger) !important; }
+.sc.b      .sc-val { color: var(--blue) !important; }
+.sc.g      .sc-val { color: var(--green) !important; }
+.sc.warn   .sc-val { color: var(--warn) !important; }
+.sc.gr     .sc-val { color: var(--green) !important; }
+
+/* Inputs */
+input, select, textarea {
+  background: var(--surface2) !important;
+  color: var(--white) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder { color: var(--muted2) !important; }
+select option { background: var(--surface) !important; color: var(--white) !important; }
+
+/* Table rows */
+.tbl-head { background: var(--accent) !important; color: #fff !important; }
+.tbl-body .tbl-row { border-bottom-color: var(--border) !important; }
+.tbl-body .tbl-row:hover { background: var(--surface2) !important; }
+
+/* Modal overlay */
+.modal-bg { background: rgba(0,0,0,.4) !important; }
+.modal-box { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Nav tab active */
+.nt { color: var(--muted) !important; }
+.nt.on { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+
+/* Buttons */
+.btn-sm { background: var(--surface2) !important; border-color: var(--border) !important; color: var(--white) !important; }
+.btn-sm:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
+.btn-sm.on { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+.btn-primary { background: var(--accent) !important; color: #fff !important; }
+.btn-cancel { border-color: var(--border) !important; color: var(--muted) !important; }
+
+/* Toast */
+.toast-el { background: var(--white) !important; color: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Logo — always gold box, dark text */
+.logo { background: var(--gold) !important; }
+.logo span { color: #003D2B !important; }
+
+/* PNL section in light mode */
+.pnl-input { background: var(--surface2) !important; color: var(--white) !important; border-color: var(--border) !important; }
+.pnl-row span:first-child { color: var(--muted) !important; }
+.pnl-row.pnl-total-row { background: var(--surface2) !important; }
+.pnl-row.pnl-auto { background: rgba(0,0,0,.02) !important; }
+
+/* Muted labels */
+.sc-lbl, .ifield label, .role-lbl, .bar-lbl { color: var(--muted) !important; }
+
+/* Section headers */
+.sec-title { color: var(--white) !important; }
+
+/* Charts bars stay accent */
+.bar { background: var(--accent) !important; }
+
+/* Outlet summary boxes */
+.os-box.ci  { background: rgba(22,163,74,.08) !important; border-color: rgba(22,163,74,.2) !important; }
+.os-box.ex  { background: rgba(220,53,69,.06) !important; border-color: rgba(220,53,69,.15) !important; }
+.os-box.net { background: rgba(29,109,181,.06) !important; border-color: rgba(29,109,181,.15) !important; }
+
+/* Badges */
+.badge-green  { background: rgba(22,163,74,.10) !important; color: var(--green) !important; border-color: rgba(22,163,74,.2) !important; }
+.badge-blue   { background: rgba(29,109,181,.08) !important; color: var(--blue) !important; border-color: rgba(29,109,181,.2) !important; }
+.badge-red    { background: rgba(220,53,69,.08) !important; color: var(--danger) !important; border-color: rgba(220,53,69,.2) !important; }
+.badge-gold   { background: rgba(139,111,0,.08) !important; color: #8B6F00 !important; border-color: rgba(139,111,0,.2) !important; }
+.badge-purple { background: rgba(109,40,217,.08) !important; color: var(--purple) !important; border-color: rgba(109,40,217,.2) !important; }
+
+/* ── OFFERS TAB ── */
+.offer-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  position:relative;
+}
+.offer-card.featured{border-color:var(--gold-dark);}
+.offer-banner{
+  background:var(--accent);padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.offer-banner.gold{background:linear-gradient(135deg,#C8A800,#F5E030);}
+.offer-banner.purple{background:linear-gradient(135deg,#5F259F,#8B5CF6);}
+.offer-banner.orange{background:linear-gradient(135deg,#C2410C,#F97316);}
+.offer-emoji{font-size:28px;margin-right:10px;}
+.offer-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;line-height:1.1;}
+.offer-banner.gold .offer-title{color:#003D2B;}
+.offer-badge-pct{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;
+  color:var(--gold);line-height:1;text-align:right;
+}
+.offer-banner.gold .offer-badge-pct{color:#003D2B;}
+.offer-badge-off{font-size:11px;font-weight:800;color:rgba(255,255,255,.7);text-align:right;text-transform:uppercase;letter-spacing:1px;}
+.offer-banner.gold .offer-badge-off{color:rgba(0,61,43,.6);}
+.offer-body{padding:14px 16px;}
+.offer-desc{font-size:13px;color:var(--white);font-weight:600;margin-bottom:8px;line-height:1.5;}
+.offer-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.offer-pill{
+  font-size:10px;font-weight:700;padding:3px 9px;
+  border-radius:12px;border:1px solid;
+}
+.offer-pill.green{background:rgba(0,122,86,.08);border-color:rgba(0,122,86,.25);color:var(--accent);}
+.offer-pill.gold{background:rgba(200,168,0,.1);border-color:rgba(200,168,0,.3);color:#856700;}
+.offer-pill.red{background:rgba(220,53,69,.08);border-color:rgba(220,53,69,.25);color:var(--danger);}
+.offer-expiry{font-size:11px;color:var(--muted);margin-top:4px;}
+.offer-expires-badge{
+  position:absolute;top:12px;right:12px;
+  background:rgba(0,0,0,.35);
+  color:#fff;font-size:9px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+
+/* Savings card in offers */
+.savings-strip{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:var(--r);padding:16px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.savings-strip::after{content:'✂';position:absolute;right:-10px;bottom:-18px;font-size:90px;opacity:.06;}
+.sstrip-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;margin-bottom:3px;}
+.sstrip-sub{font-size:10px;color:rgba(245,224,48,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.sstrip-slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.sstrip-slot{
+  aspect-ratio:1;border-radius:50%;
+  border:2px dashed rgba(245,224,48,.5);
+  background:rgba(0,0,0,.15);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  position:relative;
+}
+.sstrip-slot.used{border-color:rgba(245,224,48,.9);background:rgba(245,224,48,.15);}
+.sstrip-slot.used::after{
+  content:'✓';position:absolute;
+  color:var(--gold);font-size:14px;font-weight:900;
+}
+.sstrip-num{font-size:8px;color:rgba(245,224,48,.5);font-weight:700;position:absolute;top:3px;}
+.sstrip-pct{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--gold);line-height:1;}
+.sstrip-off{font-size:7px;color:rgba(245,224,48,.6);text-transform:uppercase;font-weight:700;}
+.sstrip-tagline{font-size:10px;color:rgba(245,224,48,.5);margin-top:8px;text-align:center;}
+.no-offers{
+  text-align:center;padding:32px 16px;color:var(--muted2);
+}
+.no-offers-icon{font-size:40px;margin-bottom:10px;opacity:.5;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo-box" id="topbarLogo"><span id="topbarLogoText">SP</span></div>
+  <div class="tb-r">
+    <span class="tb-n" id="tbName">Me</span>
+    <span class="tb-role">👤 Member</span>
+    <button class="tb-out" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- ════ HOME ════ -->
+<div class="page active" id="pg-home">
+  <div class="hero">
+    <div class="hero-greet">Welcome back,</div>
+    <div class="hero-name" id="heroName">Your <span>Name</span></div>
+    <!-- Spend summary pinned inside hero -->
+    <div class="spend-strip">
+      <div class="ss-item"><div class="ss-val" id="hTotalSpend">₹0</div><div class="ss-lbl">Total Spent</div></div>
+      <div class="ss-item"><div class="ss-val" id="hTotalVisits">0</div><div class="ss-lbl">Visits</div></div>
+      <div class="ss-item"><div class="ss-val" id="hThisMonth">₹0</div><div class="ss-lbl">This Month</div></div>
+    </div>
+  </div>
+
+  <!-- Active style strip -->
+  <div id="activeStrip"></div>
+
+  <div class="pad">
+    <!-- Latest billing entries -->
+    <div class="sec">Recent Bills</div>
+    <div class="card"><div class="card-body" id="homeBills">
+      <div style="font-size:13px;color:var(--muted2)">Loading…</div>
+    </div></div>
+
+    <!-- Style cards preview -->
+    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>My Style Cards</span>
+      <button class="btn btn-s btn-sm btn-inline" onclick="go('cards')">See All →</button>
+    </div>
+    <div id="homeCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
+
+    <!-- Quick actions -->
+    <div class="sec">Quick Actions</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-g" onclick="go('bills')">💰 My Bills</button>
+      <button class="btn btn-y" onclick="showQR()">📱 My QR</button>
+      <button class="btn btn-s" onclick="go('offers')">🎁 Offers & Deals</button>
+      <button class="btn btn-s" onclick="go('cards')">💈 Style Cards</button>
+    </div>
+
+    <!-- Current offers preview -->
+    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Current Offers</span>
+      <button class="btn btn-s btn-sm btn-inline" onclick="go('offers')">See All →</button>
+    </div>
+    <div id="homeOffersPreview"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ════ MY BILLS ════ -->
+<div class="page" id="pg-bills">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">My Bills</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Every service & payment on record</div>
+
+    <!-- Spend stats -->
+    <div class="stat-row">
+      <div class="stat-box green"><div class="sn" id="bTotalSpend">₹0</div><div class="sl">Total Spent</div></div>
+      <div class="stat-box yellow"><div class="sn" id="bTotalBills">0</div><div class="sl">Total Bills</div></div>
+    </div>
+    <div class="stat-row three">
+      <div class="stat-box blue"><div class="sn" id="bPhonePe">₹0</div><div class="sl">PhonePe</div></div>
+      <div class="stat-box purple"><div class="sn" id="bCash">₹0</div><div class="sl">Cash</div></div>
+      <div class="stat-box"><div class="sn" id="bAvg">₹0</div><div class="sl">Avg/Visit</div></div>
+    </div>
+
+    <!-- Month chips filter -->
+    <div class="sec">Filter by Month</div>
+    <div class="month-chips" id="monthChips"></div>
+
+    <!-- Spend breakdown chart -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-hdr"><div class="card-title">Spend by Service</div></div>
+      <div class="card-body">
+        <div class="spend-meter" id="svcBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- Payment split -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-hdr"><div class="card-title">Payment Method Split</div></div>
+      <div class="card-body">
+        <div class="spend-meter" id="paymentSplit"></div>
+      </div>
+    </div>
+
+    <!-- Date filter -->
+    <div class="sec">All Transactions</div>
+    <div class="fr">
+      <div class="ifield"><label>From Date</label><input type="date" id="bf-from" onchange="renderBillsTable()"></div>
+      <div class="ifield"><label>To Date</label><input type="date" id="bf-to" onchange="renderBillsTable()"></div>
+      <button class="btn-filter" onclick="clearBillFilter()">All</button>
+    </div>
+    <div class="card"><div class="card-body" id="billsTable"></div></div>
+  </div>
+</div>
+
+<!-- ════ STYLE CARDS ════ -->
+<div class="page" id="pg-cards">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">Style Cards</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Your haircut blueprints</div>
+    <div id="allCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ════ VISIT HISTORY ════ -->
+<!-- ════ PROFILE ════ -->
+<div class="page" id="pg-profile">
+  <div class="pad">
+    <div style="text-align:center;padding-top:8px;margin-bottom:20px">
+      <div class="prof-ava" id="ava">?</div>
+      <div style="font-size:20px;font-weight:800" id="profName">User</div>
+      <div style="font-size:13px;color:var(--muted2);margin-top:4px" id="profPhone"></div>
+    </div>
+
+    <!-- Loyalty card -->
+    <div class="loyalty-card">
+      <div class="lc-label">Loyalty Status</div>
+      <div class="lc-visits" id="loyVisits">0 <span style="font-size:20px;letter-spacing:0">visits</span></div>
+      <div class="lc-sub" id="loyStatus">Keep visiting to earn rewards!</div>
+      <div class="lc-bar-track"><div class="lc-bar-fill" id="loyBar" style="width:0%"></div></div>
+      <div class="lc-next" id="loyNext"></div>
+    </div>
+
+    <!-- Hair profile -->
+    <div class="sec">Hair Profile</div>
+    <div class="card"><div class="card-body">
+      <div class="ir"><span class="ir-l">Hair Type</span><span class="ir-v" id="pHair">—</span></div>
+      <div class="ir"><span class="ir-l">Face Shape</span><span class="ir-v" id="pFace">—</span></div>
+      <div class="ir"><span class="ir-l">Density</span><span class="ir-v" id="pDensity">—</span></div>
+      <div class="ir"><span class="ir-l">Growth Notes</span><span class="ir-v" id="pNotes" style="font-size:12px">—</span></div>
+    </div></div>
+
+    <!-- Spend summary -->
+    <div class="sec">My Spend Summary</div>
+    <div class="stat-row">
+      <div class="stat-box green"><div class="sn" id="prTotalSpend">₹0</div><div class="sl">Total Spent</div></div>
+      <div class="stat-box"><div class="sn" id="prVisits">0</div><div class="sl">Visits</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box blue"><div class="sn" id="prPhonePe">₹0</div><div class="sl">PhonePe</div></div>
+      <div class="stat-box yellow"><div class="sn" id="prCash">₹0</div><div class="sl">Cash</div></div>
+    </div>
+
+    <button class="btn btn-y btn-full" style="margin-bottom:10px" onclick="showQR()">📱 Show My QR Code</button>
+    <button class="btn btn-s btn-full" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- ════ OFFERS ════ -->
+<div class="page" id="pg-offers">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">Offers & Deals</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Exclusive deals for you</div>
+
+    <!-- Savings card strip -->
+    <div id="savings-card-section" style="margin-bottom:18px"></div>
+
+    <!-- Active offers -->
+    <div class="sec" id="offers-sec-label">Active Offers</div>
+    <div id="offers-list"><div style="font-size:13px;color:var(--muted2);padding:10px 0">Loading offers…</div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb on" id="nb-home"    onclick="go('home')"><span class="ni">🏠</span>Home</button>
+  <button class="nb"    id="nb-bills"   onclick="go('bills')"><span class="ni">💰</span>Bills</button>
+  <button class="nb"    id="nb-offers"  onclick="go('offers')"><span class="ni">🎁</span>Offers</button>
+  <button class="nb"    id="nb-cards"   onclick="go('cards')"><span class="ni">💈</span>Cards</button>
+  <button class="nb"    id="nb-profile" onclick="go('profile')"><span class="ni">👤</span>Profile</button>
+</nav>
+
+<!-- QR MODAL -->
+<div class="modal-bg" id="qrModal" onclick="if(event.target===this)closeModal('qrModal')">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="mh"></div>
+    <div class="mt" id="qrTitle">My QR Code</div>
+    <div class="ms">Show this to your barber to load your style card</div>
+    <div style="display:flex;justify-content:center;margin:10px 0 14px"><div class="qr-wrap" id="qrCanvas"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="qrInfo"></div>
+    <button class="btn btn-s btn-full" onclick="closeModal('qrModal')">Close</button>
+  </div>
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')">
+  <div class="modal-sheet" id="detailContent"></div>
+</div>
+
+<!-- BILL DETAIL MODAL -->
+<div class="modal-bg" id="billModal" onclick="if(event.target===this)closeModal('billModal')">
+  <div class="modal-sheet" id="billModalContent"></div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ── AUTH ──
+var SESSION_PHONE = sessionStorage.getItem('bb_phone');
+var SESSION_ROLE  = sessionStorage.getItem('bb_role');
+if (!SESSION_PHONE || SESSION_ROLE !== 'customer') { window.location.href = 'solo-login-customer.html'; }
+
+// ── SHARED STORAGE (same localStorage as barber/manager/admin) ──
+var LS = {
+  get: function(k) { try { return JSON.parse(localStorage.getItem('bb_'+k)); } catch(e) { return null; } },
+  set: function(k,v) { localStorage.setItem('bb_'+k, JSON.stringify(v)); }
+};
+
+// ── HELPERS ──
+function today() { return new Date().toLocaleDateString('en-IN'); }
+function fmtINR(n) { return '₹' + Number(n||0).toLocaleString('en-IN'); }
+function getEntries()   { return LS.get('entries')    || []; }
+function getStyleCards(){ return LS.get('styleCards') || []; }
+function getVisits()    { return LS.get('visits')     || []; }
+function getCustomers() { return LS.get('customers')  || []; }
+
+// parse en-IN date "d/m/yyyy" → Date
+function parseDate(s) {
+  if (!s) return null;
+  var p = s.split('/');
+  return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+}
+// ISO string "yyyy-mm-dd" → en-IN "d/m/yyyy"
+function isoToLocal(ds) {
+  if (!ds) return '';
+  var p = ds.split('-');
+  return parseInt(p[2]) + '/' + parseInt(p[1]) + '/' + p[0];
+}
+function monthKey(dateStr) {  // "d/m/yyyy" → "yyyy-mm"
+  if (!dateStr) return '';
+  var p = dateStr.split('/');
+  return p[2] + '-' + (p[1].length===1?'0':'')+p[1];
+}
+function monthLabel(ym) {  // "yyyy-mm" → "Mar 2026"
+  var p = ym.split('-');
+  var names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return names[parseInt(p[1])-1] + ' ' + p[0];
+}
+
+
+// ── SUPABASE BOOTSTRAP ──
+// Pull fresh data from Supabase on every load
+// Credentials are set here — replace with your actual values
+var SUPA_URL  = 'https://socgmrzzovpqaekpsklv.supabase.co';
+var SUPA_KEY  = 'sb_publishable_l48tcr0wuHPZCrMuDtj-pQ_dXZtgyrj';
+
+function _supaGet(table, qs){
+  var url = SUPA_URL+'/rest/v1/'+table+'?select=*'+(qs?'&'+qs:'');
+  return fetch(url,{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){ return r.ok?r.json():[]; }).catch(function(){ return []; });
+}
+
+// Central data store — all rendering reads from here, never from localStorage
+var _data = { entries:[], styleCards:[], customers:[], visits:[] };
+
+(function bootCustomer(){
+  function toStr(r,keys){keys.forEach(function(k){if(r[k]!=null)r[k]=String(r[k]);});return r;}
+
+  // Phase 1: get customer record by phone
+  _supaGet('customers','phone=eq.'+encodeURIComponent(SESSION_PHONE))
+  .then(function(custs){
+    var c = custs && custs[0] ? toStr(custs[0],['id','phone','loginPin']) : null;
+    if(c){
+      ME = c;
+      applyMeToDOM();
+    }
+    // Phase 2: fetch all data filtered for this customer in parallel
+    var phone = SESSION_PHONE;
+    return Promise.all([
+      // entries where customerPhone matches
+      _supaGet('entries', '"customerPhone"=eq.'+encodeURIComponent(phone)),
+      // style cards where customerId matches ME.id
+      c ? _supaGet('style_cards', '"customerId"=eq.'+encodeURIComponent(c.id)) : Promise.resolve([]),
+      // visits where customerId matches ME.id
+      c ? _supaGet('visits', '"customerId"=eq.'+encodeURIComponent(c.id))      : Promise.resolve([]),
+      // full customers list (for profile etc)
+      _supaGet('customers'),
+      _supaGet('salons')
+    ]);
+  })
+  .then(function(res){
+    function toStr(r,keys){keys.forEach(function(k){if(r[k]!=null)r[k]=String(r[k]);});return r;}
+    _data.entries    = (res[0]||[]).map(function(r){return toStr(r,['id','barberId','salonId']);});
+    _data.styleCards = (res[1]||[]).map(function(r){return toStr(r,['id','customerId','barberId','salonId']);});
+    _data.visits     = (res[2]||[]).map(function(r){return toStr(r,['id','customerId','barberId','salonId']);});
+    _data.customers  = (res[3]||[]).map(function(r){return toStr(r,['id','phone','loginPin']);});
+    // Also write to localStorage for any legacy helpers that still use LS.get
+    LS.set('entries',    _data.entries);
+    LS.set('styleCards', _data.styleCards);
+    LS.set('visits',     _data.visits);
+    LS.set('customers',  _data.customers);
+    LS.set('salons',     (res[4]||[]).map(function(r){return toStr(r,['id']);}));
+    renderAll();
+  })
+  .catch(function(err){
+    console.warn('[BB] Customer bootstrap failed:', err);
+    renderAll();
+  });
+})();
+
+// ── Apply ME to DOM ──
+function applyMeToDOM(){
+  if(!ME) return;
+  var parts = ME.name.split(' ');
+  var html = parts[0];
+  for(var i=1;i<parts.length;i++) html += ' <span>'+parts[i]+'</span>';
+  var el;
+  el=document.getElementById('heroName'); if(el) el.innerHTML=html;
+  el=document.getElementById('tbName');   if(el) el.textContent=parts[0];
+  el=document.getElementById('profName'); if(el) el.textContent=ME.name;
+  el=document.getElementById('profPhone');if(el) el.textContent='+91 '+ME.phone;
+  el=document.getElementById('pHair');    if(el) el.textContent=ME.hairType    ||'—';
+  el=document.getElementById('pFace');    if(el) el.textContent=ME.faceShape   ||'—';
+  el=document.getElementById('pDensity'); if(el) el.textContent=ME.density     ||'—';
+  el=document.getElementById('pNotes');   if(el) el.textContent=ME.growthNotes ||'—';
+  var init=ME.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  el=document.getElementById('ava'); if(el) el.textContent=init;
+}
+
+// ── renderAll: refresh current visible tab ──
+function renderAll(){
+  var activePage = document.querySelector('.page.active');
+  if(!activePage) return;
+  var id = activePage.id.replace('pg-','');
+  if(id==='home')    loadHome();
+  if(id==='bills')   loadBills();
+  if(id==='cards')   loadCards();
+  if(id==='profile') loadProfile();
+}
+
+
+
+// seedDemo() removed — was overwriting real customer data with demo "Marcus Williams" entries
+// Data now comes exclusively from Supabase via bootCustomer()
+
+
+
+// ── FIND ME ── (placeholder until Supabase loads)
+var ME = {id:'',phone:SESSION_PHONE,name:'Loading…',role:'customer',hairType:'',faceShape:'',density:'',growthNotes:''};
+applyMeToDOM();
+
+
+
+// ── GET MY DATA — all pre-filtered from Supabase by phone/customerId ──
+function myBills() {
+  // _data.entries already filtered by customerPhone from Supabase
+  return _data.entries;
+}
+function myVisits() {
+  // _data.visits already filtered by customerId from Supabase
+  return _data.visits;
+}
+function myCards() {
+  // _data.styleCards already filtered by customerId from Supabase
+  return _data.styleCards;
+}
+
+// ── NAVIGATE ──
+function go(tab) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('pg-'+tab).classList.add('active');
+  document.getElementById('nb-'+tab).classList.add('on');
+  if (tab==='home')    loadHome();
+  if (tab==='bills')   loadBills();
+  if (tab==='cards')   loadCards();
+  if (tab==='profile') loadProfile();
+  if (tab==='offers')  loadOffers();
+}
+
+// ── HOME ──
+function loadHome() {
+  var bills   = myBills();
+  var visits  = myVisits();
+  var cards   = myCards();
+  var totalSpend = bills.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var now = new Date();
+  var monthBills = bills.filter(function(e){
+    var mo = parseInt(now.getMonth())+1; var yr = now.getFullYear();
+    var p = e.date.split('/');
+    return parseInt(p[1])===mo && parseInt(p[2])===yr;
+  });
+  var monthSpend = monthBills.reduce(function(a,e){return a+Number(e.total||0);},0);
+
+  document.getElementById('hTotalSpend').textContent  = fmtINR(totalSpend);
+  document.getElementById('hTotalVisits').textContent = bills.length;
+  document.getElementById('hThisMonth').textContent   = fmtINR(monthSpend);
+
+  // Active style strip
+  var def = cards.find(function(c){return c.isDefault;}) || cards[0];
+  var strip = document.getElementById('activeStrip');
+  if (def) {
+    var tags = [def.fade, def.guard, def.texture].filter(Boolean).map(function(t){return '<span class="as-tag">'+t+'</span>';}).join('');
+    strip.innerHTML = '<div class="active-strip"><div class="as-pulse"><div class="as-dot"></div>Active Style</div><div class="as-name">'+def.name+'</div><div class="as-tags">'+tags+'</div><div style="display:flex;gap:8px"><button class="btn btn-g btn-sm btn-inline" onclick="viewDetail('+def.id+')">Blueprint</button><button class="btn btn-s btn-sm btn-inline" onclick="showStyleQR(\''+def.cardId+'\',\''+def.name+'\')">My QR</button></div></div>';
+  } else { strip.innerHTML = ''; }
+
+  // Recent bills (last 5)
+  var recent = bills.slice().sort(function(a,b){
+    return parseDate(b.date) - parseDate(a.date);
+  }).slice(0,5);
+  var hb = document.getElementById('homeBills');
+  if (!recent.length) {
+    hb.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>No bills yet. Your services<br>will appear here after your visit.</p></div>';
+  } else {
+    hb.innerHTML = recent.map(function(e){ return billRowHTML(e, true); }).join('') +
+      '<div style="text-align:center;margin-top:10px"><button class="btn btn-s btn-sm" onclick="go(\'bills\')">View All Bills →</button></div>';
+  }
+
+  // Style cards preview
+  var hc = document.getElementById('homeCards');
+  if (!cards.length) {
+    hc.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0 4px">No style cards yet. Your barber will create one for you.</div>';
+  } else {
+    hc.innerHTML = cards.slice(0,2).map(function(c){ return sciHTML(c); }).join('');
+  }
+
+  // Load offers preview (show max 2)
+  var opEl = document.getElementById('homeOffersPreview');
+  if(opEl){
+    opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2)">Loading…</div>';
+    var salonId = ME ? (ME.salonId||'') : '';
+    var qs = salonId
+      ? 'active=eq.true&order=created_at.desc&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)&limit=2'
+      : 'active=eq.true&is_global=eq.true&order=created_at.desc&limit=2';
+    _supaGet('offers', qs).then(function(offers){
+      var now = new Date();
+      var active = (offers||[]).filter(function(o){return !o.expires_at||new Date(o.expires_at)>now;});
+      if(!active.length){
+        opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:6px 0">No active offers right now.</div>';
+        return;
+      }
+      opEl.innerHTML = active.slice(0,2).map(function(o){ return buildOfferCard(o); }).join('');
+    }).catch(function(){
+      opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:6px 0">—</div>';
+    });
+  }
+}
+
+// ── BILLS PAGE ──
+function loadBills() {
+  var bills = myBills();
+  var totalSpend = bills.reduce(function(a,e){return a+e.total;},0);
+  var totalPh    = bills.reduce(function(a,e){return a+e.phPay;},0);
+  var totalCash  = bills.reduce(function(a,e){return a+e.cash;},0);
+  var avg = bills.length ? Math.round(totalSpend/bills.length) : 0;
+
+  document.getElementById('bTotalSpend').textContent = fmtINR(totalSpend);
+  document.getElementById('bTotalBills').textContent = bills.length;
+  document.getElementById('bPhonePe').textContent    = fmtINR(totalPh);
+  document.getElementById('bCash').textContent       = fmtINR(totalCash);
+  document.getElementById('bAvg').textContent        = fmtINR(avg);
+
+  // Build month chips
+  var monthSet = {};
+  bills.forEach(function(e){ var mk = monthKey(e.date); if(mk) monthSet[mk]=true; });
+  var months = Object.keys(monthSet).sort(function(a,b){return b.localeCompare(a);});
+  var chips = months.map(function(m){
+    return '<button class="mchip'+(_billsFilterMonth===m?' on':'')+'" onclick="setMonthFilter(\''+m+'\')">'+monthLabel(m)+'</button>';
+  }).join('');
+  var allTimeClass = _billsFilterMonth===null ? ' on' : '';
+  document.getElementById('monthChips').innerHTML = chips + '<button class="mchip'+allTimeClass+'" onclick="setMonthFilter(null)">All Time</button>';
+
+  // Service breakdown
+  var svcMap = {};
+  bills.forEach(function(e){ svcMap[e.services] = (svcMap[e.services]||0) + e.total; });
+  var svcArr = Object.entries(svcMap).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  var maxSvc = svcArr[0] ? svcArr[0][1] : 1;
+  var svcColors = ['#003D2B','#1E6FB5','#C2410C','#5F259F','#065f46','#92400e'];
+  document.getElementById('svcBreakdown').innerHTML = svcArr.length ?
+    svcArr.map(function(s,i){ return '<div class="sm-row"><div class="sm-lbl">'+s[0]+'</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(s[1]/maxSvc*100)+'%;background:'+(i===0?'#003D2B':i===1?'#1E6FB5':i===2?'#C2410C':'#5F259F')+'"></div></div><div class="sm-val">'+fmtINR(s[1])+'</div></div>'; }).join('') :
+    '<div style="font-size:13px;color:var(--muted2)">No data yet</div>';
+
+  // Payment split
+  var ttl = totalPh + totalCash || 1;
+  document.getElementById('paymentSplit').innerHTML =
+    '<div class="sm-row"><div class="sm-lbl">PhonePe</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(totalPh/ttl*100)+'%;background:#5F259F"></div></div><div class="sm-val">'+Math.round(totalPh/ttl*100)+'%</div></div>'+
+    '<div class="sm-row"><div class="sm-lbl">Cash</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(totalCash/ttl*100)+'%;background:#065f46"></div></div><div class="sm-val">'+Math.round(totalCash/ttl*100)+'%</div></div>';
+
+  renderBillsTable();
+}
+
+var _billsFilterMonth = null;
+function setMonthFilter(m) {
+  _billsFilterMonth = m;
+  var bills = myBills();
+  var monthSet = {};
+  bills.forEach(function(e){ var mk=monthKey(e.date);if(mk)monthSet[mk]=true;});
+  var months=Object.keys(monthSet).sort(function(a,b){return b.localeCompare(a);});
+  var chipsHtml = months.map(function(mo){
+    return '<button class="mchip'+(_billsFilterMonth===mo?' on':'')+'" onclick="setMonthFilter(\''+mo+'\')">'+monthLabel(mo)+'</button>';
+  }).join('');
+  var allClass = _billsFilterMonth===null ? ' on' : '';
+  document.getElementById('monthChips').innerHTML = chipsHtml + '<button class="mchip'+allClass+'" onclick="setMonthFilter(null)">All Time</button>';
+  renderBillsTable();
+}
+
+function renderBillsTable() {
+  var from = document.getElementById('bf-from').value;
+  var to   = document.getElementById('bf-to').value;
+  var bills = myBills();
+
+  // filter by month chip
+  if (_billsFilterMonth) {
+    bills = bills.filter(function(e){ return monthKey(e.date) === _billsFilterMonth; });
+  }
+  // filter by date range
+  if (from) {
+    var fd = new Date(from);
+    bills = bills.filter(function(e){ var d=parseDate(e.date); return d && d>=fd; });
+  }
+  if (to) {
+    var td = new Date(to); td.setHours(23,59,59);
+    bills = bills.filter(function(e){ var d=parseDate(e.date); return d && d<=td; });
+  }
+  bills = bills.sort(function(a,b){ return parseDate(b.date)-parseDate(a.date); });
+
+  var el = document.getElementById('billsTable');
+  if (!bills.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧾</div><p>No bills found for this period.</p></div>';
+    return;
+  }
+  el.innerHTML = bills.map(function(e){ return billRowHTML(e, false); }).join('');
+}
+
+function clearBillFilter() {
+  document.getElementById('bf-from').value = '';
+  document.getElementById('bf-to').value   = '';
+  _billsFilterMonth = null;
+  loadBills();
+}
+
+function billRowHTML(e, compact) {
+  var icon = e.services.includes('Color')?'🎨':e.services.includes('Shave')||e.services.includes('Facial')?'💆':e.services.includes('Combo')?'✂️💈':'✂️';
+  return '<div class="bill-row" onclick="openBillDetail('+e.id+')">' +
+    '<div class="br-icon">'+icon+'</div>' +
+    '<div class="br-body">' +
+      '<div class="br-svc">'+e.services+'</div>' +
+      '<div class="br-meta">'+e.barberName+(compact?'':' · '+e.date)+'</div>' +
+      '<div class="pay-pills">' +
+        (e.phPay>0?'<span class="pill p-pp">PhonePe '+fmtINR(e.phPay)+'</span>':'')+
+        (e.cash>0 ?'<span class="pill p-cash">Cash '+fmtINR(e.cash)+'</span>':'')+
+      '</div>' +
+    '</div>' +
+    '<div class="br-right"><div class="br-total">'+fmtINR(e.total)+'</div><div class="br-date">'+e.date+'</div></div>' +
+  '</div>';
+}
+
+function openBillDetail(id) {
+  var bills = myBills();
+  var e = bills.find(function(x){ return x.id===id; });
+  if (!e) return;
+  var icon = e.services.includes('Color')?'🎨':e.services.includes('Shave')||e.services.includes('Facial')?'💆':'✂️';
+  document.getElementById('billModalContent').innerHTML =
+    '<div class="mh"></div>' +
+    '<div style="text-align:center;margin-bottom:18px">' +
+      '<div style="font-size:44px;margin-bottom:8px">'+icon+'</div>' +
+      '<div class="mt" style="margin-bottom:4px">'+e.services+'</div>' +
+      '<div style="font-size:13px;color:var(--muted)">'+e.date+' · '+e.time+'</div>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:14px"><div class="card-body">' +
+      '<div class="ir"><span class="ir-l">Barber</span><span class="ir-v">'+e.barberName+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Service</span><span class="ir-v">'+e.services+'</span></div>' +
+      '<div class="ir"><span class="ir-l">PhonePe</span><span class="ir-v" style="color:var(--purple)">'+fmtINR(e.phPay)+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Cash</span><span class="ir-v" style="color:#065f46">'+fmtINR(e.cash)+'</span></div>' +
+      '<div class="ir"><span class="ir-l" style="color:var(--accent);font-weight:800">Total Paid</span><span class="ir-v" style="font-size:22px;font-weight:900;color:var(--accent)">'+fmtINR(e.total)+'</span></div>' +
+    '</div></div>' +
+    '<button class="btn btn-s btn-full" onclick="closeModal(\'billModal\')">Close</button>';
+  openModal('billModal');
+}
+
+// ── STYLE CARDS ──
+function sciHTML(c) {
+  var tags = [c.fade, c.guard, c.texture, c.neckline].filter(Boolean).map(function(t){ return '<span class="sci-tag">'+t+'</span>'; }).join('');
+  return '<div class="sci">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+      '<span class="badge bg-g">'+(c.cardId||'BB-'+c.id)+'</span>' +
+      (c.isDefault?'<span class="badge bg-y">⭐ Default</span>':'')+
+    '</div>' +
+    '<div class="sci-name">'+c.name+'</div>' +
+    '<div class="sci-id">Created: '+c.createdAt+'</div>' +
+    '<div class="sci-tags">'+tags+'</div>' +
+    '<div style="display:flex;gap:7px;margin-top:10px">' +
+      '<button class="btn btn-g btn-sm btn-inline" onclick="viewDetail('+c.id+')">View Blueprint</button>' +
+      '<button class="btn btn-s btn-sm btn-inline" onclick="showStyleQR(\''+c.cardId+'\',\''+c.name+'\')">QR Code</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function loadCards() {
+  var cards = myCards();
+  document.getElementById('allCards').innerHTML = cards.length ?
+    cards.map(function(c){ return sciHTML(c); }).join('') :
+    '<div class="empty"><div class="empty-icon">💈</div><p>No style cards yet.<br>Ask your barber to create one!</p></div>';
+}
+
+// ── HISTORY ──
+// ── PROFILE ──
+function loadProfile() {
+  var bills  = myBills();
+  var visits = myVisits();
+  var vc     = bills.length;
+  var totalSpend = bills.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var totalPh    = bills.reduce(function(a,e){return a+Number(e.phPay||0);},0);
+  var totalCash  = bills.reduce(function(a,e){return a+Number(e.cash||0);},0);
+  document.getElementById('prTotalSpend').textContent = fmtINR(totalSpend);
+  document.getElementById('prVisits').textContent     = vc;
+  document.getElementById('prPhonePe').textContent    = fmtINR(totalPh);
+  document.getElementById('prCash').textContent       = fmtINR(totalCash);
+
+  // Loyalty based on bill count
+  document.getElementById('loyVisits').innerHTML = vc + ' <span style="font-size:20px;letter-spacing:0">visits</span>';
+  var milestones = [5,10,20,50,100];
+  var next = milestones.find(function(m){return m>vc;}) || (Math.ceil(vc/50)*50+50);
+  var prev = milestones.filter(function(m){return m<=vc;}).pop() || 0;
+  var pct  = Math.min(100, Math.round((vc-prev)/(next-prev)*100));
+  var status = vc>=50?'🏆 VIP Member':vc>=20?'⭐ Regular':vc>=10?'💈 Loyal Customer':vc>=5?'✂️ Regular Visitor':'🌱 New Member';
+  document.getElementById('loyStatus').textContent = status;
+  document.getElementById('loyBar').style.width    = pct + '%';
+  document.getElementById('loyNext').textContent   = vc<next ? (next-vc)+' more visits to reach next milestone' : '🎉 Milestone reached!';
+}
+
+// ── CARD DETAIL ──
+function viewDetail(cardId) {
+  var cards = getStyleCards();
+  var c = cards.find(function(x){ return x.id===cardId; });
+  if (!c) return;
+  var zones = c.zones || {};
+  var zKeys = ['fr','to','le','cr','ri','ba'];
+  var zMap  = {fr:'front',to:'top',le:'left',cr:'crown',ri:'right',ba:'back'};
+  var zHTML = '<div class="zones">';
+  zKeys.forEach(function(k){
+    var val = zones[zMap[k]] || '—';
+    var lit = val && val!=='—' ? ' lit':'';
+    zHTML += '<div class="zc'+lit+'" data-z="'+k+'"><div class="zc-l">'+zMap[k]+'</div><div class="zc-v">'+val+'</div></div>';
+  });
+  zHTML += '</div>';
+  var photos = c.photos || {};
+  var pHTML = '<div class="photos">';
+  ['front','side','back'].forEach(function(s){
+    var p = photos[s];
+    pHTML += '<div class="ph'+(p?' has':'')+'">'+( p?'<img src="'+p+'" alt="'+s+'">':'<span style="font-size:22px">📷</span><span>'+s+'</span>' )+'</div>';
+  });
+  pHTML += '</div>';
+  document.getElementById('detailContent').innerHTML =
+    '<div class="mh"></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="mt" style="margin-bottom:0">'+c.name+'</div><span class="badge bg-g">'+(c.cardId||'BB-'+c.id)+'</span></div>' +
+    (c.isDefault?'<div style="margin-bottom:12px"><span class="badge bg-y">⭐ Your Default Style</span></div>':'')+
+    '<div class="card" style="margin-bottom:12px"><div class="card-body">' +
+      '<div class="ir"><span class="ir-l">Top Length</span><span class="ir-v">'+(c.topLength||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Texture</span><span class="ir-v">'+(c.texture||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Fade</span><span class="ir-v">'+(c.fade||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Guard</span><span class="ir-v">'+(c.guard||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Neckline</span><span class="ir-v">'+(c.neckline||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Beard</span><span class="ir-v">'+(c.beard||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Product</span><span class="ir-v">'+(c.product||'—')+'</span></div>' +
+    '</div></div>' +
+    (c.notes?'<div style="background:rgba(0,61,43,.06);border-left:3px solid var(--accent);padding:12px;border-radius:6px;margin-bottom:14px"><div style="font-size:11px;font-weight:800;color:var(--accent);margin-bottom:5px;letter-spacing:1px">⚠ BARBER NOTES</div><div style="font-size:13px">'+c.notes+'</div></div>':'')+
+    '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Zone Blueprint</div>' + zHTML +
+    '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Reference Photos</div>' + pHTML +
+    '<button class="btn btn-s btn-full" onclick="closeModal(\'detailModal\')">Close</button>';
+  openModal('detailModal');
+}
+
+// ── QR ──
+function showQR() {
+  document.getElementById('qrTitle').textContent = ME.name + ' — My QR';
+  document.getElementById('qrInfo').textContent  = 'Phone: +91 ' + ME.phone + ' · Show to barber';
+  var el = document.getElementById('qrCanvas'); el.innerHTML = '';
+  new QRCode(el, { text:'BB-CUST-'+ME.phone, width:190, height:190, colorDark:'#003D2B', colorLight:'#ffffff' });
+  openModal('qrModal');
+}
+function showStyleQR(cardId, name) {
+  document.getElementById('qrTitle').textContent = name;
+  document.getElementById('qrInfo').textContent  = cardId + ' · Show to barber';
+  var el = document.getElementById('qrCanvas'); el.innerHTML = '';
+  new QRCode(el, { text:'BBCARD-'+cardId, width:190, height:190, colorDark:'#003D2B', colorLight:'#ffffff' });
+  openModal('qrModal');
+}
+
+// ── INIT HOME ──
+loadHome();
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg)     { var t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2500); }
+function logout()       { sessionStorage.clear(); window.location.href='solo-index.html'; }
+
+// ── BRANDING ──
+(function loadCustomerBranding(){
+  fetch(SUPA_URL+'/rest/v1/salon_branding?select=*&limit=1',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();})
+  .then(function(rows){
+    if(!rows||!rows[0]) return;
+    var b=rows[0];
+    var logoEl=document.getElementById('topbarLogo');
+    if(!logoEl) return;
+    if(b.logo_url){
+      logoEl.innerHTML='<img src="'+b.logo_url+'" alt="Logo" style="height:26px;max-width:70px;object-fit:contain;border-radius:3px">';
+    } else if(b.salon_name){
+      var sp=document.getElementById('topbarLogoText');
+      if(sp) sp.textContent=b.salon_name.substring(0,6);
+    }
+    if(b.primary_color) document.documentElement.style.setProperty('--accent',b.primary_color);
+  }).catch(function(){});
+})();
+
+// ── OFFERS ──
+function loadOffers(){
+  var salonId = ME ? (ME.salonId||'') : '';
+  var visits  = myBills().length;
+
+  // Savings card visual
+  var scEl = document.getElementById('savings-card-section');
+  if(scEl) scEl.innerHTML = buildSavingsCard(visits);
+
+  // Fetch offers from Supabase
+  var el = document.getElementById('offers-list');
+  if(el) el.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0">Loading…</div>';
+
+  var qs = salonId
+    ? 'active=eq.true&order=created_at.desc&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)'
+    : 'active=eq.true&is_global=eq.true&order=created_at.desc';
+
+  _supaGet('offers', qs).then(function(offers){
+    if(!offers || !offers.length){
+      if(el) el.innerHTML =
+        '<div class="no-offers">'+
+          '<div class="no-offers-icon">🎁</div>'+
+          '<div style="font-size:13px;line-height:1.6">No active offers right now.<br>Check back soon!</div>'+
+        '</div>';
+      return;
+    }
+    var now = new Date();
+    var active = offers.filter(function(o){
+      if(!o.expires_at) return true;
+      return new Date(o.expires_at) > now;
+    });
+    if(!active.length){
+      if(el) el.innerHTML = '<div class="no-offers"><div class="no-offers-icon">🎁</div><div style="font-size:13px">No active offers right now.</div></div>';
+      return;
+    }
+    if(el) el.innerHTML = active.map(function(o){ return buildOfferCard(o); }).join('');
+  }).catch(function(){
+    if(el) el.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0">Could not load offers.</div>';
+  });
+}
+
+// Savings card discount tiers
+var SAVINGS_TIERS = [
+  {visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},
+  {visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}
+];
+function buildSavingsCard(visitCount){
+  var slots = SAVINGS_TIERS.map(function(t,i){
+    var used = visitCount > i;
+    return '<div class="sstrip-slot'+(used?' used':'')+'">'+
+      '<div class="sstrip-num">'+(i+1)+'</div>'+
+      (used?'':('<div class="sstrip-pct">'+t.pct+'%</div><div class="sstrip-off">OFF</div>'))+
+    '</div>';
+  }).join('');
+  var nextTier = SAVINGS_TIERS.find(function(t){return visitCount < t.visit;});
+  var tagline = nextTier
+    ? 'Visit '+(visitCount+1)+' to unlock '+nextTier.pct+'% OFF'
+    : '🎉 You\'ve unlocked all discounts!';
+  return '<div class="savings-strip">'+
+    '<div class="sstrip-title">SAVINGS CARD</div>'+
+    '<div class="sstrip-sub">Get discount on every visit</div>'+
+    '<div class="sstrip-slots">'+slots+'</div>'+
+    '<div class="sstrip-tagline">'+tagline+'</div>'+
+  '</div>';
+}
+
+var OFFER_COLORS = ['','gold','purple','orange'];
+function buildOfferCard(o){
+  var colorClass = OFFER_COLORS[o.color_theme||0] || '';
+  var hasDiscount = o.discount_pct && Number(o.discount_pct)>0;
+  var expiryText = '';
+  if(o.expires_at){
+    var d = new Date(o.expires_at);
+    expiryText = 'Expires: '+d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  }
+  var minBilling = o.min_billing ? 'Min billing ₹'+o.min_billing : '';
+  return '<div class="offer-card'+(o.is_featured?' featured':'')+'">'+
+    '<div class="offer-banner '+(colorClass)+'">'+
+      '<div style="display:flex;align-items:center">'+
+        '<span class="offer-emoji">'+(o.emoji||'🎁')+'</span>'+
+        '<div><div class="offer-title">'+(o.title||'Special Offer')+'</div>'+
+        (o.subtitle?'<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:1px">'+o.subtitle+'</div>':'')+'</div>'+
+      '</div>'+
+      (hasDiscount?
+        '<div><div class="offer-badge-pct">'+o.discount_pct+'%</div><div class="offer-badge-off">OFF</div></div>':'')
+    +'</div>'+
+    '<div class="offer-body">'+
+      '<div class="offer-desc">'+(o.description||'')+'</div>'+
+      '<div class="offer-meta">'+
+        (minBilling?'<span class="offer-pill gold">'+minBilling+'</span>':'')+
+        (o.is_global?'<span class="offer-pill green">All Branches</span>':'<span class="offer-pill green">This Branch</span>')+
+        (o.services_applicable?'<span class="offer-pill green">'+o.services_applicable+'</span>':'')+
+      '</div>'+
+      (expiryText?'<div class="offer-expiry">⏳ '+expiryText+'</div>':'')+
+    '</div>'+
+  '</div>';
+}
+
+// helper for CSS var() in JS string — not needed, using hex directly above
+function varG(){ return '#003D2B'; }
+</script>
+</body>
+</html>

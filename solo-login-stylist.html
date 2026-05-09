@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hairstylist Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:#F0F0EA;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+.card{background:#fff;border-radius:16px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.10);border:1px solid #E0E0D8}
+.logo-wrap{text-align:center;margin-bottom:24px}
+.logo-box{display:inline-block;background:#F5E030;border-radius:10px;padding:10px 24px}
+.logo-img{max-height:50px;max-width:160px;object-fit:contain}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;line-height:1;letter-spacing:2px;display:block}
+.role-banner{background:#004F38;color:#F5E030;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.role-icon{font-size:26px}
+.role-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;display:block}
+.role-sub{font-size:11px;color:rgba(245,224,48,.6);margin-top:2px;display:block}
+h2{font-size:22px;font-weight:800;color:#1A1A14;margin-bottom:4px}
+.sub{font-size:13px;color:#767668;margin-bottom:22px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#767668;margin-bottom:8px}
+input[type="tel"],input[type="password"]{width:100%;background:#F8F8F4;border:2px solid #E0E0D8;border-radius:8px;padding:14px 15px;font-family:'Barlow',sans-serif;font-size:17px;font-weight:500;color:#1A1A14;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus{border-color:#004F38}
+input::placeholder{color:#AAAAAA}
+.fg{margin-bottom:18px}
+.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#004F38;color:#F5E030}
+.btn-primary:hover{background:#006648}
+.btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px}
+.btn-secondary:hover{border-color:#004F38;color:#004F38}
+.err{color:#DC2626;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap">
+    <div class="logo-box" id="logoBox"><span class="logo-text" id="logoText">SALON PRO</span></div>
+  </div>
+  <div class="role-banner">
+    <span class="role-icon">✂️</span>
+    <div><span class="role-title">Hairstylist Login</span><span class="role-sub">Log your sales &amp; style cards</span></div>
+  </div>
+  <h2>Hairstylist Portal</h2>
+  <p class="sub">Enter your phone number and 6-digit PIN</p>
+  <div id="errMsg" class="err">Wrong phone or PIN</div>
+  <div class="fg">
+    <label>Mobile Number</label>
+    <input type="tel" id="phoneInput" placeholder="Your 10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+  </div>
+  <div class="fg">
+    <label>PIN</label>
+    <input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')">
+  </div>
+  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+  <a href="solo-index.html" class="btn btn-secondary">← Back to Portals</a>
+</div>
+<script>
+var SUPA_URL = 'https://socgmrzzovpqaekpsklv.supabase.co';
+var SUPA_KEY = 'sb_publishable_l48tcr0wuHPZCrMuDtj-pQ_dXZtgyrj';
+var _staffCache = [];
+
+function supaFetch(path,opts){
+  return fetch(SUPA_URL+'/rest/v1/'+path,Object.assign({headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}},opts||{}))
+    .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t);});return r.json();});
+}
+
+(function init(){
+  var btn=document.getElementById('loginBtn');
+  btn.disabled=true;btn.textContent='⏳ Loading…';
+  Promise.all([
+    supaFetch('staff?select=*'),
+    supaFetch('customers?select=*'),
+    supaFetch('salons?select=*'),
+    supaFetch('salon_branding?select=*')
+  ]).then(function(res){
+    _staffCache=res[0]||[];
+    localStorage.setItem('bb_staff',JSON.stringify(_staffCache));
+    localStorage.setItem('bb_customers',JSON.stringify(res[1]||[]));
+    localStorage.setItem('bb_salons',JSON.stringify(res[2]||[]));
+    // Branding: find the salon of any stylist and apply branding
+    var stylist=_staffCache.find(function(u){return u.role==='barber';});
+    if(stylist&&stylist.salonId){
+      var b=(res[3]||[]).find(function(x){return x.salon_id===stylist.salonId;});
+      if(b) applyBranding(b);
+      else {
+        var s=(res[2]||[]).find(function(x){return x.id===stylist.salonId;});
+        if(s&&s.name) document.getElementById('logoText').textContent=s.name;
+      }
+    }
+    btn.disabled=false;btn.textContent='Login →';
+  }).catch(function(){
+    try{_staffCache=JSON.parse(localStorage.getItem('bb_staff')||'[]');}catch(e){}
+    btn.disabled=false;btn.textContent='Login →';
+  });
+})();
+
+function applyBranding(b){
+  if(b.logo_url){
+    document.getElementById('logoBox').innerHTML='<img class="logo-img" src="'+b.logo_url+'" alt="Logo">';
+  } else if(b.salon_name){
+    document.getElementById('logoText').textContent=b.salon_name;
+  }
+}
+
+function doLogin(){
+  var phone=document.getElementById('phoneInput').value.trim();
+  var pin=document.getElementById('pinInput').value.trim();
+  var errEl=document.getElementById('errMsg');
+  errEl.style.display='none';
+  if(phone.length<8){errEl.textContent='Enter valid phone';errEl.style.display='block';return;}
+  if(pin.length<6){errEl.textContent='Enter 6-digit PIN';errEl.style.display='block';return;}
+  var staff=_staffCache.length?_staffCache:(JSON.parse(localStorage.getItem('bb_staff')||'[]'));
+  var u=staff.find(function(s){return String(s.phone)===phone&&s.role==='barber';});
+  if(!u){errEl.textContent='Phone not registered as Hairstylist — contact your owner';errEl.style.display='block';return;}
+  var storedPin=String(u.loginPin||u.login_pin||'');
+  if(storedPin!==String(pin)){errEl.textContent='Wrong PIN. Try again.';errEl.style.display='block';document.getElementById('pinInput').value='';return;}
+  sessionStorage.clear();
+  sessionStorage.setItem('bb_role','barber');
+  sessionStorage.setItem('bb_phone',phone);
+  sessionStorage.setItem('bb_name',u.name||'Stylist');
+  window.location.href='solo-app-stylist.html';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('loginBtn').disabled)doLogin();});
+</script>
+</body>
+</html>
