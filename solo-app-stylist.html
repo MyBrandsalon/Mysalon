@@ -2478,7 +2478,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function showSyncPill(){var p=document.getElementById('syncPill');if(p){p.className='sync-pill show syncing';p.innerHTML='<span>↻</span>';}}
 function hideSyncPill(){var p=document.getElementById('syncPill');if(p){p.className='sync-pill show ok';p.innerHTML='✓';setTimeout(function(){p.className='sync-pill';},2000);}}
 function toast(msg){var t=document.getElementById('toastEl');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},3000);}
-function logout(){stopQRScan();sessionStorage.clear();window.location.href='solo-index.html';}
+function logout(){stopQRScan();sessionStorage.clear();window.location.href='index.html';}
 </script>
   
 </div><!-- /app-content -->
