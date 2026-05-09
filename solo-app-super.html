@@ -729,8 +729,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 //    YOUR_SUPABASE_ANON_KEY  →  eyJ...
 // ════════════════════════════════════════════════════════════════
 
-var SUPA_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
-var SUPA_KEY = 'sb_publishable_GtdUt6IV6TcsGoyOP02oIQ_CZf0vLQy';
+var SUPA_URL  = 'https://socgmrzzovpqaekpsklv.supabase.co';
+var SUPA_KEY  = 'sb_publishable_l48tcr0wuHPZCrMuDtj-pQ_dXZtgyrj';
 
 // ── Low-level REST helpers ──────────────────────────────────────
 function _supaHeaders(){
@@ -746,7 +746,10 @@ function _supaFetch(path, opts){
   return fetch(SUPA_URL + '/rest/v1/' + path, Object.assign({
     headers: _supaHeaders()
   }, opts)).then(function(r){
-    if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
+    if(!r.ok) return r.text().then(function(t){
+      try{ var j=JSON.parse(t); if(j.code==='PGRST205'||j.code==='42P01') return []; } catch(e){}
+      throw new Error(t);
+    });
     var ct = r.headers.get('content-type')||'';
     return ct.indexOf('application/json') !== -1 ? r.json() : [];
   });
@@ -2392,10 +2395,10 @@ function clearAllData(){
   sessionStorage.clear();
   
   toast('✅ All data cleared — redirecting to portal…');
-  setTimeout(function(){ window.location.href='index.html'; }, 1500);
+  setTimeout(function(){ window.location.href='solo-index.html'; }, 1500);
 }
 
-function logout(){sessionStorage.clear();window.location.href='index.html';}
+function logout(){sessionStorage.clear();window.location.href='solo-index.html';}
 
 // ════ OFFERS (ADMIN) ════
 function populateAdminOfferSalonFilter(){
