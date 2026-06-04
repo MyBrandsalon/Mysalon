@@ -1981,6 +1981,8 @@ var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('
 var SESSION_ROLE  = localStorage.getItem('ms_role')  || sessionStorage.getItem('ms_role')  || '';
 var MS_TENANT_ID  = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
 var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
+// DEBUG — remove after fixing
+alert('DEBUG:\nPHONE=' + SESSION_PHONE + '\nROLE=' + SESSION_ROLE + '\nTENANT=' + MS_TENANT_ID + '\nSLUG=' + MS_SLUG);
 
 // Restore sessionStorage from localStorage if needed (handles page reload)
 if(MS_SLUG)       sessionStorage.setItem('ms_slug',       MS_SLUG);
