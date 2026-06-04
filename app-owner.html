@@ -3113,13 +3113,17 @@ function addMgrBill(){
   var staff  = LS.get('staff')||[];
   var barber = staff.find(function(u){return u.id===barberId;});
   var now    = new Date();
+  var _tenantId = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || MS_TENANT_ID || '';
   var entry  = {
     id:             String(Date.now()),
+    tenant_id:      _tenantId,
     date:           entryDate,
     time:           now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
     barberId:       barberId,
+    barber_id:      barberId,
     barberName:     barber ? barber.name : '—',
     salonId:        mySalonId,
+    salon_id:       mySalonId,
     services:       services,
     phPay:          ph,
     cash:           cash,
@@ -3141,11 +3145,14 @@ function addMgrBill(){
   // Save to Supabase FIRST — only send columns that exist in the schema
   var dbRow = {
     id:             entry.id,
+    tenant_id:      _tenantId,
     date:           entry.date,
     time:           entry.time,
     barberId:       entry.barberId,
+    barber_id:      entry.barberId,
     barberName:     entry.barberName,
     salonId:        entry.salonId,
+    salon_id:       entry.salonId,
     services:       entry.services,
     phPay:          entry.phPay,
     cash:           entry.cash,
@@ -3446,7 +3453,7 @@ function addMgrPrevMonthCash(){
   log.push(entry);
   LS.set('mgrPrevCashLog_'+ME.id,log);
   // Save to Supabase so franchise can see it
-  sbInsert('mgr_cash_in',{amount:amt,time:entry.time,date:entry.date,
+  sbInsert('mgr_cash_in',{tenant_id:localStorage.getItem('ms_tenant_id')||sessionStorage.getItem('ms_tenant_id')||MS_TENANT_ID||'',amount:amt,time:entry.time,date:entry.date,
     managerId:ME.id,salonId:mySalonId,desc:desc,handedTo:'',
     type:'prev_cash',status:'accepted'}).catch(function(){});
   document.getElementById('mgr-prev-cash-desc').value='';
@@ -3472,7 +3479,7 @@ function addMgrHandover(){
   var row={amount:amt,time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),date:today(),managerId:ME.id,handedTo:name,ts:Date.now()};
   log.push(row);
   LS.set('mgrHandover',log);
-  sbInsert('mgr_cash_in',{amount:amt,time:row.time,date:row.date,managerId:ME.id,salonId:mySalonId,desc:'Handover from '+ME.name+' to '+name,handedTo:name,type:'handover',status:'pending'}).catch(function(){});
+  sbInsert('mgr_cash_in',{tenant_id:localStorage.getItem('ms_tenant_id')||sessionStorage.getItem('ms_tenant_id')||MS_TENANT_ID||'',amount:amt,time:row.time,date:row.date,managerId:ME.id,salonId:mySalonId,desc:'Handover from '+ME.name+' to '+name,handedTo:name,type:'handover',status:'pending'}).catch(function(){});
   document.getElementById('mgr-handover-amt').value='';
   document.getElementById('mgr-handover-name').value='';
   renderMgrCashCounter();
@@ -5389,7 +5396,7 @@ function saveOT(){
   // Persist to overtime table — delete existing row then insert fresh if amt > 0
   _supaFetch('overtime?staff_id=eq.'+encodeURIComponent(salaryStaffId)+'&month=eq.'+encodeURIComponent(mo),{method:'DELETE'})
     .then(function(){
-      if(amt>0) return sbInsert('overtime',{staff_id:salaryStaffId,salon_id:mySalonId,month:mo,amount:amt,note:''});
+      if(amt>0) return sbInsert('overtime',{tenant_id:localStorage.getItem('ms_tenant_id')||sessionStorage.getItem('ms_tenant_id')||MS_TENANT_ID||'',staff_id:salaryStaffId,salon_id:mySalonId,month:mo,amount:amt,note:''});
     })
     .catch(function(e){ console.warn('[BB] OT save error:',e); });
   renderStaffSalary();

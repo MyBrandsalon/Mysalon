@@ -2165,10 +2165,13 @@ function addBill(){
   var split = _splitCreditUsage(custPhone, refCreditUsed);
 
   var now=new Date();
+  var _tenantId = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || MS_TENANT_ID || '';
   var entry={
-    id:Date.now(),date:today(),
+    id:Date.now(),
+    tenant_id: _tenantId,
+    date:today(),
     time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
-    barberId:ME.id,barberName:ME.name,salonId:ME.salonId,
+    barberId:ME.id,barber_id:ME.id,barberName:ME.name,salonId:ME.salonId,salon_id:ME.salonId,
     services:selectedSvcs.map(function(s){return s.label;}).join(', '),
     phPay:ph,cash:cash,tip:tip,phTip:phTip,cashTip:cashTip,
     total:ph+cash,
