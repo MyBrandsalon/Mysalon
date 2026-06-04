@@ -72,17 +72,23 @@ function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function
   document.getElementById('loginBtn').textContent='⏳ Loading…';
   _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,logo_url,plan')
     .then(function(rows){
-      if(!rows||!rows.length){showErr('Salon not found or inactive.');return;}
+      if(!rows||!rows.length){showErr('Salon not found. Slug used: ['+_slug+']');return;}
       _tenant=rows[0];
       document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
       document.title=_tenant.name+' – Stylist Login';
       sessionStorage.setItem('ms_tenant_id',_tenant.id);
+      localStorage.setItem('ms_tenant_id',_tenant.id);
       sessionStorage.setItem('ms_plan',_tenant.plan||'free');
       sessionStorage.setItem('ms_name',_tenant.name);
-      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=in.(stylist,barber)&active=eq.true&select=id,name,phone,login_pin,loginPin,salon_id,salonId,fixedSalary,fixed_salary,foodMoney,food_money,cleaningMoney,cleaning_money');
+      // Query ALL staff for this tenant (no role/active filter)
+      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&select=*');
     }).then(function(staff){
       if(!staff)return;
       var norm=staff.map(function(s){
+    s.loginPin=String(s.loginPin||s.login_pin||'');
+    s.salonId=String(s.salonId||s.salon_id||'');
+    s.phone=String(s.phone||'').replace(/\D/g,'');
+    s.phone=s.phone.length>10?s.phone.slice(-10):s.phone;
         s.loginPin=String(s.loginPin||s.login_pin||'');
         s.salonId=String(s.salonId||s.salon_id||'');
         return s;
@@ -99,9 +105,16 @@ function doLogin(){
   if(phone.length<10){showErr('Enter valid 10-digit phone.');return;}
   if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
   var staff=JSON.parse(localStorage.getItem('ms_staff')||'[]');
-  var sm=staff.find(function(u){return String(u.phone)===phone;});
-  if(!sm){showErr('Phone not registered as a Stylist here. Contact your manager.');return;}
-  if(sm.loginPin!==pin){showErr('Wrong PIN. Try again.');document.getElementById('pinInput').value='';return;}
+  function normPhone(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+  var sm=staff.find(function(u){return normPhone(u.phone)===normPhone(phone);});
+  if(!sm){
+    // Debug: show what phones are loaded
+    var loadedPhones=staff.map(function(u){return normPhone(u.phone);}).join(', ');
+    showErr('Phone not found. Loaded staff phones: '+loadedPhones);
+    return;
+  }
+  var _pin=String(sm.loginPin||sm.login_pin||sm['login_pin']||'').trim();
+if(_pin!==pin.trim()){showErr('Wrong PIN. Try again.');document.getElementById('pinInput').value='';return;}
   var _sessData = {
     ms_role: 'stylist',
     ms_phone: phone,
