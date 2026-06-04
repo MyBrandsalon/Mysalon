@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Join Queue — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--surface);min-height:100vh;padding-bottom:40px}
+
+/* Header */
+.header{background:var(--ink);padding:20px 18px;text-align:center}
+.salon-logo-wrap{width:56px;height:56px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden}
+#ms-logo{width:48px;height:48px;object-fit:contain;display:none}
+.logo-fallback{font-size:24px}
+.salon-name{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--lime);letter-spacing:.3px}
+.header-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+
+/* Status display */
+.queue-status{margin:16px 14px 0}
+.queue-live{background:var(--lime3);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+.ql-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3)}
+.ql-num{font-family:var(--fh);font-size:64px;font-weight:800;color:var(--ink);line-height:1;margin:6px 0}
+.ql-sub{font-size:13px;color:var(--ink3)}
+.ql-wait{font-size:22px;font-weight:700;color:var(--lime2)}
+
+/* Barber picker */
+.barber-section{margin:0 14px 12px}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.barber-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.barber-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
+.barber-card:hover{border-color:var(--lime2)}
+.barber-card.selected{border-color:var(--lime2);background:var(--lime3)}
+.barber-icon{font-size:28px;display:block;margin-bottom:6px}
+.barber-name{font-size:13px;font-weight:700;color:var(--ink)}
+.barber-queue{font-size:11px;color:var(--ink3);margin-top:2px}
+
+/* Form */
+.form-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;margin:0 14px;padding:20px}
+.form-title{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+input[type=text],input[type=tel]{
+  width:100%;padding:13px 14px;background:var(--surface);border:2px solid var(--border);border-radius:10px;
+  font-family:var(--ff);font-size:16px;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none
+}
+input:focus{border-color:var(--lime2)}
+input::placeholder{color:#AAB8B2}
+.btn-join{width:100%;padding:15px;background:var(--ink);color:var(--lime);border:none;border-radius:10px;font-family:var(--fh);font-size:18px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px}
+.btn-join:hover{background:var(--ink2)}
+.btn-join:disabled{background:#C5D0CA;color:#7A9A8A;cursor:not-allowed}
+
+/* Token confirmation */
+.token-box{background:var(--ink);border-radius:20px;margin:16px 14px 0;padding:28px;text-align:center}
+.token-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.45);margin-bottom:10px}
+.token-num{font-family:var(--fh);font-size:80px;font-weight:800;color:var(--lime);line-height:1;margin-bottom:8px}
+.token-pos{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:4px}
+.token-eta{font-size:28px;font-weight:700;color:var(--lime3);margin-top:8px}
+.token-eta-label{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.token-name{font-size:15px;color:rgba(255,255,255,.8);margin-top:12px}
+.token-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:6px;line-height:1.6}
+
+/* Offer badge */
+.offer-pill{display:inline-block;background:var(--lime3);color:var(--ink2);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;margin-top:10px}
+
+/* Error */
+.err{background:rgba(229,64,58,.06);border:1.5px solid rgba(229,64,58,.2);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--danger);margin:0 14px 14px;text-align:center;display:none}
+
+/* Loading */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(247,250,248,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(158,214,54,.15);border-top-color:var(--lime2);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:13px;color:var(--ink2);font-weight:600}
+
+/* View queue button */
+.btn-view{display:block;text-align:center;margin:12px 14px 0;padding:12px;background:transparent;border:2px solid var(--border);border-radius:10px;font-family:var(--fh);font-size:14px;font-weight:700;color:var(--ink3);cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-view:hover{border-color:var(--lime2);color:var(--lime2)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="salon-logo-wrap">
+    <img id="ms-logo" alt="logo">
+    <span class="logo-fallback" id="logoFallback">✂</span>
+  </div>
+  <div class="salon-name ms-salon-name">MySalon</div>
+  <div class="header-sub">Save-the-Time Queue · Join from here</div>
+</div>
+
+<!-- LIVE QUEUE STATUS -->
+<div class="queue-status">
+  <div class="queue-live" id="queueStatus">
+    <div class="ql-label">Currently waiting</div>
+    <div class="ql-num" id="waitingCount">—</div>
+    <div class="ql-sub">~<span class="ql-wait" id="estWait">—</span> min estimated wait</div>
+  </div>
+</div>
+
+<!-- BARBER PICKER (shows once tenant loaded) -->
+<div class="barber-section" id="barberSection" style="display:none">
+  <div class="sec-title">Choose your stylist</div>
+  <div class="barber-cards" id="barberCards"></div>
+</div>
+
+<!-- FORM -->
+<div id="errMsg" class="err"></div>
+
+<div class="form-box" id="joinForm">
+  <div class="form-title">Get your token</div>
+  <div class="fg">
+    <label>Your Name *</label>
+    <input type="text" id="custName" placeholder="Your name">
+  </div>
+  <div class="fg">
+    <label>Mobile Number *</label>
+    <input type="tel" id="custPhone" placeholder="10-digit number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+  </div>
+  <div class="fg">
+    <label>Services Needed</label>
+    <input type="text" id="custServices" placeholder="e.g. Haircut, Beard trim">
+  </div>
+  <button class="btn-join" id="joinBtn" onclick="joinQueue()">Get My Token →</button>
+</div>
+
+<!-- TOKEN SUCCESS -->
+<div id="tokenSuccess" style="display:none">
+  <div class="token-box">
+    <div class="token-label">Your token</div>
+    <div class="token-num" id="tokenNumber">A1</div>
+    <div class="token-pos">Position: <strong id="tokenPos">1</strong> in queue</div>
+    <div class="token-eta" id="tokenEta">~15 min</div>
+    <div class="token-eta-label">estimated wait time</div>
+    <div class="token-name" id="tokenName">Ready!</div>
+    <div class="token-sub" id="tokenBarber">We'll call you when your stylist is ready.<br>Please stay nearby.</div>
+    <div id="tokenOffer"></div>
+  </div>
+  <a href="#" id="viewQueueLink" class="btn-view">View live queue screen →</a>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Loading…</div>
+</div>
+
+<script>
+var MS_URL = 'YOUR_MYSALON_SUPABASE_URL';
+var MS_KEY = 'YOUR_MYSALON_SUPABASE_ANON_KEY';
+var _tenant = null;
+var _salons  = [];
+var _staff   = [];
+var _selectedBarberId = null;
+var _today = new Date().toLocaleDateString('en-CA');
+
+function _h(){ return { 'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY,'Prefer':'return=representation' }; }
+function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[]}); }
+function _post(p,body){
+  return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:_h(),body:JSON.stringify(body)})
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t);}); return r.json(); })
+    .then(function(r){ return Array.isArray(r)?r[0]:r; });
+}
+
+(function init(){
+  var slug = new URLSearchParams(location.search).get('salon') || sessionStorage.getItem('ms_slug') || '';
+  if(!slug){ showErr('No salon ID. Please use your salon QR code link.'); return; }
+  sessionStorage.setItem('ms_slug', slug);
+  document.getElementById('joinBtn').disabled = true;
+  showLoading('Loading queue…');
+
+  _get('tenants?slug=eq.'+encodeURIComponent(slug)+'&is_active=eq.true&select=id,name,logo_url,plan')
+    .then(function(rows){
+      if(!rows||!rows.length){ throw new Error('Salon not found.'); }
+      _tenant = rows[0];
+      if(_tenant.plan === 'free'){ throw new Error('Queue is not enabled on this salon\'s plan. Please ask them to upgrade to MySalon Pro.'); }
+      applyBranding(_tenant);
+      return Promise.all([
+        _get('salons?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&is_active=eq.true&select=id,name'),
+        _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=eq.stylist&active=eq.true&select=id,name,salon_id')
+      ]);
+    })
+    .then(function(res){
+      _salons = res[0]||[];
+      _staff  = res[1]||[];
+      return loadQueueStatus();
+    })
+    .then(function(){
+      renderBarbers();
+      document.getElementById('joinBtn').disabled = false;
+      hideLoading();
+    })
+    .catch(function(err){
+      hideLoading();
+      showErr(err.message||'Failed to load.');
+    });
+})();
+
+function applyBranding(t){
+  document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=t.name; });
+  document.title = t.name+' — Join Queue';
+  if(t.logo_url){
+    var img=document.getElementById('ms-logo'); img.src=t.logo_url; img.style.display='block';
+    document.getElementById('logoFallback').style.display='none';
+    img.onerror=function(){img.style.display='none';document.getElementById('logoFallback').style.display='block';};
+  }
+}
+
+function loadQueueStatus(){
+  if(!_tenant) return Promise.resolve();
+  return _get('queue_tokens?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&date=eq.'+_today+'&status=in.(waiting,in_chair)&select=id,position,eta_minutes,barber_id,status&order=position.asc')
+    .then(function(rows){
+      var waiting = rows.filter(function(r){return r.status==='waiting';});
+      document.getElementById('waitingCount').textContent = waiting.length;
+      var avgEta = waiting.length > 0 ? waiting.length * 15 : 0;
+      document.getElementById('estWait').textContent = avgEta||'—';
+    });
+}
+
+function renderBarbers(){
+  if(!_staff.length) return;
+  document.getElementById('barberSection').style.display='block';
+  document.getElementById('barberCards').innerHTML = _staff.map(function(s){
+    return '<div class="barber-card" id="bc-'+s.id+'" onclick="selectBarber(\''+s.id+'\')">'+
+      '<span class="barber-icon">✂️</span>'+
+      '<div class="barber-name">'+escH(s.name)+'</div>'+
+      '<div class="barber-queue">0 ahead</div>'+
+    '</div>';
+  }).join('');
+  // Update queue counts per barber
+  _get('queue_tokens?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&date=eq.'+_today+'&status=eq.waiting&select=barber_id')
+    .then(function(rows){
+      var cnt={};
+      rows.forEach(function(r){ cnt[r.barber_id]=(cnt[r.barber_id]||0)+1; });
+      _staff.forEach(function(s){
+        var el=document.getElementById('bc-'+s.id);
+        if(el) el.querySelector('.barber-queue').textContent=(cnt[s.id]||0)+' ahead';
+      });
+    });
+}
+
+function selectBarber(id){
+  _selectedBarberId = id;
+  document.querySelectorAll('.barber-card').forEach(function(c){ c.classList.remove('selected'); });
+  var el=document.getElementById('bc-'+id);
+  if(el) el.classList.add('selected');
+}
+
+function joinQueue(){
+  var name   = document.getElementById('custName').value.trim();
+  var phone  = document.getElementById('custPhone').value.trim();
+  var svcs   = document.getElementById('custServices').value.trim();
+  hideErr();
+  if(!name)           { showErr('Please enter your name.'); return; }
+  if(phone.length<10) { showErr('Enter a valid 10-digit number.'); return; }
+
+  showLoading('Getting your token…');
+
+  // Get current queue length for this barber (or general)
+  var qs = 'tenant_id=eq.'+encodeURIComponent(_tenant.id)
+    +'&date=eq.'+_today
+    +'&status=in.(waiting,in_chair)'
+    +'&order=position.desc&limit=1';
+  if(_selectedBarberId) qs += '&barber_id=eq.'+encodeURIComponent(_selectedBarberId);
+
+  _get('queue_tokens?'+qs).then(function(rows){
+    var nextPos   = rows.length ? (rows[0].position||0)+1 : 1;
+    var tokenStr  = String.fromCharCode(64+Math.min(nextPos,26)) + nextPos;
+    var etaMin    = nextPos * 15;
+    var barberSm  = _staff.find(function(s){ return s.id===_selectedBarberId; });
+
+    var row = {
+      tenant_id:    _tenant.id,
+      salon_id:     (_salons[0]||{}).id || null,
+      barber_id:    _selectedBarberId || null,
+      customer_name:name,
+      customer_phone:phone,
+      token_number: tokenStr,
+      position:     nextPos,
+      services:     svcs || null,
+      status:       'waiting',
+      eta_minutes:  etaMin,
+      date:         _today
+    };
+    return _post('queue_tokens', row).then(function(token){
+      hideLoading();
+      showToken(token, barberSm, etaMin);
+      document.getElementById('joinForm').style.display='none';
+      document.getElementById('barberSection').style.display='none';
+    });
+  }).catch(function(err){
+    hideLoading();
+    showErr(err.message||'Failed to join queue. Please try again.');
+  });
+}
+
+function showToken(token, barber, eta){
+  document.getElementById('tokenSuccess').style.display='block';
+  document.getElementById('tokenNumber').textContent = token.token_number||'A1';
+  document.getElementById('tokenPos').textContent    = token.position||1;
+  document.getElementById('tokenEta').textContent    = '~'+eta+' min';
+  document.getElementById('tokenName').textContent   = '👋 You\'re in, '+(document.getElementById('custName').value.trim()||'!')+'!';
+  var slug = sessionStorage.getItem('ms_slug')||'';
+  var barberTxt = barber ? 'Your stylist: '+barber.name+'<br>' : '';
+  document.getElementById('tokenBarber').innerHTML = barberTxt+'We\'ll call your name when it\'s your turn.<br>Please stay nearby.';
+  document.getElementById('viewQueueLink').href = 'queue-display.html'+(slug?'?salon='+encodeURIComponent(slug):'');
+  // Any active offer
+  if(token.offer_pct && token.offer_pct>0){
+    document.getElementById('tokenOffer').innerHTML='<div class="offer-pill">🎉 '+token.offer_pct+'% off — '+escH(token.offer_name||'Special offer')+'</div>';
+  }
+}
+
+function showErr(m){ var e=document.getElementById('errMsg'); e.textContent=m; e.style.display='block'; }
+function hideErr(){ document.getElementById('errMsg').style.display='none'; }
+function showLoading(t){ document.getElementById('loadingTxt').textContent=t||'Loading…'; document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

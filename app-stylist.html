@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Stylist App — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--success:#2D7A3A;
+  --ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:80px}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--ink);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:32px;height:32px;border-radius:8px;object-fit:contain;border:2px solid rgba(255,255,255,.15);display:none}
+.topbar-salon{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--lime)}
+.topbar-role{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.topbar-user{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:10px}
+.btn-logout{font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:var(--ff);padding:0}
+.btn-logout:hover{color:rgba(255,255,255,.8)}
+
+/* ── DATE BAR ── */
+.datebar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.date-label{font-size:13px;font-weight:600;color:var(--ink)}
+.date-today{font-size:11px;color:var(--lime2);font-weight:700;cursor:pointer}
+input[type=date]{border:none;background:transparent;font-family:var(--ff);font-size:13px;color:var(--ink);outline:none;cursor:pointer}
+
+/* ── SUMMARY CARDS ── */
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 14px 8px}
+.sum-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center}
+.sum-val{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--ink);display:block}
+.sum-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-top:3px}
+.sum-card.highlight{background:var(--lime3);border-color:var(--lime2)}
+.sum-card.highlight .sum-val{color:var(--ink2)}
+
+/* ── SECTION ── */
+.section{padding:10px 14px 0}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink)}
+.btn-add{background:var(--lime2);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-add:hover{background:var(--lime)}
+
+/* ── ENTRY CARD ── */
+.entry-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.entry-services{font-size:14px;font-weight:600;color:var(--ink)}
+.entry-meta{font-size:11px;color:var(--ink3);margin-top:3px}
+.entry-amount{font-family:var(--fh);font-size:20px;font-weight:700;color:var(--lime2);white-space:nowrap}
+.entry-mode{font-size:10px;color:var(--ink3);text-align:right;margin-top:2px}
+.entry-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:16px;padding:0 2px;flex-shrink:0}
+.entry-del:hover{color:var(--danger)}
+.empty-state{text-align:center;padding:32px 0;color:var(--ink3);font-size:14px}
+.empty-icon{font-size:40px;display:block;margin-bottom:8px;opacity:.35}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:13px 18px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;flex-shrink:0;transition:all .2s}
+.tab.active{color:var(--ink);border-bottom-color:var(--lime2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--ink);margin-bottom:20px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+input[type=text],input[type=tel],input[type=number],select,textarea{
+  width:100%;padding:12px 14px;background:var(--surface);border:2px solid var(--border);border-radius:10px;
+  font-family:var(--ff);font-size:15px;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--lime2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-save{width:100%;padding:14px;background:var(--ink);color:var(--lime);border:none;border-radius:10px;font-family:var(--fh);font-size:17px;font-weight:700;cursor:pointer;margin-top:4px}
+.btn-save:hover{background:var(--ink2)}
+.btn-cancel{width:100%;padding:12px;background:transparent;border:2px solid var(--border);border-radius:10px;font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink3);cursor:pointer;margin-top:8px}
+.btn-cancel:hover{border-color:var(--ink2)}
+
+/* ── ATT TOGGLE ── */
+.att-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
+.att-name{font-size:14px;font-weight:600;color:var(--ink)}
+.att-btns{display:flex;gap:6px}
+.att-btn{padding:7px 14px;border-radius:8px;border:2px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink3)}
+.att-btn.sel-present{background:#EAF5E6;border-color:#2D7A3A;color:#2D7A3A}
+.att-btn.sel-half{background:#FFF3CD;border-color:#C8A800;color:#856404}
+.att-btn.sel-absent{background:#FEE2E2;border-color:var(--danger);color:var(--danger)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:var(--ff);transition:color .2s}
+.nav-item.active{color:var(--lime2)}
+.nav-icon{font-size:20px;display:block;margin-bottom:3px}
+.nav-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+/* Loader */
+.page-loader{text-align:center;padding:60px 20px;color:var(--ink3);font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <img id="ms-logo" class="topbar-logo" alt="logo">
+    <div>
+      <div class="topbar-salon ms-salon-name">MySalon</div>
+      <div class="topbar-role">Stylist Portal</div>
+    </div>
+  </div>
+  <div class="topbar-user">
+    <span id="userNameDisplay">Stylist</span>
+    <button class="btn-logout" onclick="msLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- DATE BAR -->
+<div class="datebar">
+  <div class="date-label">📅 <input type="date" id="dateSelect" onchange="loadDayData()"></div>
+  <span class="date-today" onclick="resetToday()">Today</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('entries',this)">Entries</div>
+  <div class="tab" onclick="switchTab('cashin',this)">Cash In</div>
+  <div class="tab" onclick="switchTab('stylecards',this)">Style Cards</div>
+  <div class="tab" onclick="switchTab('attendance',this)">Attendance</div>
+</div>
+
+<!-- ── ENTRIES TAB ── -->
+<div id="tab-entries" class="tab-pane active">
+  <div class="summary-row">
+    <div class="sum-card highlight"><span class="sum-val" id="sumTotal">₹0</span><span class="sum-lbl">Total</span></div>
+    <div class="sum-card"><span class="sum-val" id="sumCount">0</span><span class="sum-lbl">Entries</span></div>
+    <div class="sum-card"><span class="sum-val" id="sumCash">₹0</span><span class="sum-lbl">Cash</span></div>
+  </div>
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Today's Services</span>
+      <button class="btn-add" onclick="openModal('entry')">+ Add</button>
+    </div>
+    <div id="entriesList"><div class="page-loader">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── CASH IN TAB ── -->
+<div id="tab-cashin" class="tab-pane">
+  <div class="section" style="padding-top:16px">
+    <div class="sec-head">
+      <span class="sec-title">Additional Cash</span>
+      <button class="btn-add" onclick="openModal('cashin')">+ Add</button>
+    </div>
+    <div id="cashinList"><div class="page-loader">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── STYLE CARDS TAB ── -->
+<div id="tab-stylecards" class="tab-pane">
+  <div class="section" style="padding-top:16px">
+    <div class="sec-head">
+      <span class="sec-title">Style Cards</span>
+      <button class="btn-add" onclick="openModal('stylecard')">+ New Card</button>
+    </div>
+    <div id="stylecardsList"><div class="page-loader">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── ATTENDANCE TAB ── -->
+<div id="tab-attendance" class="tab-pane">
+  <div class="section" style="padding-top:16px">
+    <div class="sec-head">
+      <span class="sec-title">Mark My Attendance</span>
+    </div>
+    <div id="attendancePanel"></div>
+  </div>
+</div>
+
+<!-- ── MODALS ── -->
+<!-- Entry modal -->
+<div class="modal-overlay" id="modal-entry">
+  <div class="modal">
+    <div class="modal-title">New Service Entry</div>
+    <div class="fg"><label>Customer Phone (optional)</label><input type="tel" id="e-phone" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>Services Done *</label><input type="text" id="e-services" placeholder="e.g. Haircut, Beard trim"></div>
+    <div class="row2">
+      <div class="fg"><label>Amount (₹) *</label><input type="number" id="e-amount" placeholder="0" min="0"></div>
+      <div class="fg"><label>Discount (₹)</label><input type="number" id="e-discount" placeholder="0" min="0"></div>
+    </div>
+    <div class="fg"><label>Payment Mode</label>
+      <select id="e-mode">
+        <option value="cash">Cash</option>
+        <option value="upi">UPI</option>
+        <option value="card">Card</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="e-notes" placeholder="Optional notes" rows="2"></textarea></div>
+    <button class="btn-save" onclick="saveEntry()">Save Entry</button>
+    <button class="btn-cancel" onclick="closeModal('entry')">Cancel</button>
+  </div>
+</div>
+
+<!-- Cash In modal -->
+<div class="modal-overlay" id="modal-cashin">
+  <div class="modal">
+    <div class="modal-title">Add Cash In</div>
+    <div class="fg"><label>Amount (₹) *</label><input type="number" id="ci-amount" placeholder="0" min="0"></div>
+    <div class="fg"><label>Note</label><input type="text" id="ci-note" placeholder="Reason or description"></div>
+    <button class="btn-save" onclick="saveCashIn()">Save</button>
+    <button class="btn-cancel" onclick="closeModal('cashin')">Cancel</button>
+  </div>
+</div>
+
+<!-- Style Card modal -->
+<div class="modal-overlay" id="modal-stylecard">
+  <div class="modal">
+    <div class="modal-title">New Style Card</div>
+    <div class="fg"><label>Customer Phone *</label><input type="tel" id="sc-phone" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>Customer Name</label><input type="text" id="sc-name" placeholder="Customer name"></div>
+    <div class="row2">
+      <div class="fg"><label>Hair Type</label><input type="text" id="sc-hairtype" placeholder="e.g. Wavy"></div>
+      <div class="fg"><label>Hair Length</label><input type="text" id="sc-hairlen" placeholder="e.g. Long"></div>
+    </div>
+    <div class="fg"><label>Services Done</label><input type="text" id="sc-services" placeholder="e.g. Trim, Colour"></div>
+    <div class="fg"><label>Products Used</label><input type="text" id="sc-products" placeholder="e.g. Loreal Cream"></div>
+    <div class="fg"><label>Stylist Notes</label><textarea id="sc-notes" placeholder="Special requests, allergies, preferences…" rows="3"></textarea></div>
+    <div class="fg"><label>Next Visit Due</label><input type="date" id="sc-nextvisit"></div>
+    <button class="btn-save" onclick="saveStyleCard()">Save Style Card</button>
+    <button class="btn-cancel" onclick="closeModal('stylecard')">Cancel</button>
+  </div>
+</div>
+
+<script src="_mysalon.js"></script>
+<script>
+// ── Auth ──
+var sess = msRequireAuth('stylist');
+if(!sess) throw new Error('redirect');
+var TENANT_ID = sess.tenantId;
+var SALON_ID  = sess.staffId ? (sess.salonId||'') : '';
+var STYLIST_ID= sess.staffId;
+
+document.getElementById('userNameDisplay').textContent = sess.name||'Stylist';
+if(sess.logo) { var li=document.getElementById('ms-logo'); li.src=sess.logo; li.style.display='block'; }
+document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=sess.slug||'MySalon'; });
+
+// Date
+var _date = msToday();
+document.getElementById('dateSelect').value = _date;
+function resetToday(){ _date=msToday(); document.getElementById('dateSelect').value=_date; loadDayData(); }
+document.getElementById('dateSelect').addEventListener('change',function(){ _date=this.value; loadDayData(); });
+
+// Tabs
+var _activeTab = 'entries';
+function switchTab(name, el){
+  _activeTab = name;
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+  loadDayData();
+}
+
+// ── Data loading ──
+function loadDayData(){
+  if(_activeTab==='entries')    loadEntries();
+  if(_activeTab==='cashin')     loadCashIn();
+  if(_activeTab==='stylecards') loadStyleCards();
+  if(_activeTab==='attendance') loadAttendance();
+}
+
+function loadEntries(){
+  var qs='tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&stylist_id=eq.'+encodeURIComponent(STYLIST_ID)
+    +'&date=eq.'+encodeURIComponent(_date)
+    +'&order=created_at.desc';
+  msSelect('entries',qs).then(function(rows){
+    var total=0, cash=0;
+    rows.forEach(function(r){ total+=parseFloat(r.final_amount||r.amount||0); if(r.payment_mode==='cash') cash+=parseFloat(r.final_amount||r.amount||0); });
+    document.getElementById('sumTotal').textContent=msRupee(total);
+    document.getElementById('sumCount').textContent=rows.length;
+    document.getElementById('sumCash').textContent=msRupee(cash);
+    var el=document.getElementById('entriesList');
+    if(!rows.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span>No entries yet today</div>'; return; }
+    el.innerHTML=rows.map(function(r){
+      return '<div class="entry-card">'+
+        '<div><div class="entry-services">'+escH(r.services||'Service')+'</div>'+
+        '<div class="entry-meta">'+(r.customer_phone?'📞 '+r.customer_phone+' · ':'')+(r.notes?escH(r.notes):'')+'</div></div>'+
+        '<div style="text-align:right;flex-shrink:0">'+
+          '<div class="entry-amount">'+msRupee(r.final_amount||r.amount)+'</div>'+
+          '<div class="entry-mode">'+ucFirst(r.payment_mode||'cash')+'</div>'+
+          '<button class="entry-del" onclick="delEntry(\''+r.id+'\')">🗑</button>'+
+        '</div></div>';
+    }).join('');
+  }).catch(function(){ document.getElementById('entriesList').innerHTML='<div class="empty-state">Failed to load.</div>'; });
+}
+
+function loadCashIn(){
+  var qs='tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&stylist_id=eq.'+encodeURIComponent(STYLIST_ID)
+    +'&date=eq.'+encodeURIComponent(_date);
+  msSelect('cash_in',qs).then(function(rows){
+    var el=document.getElementById('cashinList');
+    if(!rows.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">💰</span>No cash entries today</div>'; return; }
+    el.innerHTML=rows.map(function(r){
+      return '<div class="entry-card"><div><div class="entry-services">Cash In</div><div class="entry-meta">'+escH(r.note||'')+'</div></div>'+
+        '<div class="entry-amount">'+msRupee(r.amount)+'</div></div>';
+    }).join('');
+  });
+}
+
+function loadStyleCards(){
+  var qs='tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&stylist_id=eq.'+encodeURIComponent(STYLIST_ID)
+    +'&order=date.desc&limit=30';
+  msSelect('style_cards',qs).then(function(rows){
+    var el=document.getElementById('stylecardsList');
+    if(!rows.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">🎨</span>No style cards yet</div>'; return; }
+    el.innerHTML=rows.map(function(r){
+      return '<div class="entry-card">'+
+        '<div>'+
+          '<div class="entry-services">'+escH(r.services_done||'Style Card')+'</div>'+
+          '<div class="entry-meta">'+r.date+(r.hair_type?' · '+r.hair_type:'')+(r.hair_length?' · '+r.hair_length:'')+'</div>'+
+          (r.stylist_notes?'<div class="entry-meta" style="margin-top:4px;font-style:italic">'+escH(r.stylist_notes)+'</div>':'')+
+        '</div>'+
+        (r.next_visit_due?'<div style="text-align:right;font-size:11px;color:var(--ink3)">Next<br>'+r.next_visit_due+'</div>':'')+
+      '</div>';
+    }).join('');
+  });
+}
+
+function loadAttendance(){
+  var el=document.getElementById('attendancePanel');
+  var qs='tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&stylist_id=eq.'+encodeURIComponent(STYLIST_ID)
+    +'&date=eq.'+encodeURIComponent(_date);
+  msSelect('attendance',qs).then(function(rows){
+    var current = rows&&rows[0] ? rows[0].status : null;
+    el.innerHTML='<div class="att-row">'+
+      '<div class="att-name">'+escH(sess.name||'You')+' — '+_date+'</div>'+
+      '<div class="att-btns">'+
+        '<button class="att-btn'+(current==='present'?' sel-present':'')+'" onclick="markAtt(\'present\')">Present</button>'+
+        '<button class="att-btn'+(current==='half'?' sel-half':'')+'" onclick="markAtt(\'half\')">Half</button>'+
+        '<button class="att-btn'+(current==='absent'?' sel-absent':'')+'" onclick="markAtt(\'absent\')">Absent</button>'+
+      '</div></div>';
+  });
+}
+
+function markAtt(status){
+  var row={ tenant_id:TENANT_ID, salon_id:SALON_ID||null, stylist_id:STYLIST_ID, date:_date, status:status };
+  MS.upsertAttendance(row).then(function(){ loadAttendance(); }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ── Delete entry ──
+function delEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  msDelete('entries',id).then(loadEntries);
+}
+
+// ── Modals ──
+function openModal(name){ document.getElementById('modal-'+name).classList.add('show'); }
+function closeModal(name){ document.getElementById('modal-'+name).classList.remove('show'); }
+
+function saveEntry(){
+  var services=document.getElementById('e-services').value.trim();
+  var amount=parseFloat(document.getElementById('e-amount').value)||0;
+  if(!services){ alert('Please enter services done.'); return; }
+  if(!amount){ alert('Please enter an amount.'); return; }
+  var row={
+    tenant_id:TENANT_ID, salon_id:SALON_ID||null, stylist_id:STYLIST_ID,
+    customer_phone:document.getElementById('e-phone').value.trim()||null,
+    date:_date, services:services, amount:amount,
+    discount:parseFloat(document.getElementById('e-discount').value)||0,
+    payment_mode:document.getElementById('e-mode').value,
+    notes:document.getElementById('e-notes').value.trim()||null
+  };
+  MS.insertEntry(row).then(function(){ closeModal('entry'); loadEntries(); resetEntryForm(); }).catch(function(e){ alert('Error: '+e.message); });
+}
+function resetEntryForm(){ ['e-phone','e-services','e-amount','e-discount','e-notes'].forEach(function(id){ document.getElementById(id).value=''; }); document.getElementById('e-mode').value='cash'; }
+
+function saveCashIn(){
+  var amount=parseFloat(document.getElementById('ci-amount').value)||0;
+  if(!amount){ alert('Enter an amount.'); return; }
+  var row={ tenant_id:TENANT_ID, salon_id:SALON_ID||null, stylist_id:STYLIST_ID, date:_date, amount:amount, note:document.getElementById('ci-note').value.trim()||null };
+  MS.insertCashIn(row).then(function(){ closeModal('cashin'); loadCashIn(); document.getElementById('ci-amount').value=''; document.getElementById('ci-note').value=''; }).catch(function(e){ alert('Error: '+e.message); });
+}
+
+function saveStyleCard(){
+  var phone=document.getElementById('sc-phone').value.trim();
+  if(phone.length<10){ alert('Enter a valid 10-digit phone number.'); return; }
+  var row={
+    tenant_id:TENANT_ID, salon_id:SALON_ID||null, stylist_id:STYLIST_ID,
+    date:_date, hair_type:document.getElementById('sc-hairtype').value.trim()||null,
+    hair_length:document.getElementById('sc-hairlen').value.trim()||null,
+    services_done:document.getElementById('sc-services').value.trim()||null,
+    products_used:document.getElementById('sc-products').value.trim()||null,
+    stylist_notes:document.getElementById('sc-notes').value.trim()||null,
+    next_visit_due:document.getElementById('sc-nextvisit').value||null
+  };
+  // Try to link customer by phone
+  msSelect('customers','tenant_id=eq.'+encodeURIComponent(TENANT_ID)+'&phone=eq.'+encodeURIComponent(phone)+'&select=id')
+    .then(function(customers){
+      if(customers&&customers[0]) row.customer_id=customers[0].id;
+      return MS.insertStyleCard(row);
+    })
+    .then(function(){ closeModal('stylecard'); loadStyleCards(); })
+    .catch(function(e){ alert('Error: '+e.message); });
+}
+
+// ── Helpers ──
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ucFirst(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function msLogout(){ sessionStorage.clear(); window.location.href='login-stylist.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
+
+// ── Init ──
+loadDayData();
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Franchise Login — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;--lime:#B8F04A;--lime2:#9ED636;--surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;--danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:var(--surface);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+.wrap{width:100%;max-width:380px}
+.salon-brand{text-align:center;margin-bottom:28px}
+.salon-logo-wrap{width:72px;height:72px;border-radius:16px;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden}
+#ms-logo{width:64px;height:64px;object-fit:contain;display:none}
+.logo-fallback{font-size:30px}
+.ms-salon-name{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--ink);display:block}
+.salon-powered{font-size:11px;color:var(--ink3);margin-top:4px}
+.role-banner{background:#4A1D8A;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.role-icon{font-size:24px}
+.role-title{font-family:var(--fh);font-size:15px;font-weight:700;color:#C59EFF;display:block}
+.role-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;display:block}
+h2{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.sub{font-size:13px;color:var(--ink3);margin-bottom:22px}
+.fg{margin-bottom:16px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+input[type=tel],input[type=password]{width:100%;padding:14px 15px;background:var(--surface);border:2px solid var(--border);border-radius:10px;font-family:var(--ff);font-size:17px;font-weight:500;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus{border-color:#7C3AED}
+input::placeholder{color:#AAB8B2}
+.btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;font-family:var(--fh);font-size:17px;font-weight:700;transition:all .15s;display:block;text-align:center;text-decoration:none}
+.btn-primary{background:#4A1D8A;color:white}
+.btn-primary:hover{background:#5B21B6}
+.btn-primary:disabled{background:#C5D0CA;cursor:not-allowed}
+.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--ink3);margin-top:10px;font-size:14px}
+.err{background:rgba(229,64,58,.06);border:1.5px solid rgba(229,64,58,.2);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--danger);display:none;margin-bottom:14px;text-align:center}
+.spinner{display:none;width:38px;height:38px;border-radius:50%;border:3px solid rgba(124,58,237,.15);border-top-color:#7C3AED;animation:spin .7s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="salon-brand">
+    <div class="salon-logo-wrap"><img id="ms-logo" alt=""><span class="logo-fallback" id="logoFallback">🏢</span></div>
+    <span class="ms-salon-name">Loading…</span>
+    <span class="salon-powered">Powered by MySalon</span>
+  </div>
+  <div class="role-banner">
+    <span class="role-icon">🏢</span>
+    <div><span class="role-title">Franchise Owner</span><span class="role-sub">Multi-branch overview · Business plan</span></div>
+  </div>
+  <h2>Franchise Portal</h2>
+  <p class="sub">Enter your phone and PIN</p>
+  <div id="errMsg" class="err"></div>
+  <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+  <a href="index.html" class="btn btn-ghost">← Back</a>
+</div>
+<script>
+var MS_URL='YOUR_MYSALON_SUPABASE_URL';var MS_KEY='YOUR_MYSALON_SUPABASE_ANON_KEY';
+var _tenant=null;var _staffCache=[];
+function _h(){return{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY};}
+function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[];});}
+(function init(){
+  var slug=new URLSearchParams(location.search).get('salon')||sessionStorage.getItem('ms_slug')||'';
+  if(!slug){document.getElementById('errMsg').textContent='No salon ID in URL.';document.getElementById('errMsg').style.display='block';return;}
+  sessionStorage.setItem('ms_slug',slug);
+  document.getElementById('loginBtn').disabled=true;document.getElementById('loginBtn').textContent='⏳ Loading…';
+  _get('tenants?slug=eq.'+encodeURIComponent(slug)+'&select=*').then(function(rows){
+    if(!rows||!rows.length){showErr('Salon not found.');return;}
+    _tenant=rows[0];
+    document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
+    document.title=_tenant.name+' — Franchise Login';
+    sessionStorage.setItem('ms_tenant_id',_tenant.id);sessionStorage.setItem('ms_plan',_tenant.plan);sessionStorage.setItem('ms_name',_tenant.name);
+    if(_tenant.plan!=='business'){showErr('Franchise portal requires the Business plan. Please upgrade.');document.getElementById('loginBtn').disabled=true;return;}
+    if(_tenant.logo_url){var img=document.getElementById('ms-logo');img.src=_tenant.logo_url;img.style.display='block';document.getElementById('logoFallback').style.display='none';}
+    return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=in.(franchise,admin)&active=eq.true&select=id,name,phone,login_pin,assigned_salons');
+  }).then(function(staff){
+    if(!staff)return;
+    _staffCache=staff.map(function(s){s.login_pin=String(s.login_pin||'');return s;});
+    document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';
+  }).catch(function(){showErr('Failed to load.');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';});
+})();
+function doLogin(){
+  var phone=document.getElementById('phoneInput').value.trim();var pin=document.getElementById('pinInput').value.trim();hideErr();
+  if(phone.length<10){showErr('Enter valid phone.');return;}if(pin.length<6){showErr('Enter 6-digit PIN.');return;}
+  var sm=_staffCache.find(function(u){return String(u.phone)===phone;});
+  if(!sm){showErr('Phone not registered as franchise here.');return;}
+  if(sm.login_pin!==pin){showErr('Wrong PIN.');document.getElementById('pinInput').value='';return;}
+  sessionStorage.setItem('ms_role','franchise');sessionStorage.setItem('ms_phone',phone);sessionStorage.setItem('ms_user_name',sm.name||'Franchise');sessionStorage.setItem('ms_staff_id',sm.id);
+  var assigned=sm.assigned_salons||(sm.assigned_salons?JSON.stringify(sm.assigned_salons):'[]');
+  sessionStorage.setItem('ms_assigned_salons',typeof assigned==='string'?assigned:JSON.stringify(assigned));
+  var slug=sessionStorage.getItem('ms_slug')||'';window.location.href='app-franchise.html'+(slug?'?salon='+encodeURIComponent(slug):'');
+}
+function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
+function hideErr(){document.getElementById('errMsg').style.display='none';}
+document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>

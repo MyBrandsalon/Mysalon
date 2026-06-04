@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register Your Salon — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--success:#2D7A3A;
+  --ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding:24px 20px 60px}
+
+.page-wrap{max-width:520px;margin:0 auto}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink3);text-decoration:none;margin-bottom:28px;font-weight:600}
+.back-link:hover{color:var(--ink)}
+
+/* Logo mark */
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.brand-dot{width:12px;height:12px;border-radius:50%;background:var(--lime2)}
+.brand-name{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--ink)}
+
+h1{font-family:var(--fh);font-size:30px;font-weight:800;color:var(--ink);line-height:1.1;margin-bottom:8px}
+.page-sub{font-size:15px;color:var(--ink3);margin-bottom:36px;line-height:1.6}
+
+/* Steps indicator */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:36px}
+.step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px}
+.step-num{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s}
+.step.active .step-num{background:var(--lime2);border-color:var(--lime2);color:var(--ink)}
+.step.active{color:var(--ink)}
+.step.done .step-num{background:var(--ink);border-color:var(--ink);color:var(--lime)}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 8px;transition:all .3s}
+.step-line.done{background:var(--ink)}
+
+/* Card */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px;margin-bottom:16px}
+
+/* Form */
+.fg{margin-bottom:20px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+input[type=text],input[type=tel],input[type=password],select,textarea{
+  width:100%;padding:13px 15px;background:var(--surface);border:2px solid var(--border);border-radius:10px;
+  font-family:var(--ff);font-size:15px;font-weight:500;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--lime2)}
+input::placeholder,textarea::placeholder{color:#AAB8B2;font-weight:400}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Logo upload */
+.logo-drop{border:2.5px dashed var(--border);border-radius:14px;padding:32px;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:var(--surface)}
+.logo-drop:hover,.logo-drop.dragover{border-color:var(--lime2);background:#F4FBF0}
+.logo-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.logo-drop-icon{font-size:40px;display:block;margin-bottom:10px}
+.logo-drop-txt{font-size:14px;font-weight:600;color:var(--ink2)}
+.logo-drop-sub{font-size:12px;color:var(--ink3);margin-top:4px}
+.logo-preview{width:96px;height:96px;border-radius:12px;object-fit:contain;border:2px solid var(--border);margin:0 auto 8px;display:none}
+
+/* Plan picker */
+.plans-pick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.plan-opt{border:2px solid var(--border);border-radius:12px;padding:16px 12px;cursor:pointer;text-align:center;transition:all .2s}
+.plan-opt:hover{border-color:var(--lime2)}
+.plan-opt.selected{border-color:var(--lime2);background:#F4FBF0}
+.plan-opt input[type=radio]{display:none}
+.plan-opt-name{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);display:block}
+.plan-opt-price{font-size:12px;color:var(--ink3);margin-top:4px;display:block}
+.plan-opt-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-top:6px;display:inline-block}
+.badge-free{background:#EAF5E6;color:#2D7A3A}
+.badge-pop{background:#E6F0FF;color:#1E4FBF}
+.badge-biz{background:#F5EAF5;color:#6B3AAA}
+
+/* CTA */
+.btn-submit{width:100%;padding:16px;background:var(--ink);color:var(--lime);border:none;border-radius:12px;font-family:var(--fh);font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-submit:hover{background:var(--ink2)}
+.btn-submit:disabled{background:#C5D0CA;color:#7A9A8A;cursor:not-allowed}
+.btn-back{width:100%;padding:14px;background:transparent;border:2px solid var(--border);border-radius:12px;font-family:var(--fh);font-size:16px;font-weight:700;color:var(--ink2);cursor:pointer;margin-top:10px;transition:all .2s}
+.btn-back:hover{border-color:var(--ink2)}
+
+/* Error / Success */
+.err{background:rgba(229,64,58,.06);border:1.5px solid rgba(229,64,58,.25);border-radius:10px;padding:12px 15px;font-size:13px;font-weight:600;color:var(--danger);display:none;margin-bottom:16px}
+.success-box{text-align:center;padding:16px 0}
+.success-icon{font-size:64px;display:block;margin-bottom:16px}
+.success-title{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--ink);margin-bottom:10px}
+.success-msg{font-size:15px;color:var(--ink3);line-height:1.7;margin-bottom:24px}
+.salon-url-box{background:var(--surface);border:2px solid var(--lime2);border-radius:12px;padding:16px;margin-bottom:20px;text-align:center}
+.salon-url-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px}
+.salon-url{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--lime2)}
+.btn-go{display:block;width:100%;padding:15px;background:var(--lime2);color:var(--ink);border:none;border-radius:12px;font-family:var(--fh);font-size:18px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;transition:all .2s}
+.btn-go:hover{background:var(--lime)}
+
+/* Loading overlay */
+.loading{display:none;position:fixed;inset:0;background:rgba(247,250,248,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading.show{display:flex}
+.spinner{width:42px;height:42px;border-radius:50%;border:3px solid rgba(158,214,54,.2);border-top-color:var(--lime2);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:14px;font-weight:600;color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <a href="index.html" class="back-link">← Back to MySalon</a>
+
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <span class="brand-name">MySalon</span>
+  </div>
+
+  <h1>Register your salon</h1>
+  <p class="page-sub">2 minutes to set up. Free forever for core features.</p>
+
+  <!-- Steps -->
+  <div class="steps" id="steps">
+    <div class="step active" id="step1-ind"><div class="step-num">1</div>Salon Info</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step" id="step2-ind"><div class="step-num">2</div>Logo & Plan</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="step3-ind"><div class="step-num">3</div>Done</div>
+  </div>
+
+  <div id="errMsg" class="err"></div>
+
+  <!-- ── STEP 1: Salon Info ── -->
+  <div id="step1" class="card">
+    <div class="fg">
+      <label>Salon Name *</label>
+      <input type="text" id="salonName" placeholder="e.g. Radiance Beauty Studio" maxlength="80">
+    </div>
+    <div class="fg">
+      <label>Your Name (Owner) *</label>
+      <input type="text" id="ownerName" placeholder="Full name">
+    </div>
+    <div class="fg">
+      <label>Owner Mobile Number *</label>
+      <input type="tel" id="ownerPhone" placeholder="10-digit number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+    </div>
+    <div class="row2">
+      <div class="fg">
+        <label>Create PIN *</label>
+        <input type="password" id="ownerPin" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+      <div class="fg">
+        <label>Confirm PIN *</label>
+        <input type="password" id="ownerPinConfirm" placeholder="Repeat PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+    </div>
+    <div class="fg">
+      <label>City *</label>
+      <input type="text" id="city" placeholder="City">
+    </div>
+    <div class="row2">
+      <div class="fg">
+        <label>State</label>
+        <input type="text" id="state" placeholder="State">
+      </div>
+      <div class="fg">
+        <label>Pincode</label>
+        <input type="text" id="pincode" placeholder="6-digit pincode" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+    </div>
+    <button class="btn-submit" onclick="goStep2()">Continue →</button>
+  </div>
+
+  <!-- ── STEP 2: Logo & Plan ── -->
+  <div id="step2" class="card" style="display:none">
+    <div class="fg">
+      <label>Salon Logo (optional)</label>
+      <div class="logo-drop" id="logoDrop"
+        ondragover="event.preventDefault();this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleLogoDrop(event)">
+        <input type="file" id="logoFile" accept="image/*" onchange="previewLogo(this)">
+        <img id="logoPreview" class="logo-preview" alt="logo preview">
+        <span class="logo-drop-icon" id="logoIcon">🖼️</span>
+        <div class="logo-drop-txt" id="logoTxt">Tap to upload your salon logo</div>
+        <div class="logo-drop-sub">PNG, JPG, SVG — max 2MB</div>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Choose Plan *</label>
+      <div class="plans-pick">
+        <label class="plan-opt selected" id="planFree">
+          <input type="radio" name="plan" value="free" checked onchange="selectPlan(this)">
+          <span class="plan-opt-name">Free</span>
+          <span class="plan-opt-price">₹0/mo</span>
+          <span class="plan-opt-badge badge-free">Forever</span>
+        </label>
+        <label class="plan-opt" id="planPro">
+          <input type="radio" name="plan" value="pro" onchange="selectPlan(this)">
+          <span class="plan-opt-name">Pro</span>
+          <span class="plan-opt-price">₹299/mo</span>
+          <span class="plan-opt-badge badge-pop">Popular</span>
+        </label>
+        <label class="plan-opt" id="planBiz">
+          <input type="radio" name="plan" value="business" onchange="selectPlan(this)">
+          <span class="plan-opt-name">Business</span>
+          <span class="plan-opt-price">₹799/mo</span>
+          <span class="plan-opt-badge badge-biz">Full</span>
+        </label>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Address (optional)</label>
+      <textarea id="address" placeholder="Salon address" rows="2" style="resize:vertical"></textarea>
+    </div>
+    <button class="btn-submit" id="registerBtn" onclick="doRegister()">Create My Salon →</button>
+    <button class="btn-back" onclick="goStep1()">← Back</button>
+  </div>
+
+  <!-- ── STEP 3: Success ── -->
+  <div id="step3" class="card" style="display:none">
+    <div class="success-box">
+      <span class="success-icon">🎉</span>
+      <div class="success-title">Your salon is live!</div>
+      <div class="success-msg">Welcome to MySalon. Your free salon portal is ready. Bookmark the login link and share it with your team.</div>
+      <div class="salon-url-box">
+        <div class="salon-url-label">Your salon login link</div>
+        <div class="salon-url" id="successUrl">Loading...</div>
+      </div>
+      <a href="#" id="goToPortal" class="btn-go">Go to my salon portal →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Setting up your salon…</div>
+</div>
+
+<script>
+var MS_URL = 'YOUR_MYSALON_SUPABASE_URL';
+var MS_KEY = 'YOUR_MYSALON_SUPABASE_ANON_KEY';
+
+var _logoBase64 = null;
+var _logoFile   = null;
+
+// ── Plan selection ──
+function selectPlan(radio) {
+  document.querySelectorAll('.plan-opt').forEach(function(el){ el.classList.remove('selected'); });
+  radio.closest('.plan-opt').classList.add('selected');
+}
+
+// Pre-select from URL
+(function(){
+  var p = new URLSearchParams(location.search).get('plan');
+  if(p==='pro')      { document.querySelector('input[value=pro]').checked=true;      selectPlan(document.querySelector('input[value=pro]')); }
+  if(p==='business') { document.querySelector('input[value=business]').checked=true; selectPlan(document.querySelector('input[value=business]')); }
+})();
+
+// ── Logo preview ──
+function previewLogo(input) {
+  if(!input.files||!input.files[0]) return;
+  _logoFile = input.files[0];
+  if(_logoFile.size > 2*1024*1024){ showErr('Logo must be under 2MB'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    _logoBase64 = e.target.result;
+    document.getElementById('logoPreview').src = _logoBase64;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoIcon').style.display = 'none';
+    document.getElementById('logoTxt').textContent = _logoFile.name;
+  };
+  reader.readAsDataURL(_logoFile);
+}
+function handleLogoDrop(e) {
+  e.preventDefault();
+  document.getElementById('logoDrop').classList.remove('dragover');
+  var f = e.dataTransfer.files[0];
+  if(!f) return;
+  document.getElementById('logoFile').files = e.dataTransfer.files;
+  previewLogo({ files: [f] });
+}
+
+// ── Step navigation ──
+function goStep2() {
+  var name   = document.getElementById('salonName').value.trim();
+  var owner  = document.getElementById('ownerName').value.trim();
+  var phone  = document.getElementById('ownerPhone').value.trim();
+  var pin    = document.getElementById('ownerPin').value.trim();
+  var pinc   = document.getElementById('ownerPinConfirm').value.trim();
+  var city   = document.getElementById('city').value.trim();
+  if(!name)          { showErr('Please enter your salon name.'); return; }
+  if(!owner)         { showErr('Please enter your name.'); return; }
+  if(phone.length<10){ showErr('Enter a valid 10-digit mobile number.'); return; }
+  if(pin.length<6)   { showErr('Create a 6-digit PIN.'); return; }
+  if(pin!==pinc)     { showErr('PINs do not match.'); return; }
+  if(!city)          { showErr('Please enter your city.'); return; }
+  hideErr();
+  setStep(2);
+}
+function goStep1() { hideErr(); setStep(1); }
+function setStep(n) {
+  document.getElementById('step1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('step3').style.display = n===3 ? 'block' : 'none';
+  for(var i=1;i<=3;i++){
+    var el=document.getElementById('step'+i+'-ind');
+    el.classList.toggle('active', i===n);
+    el.classList.toggle('done', i<n);
+  }
+  document.getElementById('line1').classList.toggle('done', n>1);
+  document.getElementById('line2').classList.toggle('done', n>2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Registration ──
+async function doRegister() {
+  hideErr();
+  var btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = 'Registering…';
+
+  var salonName  = document.getElementById('salonName').value.trim();
+  var ownerName  = document.getElementById('ownerName').value.trim();
+  var ownerPhone = document.getElementById('ownerPhone').value.trim();
+  var ownerPin   = document.getElementById('ownerPin').value.trim();
+  var city       = document.getElementById('city').value.trim();
+  var state      = document.getElementById('state').value.trim();
+  var pincode    = document.getElementById('pincode').value.trim();
+  var address    = document.getElementById('address').value.trim();
+  var plan       = document.querySelector('input[name=plan]:checked').value;
+
+  // Build slug
+  var slug = salonName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')
+    + '-' + ownerPhone.slice(-4);
+
+  showLoading('Checking availability…');
+
+  try {
+    // 1. Check slug + phone uniqueness
+    var chk = await _msFetch('tenants?or=(slug.eq.' + encodeURIComponent(slug) + ',owner_phone.eq.' + encodeURIComponent(ownerPhone) + ')&select=id,slug,owner_phone');
+    if(chk && chk.length) {
+      var conflict = chk.find(function(r){ return r.owner_phone===ownerPhone; });
+      if(conflict) { throw new Error('This phone number is already registered. Please login instead.'); }
+      // Slug conflict — append random suffix
+      slug = slug + '-' + Math.random().toString(36).slice(2,5);
+    }
+
+    // 2. Upload logo if present
+    var logoUrl = '';
+    if(_logoFile && _logoBase64) {
+      updateLoading('Uploading logo…');
+      logoUrl = await uploadLogo(slug, _logoFile);
+    }
+
+    // 3. Insert tenant
+    updateLoading('Creating your salon…');
+    var tenantRow = {
+      slug:        slug,
+      name:        salonName,
+      owner_name:  ownerName,
+      owner_phone: ownerPhone,
+      owner_pin:   ownerPin,   // In production: hash this with bcrypt before storing
+      logo_url:    logoUrl,
+      address:     address,
+      city:        city,
+      state:       state,
+      pincode:     pincode,
+      plan:        plan,
+      is_active:   true
+    };
+    var tenant = await _msFetch('tenants', { method:'POST', body:JSON.stringify(tenantRow) })
+      .then(function(r){ return Array.isArray(r)?r[0]:r; });
+
+    // 4. Create default salon (branch)
+    await _msFetch('salons', { method:'POST', body:JSON.stringify({
+      tenant_id: tenant.id,
+      name:      salonName,
+      address:   address,
+      city:      city,
+      mgr_phone: ownerPhone,
+      is_active: true
+    })});
+
+    // 5. Create subscription record
+    if(plan !== 'free') {
+      await _msFetch('subscriptions', { method:'POST', body:JSON.stringify({
+        tenant_id: tenant.id,
+        plan:      plan,
+        status:    'trial',
+        expires_at: new Date(Date.now()+30*24*60*60*1000).toISOString()
+      })});
+    }
+
+    hideLoading();
+    // Show success
+    var portalUrl = location.origin + location.pathname.replace('register-salon.html','') + 'login-owner.html?salon=' + encodeURIComponent(slug);
+    document.getElementById('successUrl').textContent = 'mysalon/login-owner.html?salon=' + slug;
+    document.getElementById('goToPortal').href = portalUrl;
+    // Cache session
+    sessionStorage.setItem('ms_slug', slug);
+    sessionStorage.setItem('ms_tenant_id', tenant.id);
+    sessionStorage.setItem('ms_plan', plan);
+    sessionStorage.setItem('ms_name', salonName);
+    setStep(3);
+  } catch(err) {
+    hideLoading();
+    btn.disabled=false; btn.textContent='Create My Salon →';
+    showErr(err.message || String(err));
+  }
+}
+
+// ── Logo upload to Supabase Storage ──
+async function uploadLogo(slug, file) {
+  var ext = file.name.split('.').pop();
+  var path = 'logos/' + slug + '-logo.' + ext;
+  var r = await fetch(MS_URL + '/storage/v1/object/salon-assets/' + path, {
+    method: 'POST',
+    headers: { 'apikey': MS_KEY, 'Authorization': 'Bearer ' + MS_KEY, 'Content-Type': file.type },
+    body: file
+  });
+  if(!r.ok) { console.warn('Logo upload failed'); return ''; }
+  return MS_URL + '/storage/v1/object/public/salon-assets/' + path;
+}
+
+// ── Supabase fetch helper (standalone — no _mysalon.js dependency needed here) ──
+function _msFetch(path, opts) {
+  return fetch(MS_URL + '/rest/v1/' + path, Object.assign({
+    headers: { 'Content-Type':'application/json', 'apikey':MS_KEY, 'Authorization':'Bearer '+MS_KEY, 'Prefer':'return=representation' }
+  }, opts)).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
+    var ct = r.headers.get('content-type')||'';
+    return ct.indexOf('application/json')!==-1 ? r.json() : [];
+  });
+}
+
+function showErr(msg) {
+  var el = document.getElementById('errMsg');
+  el.textContent = msg; el.style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function hideErr() { document.getElementById('errMsg').style.display='none'; }
+function showLoading(txt) {
+  document.getElementById('loadingTxt').textContent = txt||'Please wait…';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function updateLoading(txt) { document.getElementById('loadingTxt').textContent = txt; }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+</script>
+</body>
+</html>

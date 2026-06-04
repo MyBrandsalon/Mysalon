@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Franchise Dashboard — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;--lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;--surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;--danger:#E5403A;--purple:#7C3AED;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:40px}
+.topbar{background:var(--ink);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-salon{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--lime)}
+.topbar-role{font-size:11px;color:rgba(255,255,255,.45);margin-top:1px}
+.topbar-right{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:10px}
+.btn-logout{font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:var(--ff)}
+
+.period-bar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;gap:8px}
+.period-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--ink3);transition:all .2s}
+.period-btn.active{background:var(--ink);color:var(--lime);border-color:var(--ink)}
+
+/* KPI band */
+.kpi-band{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--ink);padding:20px 14px;gap:10px}
+.kpi-b{background:rgba(255,255,255,.06);border-radius:12px;padding:14px;text-align:center}
+.kpi-b-val{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--lime);display:block}
+.kpi-b-lbl{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:4px}
+
+/* Branch cards */
+.branches{padding:14px}
+.branch-title{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.branch-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:18px;margin-bottom:10px}
+.bc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bc-name{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--ink)}
+.bc-city{font-size:12px;color:var(--ink3);margin-top:2px}
+.bc-badge{display:inline-block;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700}
+.bc-badge.active{background:#EAF5E6;color:#2D7A3A}
+.bc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bc-stat{background:var(--surface);border-radius:10px;padding:10px;text-align:center}
+.bc-stat-val{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--lime2);display:block}
+.bc-stat-lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.3px}
+
+/* Table */
+.section{padding:0 14px 14px}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1.5px solid var(--border)}
+.tbl th{background:var(--surface);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.amount{font-family:var(--fh);color:var(--lime2);font-weight:700}
+.loading{text-align:center;padding:60px 20px;color:var(--ink3);font-size:14px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="topbar-salon ms-salon-name">MySalon</div><div class="topbar-role">Franchise Overview</div></div>
+  <div class="topbar-right"><span id="userNameDisplay">Franchise</span><button class="btn-logout" onclick="doLogout()">Logout</button></div>
+</div>
+
+<div class="period-bar">
+  <button class="period-btn active" onclick="setPeriod('today',this)">Today</button>
+  <button class="period-btn" onclick="setPeriod('week',this)">This Week</button>
+  <button class="period-btn" onclick="setPeriod('month',this)">This Month</button>
+</div>
+
+<div class="kpi-band" id="kpiBand">
+  <div class="kpi-b"><span class="kpi-b-val" id="kb-revenue">₹0</span><span class="kpi-b-lbl">Revenue</span></div>
+  <div class="kpi-b"><span class="kpi-b-val" id="kb-entries">0</span><span class="kpi-b-lbl">Services</span></div>
+  <div class="kpi-b"><span class="kpi-b-val" id="kb-branches">0</span><span class="kpi-b-lbl">Branches</span></div>
+  <div class="kpi-b"><span class="kpi-b-val" id="kb-staff">0</span><span class="kpi-b-lbl">Staff</span></div>
+</div>
+
+<div class="branches" id="branchesPanel"><div class="loading">Loading branches…</div></div>
+
+<div class="section">
+  <div class="sec-title">Top Stylists Across Branches</div>
+  <div id="topStylists"><div class="loading">Loading…</div></div>
+</div>
+
+<script src="_mysalon.js"></script>
+<script>
+var sess = msSession();
+if(!sess.tenantId){ window.location.href='login-franchise.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
+var TENANT_ID = sess.tenantId;
+document.getElementById('userNameDisplay').textContent = sess.name||'Franchise';
+document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent = sess.name||'MySalon'; });
+
+var _period = 'today';
+function setPeriod(p, el){
+  _period = p;
+  document.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  loadAll();
+}
+
+function getDateRange(){
+  var now = new Date();
+  var today = msToday();
+  if(_period==='today') return { from: today, to: today };
+  if(_period==='week'){
+    var d = new Date(now); d.setDate(d.getDate()-7);
+    return { from: d.toLocaleDateString('en-CA'), to: today };
+  }
+  var d2 = new Date(now.getFullYear(), now.getMonth(), 1);
+  return { from: d2.toLocaleDateString('en-CA'), to: today };
+}
+
+function loadAll(){
+  var range = getDateRange();
+  var assignedRaw = sessionStorage.getItem('ms_assigned_salons') || '[]';
+  var assignedIds = [];
+  try { assignedIds = JSON.parse(assignedRaw); } catch(e){}
+
+  Promise.all([
+    MS.getSalons(TENANT_ID),
+    MS.getStaff(TENANT_ID),
+    msSelect('entries','tenant_id=eq.'+encodeURIComponent(TENANT_ID)+'&date=gte.'+range.from+'&date=lte.'+range.to+'&select=salon_id,stylist_id,final_amount,amount,services')
+  ]).then(function(res){
+    var salons = res[0]||[];
+    var staff  = res[1]||[];
+    var entries= res[2]||[];
+
+    // Filter to assigned salons if applicable
+    if(assignedIds.length) salons = salons.filter(function(s){ return assignedIds.indexOf(s.id)!==-1; });
+
+    var totalRevenue = entries.reduce(function(a,e){ return a+parseFloat(e.final_amount||e.amount||0); }, 0);
+    document.getElementById('kb-revenue').textContent = msRupee(totalRevenue);
+    document.getElementById('kb-entries').textContent = entries.length;
+    document.getElementById('kb-branches').textContent = salons.length;
+    document.getElementById('kb-staff').textContent = staff.filter(function(s){ return s.role==='stylist'; }).length;
+
+    // Branch cards
+    var bp = document.getElementById('branchesPanel');
+    if(!salons.length){ bp.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)">No branches assigned to your account.</div>'; return; }
+    bp.innerHTML = '<div class="branch-title">Branches ('+salons.length+')</div>' +
+      salons.map(function(salon){
+        var sEntries = entries.filter(function(e){ return e.salon_id===salon.id; });
+        var sRevenue = sEntries.reduce(function(a,e){ return a+parseFloat(e.final_amount||e.amount||0); }, 0);
+        var sStaff = staff.filter(function(s){ return s.salon_id===salon.id; }).length;
+        return '<div class="branch-card">'+
+          '<div class="bc-header">'+
+            '<div><div class="bc-name">'+escH(salon.name)+'</div><div class="bc-city">'+(salon.city?escH(salon.city):'')+'</div></div>'+
+            '<span class="bc-badge active">Active</span>'+
+          '</div>'+
+          '<div class="bc-stats">'+
+            '<div class="bc-stat"><span class="bc-stat-val">'+msRupee(sRevenue)+'</span><span class="bc-stat-lbl">Revenue</span></div>'+
+            '<div class="bc-stat"><span class="bc-stat-val">'+sEntries.length+'</span><span class="bc-stat-lbl">Services</span></div>'+
+            '<div class="bc-stat"><span class="bc-stat-val">'+sStaff+'</span><span class="bc-stat-lbl">Staff</span></div>'+
+          '</div></div>';
+      }).join('');
+
+    // Top stylists
+    var byStyl = {};
+    entries.forEach(function(e){
+      var k = e.stylist_id||'x';
+      if(!byStyl[k]) byStyl[k]={id:k,total:0,count:0};
+      byStyl[k].total += parseFloat(e.final_amount||e.amount||0);
+      byStyl[k].count++;
+    });
+    var top = Object.values(byStyl).sort(function(a,b){return b.total-a.total;}).slice(0,10);
+    var el = document.getElementById('topStylists');
+    if(!top.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3)">No data for this period.</div>'; return; }
+    el.innerHTML='<table class="tbl"><thead><tr><th>Stylist</th><th>Branch</th><th>Services</th><th>Revenue</th></tr></thead><tbody>'+
+      top.map(function(t){
+        var sm=staff.find(function(s){return s.id===t.id;});
+        var salon=salons.find(function(s){return sm&&s.id===sm.salon_id;});
+        return '<tr><td>'+(sm?escH(sm.name):'Unknown')+'</td><td>'+(salon?escH(salon.name):'-')+'</td><td>'+t.count+'</td><td class="amount">'+msRupee(t.total)+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  });
+}
+
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function doLogout(){ sessionStorage.clear(); var sl=sessionStorage.getItem('ms_slug')||''; window.location.href='login-franchise.html'+(sl?'?salon='+encodeURIComponent(sl):''); }
+
+loadAll();
+</script>
+</body>
+</html>

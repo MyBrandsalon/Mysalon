@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MySalon Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:40px}
+
+/* TOPBAR */
+.topbar{background:var(--ink);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-mark{width:32px;height:32px;background:var(--lime);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:14px;font-weight:800;color:var(--ink);flex-shrink:0}
+.topbar-name{font-family:var(--fh);font-size:16px;font-weight:800;color:white}
+.topbar-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,.55)}
+.btn-logout{font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;font-family:var(--ff)}
+.btn-logout:hover{color:rgba(255,255,255,.7)}
+
+/* SEARCH BAR */
+.search-bar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px}
+.search-input{flex:1;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-family:var(--ff);font-size:14px;color:var(--ink);outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--lime2)}
+.search-input::placeholder{color:#AAB8B2}
+.filter-btns{display:flex;gap:6px}
+.filter-btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--ink3);transition:all .2s;white-space:nowrap}
+.filter-btn.active,.filter-btn:hover{background:var(--ink);color:var(--lime);border-color:var(--ink)}
+
+/* KPI BAND */
+.kpi-band{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 20px}
+.kpi{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px}
+.kpi-val{font-family:var(--fh);font-size:28px;font-weight:800;color:var(--ink);display:block}
+.kpi-lbl{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:4px}
+.kpi.green{background:var(--lime3);border-color:var(--lime2)}
+.kpi.green .kpi-val{color:var(--ink2)}
+
+/* TABS */
+.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto}
+.tab{padding:13px 20px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;border:none;background:transparent;font-family:var(--ff)}
+.tab.active{color:var(--ink);border-bottom-color:var(--lime2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* TABLE */
+.section{padding:0 20px 16px}
+.sec-head{padding:14px 0 10px;display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink)}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1.5px solid var(--border);font-size:13px}
+.tbl th{background:var(--surface);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 14px;color:var(--ink);border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(0,0,0,.015)}
+.tbl .amount{font-family:var(--fh);color:var(--lime2);font-weight:700}
+.tbl .muted{color:var(--ink3);font-size:11px;margin-top:2px}
+
+/* Plan badge */
+.plan-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px}
+.plan-free{background:#EEF0EE;color:#6B8C7E}
+.plan-pro{background:#E6F0FF;color:#1E4FBF}
+.plan-business{background:#F5EAF5;color:#6B3AAA}
+
+/* Status badge */
+.status-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px}
+.status-active{background:#EAF5E6;color:#2D7A3A}
+.status-inactive{background:#FEE2E2;color:var(--danger)}
+.status-trial{background:#FFF3CD;color:#856404}
+
+/* Action btns */
+.btn-sm{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:var(--ink2);transition:all .2s;white-space:nowrap}
+.btn-sm:hover{border-color:var(--lime2);color:var(--lime2)}
+.btn-sm.red:hover{border-color:var(--danger);color:var(--danger)}
+.btn-sm.lime{background:var(--lime2);color:var(--ink);border-color:var(--lime2)}
+.btn-sm.lime:hover{background:var(--lime)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 20px;color:var(--ink3);font-size:14px}
+.empty-icon{font-size:40px;display:block;margin-bottom:10px;opacity:.35}
+
+/* Loader */
+.loader{text-align:center;padding:60px 20px;color:var(--ink3);font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-mark">MS</div>
+    <div><div class="topbar-name">MySalon Admin</div><div class="topbar-role">Platform Super Admin</div></div>
+  </div>
+  <div class="topbar-right">
+    <span id="adminNameDisplay">Admin</span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- KPI BAND -->
+<div class="kpi-band">
+  <div class="kpi green"><span class="kpi-val" id="kpi-mrr">₹0</span><span class="kpi-lbl">Platform MRR</span></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-total">0</span><span class="kpi-lbl">Total Salons</span></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-pro">0</span><span class="kpi-lbl">Pro Salons</span></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-business">0</span><span class="kpi-lbl">Business Salons</span></div>
+</div>
+
+<!-- SEARCH + FILTERS -->
+<div class="search-bar">
+  <input type="text" class="search-input" id="searchInput" placeholder="Search salon name, city, phone…" oninput="filterAndRender()">
+  <div class="filter-btns">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('pro',this)">Pro</button>
+    <button class="filter-btn" onclick="setFilter('business',this)">Business</button>
+    <button class="filter-btn" onclick="setFilter('free',this)">Free</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('salons',this)">All Salons</button>
+  <button class="tab" onclick="switchTab('subscriptions',this)">Subscriptions</button>
+  <button class="tab" onclick="switchTab('admins',this)">Admin Accounts</button>
+</div>
+
+<!-- ── SALONS TAB ── -->
+<div id="tab-salons" class="tab-pane active">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title" id="salonsCount">Salons</span></div>
+    <div id="salonsTbl"><div class="loader">Loading all salons…</div></div>
+  </div>
+</div>
+
+<!-- ── SUBSCRIPTIONS TAB ── -->
+<div id="tab-subscriptions" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Active Subscriptions</span></div>
+    <div id="subsTbl"><div class="loader">Loading subscriptions…</div></div>
+  </div>
+</div>
+
+<!-- ── ADMINS TAB ── -->
+<div id="tab-admins" class="tab-pane">
+  <div class="section">
+    <div class="sec-head">
+      <span class="sec-title">Admin Accounts</span>
+      <button class="btn-sm lime" onclick="openAddAdmin()">+ Add Admin</button>
+    </div>
+    <div id="adminsTbl"><div class="loader">Loading…</div></div>
+  </div>
+  <!-- Add admin inline form -->
+  <div id="addAdminForm" style="display:none;margin:0 20px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:20px">
+    <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:14px">Add Admin</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Name</label><input type="text" id="admin-name" placeholder="Admin name" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff);font-size:14px;outline:none"></div>
+      <div><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Phone</label><input type="tel" id="admin-phone" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff);font-size:14px;outline:none"></div>
+      <div><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">PIN</label><input type="password" id="admin-pin" placeholder="6-digit PIN" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--ff);font-size:14px;outline:none"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveAdmin()" style="padding:10px 20px;background:var(--ink);color:var(--lime);border:none;border-radius:8px;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer">Save</button>
+      <button onclick="document.getElementById('addAdminForm').style.display='none'" style="padding:10px 20px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer;color:var(--ink3)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var MS_URL='YOUR_MYSALON_SUPABASE_URL';
+var MS_KEY='YOUR_MYSALON_SUPABASE_ANON_KEY';
+
+// Auth check
+if(sessionStorage.getItem('ms_role')!=='superadmin'){
+  window.location.href='login-superadmin.html';
+}
+document.getElementById('adminNameDisplay').textContent = sessionStorage.getItem('ms_superadmin_name')||'Admin';
+
+function _h(){return{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY,'Prefer':'return=representation'};}
+function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[];});}
+function _post(p,body){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:_h(),body:JSON.stringify(body)}).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t);});return r.json();}).then(function(r){return Array.isArray(r)?r[0]:r;});}
+function _patch(p,body){return fetch(MS_URL+'/rest/v1/'+p,{method:'PATCH',headers:_h(),body:JSON.stringify(body)}).then(function(r){return r.ok?r.json():null;});}
+
+var _allTenants = [];
+var _activeFilter = 'all';
+var _activeTab = 'salons';
+
+// ── Init ──
+(function(){
+  Promise.all([
+    _get('tenants?order=created_at.desc&limit=500&select=id,slug,name,owner_name,owner_phone,plan,plan_expires_at,city,state,is_active,created_at'),
+    _get('subscriptions?status=eq.active&select=tenant_id,plan,amount,expires_at,status,created_at&order=created_at.desc')
+  ]).then(function(res){
+    _allTenants = res[0]||[];
+    var subs = res[1]||[];
+
+    // KPIs
+    var mrr = subs.reduce(function(s,x){return s+parseFloat(x.amount||0);},0);
+    document.getElementById('kpi-mrr').textContent      = msRupee(mrr);
+    document.getElementById('kpi-total').textContent    = _allTenants.length;
+    document.getElementById('kpi-pro').textContent      = _allTenants.filter(function(t){return t.plan==='pro';}).length;
+    document.getElementById('kpi-business').textContent = _allTenants.filter(function(t){return t.plan==='business';}).length;
+
+    filterAndRender();
+    renderSubs(subs);
+    loadAdmins();
+  });
+})();
+
+function filterAndRender(){
+  var query = document.getElementById('searchInput').value.toLowerCase().trim();
+  var filtered = _allTenants.filter(function(t){
+    var matchPlan  = _activeFilter==='all' || t.plan===_activeFilter;
+    var matchQuery = !query ||
+      (t.name||'').toLowerCase().includes(query) ||
+      (t.city||'').toLowerCase().includes(query) ||
+      (t.owner_phone||'').includes(query) ||
+      (t.slug||'').toLowerCase().includes(query) ||
+      (t.owner_name||'').toLowerCase().includes(query);
+    return matchPlan && matchQuery;
+  });
+  document.getElementById('salonsCount').textContent = 'Salons ('+filtered.length+')';
+  renderSalons(filtered);
+}
+
+function renderSalons(rows){
+  var el=document.getElementById('salonsTbl');
+  if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">🏪</span>No salons found</div>';return;}
+  el.innerHTML='<div style="overflow-x:auto"><table class="tbl"><thead><tr>'+
+    '<th>Salon</th><th>Owner</th><th>City</th><th>Plan</th><th>Status</th><th>Joined</th><th>Actions</th>'+
+  '</tr></thead><tbody>'+
+  rows.map(function(t){
+    return '<tr>'+
+      '<td><div style="font-weight:600">'+escH(t.name)+'</div><div class="muted">@'+escH(t.slug)+'</div></td>'+
+      '<td><div>'+escH(t.owner_name||'—')+'</div><div class="muted">'+t.owner_phone+'</div></td>'+
+      '<td>'+(t.city?escH(t.city):'—')+(t.state?', '+escH(t.state):'')+'</td>'+
+      '<td><span class="plan-badge plan-'+t.plan+'">'+ucFirst(t.plan)+'</span></td>'+
+      '<td><span class="status-badge status-'+(t.is_active?'active':'inactive')+'">'+(t.is_active?'Active':'Inactive')+'</span></td>'+
+      '<td>'+fmtDate(t.created_at)+'</td>'+
+      '<td style="white-space:nowrap;display:flex;gap:6px">'+
+        '<a href="login-owner.html?salon='+encodeURIComponent(t.slug)+'" target="_blank" class="btn-sm">View</a>'+
+        '<button class="btn-sm '+(t.is_active?'red':'')+'" onclick="toggleSalon(\''+t.id+'\','+(t.is_active?'false':'true')+',this)">'+(t.is_active?'Disable':'Enable')+'</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('')+'</tbody></table></div>';
+}
+
+function toggleSalon(id,active,btn){
+  if(!confirm('Are you sure?')) return;
+  _patch('tenants?id=eq.'+encodeURIComponent(id),{is_active:active}).then(function(){
+    var t=_allTenants.find(function(x){return x.id===id;});
+    if(t) t.is_active=active;
+    filterAndRender();
+  });
+}
+
+function renderSubs(rows){
+  var el=document.getElementById('subsTbl');
+  if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">💳</span>No active subscriptions</div>';return;}
+  el.innerHTML='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Tenant ID</th><th>Plan</th><th>Amount</th><th>Status</th><th>Expires</th></tr></thead><tbody>'+
+    rows.map(function(s){
+      var t=_allTenants.find(function(x){return x.id===s.tenant_id;});
+      return '<tr>'+
+        '<td><div style="font-weight:600">'+(t?escH(t.name):s.tenant_id.slice(0,8)+'…')+'</div>'+(t?'<div class="muted">'+t.owner_phone+'</div>':'')+' </td>'+
+        '<td><span class="plan-badge plan-'+s.plan+'">'+ucFirst(s.plan)+'</span></td>'+
+        '<td class="amount">'+msRupee(s.amount)+'</td>'+
+        '<td><span class="status-badge status-'+(s.status==='trial'?'trial':'active')+'">'+ucFirst(s.status)+'</span></td>'+
+        '<td>'+(s.expires_at?fmtDate(s.expires_at):'Lifetime')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
+function loadAdmins(){
+  _get('super_admins?order=created_at.asc&select=id,name,phone,active,created_at').then(function(rows){
+    var el=document.getElementById('adminsTbl');
+    if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">👤</span>No admins found</div>';return;}
+    el.innerHTML='<table class="tbl"><thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Added</th></tr></thead><tbody>'+
+      rows.map(function(a){
+        return '<tr>'+
+          '<td style="font-weight:600">'+escH(a.name)+'</td>'+
+          '<td>'+a.phone+'</td>'+
+          '<td><span class="status-badge status-'+(a.active?'active':'inactive')+'">'+(a.active?'Active':'Inactive')+'</span></td>'+
+          '<td>'+fmtDate(a.created_at)+'</td>'+
+        '</tr>';
+      }).join('')+'</tbody></table>';
+  });
+}
+
+function openAddAdmin(){ document.getElementById('addAdminForm').style.display='block'; }
+function saveAdmin(){
+  var name=document.getElementById('admin-name').value.trim();
+  var phone=document.getElementById('admin-phone').value.trim();
+  var pin=document.getElementById('admin-pin').value.trim();
+  if(!name||phone.length<10||pin.length<6){alert('Fill all fields.');return;}
+  _post('super_admins',{name:name,phone:phone,login_pin:pin,active:true})
+    .then(function(){document.getElementById('addAdminForm').style.display='none';loadAdmins();})
+    .catch(function(e){alert('Error: '+e.message);});
+}
+
+function setFilter(f,el){
+  _activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  if(el)el.classList.add('active');
+  filterAndRender();
+}
+
+function switchTab(name,el){
+  _activeTab=name;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── Helpers ──
+function msRupee(n){return'₹'+Number(n||0).toLocaleString('en-IN');}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ucFirst(s){return String(s).charAt(0).toUpperCase()+String(s).slice(1);}
+function fmtDate(d){try{return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d||'';}}
+function doLogout(){sessionStorage.clear();window.location.href='login-superadmin.html';}
+</script>
+</body>
+</html>

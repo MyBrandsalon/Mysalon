@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Queue Display — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#0B1612;--card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
+  --ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--ff);background:var(--surface);color:white;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;padding:0}
+
+/* HEADER */
+.header{background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:16px}
+#ms-logo{width:44px;height:44px;border-radius:10px;object-fit:contain;border:1px solid var(--border);display:none}
+.salon-name{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--lime);letter-spacing:.5px}
+.header-sub{font-size:13px;color:rgba(255,255,255,.35);margin-top:3px}
+.header-clock{font-family:var(--fh);font-size:32px;font-weight:700;color:white;letter-spacing:2px}
+.header-date{font-size:12px;color:rgba(255,255,255,.35);text-align:right;margin-top:2px}
+
+/* MAIN CONTENT */
+.main{display:grid;grid-template-columns:1fr 1fr;gap:0;height:100%;overflow:hidden}
+
+/* LEFT: NOW SERVING */
+.now-serving{background:var(--lime);padding:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.now-serving::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(0,0,0,.04);top:-80px;right:-80px;pointer-events:none}
+.ns-label{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ink3);margin-bottom:16px}
+.ns-token{font-family:var(--fh);font-size:120px;font-weight:800;color:var(--ink);line-height:1;animation:popIn .4s ease}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.ns-name{font-size:24px;font-weight:700;color:var(--ink2);margin-top:8px}
+.ns-barber{font-size:16px;color:var(--ink3);margin-top:6px}
+.ns-sub{font-size:14px;color:rgba(0,0,0,.4);margin-top:20px;font-weight:600}
+
+/* RIGHT: WAITING LIST */
+.waiting-panel{background:var(--surface);padding:28px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.wp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.wp-title{font-family:var(--fh);font-size:18px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px}
+.wp-count{background:rgba(255,255,255,.08);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:var(--lime)}
+
+/* Queue row */
+.q-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;margin-bottom:6px;transition:all .3s}
+.q-row.status-waiting{background:var(--card);border:1px solid var(--border)}
+.q-row.status-in_chair{background:rgba(184,240,74,.08);border:1px solid rgba(184,240,74,.2)}
+.q-row.status-done{opacity:.4;background:transparent}
+.q-pos{font-family:var(--fh);font-size:20px;font-weight:800;color:rgba(255,255,255,.25);width:28px;flex-shrink:0;text-align:center}
+.q-token{font-family:var(--fh);font-size:24px;font-weight:800;color:var(--lime);width:52px;flex-shrink:0;text-align:center}
+.q-info{flex:1;min-width:0}
+.q-name{font-size:15px;font-weight:600;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-svcs{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-status{flex-shrink:0;text-align:right}
+.q-eta{font-size:12px;font-weight:700;color:rgba(255,255,255,.45)}
+.q-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;margin-top:4px;display:inline-block}
+.q-badge.waiting{background:rgba(255,255,255,.06);color:rgba(255,255,255,.5)}
+.q-badge.in_chair{background:rgba(184,240,74,.15);color:var(--lime2)}
+.q-badge.done{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2)}
+
+/* FOOTER */
+.footer{background:rgba(255,255,255,.02);border-top:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.footer-cta{font-size:13px;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:10px}
+.qr-placeholder{width:52px;height:52px;background:rgba(255,255,255,.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.footer-url{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--lime);letter-spacing:.5px}
+.footer-stats{display:flex;gap:24px}
+.fstat{text-align:center}
+.fstat-val{font-family:var(--fh);font-size:22px;font-weight:800;color:white}
+.fstat-lbl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* No one waiting */
+.empty-queue{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:.35}
+.empty-icon{font-size:64px}
+.empty-txt{font-size:16px;font-weight:600;color:rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <img id="ms-logo" alt="logo">
+    <div>
+      <div class="salon-name ms-salon-name">MySalon</div>
+      <div class="header-sub">Live Queue Display · Auto-refreshes every 10 sec</div>
+    </div>
+  </div>
+  <div>
+    <div class="header-clock" id="clockDisplay">00:00</div>
+    <div class="header-date" id="dateDisplay"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- NOW SERVING -->
+  <div class="now-serving">
+    <div class="ns-label">Now Serving</div>
+    <div class="ns-token" id="nsToken">—</div>
+    <div class="ns-name" id="nsName"></div>
+    <div class="ns-barber" id="nsBarber"></div>
+    <div class="ns-sub" id="nsSub">No one currently in chair</div>
+  </div>
+
+  <!-- WAITING LIST -->
+  <div class="waiting-panel">
+    <div class="wp-header">
+      <span class="wp-title">UP NEXT</span>
+      <span class="wp-count" id="waitCount">0 waiting</span>
+    </div>
+    <div id="queueList"><div class="empty-queue"><span class="empty-icon">☕</span><span class="empty-txt">No one waiting yet</span></div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-cta">
+    <div class="qr-placeholder">📱</div>
+    <div>
+      <div style="font-size:12px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Scan to join queue</div>
+      <div class="footer-url" id="joinUrl">mysalon/queue-join</div>
+    </div>
+  </div>
+  <div class="footer-stats">
+    <div class="fstat"><div class="fstat-val" id="fs-served">0</div><div class="fstat-lbl">Served today</div></div>
+    <div class="fstat"><div class="fstat-val" id="fs-waiting">0</div><div class="fstat-lbl">Waiting</div></div>
+    <div class="fstat"><div class="fstat-val" id="fs-eta">~0m</div><div class="fstat-lbl">Max wait</div></div>
+  </div>
+</div>
+
+<script>
+var MS_URL = 'YOUR_MYSALON_SUPABASE_URL';
+var MS_KEY = 'YOUR_MYSALON_SUPABASE_ANON_KEY';
+var _tenant = null;
+var _staff  = [];
+var _today  = new Date().toLocaleDateString('en-CA');
+
+function _h(){ return { 'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY }; }
+function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[]}); }
+
+// ── Clock ──
+function updateClock(){
+  var now = new Date();
+  document.getElementById('clockDisplay').textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+  document.getElementById('dateDisplay').textContent  = now.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Init ──
+(function init(){
+  var slug = new URLSearchParams(location.search).get('salon') || sessionStorage.getItem('ms_slug') || '';
+  if(!slug){ document.querySelector('.salon-name').textContent='[No salon]'; return; }
+  sessionStorage.setItem('ms_slug', slug);
+
+  var slug2 = slug;
+  document.getElementById('joinUrl').textContent = 'mysalon/queue-join?salon='+slug2;
+
+  _get('tenants?slug=eq.'+encodeURIComponent(slug)+'&is_active=eq.true&select=id,name,logo_url')
+    .then(function(rows){
+      if(!rows||!rows.length) return;
+      _tenant = rows[0];
+      document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=_tenant.name; });
+      document.title = _tenant.name + ' — Live Queue';
+      if(_tenant.logo_url){
+        var img=document.getElementById('ms-logo'); img.src=_tenant.logo_url; img.style.display='block';
+        img.onerror=function(){img.style.display='none';};
+      }
+      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=eq.stylist&active=eq.true&select=id,name');
+    })
+    .then(function(staff){
+      _staff = staff||[];
+      loadQueue();
+    });
+})();
+
+// ── Load queue ──
+function loadQueue(){
+  if(!_tenant) return;
+  _get('queue_tokens?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&date=eq.'+_today+'&status=in.(waiting,in_chair,done)&order=position.asc&select=*')
+    .then(function(rows){
+      var inChair  = rows.filter(function(r){ return r.status==='in_chair'; });
+      var waiting  = rows.filter(function(r){ return r.status==='waiting'; });
+      var done     = rows.filter(function(r){ return r.status==='done'; });
+
+      // Now serving
+      if(inChair.length){
+        var c = inChair[inChair.length-1];
+        var barber = _staff.find(function(s){ return s.id===c.barber_id; });
+        var prev = document.getElementById('nsToken').textContent;
+        document.getElementById('nsToken').textContent = c.token_number||'?';
+        if(prev !== (c.token_number||'?')) document.getElementById('nsToken').style.animation='none',setTimeout(function(){document.getElementById('nsToken').style.animation='';},10);
+        document.getElementById('nsName').textContent   = c.customer_name||'';
+        document.getElementById('nsBarber').textContent = barber ? '✂️ '+barber.name : '';
+        document.getElementById('nsSub').textContent    = c.services||'In chair';
+      } else {
+        document.getElementById('nsToken').textContent  = '—';
+        document.getElementById('nsName').textContent   = '';
+        document.getElementById('nsBarber').textContent = '';
+        document.getElementById('nsSub').textContent    = 'No one currently in chair';
+      }
+
+      // Stats
+      document.getElementById('fs-served').textContent  = done.length;
+      document.getElementById('fs-waiting').textContent = waiting.length;
+      document.getElementById('fs-eta').textContent     = waiting.length ? '~'+(waiting.length*15)+'m' : '~0m';
+      document.getElementById('waitCount').textContent  = waiting.length+' waiting';
+
+      // Queue list
+      var visible = waiting.concat(inChair.filter(function(r){ return !inChair.includes(r)||true; }));
+      var listEl  = document.getElementById('queueList');
+      if(!waiting.length && !inChair.length){
+        listEl.innerHTML='<div class="empty-queue"><span class="empty-icon">☕</span><span class="empty-txt">All caught up!</span></div>';
+        return;
+      }
+      listEl.innerHTML = rows.filter(function(r){return r.status!=='done';}).map(function(r,i){
+        var barber = _staff.find(function(s){ return s.id===r.barber_id; });
+        return '<div class="q-row status-'+r.status+'">'+
+          '<div class="q-pos">'+(i+1)+'</div>'+
+          '<div class="q-token">'+escH(r.token_number||'?')+'</div>'+
+          '<div class="q-info">'+
+            '<div class="q-name">'+escH(r.customer_name||'Customer')+'</div>'+
+            '<div class="q-svcs">'+(barber?'✂️ '+barber.name+(r.services?' · ':''): '')+(r.services?escH(r.services):'')+'</div>'+
+          '</div>'+
+          '<div class="q-status">'+
+            (r.status==='waiting'?'<div class="q-eta">~'+(r.eta_minutes||((i+1)*15))+'m</div>':'')+
+            '<span class="q-badge '+r.status+'">'+ucFirst(r.status==='in_chair'?'In chair':r.status)+'</span>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    });
+}
+
+setInterval(loadQueue, 10000);
+
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ucFirst(s){ return String(s).charAt(0).toUpperCase()+String(s).slice(1); }
+</script>
+</body>
+</html>

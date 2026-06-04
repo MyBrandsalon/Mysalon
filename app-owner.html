@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Owner Dashboard — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--warn:#C8A800;
+  --ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:80px}
+.topbar{background:var(--ink2);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{width:32px;height:32px;border-radius:8px;object-fit:contain;border:2px solid rgba(255,255,255,.15);display:none}
+.topbar-salon{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--lime)}
+.topbar-role{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.topbar-user{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:10px}
+.btn-logout{font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:var(--ff);padding:0}
+
+/* Date bar */
+.datebar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.date-label{font-size:13px;font-weight:600;color:var(--ink)}
+input[type=date]{border:none;background:transparent;font-family:var(--ff);font-size:13px;color:var(--ink);outline:none}
+.date-today{font-size:11px;color:var(--lime2);font-weight:700;cursor:pointer}
+
+/* Tabs */
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:13px 16px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;flex-shrink:0;transition:all .2s}
+.tab.active{color:var(--ink);border-bottom-color:var(--lime2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:14px}
+.kpi{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px}
+.kpi-val{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--ink);display:block}
+.kpi-lbl{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:600}
+.kpi.green{background:var(--lime3);border-color:var(--lime2)}
+.kpi.green .kpi-val{color:var(--ink2)}
+
+/* Table */
+.section{padding:0 14px 14px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink)}
+.btn-add{background:var(--lime2);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer}
+.btn-add:hover{background:var(--lime)}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1.5px solid var(--border)}
+.tbl th{background:var(--surface);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 12px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .amount{font-family:var(--fh);font-size:15px;color:var(--lime2);font-weight:700}
+.tbl .muted{color:var(--ink3);font-size:12px}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px}
+.badge-cash{background:#EAF5E6;color:#2D7A3A}
+.badge-upi{background:#E6F0FF;color:#1E4FBF}
+.badge-card{background:#F5EAF5;color:#6B3AAA}
+.badge-present{background:#EAF5E6;color:#2D7A3A}
+.badge-absent{background:#FEE2E2;color:var(--danger)}
+.badge-half{background:#FFF3CD;color:#856404}
+.empty-state{text-align:center;padding:40px 20px;color:var(--ink3);font-size:14px}
+.empty-icon{font-size:40px;display:block;margin-bottom:8px;opacity:.35}
+
+/* Staff card */
+.staff-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.staff-name{font-size:15px;font-weight:600;color:var(--ink)}
+.staff-role{font-size:11px;color:var(--ink3);text-transform:capitalize;margin-top:2px}
+.staff-actions{display:flex;gap:6px}
+.btn-sm{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--ink2);transition:all .2s}
+.btn-sm:hover{border-color:var(--lime2);color:var(--lime2)}
+.btn-sm.danger:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Cosmetics */
+.cos-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.cos-name{font-size:14px;font-weight:600;color:var(--ink)}
+.cos-brand{font-size:11px;color:var(--ink3);margin-top:2px}
+.cos-stock{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--lime2)}
+.cos-low{color:var(--danger) !important}
+
+/* Plan badge */
+.plan-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-left:8px}
+.plan-free{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.plan-pro{background:rgba(30,79,191,.3);color:#93B4FF}
+.plan-business{background:rgba(107,58,170,.3);color:#C59EFF}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--ink);margin-bottom:20px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+input[type=text],input[type=tel],input[type=number],input[type=date],input[type=password],select,textarea{width:100%;padding:12px 14px;background:var(--surface);border:2px solid var(--border);border-radius:10px;font-family:var(--ff);font-size:15px;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--lime2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-save{width:100%;padding:14px;background:var(--ink2);color:white;border:none;border-radius:10px;font-family:var(--fh);font-size:17px;font-weight:700;cursor:pointer;margin-top:4px}
+.btn-save:hover{background:var(--ink)}
+.btn-cancel{width:100%;padding:12px;background:transparent;border:2px solid var(--border);border-radius:10px;font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink3);cursor:pointer;margin-top:8px}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:var(--ff);transition:color .2s}
+.nav-item.active,.nav-item:hover{color:var(--lime2)}
+.nav-icon{font-size:20px;display:block;margin-bottom:3px}
+.nav-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+
+/* Upgrade banner */
+.upgrade-banner{background:linear-gradient(135deg,var(--ink),var(--ink2));margin:14px;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ub-text{color:white}
+.ub-title{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--lime);margin-bottom:4px}
+.ub-sub{font-size:12px;color:rgba(255,255,255,.6)}
+.btn-upgrade{background:var(--lime2);color:var(--ink);border:none;border-radius:8px;padding:10px 18px;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img id="ms-logo" class="topbar-logo" alt="logo">
+    <div>
+      <div style="display:flex;align-items:center">
+        <span class="topbar-salon ms-salon-name">MySalon</span>
+        <span class="plan-pill plan-free" id="planPill">Free</span>
+      </div>
+      <div class="topbar-role">Owner Dashboard</div>
+    </div>
+  </div>
+  <div class="topbar-user">
+    <span id="userNameDisplay">Owner</span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- DATE BAR -->
+<div class="datebar">
+  <div class="date-label">📅 <input type="date" id="dateSelect" onchange="loadData()"></div>
+  <span class="date-today" onclick="resetToday()">Today</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="tab" onclick="switchTab('entries',this)">Entries</div>
+  <div class="tab" onclick="switchTab('attendance',this)">Attendance</div>
+  <div class="tab" onclick="switchTab('staff',this)">Staff</div>
+  <div class="tab" onclick="switchTab('expenses',this)">Expenses</div>
+  <div class="tab" onclick="switchTab('cosmetics',this)">Cosmetics</div>
+</div>
+
+<!-- ── OVERVIEW ── -->
+<div id="tab-overview" class="tab-pane active">
+  <div class="kpi-row">
+    <div class="kpi green"><span class="kpi-val" id="kpi-revenue">₹0</span><span class="kpi-lbl">Today's Revenue</span></div>
+    <div class="kpi"><span class="kpi-val" id="kpi-entries">0</span><span class="kpi-lbl">Services</span></div>
+    <div class="kpi"><span class="kpi-val" id="kpi-present">0</span><span class="kpi-lbl">Present Today</span></div>
+    <div class="kpi"><span class="kpi-val" id="kpi-expenses">₹0</span><span class="kpi-lbl">Expenses</span></div>
+  </div>
+  <div id="upgradeBanner"></div>
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Top Stylists Today</span></div>
+    <div id="topStyleists"></div>
+  </div>
+</div>
+
+<!-- ── ENTRIES ── -->
+<div id="tab-entries" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">All Entries</span><button class="btn-add" onclick="openModal('expense')">+ Expense</button></div>
+    <div id="entriesTbl"></div>
+  </div>
+</div>
+
+<!-- ── ATTENDANCE ── -->
+<div id="tab-attendance" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Attendance — <span id="attDate"></span></span></div>
+    <div id="attPanel"></div>
+  </div>
+</div>
+
+<!-- ── STAFF ── -->
+<div id="tab-staff" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Team</span><button class="btn-add" onclick="openModal('staff')">+ Add</button></div>
+    <div id="staffList"></div>
+  </div>
+</div>
+
+<!-- ── EXPENSES ── -->
+<div id="tab-expenses" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Expenses</span><button class="btn-add" onclick="openModal('expense')">+ Add</button></div>
+    <div id="expensesList"></div>
+  </div>
+</div>
+
+<!-- ── COSMETICS ── -->
+<div id="tab-cosmetics" class="tab-pane">
+  <div class="section">
+    <div class="sec-head"><span class="sec-title">Product Stock</span><button class="btn-add" onclick="openModal('cosmetic')">+ Add</button></div>
+    <div id="cosmeticsList"></div>
+  </div>
+</div>
+
+<!-- ── MODALS ── -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-title">Add Expense</div>
+    <div class="fg"><label>Category</label><select id="exp-cat"><option>Rent</option><option>Electricity</option><option>Supplies</option><option>Salary</option><option>Maintenance</option><option>Other</option></select></div>
+    <div class="fg"><label>Description</label><input type="text" id="exp-desc" placeholder="What was it for?"></div>
+    <div class="fg"><label>Amount (₹) *</label><input type="number" id="exp-amount" placeholder="0" min="0"></div>
+    <button class="btn-save" onclick="saveExpense()">Save Expense</button>
+    <button class="btn-cancel" onclick="closeModal('expense')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-staff">
+  <div class="modal">
+    <div class="modal-title">Add Staff</div>
+    <div class="fg"><label>Full Name *</label><input type="text" id="st-name" placeholder="Staff name"></div>
+    <div class="fg"><label>Mobile Number *</label><input type="tel" id="st-phone" placeholder="10-digit" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>Role *</label>
+      <select id="st-role">
+        <option value="stylist">Stylist</option>
+        <option value="manager">Manager</option>
+        <option value="franchise">Franchise</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Login PIN *</label><input type="password" id="st-pin" placeholder="6-digit" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+      <div class="fg"><label>Join Date</label><input type="date" id="st-joindate"></div>
+    </div>
+    <div class="fg"><label>Salary Type</label><select id="st-saltype"><option value="fixed">Fixed</option><option value="commission">Commission</option><option value="hybrid">Hybrid</option></select></div>
+    <div class="row2">
+      <div class="fg"><label>Base Salary (₹)</label><input type="number" id="st-salary" placeholder="0" min="0"></div>
+      <div class="fg"><label>Commission %</label><input type="number" id="st-commission" placeholder="0" min="0" max="100"></div>
+    </div>
+    <button class="btn-save" onclick="saveStaff()">Add Staff</button>
+    <button class="btn-cancel" onclick="closeModal('staff')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cosmetic">
+  <div class="modal">
+    <div class="modal-title">Add Product</div>
+    <div class="fg"><label>Product Name *</label><input type="text" id="cos-name" placeholder="e.g. Loreal Protein Cream"></div>
+    <div class="row2">
+      <div class="fg"><label>Brand</label><input type="text" id="cos-brand" placeholder="Brand"></div>
+      <div class="fg"><label>Category</label><input type="text" id="cos-cat" placeholder="e.g. Colour"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Stock Qty *</label><input type="number" id="cos-qty" placeholder="0" min="0"></div>
+      <div class="fg"><label>Min Stock</label><input type="number" id="cos-min" placeholder="1" min="0"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Buy Price (₹)</label><input type="number" id="cos-buy" placeholder="0" min="0"></div>
+      <div class="fg"><label>Sell Price (₹)</label><input type="number" id="cos-sell" placeholder="0" min="0"></div>
+    </div>
+    <button class="btn-save" onclick="saveCosmetic()">Save Product</button>
+    <button class="btn-cancel" onclick="closeModal('cosmetic')">Cancel</button>
+  </div>
+</div>
+
+<script src="_mysalon.js"></script>
+<script>
+// ── Auth ──
+var sess = msRequireAuth('owner') || msRequireAuth('manager');
+if(!sess){
+  var s2 = msSession();
+  if(!s2.tenantId){ window.location.href='login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
+}
+sess = msSession();
+var TENANT_ID = sess.tenantId;
+var _date = msToday();
+
+document.getElementById('dateSelect').value = _date;
+document.getElementById('userNameDisplay').textContent = sess.name||'Owner';
+document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=sess.name||'MySalon'; });
+
+var plan = sess.plan||'free';
+var pill = document.getElementById('planPill');
+pill.textContent = plan.charAt(0).toUpperCase()+plan.slice(1);
+pill.className = 'plan-pill plan-'+plan;
+
+if(sess.logo){ var li=document.getElementById('ms-logo'); li.src=sess.logo; li.style.display='block'; }
+
+// Upgrade banner for free plan
+if(plan==='free'){
+  document.getElementById('upgradeBanner').innerHTML='<div class="upgrade-banner"><div class="ub-text"><div class="ub-title">Unlock Queue & Analytics</div><div class="ub-sub">Upgrade to Pro for ₹299/mo</div></div><a href="https://mysalon.in/#pricing" class="btn-upgrade" target="_blank">Upgrade</a></div>';
+}
+
+function resetToday(){ _date=msToday(); document.getElementById('dateSelect').value=_date; loadData(); }
+document.getElementById('dateSelect').addEventListener('change',function(){ _date=this.value; loadData(); });
+
+var _activeTab='overview';
+function switchTab(name,el){
+  _activeTab=name;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  loadData();
+}
+
+function loadData(){
+  if(_activeTab==='overview')   loadOverview();
+  if(_activeTab==='entries')    loadEntries();
+  if(_activeTab==='attendance') loadAttendance();
+  if(_activeTab==='staff')      loadStaff();
+  if(_activeTab==='expenses')   loadExpenses();
+  if(_activeTab==='cosmetics')  loadCosmetics();
+}
+
+function loadOverview(){
+  Promise.all([
+    MS.getEntries(TENANT_ID, null, _date),
+    MS.getExpenses(TENANT_ID, null, _date),
+    msSelect('attendance','tenant_id=eq.'+encodeURIComponent(TENANT_ID)+'&date=eq.'+encodeURIComponent(_date))
+  ]).then(function(res){
+    var entries=res[0]||[], expenses=res[1]||[], att=res[2]||[];
+    var revenue=entries.reduce(function(s,r){return s+parseFloat(r.final_amount||r.amount||0);},0);
+    var expTotal=expenses.reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+    var present=att.filter(function(a){return a.status==='present'||a.status==='half';}).length;
+    document.getElementById('kpi-revenue').textContent=msRupee(revenue);
+    document.getElementById('kpi-entries').textContent=entries.length;
+    document.getElementById('kpi-present').textContent=present;
+    document.getElementById('kpi-expenses').textContent=msRupee(expTotal);
+    // Top stylists
+    var byStyl={};
+    entries.forEach(function(e){
+      var k=e.stylist_id||'unknown';
+      if(!byStyl[k]) byStyl[k]={id:k,total:0,count:0};
+      byStyl[k].total+=parseFloat(e.final_amount||e.amount||0);
+      byStyl[k].count++;
+    });
+    var staff=JSON.parse(localStorage.getItem('ms_staff_'+TENANT_ID)||'[]');
+    var top=Object.values(byStyl).sort(function(a,b){return b.total-a.total;}).slice(0,5);
+    var el=document.getElementById('topStyleists');
+    if(!top.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📊</span>No entries today yet</div>';return;}
+    el.innerHTML='<table class="tbl"><thead><tr><th>Stylist</th><th>Entries</th><th>Revenue</th></tr></thead><tbody>'+
+      top.map(function(t){
+        var sm=staff.find(function(s){return s.id===t.id;});
+        return '<tr><td>'+(sm?escH(sm.name):'Unknown')+'</td><td>'+t.count+'</td><td class="amount">'+msRupee(t.total)+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  });
+  // Cache staff
+  MS.getStaff(TENANT_ID).then(function(s){ localStorage.setItem('ms_staff_'+TENANT_ID,JSON.stringify(s||[])); });
+}
+
+function loadEntries(){
+  MS.getEntries(TENANT_ID, null, _date).then(function(rows){
+    var el=document.getElementById('entriesTbl');
+    if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span>No entries today</div>';return;}
+    el.innerHTML='<table class="tbl"><thead><tr><th>Services</th><th>Mode</th><th>Amount</th></tr></thead><tbody>'+
+      rows.map(function(r){
+        return '<tr><td>'+escH(r.services||'Service')+(r.customer_phone?'<div class="muted">📞 '+r.customer_phone+'</div>':'')+'</td>'+
+          '<td><span class="badge badge-'+r.payment_mode+'">'+ucFirst(r.payment_mode||'cash')+'</span></td>'+
+          '<td class="amount">'+msRupee(r.final_amount||r.amount)+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  });
+}
+
+function loadAttendance(){
+  document.getElementById('attDate').textContent=_date;
+  Promise.all([
+    msSelect('staff','tenant_id=eq.'+encodeURIComponent(TENANT_ID)+'&role=eq.stylist&active=eq.true&select=id,name'),
+    msSelect('attendance','tenant_id=eq.'+encodeURIComponent(TENANT_ID)+'&date=eq.'+encodeURIComponent(_date))
+  ]).then(function(res){
+    var staffList=res[0]||[], attList=res[1]||[];
+    var el=document.getElementById('attPanel');
+    if(!staffList.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">👥</span>No stylists added yet</div>';return;}
+    el.innerHTML=staffList.map(function(s){
+      var a=attList.find(function(x){return x.stylist_id===s.id;});
+      var status=a?a.status:null;
+      return '<div class="att-row">'+
+        '<div><div class="att-name">'+escH(s.name)+'</div></div>'+
+        '<div class="att-btns">'+
+          '<button class="att-btn'+(status==='present'?' sel-present':'')+'" onclick="markAttOwner(\''+s.id+'\',\'present\')">P</button>'+
+          '<button class="att-btn'+(status==='half'?' sel-half':'')+'" onclick="markAttOwner(\''+s.id+'\',\'half\')">H</button>'+
+          '<button class="att-btn'+(status==='absent'?' sel-absent':'')+'" onclick="markAttOwner(\''+s.id+'\',\'absent\')">A</button>'+
+        '</div></div>';
+    }).join('');
+  });
+}
+// Reuse style from app-stylist
+var attRowStyle='.att-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}.att-name{font-size:14px;font-weight:600;color:var(--ink)}.att-btns{display:flex;gap:6px}.att-btn{padding:7px 14px;border-radius:8px;border:2px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink3)}.att-btn.sel-present{background:#EAF5E6;border-color:#2D7A3A;color:#2D7A3A}.att-btn.sel-half{background:#FFF3CD;border-color:#C8A800;color:#856404}.att-btn.sel-absent{background:#FEE2E2;border-color:var(--danger);color:var(--danger)}';
+var st=document.createElement('style');st.textContent=attRowStyle;document.head.appendChild(st);
+
+function markAttOwner(stylistId,status){
+  MS.upsertAttendance({tenant_id:TENANT_ID,stylist_id:stylistId,date:_date,status:status}).then(loadAttendance);
+}
+
+function loadStaff(){
+  MS.getStaff(TENANT_ID).then(function(staff){
+    var el=document.getElementById('staffList');
+    if(!staff.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">👥</span>No staff added yet</div>';return;}
+    el.innerHTML=staff.map(function(s){
+      return '<div class="staff-card">'+
+        '<div><div class="staff-name">'+escH(s.name)+'</div><div class="staff-role">'+ucFirst(s.role||'stylist')+' · 📞 '+s.phone+'</div></div>'+
+        '<div class="staff-actions">'+
+          '<button class="btn-sm danger" onclick="removeStaff(\''+s.id+'\')">Remove</button>'+
+        '</div></div>';
+    }).join('');
+  });
+}
+
+function loadExpenses(){
+  MS.getExpenses(TENANT_ID, null, _date).then(function(rows){
+    var el=document.getElementById('expensesList');
+    if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">💸</span>No expenses today</div>';return;}
+    var total=rows.reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+    el.innerHTML='<div style="text-align:right;font-size:12px;color:var(--ink3);padding:4px 0 10px">Total: <strong style="color:var(--danger)">'+msRupee(total)+'</strong></div>'+
+      '<table class="tbl"><thead><tr><th>Category</th><th>Description</th><th>Amount</th></tr></thead><tbody>'+
+      rows.map(function(r){
+        return '<tr><td>'+escH(r.category||'Other')+'</td><td>'+escH(r.description||'')+'</td><td class="amount" style="color:var(--danger)">'+msRupee(r.amount)+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  });
+}
+
+function loadCosmetics(){
+  MS.getCosmetics(TENANT_ID, null).then(function(rows){
+    var el=document.getElementById('cosmeticsList');
+    if(!rows.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">💄</span>No products added yet</div>';return;}
+    el.innerHTML=rows.map(function(r){
+      var isLow=parseFloat(r.stock_qty)<=parseFloat(r.min_stock||1);
+      return '<div class="cos-card">'+
+        '<div><div class="cos-name">'+escH(r.product_name)+(isLow?'<span style="color:var(--danger);font-size:11px;margin-left:6px">⚠ Low</span>':'')+'</div>'+
+        '<div class="cos-brand">'+(r.brand?escH(r.brand):'')+(r.category?' · '+escH(r.category):'')+'</div></div>'+
+        '<div class="cos-stock'+(isLow?' cos-low':'')+'">'+r.stock_qty+' <span style="font-size:12px;color:var(--ink3)">'+(r.unit||'pcs')+'</span></div>'+
+      '</div>';
+    }).join('');
+  });
+}
+
+// ── Save helpers ──
+function saveExpense(){
+  var amount=parseFloat(document.getElementById('exp-amount').value)||0;
+  if(!amount){alert('Enter an amount.');return;}
+  var row={tenant_id:TENANT_ID,date:_date,category:document.getElementById('exp-cat').value,description:document.getElementById('exp-desc').value.trim(),amount:amount};
+  MS.insertExpense(row).then(function(){closeModal('expense');loadExpenses();document.getElementById('exp-amount').value='';document.getElementById('exp-desc').value='';});
+}
+
+function saveStaff(){
+  var name=document.getElementById('st-name').value.trim();
+  var phone=document.getElementById('st-phone').value.trim();
+  var pin=document.getElementById('st-pin').value.trim();
+  if(!name||phone.length<10||pin.length<6){alert('Fill all required fields.');return;}
+  var row={tenant_id:TENANT_ID,name:name,phone:phone,role:document.getElementById('st-role').value,login_pin:pin,join_date:document.getElementById('st-joindate').value||null,salary_type:document.getElementById('st-saltype').value,base_salary:parseFloat(document.getElementById('st-salary').value)||0,commission_pct:parseFloat(document.getElementById('st-commission').value)||0,active:true};
+  MS.insertStaff(row).then(function(){closeModal('staff');loadStaff();}).catch(function(e){alert('Error: '+e.message);});
+}
+
+function saveCosmetic(){
+  var name=document.getElementById('cos-name').value.trim();
+  var qty=parseFloat(document.getElementById('cos-qty').value)||0;
+  if(!name){alert('Enter product name.');return;}
+  var row={tenant_id:TENANT_ID,product_name:name,brand:document.getElementById('cos-brand').value.trim()||null,category:document.getElementById('cos-cat').value.trim()||null,stock_qty:qty,min_stock:parseFloat(document.getElementById('cos-min').value)||1,purchase_price:parseFloat(document.getElementById('cos-buy').value)||0,sell_price:parseFloat(document.getElementById('cos-sell').value)||0};
+  MS.insertCosmetic(row).then(function(){closeModal('cosmetic');loadCosmetics();}).catch(function(e){alert('Error: '+e.message);});
+}
+
+function removeStaff(id){
+  if(!confirm('Remove this staff member?'))return;
+  msUpdate('staff',id,{active:false}).then(loadStaff);
+}
+
+// ── Modal ──
+function openModal(n){document.getElementById('modal-'+n).classList.add('show');}
+function closeModal(n){document.getElementById('modal-'+n).classList.remove('show');}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ucFirst(s){return String(s).charAt(0).toUpperCase()+String(s).slice(1);}
+function doLogout(){sessionStorage.clear();var sl=sessionStorage.getItem('ms_slug')||'';window.location.href='login-owner.html'+(sl?'?salon='+encodeURIComponent(sl):'');}
+
+// ── Init ──
+loadData();
+</script>
+</body>
+</html>

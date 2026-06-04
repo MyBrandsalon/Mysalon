@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>My Profile — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:32px}
+
+/* Header */
+.header{background:var(--ink);padding:24px 18px 32px}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.header-salon{display:flex;align-items:center;gap:10px}
+.header-logo{width:32px;height:32px;border-radius:8px;object-fit:contain;border:1.5px solid rgba(255,255,255,.15);display:none}
+.header-salon-name{font-family:var(--fh);font-size:14px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px}
+.btn-logout{background:none;border:none;font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;font-family:var(--ff)}
+.profile-section{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:56px;height:56px;border-radius:14px;background:var(--lime3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:22px;font-weight:800;color:var(--ink2);flex-shrink:0}
+.profile-name{font-family:var(--fh);font-size:22px;font-weight:800;color:white}
+.profile-phone{font-size:13px;color:rgba(255,255,255,.5);margin-top:3px}
+
+/* Loyalty card */
+.loyalty-card{background:var(--lime3);border-radius:18px;margin:18px 14px 0;padding:20px;position:relative;overflow:hidden}
+.loyalty-card::after{content:'★';position:absolute;right:-10px;bottom:-16px;font-size:80px;color:rgba(0,0,0,.06);pointer-events:none}
+.lc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px}
+.lc-points{font-family:var(--fh);font-size:48px;font-weight:800;color:var(--ink);line-height:1}
+.lc-sub{font-size:13px;color:var(--ink3);margin-top:6px}
+.lc-row{display:flex;align-items:flex-end;justify-content:space-between}
+
+/* Referral box */
+.ref-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;margin:10px 14px;padding:18px}
+.ref-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.ref-sub{font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.6}
+.ref-code-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px}
+.ref-code{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--lime2);letter-spacing:1px;flex:1}
+.btn-copy{background:var(--lime2);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--ff)}
+.btn-copy:hover{background:var(--lime)}
+
+/* Section */
+.section{padding:10px 14px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink)}
+
+/* Style card */
+.sc-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px}
+.sc-date{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.sc-services{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.sc-meta{font-size:12px;color:var(--ink3);line-height:1.6}
+.sc-next{display:inline-block;background:var(--lime3);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--ink2);margin-top:8px}
+.sc-stylist-note{background:var(--surface);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--ink3);font-style:italic;line-height:1.6;border-left:3px solid var(--lime2)}
+
+/* Visit card */
+.visit-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.visit-service{font-size:14px;font-weight:600;color:var(--ink)}
+.visit-date{font-size:11px;color:var(--ink3);margin-top:3px}
+.visit-amt{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--lime2)}
+
+/* Tabs */
+.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto}
+.tab{flex:1;padding:12px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border:none;background:transparent;font-family:var(--ff);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
+.tab.active{color:var(--ink);border-bottom-color:var(--lime2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.empty-state{text-align:center;padding:40px 20px;color:var(--ink3);font-size:14px}
+.empty-icon{font-size:40px;display:block;margin-bottom:8px;opacity:.35}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-salon">
+      <img id="ms-logo" class="header-logo" alt="logo">
+      <span class="header-salon-name ms-salon-name">MySalon</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+  <div class="profile-section">
+    <div class="profile-avatar" id="avatarInitial">?</div>
+    <div>
+      <div class="profile-name" id="profileName">Loading…</div>
+      <div class="profile-phone" id="profilePhone"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOYALTY CARD -->
+<div class="loyalty-card">
+  <div class="lc-row">
+    <div>
+      <div class="lc-label">Loyalty Points</div>
+      <div class="lc-points" id="loyaltyPoints">0</div>
+      <div class="lc-sub">Earn points on every visit</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Visits</div>
+      <div style="font-family:var(--fh);font-size:32px;font-weight:800;color:var(--ink2)" id="visitCount">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- REFERRAL BOX -->
+<div class="ref-box">
+  <div class="ref-title">Refer a friend 🎁</div>
+  <div class="ref-sub">Share your code. Your friend gets 50 bonus points when they register. You get 100 points when they visit.</div>
+  <div class="ref-code-row">
+    <span class="ref-code" id="refCode">—</span>
+    <button class="btn-copy" onclick="copyRefCode()">Copy</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('stylecards',this)">Style Cards</button>
+  <button class="tab" onclick="switchTab('history',this)">Visit History</button>
+</div>
+
+<!-- STYLE CARDS -->
+<div id="tab-stylecards" class="tab-pane active">
+  <div class="section">
+    <div id="styleCardsList"><div class="empty-state"><span class="empty-icon">⏳</span>Loading…</div></div>
+  </div>
+</div>
+
+<!-- VISIT HISTORY -->
+<div id="tab-history" class="tab-pane">
+  <div class="section">
+    <div id="visitsList"><div class="empty-state"><span class="empty-icon">⏳</span>Loading…</div></div>
+  </div>
+</div>
+
+<script src="_mysalon.js"></script>
+<script>
+// ── Auth ──
+var s = msSession();
+if(!s.tenantId || s.role!=='customer'){
+  var slug = sessionStorage.getItem('ms_slug')||'';
+  window.location.href = 'login-customer.html'+(slug?'?salon='+encodeURIComponent(slug):'');
+}
+
+var TENANT_ID   = s.tenantId;
+var CUSTOMER_ID = s.staffId || sessionStorage.getItem('ms_customer_id');
+
+// Apply branding
+var salonName = sessionStorage.getItem('ms_name')||'MySalon';
+var salonLogo = sessionStorage.getItem('ms_logo')||'';
+document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=salonName; });
+document.title = salonName + ' — My Profile';
+if(salonLogo){ var li=document.getElementById('ms-logo'); li.src=salonLogo; li.style.display='block'; }
+
+// Profile
+document.getElementById('profileName').textContent  = s.name||'Customer';
+document.getElementById('profilePhone').textContent = '📞 '+(s.phone||'');
+document.getElementById('avatarInitial').textContent = (s.name||'?').charAt(0).toUpperCase();
+document.getElementById('loyaltyPoints').textContent = sessionStorage.getItem('ms_loyalty')||'0';
+var refCode = sessionStorage.getItem('ms_referral_code')||'';
+document.getElementById('refCode').textContent = refCode || '—';
+
+// Tabs
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='history') loadVisits();
+}
+
+// ── Load Style Cards ──
+function loadStyleCards(){
+  var qs = 'tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&customer_id=eq.'+encodeURIComponent(CUSTOMER_ID)
+    +'&order=date.desc';
+  msSelect('style_cards', qs).then(function(rows){
+    var el = document.getElementById('styleCardsList');
+    if(!rows||!rows.length){
+      el.innerHTML='<div class="empty-state"><span class="empty-icon">🎨</span>No style cards yet.<br>Your stylist will create one after your next visit.</div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(r){
+      return '<div class="sc-card">'+
+        '<div class="sc-date">'+r.date+'</div>'+
+        '<div class="sc-services">'+escH(r.services_done||'Style record')+'</div>'+
+        '<div class="sc-meta">'+
+          (r.hair_type?'Hair type: '+escH(r.hair_type)+'<br>':'')+
+          (r.hair_length?'Length: '+escH(r.hair_length)+'<br>':'')+
+          (r.products_used?'Products: '+escH(r.products_used):'')+'</div>'+
+        (r.stylist_notes?'<div class="sc-stylist-note">💬 '+escH(r.stylist_notes)+'</div>':'')+
+        (r.next_visit_due?'<span class="sc-next">Next visit: '+r.next_visit_due+'</span>':'')+
+      '</div>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('styleCardsList').innerHTML='<div class="empty-state">Failed to load style cards.</div>';
+  });
+}
+
+// ── Load Visits ──
+function loadVisits(){
+  var qs = 'tenant_id=eq.'+encodeURIComponent(TENANT_ID)
+    +'&customer_id=eq.'+encodeURIComponent(CUSTOMER_ID)
+    +'&order=date.desc&limit=50';
+  msSelect('visits', qs).then(function(rows){
+    document.getElementById('visitCount').textContent = rows.length;
+    var el = document.getElementById('visitsList');
+    if(!rows||!rows.length){
+      el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span>No visit history yet.</div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(r){
+      return '<div class="visit-card">'+
+        '<div><div class="visit-service">'+escH(r.services||'Visit')+'</div><div class="visit-date">'+r.date+'</div></div>'+
+        (r.amount?'<div class="visit-amt">'+msRupee(r.amount)+'</div>':'')+
+      '</div>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('visitsList').innerHTML='<div class="empty-state">Failed to load visits.</div>';
+  });
+}
+
+function copyRefCode(){
+  var code = document.getElementById('refCode').textContent;
+  if(!code||code==='—') return;
+  navigator.clipboard.writeText(code).then(function(){
+    var btn = document.querySelector('.btn-copy');
+    btn.textContent='Copied!'; btn.style.background='var(--ink)'; btn.style.color='var(--lime)';
+    setTimeout(function(){ btn.textContent='Copy'; btn.style.background=''; btn.style.color=''; }, 2000);
+  }).catch(function(){
+    prompt('Copy your referral code:', code);
+  });
+}
+
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function doLogout(){ sessionStorage.clear(); var sl=sessionStorage.getItem('ms_slug')||''; window.location.href='login-customer.html'+(sl?'?salon='+encodeURIComponent(sl):''); }
+
+// ── Init ──
+if(!CUSTOMER_ID){ window.location.href='login-customer.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
+loadStyleCards();
+loadVisits();
+</script>
+</body>
+</html>

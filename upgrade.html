@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Upgrade Your Salon — MySalon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
+  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
+  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
+  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--ff);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px}
+.wrap{width:100%;max-width:520px}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.35);text-decoration:none;margin-bottom:28px;font-weight:600;cursor:pointer;background:none;border:none;font-family:var(--ff)}
+.back-link:hover{color:rgba(255,255,255,.7)}
+
+/* Header */
+.header{text-align:center;margin-bottom:32px}
+.lock-icon{font-size:52px;display:block;margin-bottom:14px}
+.header-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--lime3);margin-bottom:10px}
+h1{font-family:var(--fh);font-size:clamp(26px,5vw,38px);font-weight:800;color:white;line-height:1.1;margin-bottom:12px}
+.header-sub{font-size:15px;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* Plan cards */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.plan-card{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 18px;position:relative;cursor:pointer;transition:all .2s}
+.plan-card:hover{border-color:rgba(255,255,255,.25);transform:translateY(-2px)}
+.plan-card.popular{border-color:var(--lime2);background:rgba(184,240,74,.06)}
+.plan-popular-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--lime2);color:var(--ink);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 12px;border-radius:8px;white-space:nowrap}
+.plan-name{font-family:var(--fh);font-size:18px;font-weight:800;color:white;margin-bottom:4px}
+.plan-price{font-family:var(--fh);font-size:32px;font-weight:800;color:var(--lime);line-height:1;margin:12px 0 4px}
+.plan-per{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:16px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.plan-features li{font-size:12px;color:rgba(255,255,255,.7);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.plan-features li::before{content:'✓';color:var(--lime);font-weight:700;flex-shrink:0;margin-top:1px}
+.btn-select{width:100%;padding:12px;border-radius:10px;font-family:var(--fh);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;border:none;text-align:center}
+.btn-outline{background:transparent;border:2px solid rgba(255,255,255,.2);color:white}
+.btn-outline:hover{border-color:white}
+.btn-lime{background:var(--lime2);color:var(--ink)}
+.btn-lime:hover{background:var(--lime)}
+
+/* Testimonial */
+.testimonial{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px;margin-bottom:20px;text-align:center}
+.testimonial-text{font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;font-style:italic;margin-bottom:10px}
+.testimonial-author{font-size:12px;font-weight:700;color:var(--lime3)}
+
+/* Back to dashboard */
+.back-dashboard{display:block;text-align:center;font-size:13px;color:rgba(255,255,255,.3);text-decoration:none;cursor:pointer;background:none;border:none;width:100%;font-family:var(--ff)}
+.back-dashboard:hover{color:rgba(255,255,255,.6)}
+
+/* WhatsApp CTA */
+.wa-cta{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);border-radius:12px;padding:14px 18px;margin-bottom:16px;cursor:pointer;text-decoration:none;transition:all .2s}
+.wa-cta:hover{background:rgba(37,211,102,.2)}
+.wa-icon{font-size:22px}
+.wa-text{font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.wa-sub{font-size:11px;color:rgba(255,255,255,.4)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <button class="back-link" onclick="goBack()">← Back</button>
+
+  <div class="header">
+    <span class="lock-icon">🔒</span>
+    <div class="header-tag" id="featureName">Pro Feature</div>
+    <h1>Unlock this feature<br>for your salon</h1>
+    <p class="header-sub">You've hit a feature that needs a higher plan.<br>Upgrade in 2 minutes — no credit card needed to start.</p>
+  </div>
+
+  <div class="plans">
+    <!-- PRO -->
+    <div class="plan-card popular">
+      <div class="plan-popular-tag">Recommended</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">₹299</div>
+      <div class="plan-per">/month · up to 3 branches</div>
+      <ul class="plan-features">
+        <li>Save-the-time queue</li>
+        <li>Customer loyalty app</li>
+        <li>Advanced analytics</li>
+        <li>Unlimited stylists</li>
+        <li>30-day free trial</li>
+      </ul>
+      <button class="btn-select btn-lime" onclick="selectPlan('pro')">Start Pro Trial →</button>
+    </div>
+    <!-- BUSINESS -->
+    <div class="plan-card">
+      <div class="plan-name">Business</div>
+      <div class="plan-price">₹799</div>
+      <div class="plan-per">/month · unlimited</div>
+      <ul class="plan-features">
+        <li>Everything in Pro</li>
+        <li>Franchise multi-branch</li>
+        <li>Hire stylist board</li>
+        <li>Sales head portal</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn-select btn-outline" onclick="selectPlan('business')">Get Business</button>
+    </div>
+  </div>
+
+  <!-- WhatsApp CTA -->
+  <a href="https://wa.me/919999999999?text=Hi%2C+I+want+to+upgrade+my+MySalon+plan" target="_blank" class="wa-cta">
+    <span class="wa-icon">💬</span>
+    <div>
+      <div class="wa-text">Talk to us on WhatsApp</div>
+      <div class="wa-sub">We'll set up your upgrade in minutes</div>
+    </div>
+  </a>
+
+  <div class="testimonial">
+    <div class="testimonial-text">"After upgrading to Pro, we reduced walk-in wait complaints by 80%. The queue system is brilliant — customers love it."</div>
+    <div class="testimonial-author">— Priya S., Salon Owner, Bangalore</div>
+  </div>
+
+  <button class="back-dashboard" onclick="goBack()">← Continue with Free plan</button>
+</div>
+
+<script>
+// Read feature name from URL param
+var featureParam = new URLSearchParams(location.search).get('feature');
+if(featureParam){
+  document.getElementById('featureName').textContent = featureParam;
+}
+
+function selectPlan(plan){
+  // In production: integrate Razorpay here
+  // For now: show WhatsApp contact with plan info
+  var msg = 'Hi, I want to upgrade my MySalon salon to the '+plan.charAt(0).toUpperCase()+plan.slice(1)+' plan. My salon: '+(sessionStorage.getItem('ms_name')||'my salon')+' ('+sessionStorage.getItem('ms_slug')+')';
+  var url = 'https://wa.me/919999999999?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+function goBack(){
+  var role = sessionStorage.getItem('ms_role')||'owner';
+  var slug = sessionStorage.getItem('ms_slug')||'';
+  var sfx  = slug ? '?salon='+encodeURIComponent(slug) : '';
+  var pages = {
+    stylist:   'app-stylist.html',
+    owner:     'app-owner.html',
+    manager:   'app-owner.html',
+    franchise: 'app-franchise.html',
+    customer:  'app-customer.html'
+  };
+  window.location.href = (pages[role]||'app-owner.html') + sfx;
+}
+</script>
+</body>
+</html>
