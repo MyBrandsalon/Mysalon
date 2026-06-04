@@ -14,7 +14,7 @@
 //  (network-only with no-store) to avoid showing stale data.
 // ─────────────────────────────────────────────────────────────────────────
 
-const SW_VERSION = 'bb-v1';
+const SW_VERSION = 'mysalon-v1';
 
 self.addEventListener('install', (event) => {
   // Skip the waiting phase so updated SWs activate immediately on next nav

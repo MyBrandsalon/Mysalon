@@ -1999,9 +1999,10 @@ if (!SESSION_PHONE || (SESSION_ROLE !== 'manager' && SESSION_ROLE !== 'owner')) 
 (function pwaSetup(){
   var DISMISS_KEY = 'ms_pwa_dismissed_at_owner';
   var DISMISS_COOLDOWN_DAYS = 14;
-  if('serviceWorker' in navigator){
+  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){if(r.scope.indexOf('/BB/')!==-1){r.unregister();}});});}
+if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('/Mysalon/service-worker.js')
         .catch(function(err){ console.warn('[BB] SW registration failed:', err); });
     });
   }

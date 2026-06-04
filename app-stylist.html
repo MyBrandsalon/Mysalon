@@ -1403,9 +1403,18 @@ try {
   var DISMISS_KEY = 'ms_pwa_dismissed_at_stylist';
   var DISMISS_COOLDOWN_DAYS = 14;
   if('serviceWorker' in navigator){
+    // Unregister any old /BB/ service workers that may be intercepting requests
+    navigator.serviceWorker.getRegistrations().then(function(registrations){
+      registrations.forEach(function(reg){
+        if(reg.scope.indexOf('/BB/') !== -1){
+          reg.unregister();
+          console.log('[MySalon] Unregistered old BB service worker:', reg.scope);
+        }
+      });
+    });
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/service-worker.js')
-        .catch(function(err){ console.warn('[BB] SW registration failed:', err); });
+      navigator.serviceWorker.register('/Mysalon/service-worker.js')
+        .catch(function(err){ console.warn('[MySalon] SW registration failed:', err); });
     });
   }
   var isStandalone =
