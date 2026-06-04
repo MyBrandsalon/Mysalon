@@ -107,11 +107,22 @@ function doLogin(){
     }).catch(function(){showErr('Login failed.');});
 }
 function setSession(role,phone,name,staffId,salonId){
-  sessionStorage.setItem('ms_role',role);
-  sessionStorage.setItem('ms_phone',phone);
-  sessionStorage.setItem('ms_user_name',name||role);
-  if(staffId)sessionStorage.setItem('ms_staff_id',staffId);
-  if(salonId)sessionStorage.setItem('ms_salon_id',salonId);
+  // Write to BOTH storages so navigation works regardless of browser behaviour
+  var keys = {
+    ms_role: role,
+    ms_phone: phone,
+    ms_user_name: name||role,
+    ms_staff_id: staffId||'',
+    ms_salon_id: salonId||'',
+    ms_slug: _slug,
+    ms_tenant_id: _tenant ? _tenant.id : (sessionStorage.getItem('ms_tenant_id')||''),
+    ms_plan: _tenant ? (_tenant.plan||'free') : (sessionStorage.getItem('ms_plan')||'free'),
+    ms_name: _tenant ? _tenant.name : (sessionStorage.getItem('ms_name')||'')
+  };
+  Object.keys(keys).forEach(function(k){
+    try { sessionStorage.setItem(k, keys[k]); } catch(e){}
+    try { localStorage.setItem(k, keys[k]); } catch(e){}
+  });
 }
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
 function hideErr(){document.getElementById('errMsg').style.display='none';}

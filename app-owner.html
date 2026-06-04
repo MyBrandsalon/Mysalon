@@ -1976,13 +1976,22 @@ function _sheetToTable(name){
 // Session credentials live in localStorage (persistent) so the manager stays
 // logged in across tab closes, browser restarts, and PWA launches — until
 // they explicitly tap Logout.
-var SESSION_PHONE = sessionStorage.getItem('ms_phone') || sessionStorage.getItem('bb_phone') || localStorage.getItem('ms_phone') || localStorage.getItem('bb_phone');
-var SESSION_ROLE  = sessionStorage.getItem('ms_role') || sessionStorage.getItem('bb_mgr_role') || localStorage.getItem('ms_role') || localStorage.getItem('bb_role');
-if (!SESSION_PHONE || (SESSION_ROLE !== 'manager' && SESSION_ROLE !== 'owner')) { window.location.href = 'login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
-try {
-  localStorage.setItem('bb_phone', SESSION_PHONE);
-  localStorage.setItem('ms_role', SESSION_ROLE);
-} catch(e){ /* private-mode quota or disabled storage — ignore */ }
+// ── MySalon Auth — reads from localStorage (persists across navigation) ──
+var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || '';
+var SESSION_ROLE  = localStorage.getItem('ms_role')  || sessionStorage.getItem('ms_role')  || '';
+var MS_TENANT_ID  = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
+
+// Restore sessionStorage from localStorage if needed (handles page reload)
+if(MS_SLUG)       sessionStorage.setItem('ms_slug',       MS_SLUG);
+if(MS_TENANT_ID)  sessionStorage.setItem('ms_tenant_id',  MS_TENANT_ID);
+if(SESSION_PHONE) sessionStorage.setItem('ms_phone',      SESSION_PHONE);
+if(SESSION_ROLE)  sessionStorage.setItem('ms_role',       SESSION_ROLE);
+
+var _msSlugParam = new URLSearchParams(location.search).get('salon') || MS_SLUG || '';
+if (!SESSION_PHONE || (SESSION_ROLE !== 'manager' && SESSION_ROLE !== 'owner')) {
+  window.location.href = 'login-owner.html' + (_msSlugParam ? '?salon='+encodeURIComponent(_msSlugParam) : '');
+}
 
 // ── PWA: install on home screen ───────────────────────────────────────
 // Self-contained IIFE. Identical logic to the customer/barber apps,
