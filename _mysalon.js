@@ -2,8 +2,8 @@
 //  MYSALON — SUPABASE DATA LAYER  (_mysalon.js)
 //  Shared across all MySalon portal pages.
 //  Replace placeholders:
-//    YOUR_MYSALON_SUPABASE_URL  → https://xxxx.supabase.co
-//    YOUR_MYSALON_SUPABASE_ANON_KEY → eyJ...
+//    https://sgliztuggyksdemzkaxr.supabase.co  → https://xxxx.supabase.co
+//    sb_publishable_GtdUt6IV6TcsGoyOP02oIQ_CZf0vLQy → eyJ...
 // ════════════════════════════════════════════════════════════════════
 
 var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
