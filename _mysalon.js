@@ -6,8 +6,8 @@
 //    YOUR_MYSALON_SUPABASE_ANON_KEY → eyJ...
 // ════════════════════════════════════════════════════════════════════
 
-var MS_URL = 'YOUR_MYSALON_SUPABASE_URL';
-var MS_KEY = 'YOUR_MYSALON_SUPABASE_ANON_KEY';
+var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY = 'sb_publishable_GtdUt6IV6TcsGoyOP02oIQ_CZf0vLQy';
 
 // ── Low-level helpers ─────────────────────────────────────────────
 function _msHeaders() {
