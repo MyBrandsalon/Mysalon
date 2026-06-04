@@ -93,7 +93,8 @@ function doLogin(){
   // Check owner credentials first
   if(String(_tenant.owner_phone)===phone && String(_tenant.owner_pin)===pin){
     setSession('owner',phone,_tenant.owner_name||'Owner',null,null);
-    window.location.href='app-owner.html?salon='+encodeURIComponent(_slug);
+    try{localStorage.setItem('ms_role',role||'owner');localStorage.setItem('ms_phone',phone);localStorage.setItem('ms_slug',_slug);localStorage.setItem('ms_tenant_id',_tenant?_tenant.id:'');}catch(e){}
+window.location.href='app-owner.html?salon='+encodeURIComponent(_slug);
     return;
   }
   // Fallback: manager-role staff
@@ -103,7 +104,8 @@ function doLogin(){
       var sm=rows[0];var lp=String(sm.loginPin||sm.login_pin||'');
       if(lp!==pin){showErr('Wrong PIN.');document.getElementById('pinInput').value='';return;}
       setSession('manager',phone,sm.name||'Manager',String(sm.id),String(sm.salonId||sm.salon_id||''));
-      window.location.href='app-owner.html?salon='+encodeURIComponent(_slug);
+      try{localStorage.setItem('ms_role',role||'owner');localStorage.setItem('ms_phone',phone);localStorage.setItem('ms_slug',_slug);localStorage.setItem('ms_tenant_id',_tenant?_tenant.id:'');}catch(e){}
+window.location.href='app-owner.html?salon='+encodeURIComponent(_slug);
     }).catch(function(){showErr('Login failed.');});
 }
 function setSession(role,phone,name,staffId,salonId){

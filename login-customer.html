@@ -98,7 +98,8 @@ function doLogin(){
       setSession('customer',phone,c.name||'Customer',String(c.id),'');
       sessionStorage.setItem('ms_loyalty',c.loyalty_points||0);
       sessionStorage.setItem('ms_referral_code',c.referral_code||'');
-      window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
+      try{localStorage.setItem('ms_role',role||'customer');localStorage.setItem('ms_phone',phone);localStorage.setItem('ms_slug',_slug);localStorage.setItem('ms_tenant_id',_tenant?_tenant.id:'');}catch(e){}
+window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
     }).catch(function(){showErr('Login failed.');});
 }
 function setSession(role,phone,name,staffId,salonId){

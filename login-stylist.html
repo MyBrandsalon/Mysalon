@@ -102,11 +102,19 @@ function doLogin(){
   var sm=staff.find(function(u){return String(u.phone)===phone;});
   if(!sm){showErr('Phone not registered as a Stylist here. Contact your manager.');return;}
   if(sm.loginPin!==pin){showErr('Wrong PIN. Try again.');document.getElementById('pinInput').value='';return;}
-  sessionStorage.setItem('ms_role','stylist');
-  sessionStorage.setItem('ms_phone',phone);
-  sessionStorage.setItem('ms_user_name',sm.name||'Stylist');
-  sessionStorage.setItem('ms_staff_id',String(sm.id));
-  sessionStorage.setItem('ms_salon_id',sm.salonId||'');
+  var _sessData = {
+    ms_role: 'stylist',
+    ms_phone: phone,
+    ms_user_name: sm.name||'Stylist',
+    ms_staff_id: String(sm.id),
+    ms_salon_id: sm.salonId||sm.salon_id||'',
+    ms_slug: _slug,
+    ms_tenant_id: _tenant ? _tenant.id : ''
+  };
+  Object.keys(_sessData).forEach(function(k){
+    try{sessionStorage.setItem(k,_sessData[k]);}catch(e){}
+    try{localStorage.setItem(k,_sessData[k]);}catch(e){}
+  });
   window.location.href='app-stylist.html?salon='+encodeURIComponent(_slug);
 }
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}

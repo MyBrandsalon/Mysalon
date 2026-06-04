@@ -99,7 +99,8 @@ function doLogin(){
       setSession('franchise',phone,sm.name||'Franchise',String(sm.id),'');
       var assigned=sm.assigned_salons?JSON.stringify(sm.assigned_salons):'[]';
       sessionStorage.setItem('ms_assigned_salons',assigned);
-      window.location.href='app-franchise.html?salon='+encodeURIComponent(_slug);
+      try{localStorage.setItem('ms_role',role||'franchise');localStorage.setItem('ms_phone',phone);localStorage.setItem('ms_slug',_slug);localStorage.setItem('ms_tenant_id',_tenant?_tenant.id:'');}catch(e){}
+window.location.href='app-franchise.html?salon='+encodeURIComponent(_slug);
     }).catch(function(){showErr('Login failed.');});
 }
 function setSession(role,phone,name,staffId,salonId){
