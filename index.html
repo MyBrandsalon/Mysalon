@@ -3,254 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MySalon — Digital Salon Management for Every Salon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>MySalon — Digital Salon Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ink:#0F1A14; --ink2:#3A5244; --ink3:#6B8C7E;
-  --lime:#B8F04A; --lime2:#9ED636; --lime3:#D4F87A;
-  --surface:#F7FAF8; --card:#FFFFFF; --border:#DDE8E3;
-  --danger:#E5403A;
-  --ff:'DM Sans',sans-serif; --fh:'Syne',sans-serif;
-}
+:root{--bg:#F5F5F0;--surface:#FFFFFF;--surface2:#F0F0EA;--border:#DDDDD5;--accent:#007A56;--accent2:#005F42;--gold:#F5E030;--gold-dark:#C8A800;--white:#1A1A14;--muted:#666660;--muted2:#999990;--danger:#DC3545;--green:#16A34A;--blue:#1D6DB5;--BF:'Barlow',sans-serif;--HF:'Bebas Neue',sans-serif;--r:12px;--rs:8px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh}
-
-/* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;background:rgba(247,250,248,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.nav-brand{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px}
-.nav-brand-dot{width:10px;height:10px;border-radius:50%;background:var(--lime2)}
-.nav-actions{display:flex;gap:10px;align-items:center}
-.btn-ghost{background:transparent;border:1.5px solid var(--border);border-radius:8px;padding:9px 18px;font-family:var(--ff);font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-ghost:hover{border-color:var(--ink2);color:var(--ink)}
-.btn-lime{background:var(--lime);border:none;border-radius:8px;padding:10px 20px;font-family:var(--ff);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-lime:hover{background:var(--lime2)}
-
-/* ── HERO ── */
-.hero{padding:80px 24px 64px;max-width:1000px;margin:0 auto;text-align:center}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--lime3);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:28px}
-.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--lime2);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
-h1{font-family:var(--fh);font-size:clamp(38px,7vw,72px);font-weight:800;color:var(--ink);line-height:1.05;margin-bottom:20px;letter-spacing:-1px}
-h1 span{color:var(--lime2)}
-.hero-sub{font-size:18px;font-weight:400;color:var(--ink2);max-width:560px;margin:0 auto 36px;line-height:1.7}
-.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--ink);color:var(--lime);border:none;border-radius:10px;padding:15px 32px;font-family:var(--fh);font-size:17px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-primary:hover{background:var(--ink2);transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:14px 32px;font-family:var(--fh);font-size:17px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-outline:hover{background:var(--ink);color:var(--lime)}
-
-/* ── STATS BAR ── */
-.stats-bar{background:var(--ink);padding:28px 24px;display:flex;gap:0;justify-content:center;flex-wrap:wrap}
-.stat{text-align:center;padding:0 40px;border-right:1px solid rgba(255,255,255,.1)}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);min-height:100vh}
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-logo{display:inline-block;background:#003D2B;border-radius:7px;overflow:hidden;border:2px solid #C8A800;text-decoration:none;line-height:0}
+.nav-logo-top{display:block;background:#C8A800;font-family:var(--HF);font-size:14px;color:#003D2B;letter-spacing:2px;line-height:1;padding:3px 10px 1px;text-align:center}
+.nav-logo-bot{display:block;background:#003D2B;font-family:var(--HF);font-size:9px;color:#C8A800;letter-spacing:2px;line-height:1;padding:1px 10px 3px;text-align:center}
+.nav-actions{display:flex;gap:8px}
+.btn-nav{padding:9px 18px;border-radius:var(--rs);font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:all .2s}
+.btn-nav-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-nav-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-nav-primary{background:var(--accent);color:white}
+.btn-nav-primary:hover{background:var(--accent2)}
+/* HERO */
+.hero{padding:60px 20px 48px;max-width:900px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,122,86,.1);border:1px solid rgba(0,122,86,.2);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:22px}
+h1{font-family:var(--HF);font-size:clamp(52px,9vw,88px);color:var(--white);line-height:.95;letter-spacing:2px;margin-bottom:18px}
+h1 em{color:var(--accent);font-style:normal}
+.hero-sub{font-size:17px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6}
+.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-hero-primary{padding:16px 32px;background:var(--accent);color:white;border:none;border-radius:var(--rs);font-family:var(--BF);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-hero-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-hero-outline{padding:15px 32px;background:transparent;border:2px solid var(--border);color:var(--white);border-radius:var(--rs);font-family:var(--BF);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-hero-outline:hover{border-color:var(--accent);color:var(--accent)}
+/* STATS */
+.stats-bar{background:#003D2B;padding:24px 20px;display:flex;justify-content:center;flex-wrap:wrap;gap:0}
+.stat{text-align:center;padding:0 36px;border-right:1px solid rgba(255,255,255,.1)}
 .stat:last-child{border-right:none}
-.stat-val{font-family:var(--fh);font-size:36px;font-weight:800;color:var(--lime);display:block}
-.stat-lbl{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;display:block}
-
-/* ── FEATURES ── */
-.section{padding:72px 24px;max-width:1000px;margin:0 auto}
-.section-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--lime2);margin-bottom:12px}
-h2{font-family:var(--fh);font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--ink);line-height:1.1;margin-bottom:16px}
-.section-sub{font-size:16px;color:var(--ink3);margin-bottom:48px;max-width:480px}
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.feat-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:28px;transition:all .2s}
-.feat-card:hover{border-color:var(--lime2);box-shadow:0 8px 32px rgba(158,214,54,.12);transform:translateY(-2px)}
-.feat-icon{font-size:32px;margin-bottom:16px;display:block}
-.feat-title{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px}
-.feat-desc{font-size:14px;color:var(--ink3);line-height:1.7}
-.feat-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:10px;margin-top:12px}
-.badge-free{background:#EAF5E6;color:#2D7A3A}
-.badge-pro{background:#E6F0FF;color:#1E4FBF}
-.badge-biz{background:#F5EAF5;color:#6B3AAA}
-
-/* ── PLANS ── */
-.plans-section{background:var(--ink);padding:72px 24px}
-.plans-inner{max-width:960px;margin:0 auto}
-.plans-inner .section-tag{color:var(--lime3)}
-.plans-inner h2{color:white}
-.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:40px}
-.plan-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px;position:relative;transition:all .2s}
-.plan-card.popular{border-color:var(--lime);background:rgba(184,240,74,.05)}
-.plan-popular-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--lime);color:var(--ink);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 14px;border-radius:10px;white-space:nowrap}
-.plan-name{font-family:var(--fh);font-size:22px;font-weight:800;color:white;margin-bottom:4px}
-.plan-price{font-family:var(--fh);font-size:40px;font-weight:800;color:var(--lime);line-height:1;margin:16px 0 4px}
-.plan-price span{font-size:16px;color:rgba(255,255,255,.5);font-family:var(--ff)}
-.plan-per{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:24px}
-.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
-.plan-features li{font-size:13px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:8px}
-.plan-features li::before{content:'✓';color:var(--lime);font-weight:700;flex-shrink:0}
-.plan-features li.off{color:rgba(255,255,255,.3)}
+.stat-val{font-family:var(--HF);font-size:40px;color:var(--gold);letter-spacing:2px;display:block;line-height:1}
+.stat-lbl{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-weight:600}
+/* SALON LOOKUP */
+.lookup-section{padding:56px 20px;max-width:600px;margin:0 auto;text-align:center}
+.lookup-title{font-family:var(--HF);font-size:36px;letter-spacing:1px;color:var(--white);margin-bottom:6px}
+.lookup-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
+.lookup-box{background:var(--surface);border-radius:var(--r);padding:28px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.lookup-input{width:100%;padding:14px 16px;background:var(--surface2);border:2px solid var(--border);border-radius:var(--rs);font-family:var(--BF);font-size:16px;color:var(--white);outline:none;transition:border-color .2s;margin-bottom:10px}
+.lookup-input:focus{border-color:var(--accent)}
+.lookup-input::placeholder{color:var(--muted2)}
+.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.portal-btn{padding:12px 10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--white)}
+.portal-btn:hover{border-color:var(--accent);background:rgba(0,122,86,.06);color:var(--accent)}
+.portal-btn .pi{font-size:20px;display:block;margin-bottom:4px}
+/* FEATURES */
+.features-section{padding:56px 20px;max-width:900px;margin:0 auto}
+.sec-tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:10px}
+.sec-h{font-family:var(--HF);font-size:clamp(32px,5vw,52px);color:var(--white);letter-spacing:1px;margin-bottom:10px}
+.sec-sub{font-size:15px;color:var(--muted);margin-bottom:40px;max-width:500px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.feat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.feat:hover{border-color:var(--accent)}
+.feat-icon{font-size:28px;display:block;margin-bottom:12px}
+.feat-title{font-family:var(--HF);font-size:20px;color:var(--white);letter-spacing:.5px;margin-bottom:6px}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.feat-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;margin-top:10px;text-transform:uppercase;letter-spacing:.5px}
+.fb-free{background:rgba(22,163,74,.1);color:var(--green)}
+.fb-pro{background:rgba(29,109,181,.1);color:var(--blue)}
+.fb-biz{background:rgba(109,40,217,.1);color:#6D28D9}
+/* PLANS */
+.plans-section{background:#003D2B;padding:56px 20px}
+.plans-inner{max-width:900px;margin:0 auto}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:36px}
+.plan{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;position:relative}
+.plan.pop{border-color:#C8A800;background:rgba(200,168,0,.06)}
+.plan-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#C8A800;color:#003D2B;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:3px 12px;border-radius:8px;white-space:nowrap;font-family:var(--BF)}
+.plan-name{font-family:var(--HF);font-size:22px;color:white;letter-spacing:1px;margin-bottom:4px}
+.plan-price{font-family:var(--HF);font-size:48px;color:var(--gold);line-height:1;margin:12px 0 4px;letter-spacing:1px}
+.plan-per{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.plan-features li{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.plan-features li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0}
+.plan-features li.off{color:rgba(255,255,255,.25)}
 .plan-features li.off::before{content:'×';color:rgba(255,255,255,.2)}
-.btn-plan{width:100%;padding:13px;border-radius:10px;font-family:var(--fh);font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;display:block;transition:all .2s;border:none}
+.btn-plan{width:100%;padding:13px;border-radius:var(--rs);font-family:var(--BF);font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center;display:block;border:none;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
 .btn-plan-outline{background:transparent;border:2px solid rgba(255,255,255,.2);color:white}
 .btn-plan-outline:hover{border-color:white}
-.btn-plan-lime{background:var(--lime);color:var(--ink)}
-.btn-plan-lime:hover{background:var(--lime2)}
-
-/* ── PORTAL SELECTOR ── */
-.portals-section{padding:72px 24px;max-width:1000px;margin:0 auto}
-.portals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:40px}
-.portal-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:24px 16px;text-align:center;cursor:pointer;text-decoration:none;transition:all .2s}
-.portal-card:hover{border-color:var(--lime2);background:#F4FBF0;transform:translateY(-2px)}
-.portal-card-icon{font-size:36px;display:block;margin-bottom:12px}
-.portal-card-name{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.5px;display:block}
-.portal-card-desc{font-size:12px;color:var(--ink3);margin-top:4px;display:block}
-
-/* ── FOOTER ── */
-footer{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;padding:28px 24px;font-size:13px}
-footer a{color:rgba(255,255,255,.6);text-decoration:none}
-footer strong{color:var(--lime);font-family:var(--fh)}
+.btn-plan-gold{background:#C8A800;color:#003D2B}
+.btn-plan-gold:hover{background:#F5E030}
+/* FOOTER */
+footer{background:#002A1E;color:rgba(255,255,255,.4);text-align:center;padding:24px 20px;font-size:12px}
+footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-brand">
-    <span class="nav-brand-dot"></span>
-    MySalon
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-top">MY</span>
+    <span class="nav-logo-bot">SALON</span>
   </a>
   <div class="nav-actions">
-    <a href="login-superadmin.html" class="btn-ghost">Admin</a>
-    <a href="register-salon.html" class="btn-lime">Register Your Salon →</a>
+    <a href="login-superadmin.html" class="btn-nav btn-nav-ghost">Platform Admin</a>
+    <a href="register-salon.html" class="btn-nav btn-nav-primary">Register Your Salon →</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge"><span class="hero-badge-dot"></span> Now live for 10 lakh+ salons across India</div>
-  <h1>Run your salon<br><span>smarter, faster.</span></h1>
-  <p class="hero-sub">Free digital tools for hairstylists & salon owners — entries, attendance, payroll, style cards & more. No app download needed.</p>
+  <div class="hero-badge">🟢 Live — 10 lakh+ salons across India</div>
+  <h1>YOUR SALON.<br><em>YOUR SYSTEM.</em></h1>
+  <p class="hero-sub">Digital tools built for Indian salons — entries, attendance, payroll, style cards, queue & more. No app download needed. Free forever for core features.</p>
   <div class="hero-cta">
-    <a href="register-salon.html" class="btn-primary">Start Free — 2 min setup</a>
-    <a href="#portals" class="btn-outline">Already registered? Login</a>
+    <a href="register-salon.html" class="btn-hero-primary">Start Free — 2 min setup</a>
+    <a href="#lookup" class="btn-hero-outline">Already Registered? Login</a>
   </div>
 </div>
 
-<!-- STATS BAR -->
+<!-- STATS -->
 <div class="stats-bar">
-  <div class="stat"><span class="stat-val">10L+</span><span class="stat-lbl">Salons supported</span></div>
-  <div class="stat"><span class="stat-val">Free</span><span class="stat-lbl">Core features forever</span></div>
-  <div class="stat"><span class="stat-val">₹299</span><span class="stat-lbl">Pro plan / month</span></div>
-  <div class="stat"><span class="stat-val">No app</span><span class="stat-lbl">Works in browser</span></div>
+  <div class="stat"><span class="stat-val">10L+</span><span class="stat-lbl">Salons</span></div>
+  <div class="stat"><span class="stat-val">FREE</span><span class="stat-lbl">Core features</span></div>
+  <div class="stat"><span class="stat-val">₹299</span><span class="stat-lbl">Pro / month</span></div>
+  <div class="stat"><span class="stat-val">NO APP</span><span class="stat-lbl">Browser-based</span></div>
 </div>
 
 <!-- FEATURES -->
-<div class="section">
-  <div class="section-tag">What you get</div>
-  <h2>Everything a salon needs,<br>right from day one.</h2>
-  <p class="section-sub">Start free. Upgrade only when you're ready for more.</p>
+<div class="features-section">
+  <div class="sec-tag">What you get</div>
+  <div class="sec-h">EVERYTHING YOUR SALON NEEDS</div>
+  <p class="sec-sub">Start free. Upgrade when you need more.</p>
   <div class="features-grid">
-    <div class="feat-card">
-      <span class="feat-icon">📋</span>
-      <div class="feat-title">Daily Entry Log</div>
-      <div class="feat-desc">Log every service, amount, payment mode — per stylist, per day. Simple & fast.</div>
-      <span class="feat-badge badge-free">Free</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">📅</span>
-      <div class="feat-title">Attendance & Payroll</div>
-      <div class="feat-desc">Mark daily attendance, calculate monthly salary, manage advances & deductions.</div>
-      <span class="feat-badge badge-free">Free</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🎨</span>
-      <div class="feat-title">Style Cards</div>
-      <div class="feat-desc">Save each customer's hair profile, services done, products used & stylist notes.</div>
-      <span class="feat-badge badge-free">Free</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">💄</span>
-      <div class="feat-title">Cosmetics Inventory</div>
-      <div class="feat-desc">Track your product stock, set reorder levels, monitor usage per salon.</div>
-      <span class="feat-badge badge-free">Free</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">⏱️</span>
-      <div class="feat-title">Save-the-Time Queue</div>
-      <div class="feat-desc">Digital token queue — customers join from QR code, see live wait time on screen.</div>
-      <span class="feat-badge badge-pro">Pro</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">📊</span>
-      <div class="feat-title">Advanced Analytics</div>
-      <div class="feat-desc">Revenue trends, top stylists, best-selling services, customer retention reports.</div>
-      <span class="feat-badge badge-pro">Pro</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🏢</span>
-      <div class="feat-title">Multi-Branch Franchise</div>
-      <div class="feat-desc">Franchise owner portal to view all branches — revenue, attendance, top performers.</div>
-      <span class="feat-badge badge-biz">Business</span>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🧑‍💼</span>
-      <div class="feat-title">Hire Hairstylists</div>
-      <div class="feat-desc">Post job openings on the MySalon hire board. Reach stylists looking for opportunities.</div>
-      <span class="feat-badge badge-biz">Business</span>
-    </div>
+    <div class="feat"><span class="feat-icon">📋</span><div class="feat-title">DAILY ENTRIES</div><div class="feat-desc">Log every service with PhonePe, Cash, tips split. Cashback & offers built-in.</div><span class="feat-badge fb-free">Free</span></div>
+    <div class="feat"><span class="feat-icon">📅</span><div class="feat-title">ATTENDANCE & PAYROLL</div><div class="feat-desc">Clock in/out, attendance calendar, salary calculator with advances, deductions & OT.</div><span class="feat-badge fb-free">Free</span></div>
+    <div class="feat"><span class="feat-icon">🎨</span><div class="feat-title">STYLE CARDS</div><div class="feat-desc">Full haircut blueprint — zones, fade type, guard numbers, photos, barber notes.</div><span class="feat-badge fb-free">Free</span></div>
+    <div class="feat"><span class="feat-icon">💄</span><div class="feat-title">COSMETICS STOCK</div><div class="feat-desc">Inventory tracking with low-stock alerts, purchase & sell price per product.</div><span class="feat-badge fb-free">Free</span></div>
+    <div class="feat"><span class="feat-icon">⏱️</span><div class="feat-title">SAVE-THE-TIME QUEUE</div><div class="feat-desc">Digital token queue, QR code for customers, live TV display, stylist full-screen mode.</div><span class="feat-badge fb-pro">Pro</span></div>
+    <div class="feat"><span class="feat-icon">📊</span><div class="feat-title">ANALYTICS & P&L</div><div class="feat-desc">Monthly/yearly revenue charts, per-stylist breakdowns, P&L with custom inputs.</div><span class="feat-badge fb-pro">Pro</span></div>
+    <div class="feat"><span class="feat-icon">🏢</span><div class="feat-title">MULTI-BRANCH</div><div class="feat-desc">Franchise view across all branches — revenue, staff, top stylists in one screen.</div><span class="feat-badge fb-biz">Business</span></div>
+    <div class="feat"><span class="feat-icon">🧑‍💼</span><div class="feat-title">HIRE BOARD</div><div class="feat-desc">Post stylist job openings. Reach candidates looking for salon opportunities.</div><span class="feat-badge fb-biz">Business</span></div>
   </div>
 </div>
 
 <!-- PLANS -->
 <div class="plans-section">
   <div class="plans-inner">
-    <div class="section-tag">Pricing</div>
-    <h2>Simple, honest pricing.</h2>
+    <div class="sec-tag" style="color:rgba(245,224,48,.6)">Pricing</div>
+    <div class="sec-h" style="color:white">SIMPLE PRICING.</div>
     <div class="plans-grid">
-      <!-- FREE -->
-      <div class="plan-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-price">₹0<span>/month</span></div>
+      <div class="plan">
+        <div class="plan-name">FREE</div>
+        <div class="plan-price">₹0</div>
         <div class="plan-per">Forever free · 1 branch</div>
         <ul class="plan-features">
-          <li>Daily entries & cash log</li>
-          <li>Attendance & payroll</li>
-          <li>Style cards</li>
-          <li>Cosmetics inventory</li>
-          <li>1 stylist login</li>
-          <li class="off">Queue system</li>
-          <li class="off">Analytics dashboard</li>
-          <li class="off">Multi-branch</li>
-          <li class="off">Hire board</li>
+          <li>Daily entries & cash log</li><li>Attendance + payroll</li><li>Style cards</li><li>Cosmetics inventory</li><li>1 stylist login</li>
+          <li class="off">Queue system</li><li class="off">Analytics</li><li class="off">Multi-branch</li>
         </ul>
         <a href="register-salon.html" class="btn-plan btn-plan-outline">Get Started Free</a>
       </div>
-      <!-- PRO -->
-      <div class="plan-card popular">
-        <div class="plan-popular-tag">Most Popular</div>
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">₹299<span>/month</span></div>
-        <div class="plan-per">Up to 3 branches</div>
+      <div class="plan pop">
+        <div class="plan-tag">Most Popular</div>
+        <div class="plan-name">PRO</div>
+        <div class="plan-price">₹299</div>
+        <div class="plan-per">/month · up to 3 branches</div>
         <ul class="plan-features">
-          <li>Everything in Free</li>
-          <li>Save-the-time queue</li>
-          <li>Customer app + loyalty</li>
-          <li>Advanced analytics</li>
-          <li>Unlimited stylists</li>
-          <li>Up to 3 branches</li>
-          <li class="off">Franchise view</li>
-          <li class="off">Hire board</li>
-          <li class="off">Sales head portal</li>
+          <li>Everything in Free</li><li>Save-the-time queue</li><li>Customer app + loyalty</li><li>Advanced analytics</li><li>Unlimited stylists</li><li>Up to 3 branches</li>
+          <li class="off">Franchise view</li><li class="off">Hire board</li>
         </ul>
-        <a href="register-salon.html?plan=pro" class="btn-plan btn-plan-lime">Start Pro Trial</a>
+        <a href="register-salon.html?plan=pro" class="btn-plan btn-plan-gold">Start Pro Trial</a>
       </div>
-      <!-- BUSINESS -->
-      <div class="plan-card">
-        <div class="plan-name">Business</div>
-        <div class="plan-price">₹799<span>/month</span></div>
-        <div class="plan-per">Unlimited branches</div>
+      <div class="plan">
+        <div class="plan-name">BUSINESS</div>
+        <div class="plan-price">₹799</div>
+        <div class="plan-per">/month · unlimited</div>
         <ul class="plan-features">
-          <li>Everything in Pro</li>
-          <li>Franchise multi-branch</li>
-          <li>Hire stylist board</li>
-          <li>Sales head portal</li>
-          <li>Unlimited branches</li>
-          <li>Priority support</li>
-          <li>Custom branding</li>
-          <li>API access</li>
-          <li>Dedicated onboarding</li>
+          <li>Everything in Pro</li><li>Franchise multi-branch</li><li>Hire stylist board</li><li>Sales head portal</li><li>Unlimited branches</li><li>Priority support</li>
         </ul>
         <a href="register-salon.html?plan=business" class="btn-plan btn-plan-outline">Contact Sales</a>
       </div>
@@ -258,66 +178,37 @@ footer strong{color:var(--lime);font-family:var(--fh)}
   </div>
 </div>
 
-<!-- PORTALS -->
-<div class="portals-section" id="portals">
-  <div class="section-tag">Already registered?</div>
-  <h2>Login to your salon portal</h2>
-  <p class="section-sub">Enter your salon URL or select your role below. You'll need your salon link.</p>
-
-  <!-- Quick Salon Lookup -->
-  <div style="display:flex;gap:10px;max-width:420px;margin:0 0 36px">
-    <input type="text" id="salonSlugInput" placeholder="Enter your salon ID (e.g. radiance-salon)"
-      style="flex:1;padding:13px 16px;border:2px solid var(--border);border-radius:10px;font-family:var(--ff);font-size:15px;background:var(--card);color:var(--ink);outline:none"
-      oninput="document.getElementById('slugError').style.display='none'">
-    <button onclick="goToSalon()" class="btn-primary" style="padding:13px 22px;font-size:15px;white-space:nowrap">Go →</button>
-  </div>
-  <div id="slugError" style="color:var(--danger);font-size:13px;font-weight:600;margin-top:-24px;margin-bottom:20px;display:none">Please enter your salon ID first.</div>
-
-  <div class="portals-grid">
-    <a href="#" onclick="portalLogin('login-stylist.html');return false" class="portal-card">
-      <span class="portal-card-icon">✂️</span>
-      <span class="portal-card-name">Stylist</span>
-      <span class="portal-card-desc">Log sales & styles</span>
-    </a>
-    <a href="#" onclick="portalLogin('login-owner.html');return false" class="portal-card">
-      <span class="portal-card-icon">🏪</span>
-      <span class="portal-card-name">Owner</span>
-      <span class="portal-card-desc">Manage your salon</span>
-    </a>
-    <a href="#" onclick="portalLogin('login-franchise.html');return false" class="portal-card">
-      <span class="portal-card-icon">🏢</span>
-      <span class="portal-card-name">Franchise</span>
-      <span class="portal-card-desc">All branches view</span>
-    </a>
-    <a href="#" onclick="portalLogin('login-customer.html');return false" class="portal-card">
-      <span class="portal-card-icon">👤</span>
-      <span class="portal-card-name">Customer</span>
-      <span class="portal-card-desc">Style cards & history</span>
-    </a>
+<!-- SALON LOOKUP -->
+<div class="lookup-section" id="lookup">
+  <div class="lookup-title">ALREADY REGISTERED?</div>
+  <p class="lookup-sub">Enter your salon ID to access your portal</p>
+  <div class="lookup-box">
+    <input type="text" id="salonSlug" class="lookup-input" placeholder="Your salon ID (e.g. radiance-salon-5015)" oninput="document.getElementById('slugErr').style.display='none'">
+    <div id="slugErr" style="color:#DC2626;font-size:12px;font-weight:700;margin-bottom:8px;display:none">Please enter your salon ID first.</div>
+    <div class="portal-grid">
+      <button class="portal-btn" onclick="go('login-stylist.html')"><span class="pi">✂️</span>Stylist</button>
+      <button class="portal-btn" onclick="go('login-owner.html')"><span class="pi">🏪</span>Owner / Manager</button>
+      <button class="portal-btn" onclick="go('login-franchise.html')"><span class="pi">🏢</span>Franchise</button>
+      <button class="portal-btn" onclick="go('login-customer.html')"><span class="pi">👤</span>Customer</button>
+    </div>
   </div>
 </div>
 
 <footer>
-  <strong>MySalon</strong> &nbsp;·&nbsp; Digital salon management for every salon in India &nbsp;·&nbsp;
-  <a href="login-superadmin.html">Platform Admin</a> &nbsp;·&nbsp;
-  © 2026 MySalon. Built with ❤️
+  <strong>MYSALON</strong> &nbsp;·&nbsp; Digital Salon Platform for India &nbsp;·&nbsp;
+  <a href="login-superadmin.html" style="color:rgba(255,255,255,.4);text-decoration:none">Platform Admin</a> &nbsp;·&nbsp;
+  © 2026 MySalon
 </footer>
 
 <script>
-function goToSalon() {
-  var slug = document.getElementById('salonSlugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
-  if (!slug) { document.getElementById('slugError').style.display='block'; return; }
-  sessionStorage.setItem('ms_slug', slug);
-  window.location.href = 'login-owner.html?salon=' + encodeURIComponent(slug);
-}
-function portalLogin(page) {
-  var slug = document.getElementById('salonSlugInput').value.trim().toLowerCase().replace(/\s+/g,'-');
-  if (!slug) { document.getElementById('slugError').style.display='block'; return; }
+function go(page) {
+  var slug = document.getElementById('salonSlug').value.trim().toLowerCase().replace(/\s+/g,'-');
+  if (!slug) { document.getElementById('slugErr').style.display='block'; return; }
   sessionStorage.setItem('ms_slug', slug);
   window.location.href = page + '?salon=' + encodeURIComponent(slug);
 }
-document.getElementById('salonSlugInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') goToSalon();
+document.getElementById('salonSlug').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') go('login-owner.html');
 });
 </script>
 </body>

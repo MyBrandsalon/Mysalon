@@ -3,247 +3,3272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>My Profile — MySalon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>MySalon – My Account</title>
+
+<!-- ── PWA: install on home screen ──────────────────────────────────── -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#003D2B">
+<!-- iOS Safari specific — controls home-screen icon + standalone mode look -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MySalon">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<!-- ────────────────────────────────────────────────────────────────── -->
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 <style>
 :root{
-  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
-  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
-  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
-  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+  /* BACKGROUND & SURFACES */
+  --bg:#F5F5F0;
+  --surface:#FFFFFF;
+  --surface2:#F0F0EA;
+  --surface3:#E8E8E0;
+  --border:#DDDDD5;
+
+  /* BRAND — matches barber app exactly */
+  --accent:#007A56;
+  --accent2:#005F42;
+  --gold:#F5E030;
+  --gold-dark:#C8A800;
+
+  /* TEXT */
+  --white:#1A1A14;
+  --muted:#666660;
+  --muted2:#999990;
+
+  /* STATUS */
+  --danger:#DC3545;
+  --green:#16A34A;
+  --orange:#F97316;
+  --blue:#1D6DB5;
+  --warn:#C2410C;
+  --purple:#6D28D9;
+
+  /* LAYOUT */
+  --r:12px;--rs:8px;
+  --BF:'Barlow',sans-serif;
+  --HF:'Bebas Neue',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--ff);background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:32px}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);max-width:430px;margin:0 auto;min-height:100vh}
 
-/* Header */
-.header{background:var(--ink);padding:24px 18px 32px}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.header-salon{display:flex;align-items:center;gap:10px}
-.header-logo{width:32px;height:32px;border-radius:8px;object-fit:contain;border:1.5px solid rgba(255,255,255,.15);display:none}
-.header-salon-name{font-family:var(--fh);font-size:14px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px}
-.btn-logout{background:none;border:none;font-size:12px;color:rgba(255,255,255,.35);cursor:pointer;font-family:var(--ff)}
-.profile-section{display:flex;align-items:center;gap:14px}
-.profile-avatar{width:56px;height:56px;border-radius:14px;background:var(--lime3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:22px;font-weight:800;color:var(--ink2);flex-shrink:0}
-.profile-name{font-family:var(--fh);font-size:22px;font-weight:800;color:white}
-.profile-phone{font-size:13px;color:rgba(255,255,255,.5);margin-top:3px}
+/* ── TOPBAR ── */
+.topbar{background:var(--accent);padding:0 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.15);min-height:54px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.logo-box{background:var(--gold);border-radius:6px;padding:3px 10px;display:inline-flex;align-items:center;margin:9px 10px 9px 0;flex-shrink:0}
+.logo-box span{font-family:var(--HF);font-size:16px;color:#003D2B!important;line-height:1;letter-spacing:1px}
+.tb-r{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.tb-n{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-role{background:rgba(245,224,48,.2);border:1px solid rgba(245,224,48,.4);color:var(--gold);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.tb-out{background:none;border:1px solid rgba(255,255,255,.35);color:rgba(255,255,255,.8);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--BF);font-weight:600}
 
-/* Loyalty card */
-.loyalty-card{background:var(--lime3);border-radius:18px;margin:18px 14px 0;padding:20px;position:relative;overflow:hidden}
-.loyalty-card::after{content:'★';position:absolute;right:-10px;bottom:-16px;font-size:80px;color:rgba(0,0,0,.06);pointer-events:none}
-.lc-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px}
-.lc-points{font-family:var(--fh);font-size:48px;font-weight:800;color:var(--ink);line-height:1}
-.lc-sub{font-size:13px;color:var(--ink3);margin-top:6px}
-.lc-row{display:flex;align-items:flex-end;justify-content:space-between}
+/* ── PAGES & BOTTOM NAV ── */
+.page{display:none;padding-bottom:90px;min-height:80vh;animation:fi .2s ease}
+.page.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px 7px;cursor:pointer;color:var(--muted2);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:none;border:none;transition:color .2s;position:relative}
+.nb.on{color:var(--accent)}
+.nb.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:3px;background:var(--accent);border-radius:3px 3px 0 0}
+.ni{font-size:18px;line-height:1}
 
-/* Referral box */
-.ref-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;margin:10px 14px;padding:18px}
-.ref-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
-.ref-sub{font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.6}
-.ref-code-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px}
-.ref-code{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--lime2);letter-spacing:1px;flex:1}
-.btn-copy{background:var(--lime2);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--ff)}
-.btn-copy:hover{background:var(--lime)}
+/* ── HERO ── */
+.hero{background:var(--accent);padding:20px 16px 0;position:relative;overflow:hidden}
+.hero::after{content:'✂';position:absolute;right:-10px;bottom:-20px;font-size:120px;opacity:.05;transform:rotate(-20deg)}
+.hero-greet{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.5);margin-bottom:4px}
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:30px;color:#fff;letter-spacing:1px;line-height:1.1;margin-bottom:14px}
+.hero-name span{color:var(--gold)}
 
-/* Section */
-.section{padding:10px 14px}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink)}
+/* ── SPEND SUMMARY STRIP ── */
+.spend-strip{background:rgba(0,0,0,.25);padding:14px 16px 14px;display:flex;gap:0;border-top:1px solid rgba(0,0,0,.08)}
+.ss-item{flex:1;text-align:center;border-right:1px solid rgba(0,0,0,.08)}
+.ss-item:last-child{border-right:none}
+.ss-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:1px;line-height:1}
+.ss-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(245,224,48,.5);margin-top:3px}
 
-/* Style card */
-.sc-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px}
-.sc-date{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.sc-services{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
-.sc-meta{font-size:12px;color:var(--ink3);line-height:1.6}
-.sc-next{display:inline-block;background:var(--lime3);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--ink2);margin-top:8px}
-.sc-stylist-note{background:var(--surface);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--ink3);font-style:italic;line-height:1.6;border-left:3px solid var(--lime2)}
+/* ── ACTIVE STYLE STRIP ── */
+.active-strip{background:var(--gold);padding:14px 16px}
+.as-pulse{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(0,61,43,.45);margin-bottom:5px}
+.as-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.as-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:1px;margin-bottom:7px}
+.as-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.as-tag{background:rgba(0,61,43,.12);border:1px solid rgba(0,61,43,.2);color:var(--accent);font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px}
 
-/* Visit card */
-.visit-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.visit-service{font-size:14px;font-weight:600;color:var(--ink)}
-.visit-date{font-size:11px;color:var(--ink3);margin-top:3px}
-.visit-amt{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--lime2)}
+/* ── CARDS & PADDING ── */
+.pad{padding:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card-hdr{padding:12px 16px;border-bottom:1px solid #F0F2EE;display:flex;align-items:center;justify-content:space-between;background:#FAFCF9}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.8px}
+.card-body{padding:14px 16px}
 
-/* Tabs */
-.tabs{display:flex;background:var(--card);border-bottom:2px solid var(--border);overflow-x:auto}
-.tab{flex:1;padding:12px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border:none;background:transparent;font-family:var(--ff);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
-.tab.active{color:var(--ink);border-bottom-color:var(--lime2)}
-.tab-pane{display:none}
-.tab-pane.active{display:block}
-.empty-state{text-align:center;padding:40px 20px;color:var(--ink3);font-size:14px}
-.empty-icon{font-size:40px;display:block;margin-bottom:8px;opacity:.35}
+/* ── SECTION LABEL ── */
+.sec{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec:first-child{margin-top:6px}
+
+/* ── STAT BOXES ── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-row.three{grid-template-columns:1fr 1fr 1fr}
+.stat-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:14px 10px;text-align:center}
+.stat-box.green{background:var(--accent);border-color:var(--accent)}
+.stat-box.yellow{background:var(--gold);border-color:var(--gold-dark)}
+.stat-box.blue{background:#EFF6FF;border-color:#BFDBFE}
+.stat-box.purple{background:#F5F3FF;border-color:#DDD6FE}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1;letter-spacing:.5px}
+.stat-box.green .sn{color:var(--gold);font-size:22px}
+.stat-box.yellow .sn{color:var(--accent);font-size:20px}
+.stat-box.blue .sn{color:var(--blue);font-size:20px}
+.stat-box.purple .sn{color:var(--purple);font-size:20px}
+.sl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-top:4px}
+.stat-box.green .sl{color:rgba(245,224,48,.5)}
+.stat-box.yellow .sl{color:rgba(0,61,43,.45)}
+
+/* ── BILLING ENTRY ROW ── */
+.bill-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #F0F2EE;cursor:pointer;transition:background .15s}
+.bill-row:last-child{border-bottom:none}
+.bill-row:hover{background:#FAFCF9}
+.br-icon{width:38px;height:38px;border-radius:50%;background:rgba(0,61,43,.08);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.br-body{flex:1}
+.br-svc{font-size:14px;font-weight:700;color:var(--white);margin-bottom:2px}
+.br-meta{font-size:12px;color:var(--muted);line-height:1.4}
+.br-right{text-align:right}
+.br-total{font-size:15px;font-weight:800;color:var(--accent)}
+.br-date{font-size:11px;color:var(--muted2);margin-top:2px}
+
+/* ── PAYMENT PILLS ── */
+.pay-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;border:1px solid}
+.p-cash{background:#ECFDF5;border-color:#A7F3D0;color:#065f46}
+.p-pp{background:#F5F3FF;border-color:#C4B5FD;color:var(--purple)}
+
+/* ── STYLE CARD ── */
+.sci{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.sci::after{content:'✂';position:absolute;right:-6px;top:-4px;font-size:56px;opacity:.04;transform:rotate(-20deg)}
+.sci-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--accent);text-transform:uppercase}
+.sci-id{font-size:10px;color:var(--muted2);letter-spacing:1px;margin-top:2px}
+.sci-tags{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0}
+.sci-tag{background:rgba(0,61,43,.07);border:1px solid rgba(0,61,43,.15);color:var(--accent);font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px}
+
+/* ── INFO ROW ── */
+.ir{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F0F2EE}
+.ir:last-child{border-bottom:none}
+.ir-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.ir-v{font-size:14px;font-weight:600;text-align:right;color:var(--white);max-width:60%}
+
+/* ── ZONE BLUEPRINT ── */
+.zones{display:grid;grid-template-areas:". fr ." "le to ri" "le cr ri" ". ba .";grid-template-columns:1fr 1fr 1fr;gap:5px;margin:10px 0}
+.zc{background:#F5FAF5;border:1.5px solid var(--border);border-radius:7px;padding:10px 6px;text-align:center}
+.zc.lit{border-color:var(--accent);background:rgba(0,61,43,.07)}
+.zc[data-z="fr"]{grid-area:fr}.zc[data-z="to"]{grid-area:to}.zc[data-z="cr"]{grid-area:cr}.zc[data-z="ba"]{grid-area:ba}
+.zc[data-z="le"]{grid-area:le;min-height:78px;display:flex;flex-direction:column;justify-content:center}
+.zc[data-z="ri"]{grid-area:ri;min-height:78px;display:flex;flex-direction:column;justify-content:center}
+.zc-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)}
+.zc-v{font-size:13px;font-weight:700;color:var(--white);margin-top:2px}
+.zc.lit .zc-l{color:var(--accent)}.zc.lit .zc-v{color:var(--accent)}
+
+/* ── PHOTOS ── */
+.photos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0}
+.ph{aspect-ratio:1;background:#F0F5F0;border:1.5px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2);overflow:hidden}
+.ph.has{border-style:solid;border-color:var(--accent);background:rgba(0,61,43,.04)}
+.ph img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+
+/* ── VISIT TIMELINE ── */
+.vt{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #F0F2EE}
+.vt:last-child{border-bottom:none}
+.vt-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.vt-dot.dim{background:var(--border)}
+.vt-date{font-size:11px;color:var(--muted2);font-weight:600;margin-bottom:2px}
+.vt-svc{font-size:14px;font-weight:800;color:var(--white)}
+.vt-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.vt-note{font-size:12px;font-style:italic;color:#555;margin-top:6px;background:rgba(0,61,43,.05);padding:8px 10px;border-radius:5px;border-left:3px solid var(--accent)}
+.vt-bills{margin-top:7px}
+
+/* ── BAR CHART ── */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:100px;margin-top:10px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--accent);min-height:4px;transition:height .6s ease;cursor:pointer;position:relative}
+.bar:hover::after{content:attr(data-tip);position:absolute;top:-26px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--gold);font-size:10px;padding:3px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;font-weight:700}
+.bar-lbl{font-size:9px;color:var(--muted2);text-align:center;font-weight:600}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.bg-g{background:rgba(0,61,43,.1);border:1px solid rgba(0,61,43,.2);color:var(--accent)}
+.bg-y{background:var(--gold);color:var(--accent)}
+.bg-blue{background:#EFF6FF;border:1px solid #BFDBFE;color:var(--blue)}
+.bg-pp{background:#F5F3FF;border:1px solid #DDD6FE;color:var(--purple)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:8px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;border:none;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn-g{background:var(--accent);color:var(--gold)}.btn-g:hover{background:var(--accent2)}
+.btn-y{background:var(--gold);color:var(--accent)}
+.btn-s{background:var(--surface);border:1.5px solid var(--border);color:#444}
+.btn-sm{padding:7px 12px;font-size:11px}
+.btn-full{width:100%}
+.btn-inline{width:auto}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal-sheet{background:var(--surface);border-radius:16px 16px 0 0;border-top:3px solid var(--accent);width:100%;max-width:430px;padding:22px 18px 40px;animation:su .3s ease;max-height:92dvh;overflow-y:auto}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.mh{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.mt{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.ms{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* ── QR ── */
+.qr-wrap{background:#fff;border:2px solid var(--border);padding:16px;border-radius:12px;display:inline-block}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:32px 16px;color:var(--muted2)}
+.empty-icon{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty p{font-size:13px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:var(--gold);padding:11px 22px;border-radius:24px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── FILTER ROW ── */
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px}
+.fr .ifield{flex:1;min-width:120px}
+.ifield label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ifield input,.ifield select{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;color:var(--white);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.ifield input:focus,.ifield select:focus{border-color:var(--accent)}
+.btn-filter{padding:9px 14px;background:var(--surface);border:1.5px solid var(--border);color:var(--muted);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
+.btn-filter:hover{border-color:var(--accent);color:var(--accent)}
+.btn-filter.on{background:var(--accent);color:var(--gold);border-color:var(--accent)}
+
+/* ── PROFILE ── */
+.prof-ava{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);margin:0 auto 12px;letter-spacing:1px}
+
+/* ── LOYALTY BAR ── */
+.loyalty-card{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.loyalty-card::after{content:'⭐';position:absolute;right:-10px;bottom:-16px;font-size:80px;opacity:.08}
+.lc-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:6px}
+.lc-visits{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);line-height:1;letter-spacing:1px}
+.lc-sub{font-size:12px;color:rgba(0,0,0,.40);margin-top:4px}
+.lc-bar-track{background:rgba(0,0,0,.12);height:6px;border-radius:3px;margin-top:12px;overflow:hidden}
+.lc-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .8s ease}
+.lc-next{font-size:11px;color:rgba(245,224,48,.55);margin-top:6px}
+
+/* ── MONTH CHIPS ── */
+.month-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.mchip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Barlow',sans-serif}
+.mchip:hover{border-color:var(--accent);color:var(--accent)}
+.mchip.on{background:var(--accent);color:var(--gold);border-color:var(--accent)}
+
+/* ── SPEND BREAKDOWN ── */
+.spend-meter{margin:10px 0}
+.sm-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sm-lbl{font-size:12px;color:var(--muted);min-width:72px;font-weight:600}
+.sm-track{flex:1;height:6px;background:#EEF2EE;border-radius:3px;overflow:hidden}
+.sm-fill{height:100%;border-radius:3px;transition:width .7s ease}
+.sm-val{font-size:12px;font-weight:700;color:var(--white);min-width:44px;text-align:right}
+
+/* ── LIGHT THEME OVERRIDES ── */
+body { background: var(--bg) !important; color: var(--white) !important; }
+.topbar { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.nav-tabs { background: var(--surface) !important; border-bottom: 1px solid var(--border) !important; }
+.panel { background: var(--bg); }
+
+/* Cards and surfaces */
+.sc, .salon-card, .month-chart, .tbl-wrap, .modal-box,
+.sheets-box, .cash-counter, .bc-card, .tot-bar,
+.pnl-section, .role-card, .outlet-summary,
+.mgr-ci-wrap, .att-card, .br-card { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Stat card values — keep accent colors readable on light */
+.sc-val { color: var(--white) !important; }
+.sc.accent .sc-val { color: var(--accent) !important; }
+.sc.gold   .sc-val { color: #8B6F00 !important; }
+.sc.danger .sc-val { color: var(--danger) !important; }
+.sc.b      .sc-val { color: var(--blue) !important; }
+.sc.g      .sc-val { color: var(--green) !important; }
+.sc.warn   .sc-val { color: var(--warn) !important; }
+.sc.gr     .sc-val { color: var(--green) !important; }
+
+/* Inputs */
+input, select, textarea {
+  background: var(--surface2) !important;
+  color: var(--white) !important;
+  border-color: var(--border) !important;
+}
+input::placeholder { color: var(--muted2) !important; }
+select option { background: var(--surface) !important; color: var(--white) !important; }
+
+/* Table rows */
+.tbl-head { background: var(--accent) !important; color: #fff !important; }
+.tbl-body .tbl-row { border-bottom-color: var(--border) !important; }
+.tbl-body .tbl-row:hover { background: var(--surface2) !important; }
+
+/* Modal overlay */
+.modal-bg { background: rgba(0,0,0,.4) !important; }
+.modal-box { background: var(--surface) !important; border-color: var(--border) !important; }
+
+/* Nav tab active */
+.nt { color: var(--muted) !important; }
+.nt.on { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+
+/* Buttons */
+.btn-sm { background: var(--surface2) !important; border-color: var(--border) !important; color: var(--white) !important; }
+.btn-sm:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
+.btn-sm.on { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+.btn-primary { background: var(--accent) !important; color: #fff !important; }
+.btn-cancel { border-color: var(--border) !important; color: var(--muted) !important; }
+
+/* Toast */
+.toast-el { background: var(--white) !important; color: var(--surface) !important; border-color: var(--border) !important; }
+
+/* BB Logo — force correct colours */
+.bb-logo-sm { background: #003D2B !important; border-color: #C8A800 !important; }
+.bb-logo-sm-top { background: #C8A800 !important; color: #003D2B !important; }
+.bb-logo-sm-div { background: #003D2B !important; }
+.bb-logo-sm-bot { background: #003D2B !important; color: #C8A800 !important; }
+.bb-logo { background: #003D2B !important; border-color: #C8A800 !important; }
+.bb-logo-top { background: #C8A800 !important; color: #003D2B !important; }
+.bb-logo-bot { background: #003D2B !important; color: #C8A800 !important; }
+
+/* PNL section in light mode */
+.pnl-input { background: var(--surface2) !important; color: var(--white) !important; border-color: var(--border) !important; }
+.pnl-row span:first-child { color: var(--muted) !important; }
+.pnl-row.pnl-total-row { background: var(--surface2) !important; }
+.pnl-row.pnl-auto { background: rgba(0,0,0,.02) !important; }
+
+/* Muted labels */
+.sc-lbl, .ifield label, .role-lbl, .bar-lbl { color: var(--muted) !important; }
+
+/* Section headers */
+.sec-title { color: var(--white) !important; }
+
+/* Charts bars stay accent */
+.bar { background: var(--accent) !important; }
+
+/* Outlet summary boxes */
+.os-box.ci  { background: rgba(22,163,74,.08) !important; border-color: rgba(22,163,74,.2) !important; }
+.os-box.ex  { background: rgba(220,53,69,.06) !important; border-color: rgba(220,53,69,.15) !important; }
+.os-box.net { background: rgba(29,109,181,.06) !important; border-color: rgba(29,109,181,.15) !important; }
+
+/* Badges */
+.badge-green  { background: rgba(22,163,74,.10) !important; color: var(--green) !important; border-color: rgba(22,163,74,.2) !important; }
+.badge-blue   { background: rgba(29,109,181,.08) !important; color: var(--blue) !important; border-color: rgba(29,109,181,.2) !important; }
+.badge-red    { background: rgba(220,53,69,.08) !important; color: var(--danger) !important; border-color: rgba(220,53,69,.2) !important; }
+.badge-gold   { background: rgba(139,111,0,.08) !important; color: #8B6F00 !important; border-color: rgba(139,111,0,.2) !important; }
+.badge-purple { background: rgba(109,40,217,.08) !important; color: var(--purple) !important; border-color: rgba(109,40,217,.2) !important; }
+
+/* ── OFFERS TAB ── */
+.offer-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  position:relative;
+}
+.offer-card.featured{border-color:var(--gold-dark);}
+.offer-banner{
+  background:var(--accent);padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.offer-banner.gold{background:linear-gradient(135deg,#C8A800,#F5E030);}
+.offer-banner.purple{background:linear-gradient(135deg,#5F259F,#8B5CF6);}
+.offer-banner.orange{background:linear-gradient(135deg,#C2410C,#F97316);}
+.offer-emoji{font-size:28px;margin-right:10px;}
+.offer-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;line-height:1.1;}
+.offer-banner.gold .offer-title{color:#003D2B;}
+.offer-badge-pct{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;
+  color:var(--gold);line-height:1;text-align:right;
+}
+.offer-banner.gold .offer-badge-pct{color:#003D2B;}
+.offer-badge-off{font-size:11px;font-weight:800;color:rgba(255,255,255,.7);text-align:right;text-transform:uppercase;letter-spacing:1px;}
+.offer-banner.gold .offer-badge-off{color:rgba(0,61,43,.6);}
+.offer-body{padding:14px 16px;}
+.offer-desc{font-size:13px;color:var(--white);font-weight:600;margin-bottom:8px;line-height:1.5;}
+.offer-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.offer-pill{
+  font-size:10px;font-weight:700;padding:3px 9px;
+  border-radius:12px;border:1px solid;
+}
+.offer-pill.green{background:rgba(0,122,86,.08);border-color:rgba(0,122,86,.25);color:var(--accent);}
+.offer-pill.gold{background:rgba(200,168,0,.1);border-color:rgba(200,168,0,.3);color:#856700;}
+.offer-pill.red{background:rgba(220,53,69,.08);border-color:rgba(220,53,69,.25);color:var(--danger);}
+.offer-expiry{font-size:11px;color:var(--muted);margin-top:4px;}
+.offer-expires-badge{
+  position:absolute;top:12px;right:12px;
+  background:rgba(0,0,0,.35);
+  color:#fff;font-size:9px;font-weight:700;
+  padding:2px 8px;border-radius:20px;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+
+/* Savings card in offers */
+.savings-strip{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:var(--r);padding:16px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.savings-strip::after{content:'✂';position:absolute;right:-10px;bottom:-18px;font-size:90px;opacity:.06;}
+.sstrip-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px;margin-bottom:3px;}
+.sstrip-sub{font-size:10px;color:rgba(245,224,48,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.sstrip-slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.sstrip-slot{
+  aspect-ratio:1;border-radius:50%;
+  border:2px dashed rgba(245,224,48,.5);
+  background:rgba(0,0,0,.15);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  position:relative;
+}
+.sstrip-slot.used{border-color:rgba(245,224,48,.9);background:rgba(245,224,48,.15);}
+.sstrip-slot.used::after{
+  content:'✓';position:absolute;
+  color:var(--gold);font-size:14px;font-weight:900;
+}
+.sstrip-num{font-size:8px;color:rgba(245,224,48,.5);font-weight:700;position:absolute;top:3px;}
+.sstrip-pct{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--gold);line-height:1;}
+.sstrip-off{font-size:7px;color:rgba(245,224,48,.6);text-transform:uppercase;font-weight:700;}
+.sstrip-tagline{font-size:10px;color:rgba(245,224,48,.5);margin-top:8px;text-align:center;}
+.no-offers{
+  text-align:center;padding:32px 16px;color:var(--muted2);
+}
+.no-offers-icon{font-size:40px;margin-bottom:10px;opacity:.5;}
+
+/* ── CAMERA SECTION (queue tab) ── */
+.cq-cam-section{margin:14px 0 0}
+.cq-cam-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cq-cam-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+.cq-cam-tabs{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.cq-cam-tab{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif;transition:all .15s}
+.cq-cam-tab.on{background:rgba(0,122,86,.12);border-color:var(--accent);color:var(--accent)}
+.cq-cam-snap-wrap{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative;background:#0a0a0a;cursor:pointer}
+.cq-cam-snap-img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s}
+.cq-cam-snap-wrap:hover .cq-cam-snap-img{filter:brightness(.75)}
+.cq-cam-snap-placeholder{position:absolute;inset:0;background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:cq-cam-shimmer 1.4s infinite}
+@keyframes cq-cam-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.cq-cam-snap-play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.32);transition:background .2s}
+.cq-cam-snap-wrap:hover .cq-cam-snap-play{background:rgba(0,0,0,.5)}
+.cq-cam-snap-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:transform .15s,background .15s}
+.cq-cam-snap-wrap:hover .cq-cam-snap-play-btn{transform:scale(1.08);background:rgba(255,255,255,.25)}
+.cq-cam-snap-play-icon{width:0;height:0;border-style:solid;border-width:10px 0 10px 18px;border-color:transparent transparent transparent #fff;margin-left:3px}
+.cq-cam-snap-play-lbl{font-size:11px;font-weight:800;color:#fff;letter-spacing:.8px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cq-cam-snap-age{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;color:rgba(255,255,255,.55);background:rgba(0,0,0,.45);border-radius:3px;padding:2px 5px;pointer-events:none}
+.cq-cam-snap-refresh{position:absolute;top:6px;right:8px;font-size:11px;background:rgba(0,0,0,.45);border:none;color:rgba(255,255,255,.6);border-radius:4px;padding:3px 7px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;opacity:0;transition:opacity .2s}
+.cq-cam-snap-wrap:hover .cq-cam-snap-refresh{opacity:1}
+.cq-cam-live-wrap{display:none;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative;background:#000}
+.cq-cam-live-wrap.active{display:block}
+.cq-cam-live-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.cq-cam-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.75);gap:8px}
+.cq-cam-overlay.hidden{display:none}
+.cq-cam-spinner{width:28px;height:28px;border:2.5px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:cq-spin .8s linear infinite}
+@keyframes cq-spin{to{transform:rotate(360deg)}}
+.cq-cam-overlay-msg{font-size:12px;color:rgba(255,255,255,.6);text-align:center;padding:0 16px}
+.cq-cam-live-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 0 6px}
+.cq-cam-live-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--muted2)}
+.cq-cam-live-badge.live{color:var(--accent)}
+.cq-cam-live-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.cq-cam-live-badge.live .cq-cam-live-dot{background:var(--danger);animation:cq-cam-pulse 1.5s infinite}
+@keyframes cq-cam-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.cq-cam-live-close{font-size:11px;font-weight:700;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:'Barlow',sans-serif;padding:0}
+.cq-cam-live-close:hover{color:var(--danger)}
+.cq-cam-progress-bar{height:2px;background:var(--border);border-radius:1px;margin-top:5px;overflow:hidden}
+.cq-cam-progress-fill{height:100%;background:var(--accent);width:100%;transform-origin:left;transition:width 1s linear}
+.cq-cam-resume-btn{width:100%;margin-top:8px;padding:11px;border-radius:var(--r);border:1.5px solid var(--accent);background:rgba(0,122,86,.08);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;display:none}
+.cq-cam-resume-btn.visible{display:block}
+
+/* ── BB Topbar Logo ── */
+/* ── BB Logo ── */
+.logo-wrap{text-align:center;margin-bottom:24px}
+
+/* ── BB Logo CSS ── */
+.bb-logo-sm{display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0;vertical-align:middle}
+.bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
+.bb-logo-sm-div{display:block;background:#003D2B !important;height:1.5px}
+.bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
+.bb-logo{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;text-decoration:none}
+.bb-logo-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
+.bb-logo-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
+.bb-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#003D2B;margin-top:7px;display:block}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-top">
-    <div class="header-salon">
-      <img id="ms-logo" class="header-logo" alt="logo">
-      <span class="header-salon-name ms-salon-name">MySalon</span>
+<!-- ═══ PWA INSTALL BANNER (Android) ═══════════════════════════════════════
+     Slides up from the bottom when Chrome/Edge fires beforeinstallprompt.
+     One tap on "Install" triggers the native OS install dialog. -->
+<div id="pwaInstallBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#003D2B,#005a3f);color:white;padding:14px 16px;box-shadow:0 -4px 12px rgba(0,0,0,.25);z-index:9998;font-family:'Barlow',sans-serif">
+  <div style="display:flex;align-items:center;gap:12px;max-width:560px;margin:0 auto">
+    <div style="font-size:32px;flex-shrink:0">💈</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:800;font-size:14px;line-height:1.2">Install MySalon</div>
+      <div style="font-size:11px;opacity:.85;margin-top:2px">Add to home screen for 1-tap access</div>
     </div>
-    <button class="btn-logout" onclick="doLogout()">Logout</button>
+    <button id="pwaInstallBtn" style="background:#F5E030;color:#003D2B;border:none;padding:9px 16px;border-radius:6px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0">Install</button>
+    <button id="pwaInstallDismiss" aria-label="Dismiss" style="background:transparent;color:rgba(255,255,255,.7);border:none;padding:4px 8px;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">✕</button>
   </div>
-  <div class="profile-section">
-    <div class="profile-avatar" id="avatarInitial">?</div>
-    <div>
-      <div class="profile-name" id="profileName">Loading…</div>
-      <div class="profile-phone" id="profilePhone"></div>
+</div>
+
+<!-- ═══ PWA INSTALL INSTRUCTIONS (iOS Safari) ════════════════════════════
+     iOS doesn't support beforeinstallprompt, so we show a small overlay
+     with the Share→Add to Home Screen instructions. -->
+<div id="pwaIosBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#003D2B,#005a3f);color:white;padding:14px 16px;box-shadow:0 -4px 12px rgba(0,0,0,.25);z-index:9998;font-family:'Barlow',sans-serif">
+  <div style="display:flex;align-items:flex-start;gap:12px;max-width:560px;margin:0 auto">
+    <div style="font-size:28px;flex-shrink:0;margin-top:2px">💈</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:800;font-size:14px;line-height:1.2">Add MySalon to Home Screen</div>
+      <div style="font-size:11px;opacity:.9;margin-top:4px;line-height:1.4">
+        Tap <span style="display:inline-block;background:rgba(255,255,255,.15);padding:1px 5px;border-radius:3px;font-weight:700">⬆️ Share</span>
+        then <b>"Add to Home Screen"</b> for 1-tap access.
+      </div>
+    </div>
+    <button id="pwaIosDismiss" aria-label="Dismiss" style="background:transparent;color:rgba(255,255,255,.7);border:none;padding:4px 8px;font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">✕</button>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="bb-logo-sm">
+    <span class="bb-logo-sm-top">MY</span>
+    <span class="bb-logo-sm-div"></span>
+    <span class="bb-logo-sm-bot">SALON</span>
+  </div>
+  <div class="tb-r">
+    <span class="tb-n" id="tbName">Me</span>
+    <span class="tb-role">👤 Member</span>
+    <button class="tb-out" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- ════ HOME ════ -->
+<div class="page active" id="pg-home">
+  <div class="hero">
+    <div class="hero-greet">Welcome back,</div>
+    <div class="hero-name" id="heroName">Your <span>Name</span></div>
+    <!-- Spend summary pinned inside hero -->
+    <div class="spend-strip">
+      <div class="ss-item"><div class="ss-val" id="hTotalSpend">₹0</div><div class="ss-lbl">Total Spent</div></div>
+      <div class="ss-item"><div class="ss-val" id="hTotalVisits">0</div><div class="ss-lbl">Visits</div></div>
+      <div class="ss-item"><div class="ss-val" id="hThisMonth">₹0</div><div class="ss-lbl">This Month</div></div>
     </div>
   </div>
-</div>
 
-<!-- LOYALTY CARD -->
-<div class="loyalty-card">
-  <div class="lc-row">
-    <div>
-      <div class="lc-label">Loyalty Points</div>
-      <div class="lc-points" id="loyaltyPoints">0</div>
-      <div class="lc-sub">Earn points on every visit</div>
+  <!-- Active style strip -->
+  <div id="activeStrip"></div>
+
+  <div class="pad">
+    <!-- Referral credit banner — shown only when customer has unused credit -->
+    <div id="homeCreditBanner"></div>
+
+    <!-- Referral card — shown above Quick Actions so customers see their share code first -->
+    <div id="homeReferralCard"></div>
+
+    <!-- Quick actions — top of page -->
+    <div class="sec">Quick Actions</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px">
+      <button class="btn btn-g" style="grid-column:1/-1;font-size:15px;padding:16px" onclick="go('queue')" id="home-queue-btn">🔢 Join Queue</button>
+      <button class="btn btn-g" onclick="go('bills')">💰 My Bills</button>
+      <button class="btn btn-y" onclick="showQR()">📱 My QR</button>
+      <button class="btn btn-s" onclick="go('offers')">🎁 Offers & Deals</button>
+      <button class="btn btn-s" onclick="go('cards')">💈 Style Cards</button>
     </div>
-    <div style="text-align:right">
-      <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Visits</div>
-      <div style="font-family:var(--fh);font-size:32px;font-weight:800;color:var(--ink2)" id="visitCount">0</div>
+
+    <!-- Complaints summary — shown above bills -->
+    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>My Complaints</span>
+      <button class="btn btn-s btn-sm btn-inline" onclick="openComplaintsPanel()">+ New / View All →</button>
     </div>
+    <div id="homeComplaints"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
+
+    <!-- Latest billing entries -->
+    <div class="sec">Recent Bills</div>
+    <div class="card"><div class="card-body" id="homeBills">
+      <div style="font-size:13px;color:var(--muted2)">Loading…</div>
+    </div></div>
+
+    <!-- Style cards preview -->
+    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>My Style Cards</span>
+      <button class="btn btn-s btn-sm btn-inline" onclick="go('cards')">See All →</button>
+    </div>
+    <div id="homeCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
+
+    <!-- Current offers preview -->
+    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Current Offers</span>
+      <button class="btn btn-s btn-sm btn-inline" onclick="go('offers')">See All →</button>
+    </div>
+    <div id="homeOffersPreview"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
   </div>
 </div>
 
-<!-- REFERRAL BOX -->
-<div class="ref-box">
-  <div class="ref-title">Refer a friend 🎁</div>
-  <div class="ref-sub">Share your code. Your friend gets 50 bonus points when they register. You get 100 points when they visit.</div>
-  <div class="ref-code-row">
-    <span class="ref-code" id="refCode">—</span>
-    <button class="btn-copy" onclick="copyRefCode()">Copy</button>
+<!-- ════ MY BILLS ════ -->
+<div class="page" id="pg-bills">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">My Bills</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Every service & payment on record</div>
+
+    <!-- Spend stats -->
+    <div class="stat-row">
+      <div class="stat-box green"><div class="sn" id="bTotalSpend">₹0</div><div class="sl">Total Spent</div></div>
+      <div class="stat-box yellow"><div class="sn" id="bTotalBills">0</div><div class="sl">Total Bills</div></div>
+    </div>
+    <div class="stat-row three">
+      <div class="stat-box blue"><div class="sn" id="bPhonePe">₹0</div><div class="sl">PhonePe</div></div>
+      <div class="stat-box purple"><div class="sn" id="bCash">₹0</div><div class="sl">Cash</div></div>
+      <div class="stat-box"><div class="sn" id="bAvg">₹0</div><div class="sl">Avg/Visit</div></div>
+    </div>
+
+    <!-- Month chips filter -->
+    <div class="sec">Filter by Month</div>
+    <div class="month-chips" id="monthChips"></div>
+
+    <!-- Spend breakdown chart -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-hdr"><div class="card-title">Spend by Service</div></div>
+      <div class="card-body">
+        <div class="spend-meter" id="svcBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- Payment split -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-hdr"><div class="card-title">Payment Method Split</div></div>
+      <div class="card-body">
+        <div class="spend-meter" id="paymentSplit"></div>
+      </div>
+    </div>
+
+    <!-- Date filter -->
+    <div class="sec">All Transactions</div>
+    <div class="fr">
+      <div class="ifield"><label>From Date</label><input type="date" id="bf-from" onchange="renderBillsTable()"></div>
+      <div class="ifield"><label>To Date</label><input type="date" id="bf-to" onchange="renderBillsTable()"></div>
+      <button class="btn-filter" onclick="clearBillFilter()">All</button>
+    </div>
+    <div class="card"><div class="card-body" id="billsTable"></div></div>
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('stylecards',this)">Style Cards</button>
-  <button class="tab" onclick="switchTab('history',this)">Visit History</button>
-</div>
-
-<!-- STYLE CARDS -->
-<div id="tab-stylecards" class="tab-pane active">
-  <div class="section">
-    <div id="styleCardsList"><div class="empty-state"><span class="empty-icon">⏳</span>Loading…</div></div>
+<!-- ════ STYLE CARDS ════ -->
+<div class="page" id="pg-cards">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">Style Cards</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Your haircut blueprints</div>
+    <div id="allCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
   </div>
 </div>
 
-<!-- VISIT HISTORY -->
-<div id="tab-history" class="tab-pane">
-  <div class="section">
-    <div id="visitsList"><div class="empty-state"><span class="empty-icon">⏳</span>Loading…</div></div>
+<!-- ════ VISIT HISTORY ════ -->
+<!-- ════ PROFILE ════ -->
+<div class="page" id="pg-profile">
+  <div class="pad">
+    <div style="text-align:center;padding-top:8px;margin-bottom:20px">
+      <div class="prof-ava" id="ava">?</div>
+      <div style="font-size:20px;font-weight:800" id="profName">User</div>
+      <div style="font-size:13px;color:var(--muted2);margin-top:4px" id="profPhone"></div>
+    </div>
+
+    <!-- Referral credit badge (only shown if customer has credit) -->
+    <div id="creditBadgeSection"></div>
+
+    <!-- Loyalty card -->
+    <div class="loyalty-card">
+      <div class="lc-label">Loyalty Status</div>
+      <div class="lc-visits" id="loyVisits">0 <span style="font-size:20px;letter-spacing:0">visits</span></div>
+      <div class="lc-sub" id="loyStatus">Keep visiting to earn rewards!</div>
+      <div class="lc-bar-track"><div class="lc-bar-fill" id="loyBar" style="width:0%"></div></div>
+      <div class="lc-next" id="loyNext"></div>
+    </div>
+
+    <!-- Referral entry row -->
+    <div class="ref-row" onclick="go('offers')">
+      <div class="ref-row-icon">🎁</div>
+      <div class="ref-row-txt">
+        <div class="ref-row-title">Refer a friend — earn ₹100</div>
+        <div class="ref-row-sub" id="refRowSub">Both of you get ₹100 off your next visit</div>
+      </div>
+      <div class="ref-row-arrow">›</div>
+    </div>
+
+    <!-- Help & Complaints entry row -->
+    <div class="ref-row" onclick="openComplaintsPanel()">
+      <div class="ref-row-icon">💬</div>
+      <div class="ref-row-txt">
+        <div class="ref-row-title">Help &amp; Complaints</div>
+        <div class="ref-row-sub" id="complaintsRowSub">Report a problem or track your past complaints</div>
+      </div>
+      <div class="ref-row-arrow">›</div>
+    </div>
+
+    <!-- Hair profile -->
+    <div class="sec">Hair Profile</div>
+    <div class="card"><div class="card-body">
+      <div class="ir"><span class="ir-l">Hair Type</span><span class="ir-v" id="pHair">—</span></div>
+      <div class="ir"><span class="ir-l">Face Shape</span><span class="ir-v" id="pFace">—</span></div>
+      <div class="ir"><span class="ir-l">Density</span><span class="ir-v" id="pDensity">—</span></div>
+      <div class="ir"><span class="ir-l">Growth Notes</span><span class="ir-v" id="pNotes" style="font-size:12px">—</span></div>
+    </div></div>
+
+    <!-- Spend summary -->
+    <div class="sec">My Spend Summary</div>
+    <div class="stat-row">
+      <div class="stat-box green"><div class="sn" id="prTotalSpend">₹0</div><div class="sl">Total Spent</div></div>
+      <div class="stat-box"><div class="sn" id="prVisits">0</div><div class="sl">Visits</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box blue"><div class="sn" id="prPhonePe">₹0</div><div class="sl">PhonePe</div></div>
+      <div class="stat-box yellow"><div class="sn" id="prCash">₹0</div><div class="sl">Cash</div></div>
+    </div>
+    <!-- Cashback summary -->
+    <div class="stat-row">
+      <div class="stat-box yellow"><div class="sn" id="prCashbackLifetime">₹0</div><div class="sl">Cashback Earned (lifetime)</div></div>
+      <div class="stat-box green"><div class="sn" id="prCashbackAvailable">₹0</div><div class="sl">Available Now</div></div>
+    </div>
+
+    <button class="btn btn-y btn-full" style="margin-bottom:10px" onclick="showQR()">📱 Show My QR Code</button>
+    <button class="btn btn-s btn-full" onclick="logout()">Logout</button>
   </div>
 </div>
 
-<script src="_mysalon.js"></script>
+<!-- ════ OFFERS ════ -->
+<div class="page" id="pg-offers">
+  <div class="pad">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px;margin-bottom:2px;margin-top:4px">Offers & Deals</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Exclusive deals for you</div>
+
+    <!-- Referral card -->
+    <div id="referral-card-section"></div>
+
+    <!-- Savings card strip -->
+    <div id="savings-card-section" style="margin-bottom:18px"></div>
+
+    <!-- Active offers -->
+    <div class="sec" id="offers-sec-label">Active Offers</div>
+    <div id="offers-list"><div style="font-size:13px;color:var(--muted2);padding:10px 0">Loading offers…</div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb on" id="nb-home"    onclick="go('home')"><span class="ni">🏠</span>Home</button>
+  <button class="nb"    id="nb-bills"   onclick="go('bills')"><span class="ni">💰</span>Bills</button>
+  <button class="nb"    id="nb-offers"  onclick="go('offers')"><span class="ni">🎁</span>Offers</button>
+  <button class="nb"    id="nb-cards"   onclick="go('cards')"><span class="ni">💈</span>Cards</button>
+  <button class="nb"    id="nb-queue"   onclick="go('queue')"><span class="ni">🔢</span>Queue</button>
+  <button class="nb"    id="nb-profile" onclick="go('profile')"><span class="ni">👤</span>Profile</button>
+</nav>
+
+<!-- ════ QUEUE ════ -->
+<div class="page" id="pg-queue">
+  <div class="pad">
+
+    <!-- Join section (shown when not in queue) -->
+    <div id="cq-join-section">
+      <!-- Queue status strip -->
+      <div style="background:var(--accent);border-radius:var(--r);padding:18px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-10px;bottom:-18px;font-size:100px;opacity:.05">✂</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:4px">MySalon</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:1px;margin-bottom:10px">Join the Queue</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:rgba(0,0,0,.2);border-radius:var(--rs);padding:10px 6px;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);line-height:1" id="cq-stat-waiting">–</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(245,224,48,.5);margin-top:2px">Waiting</div>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-radius:var(--rs);padding:10px 6px;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);line-height:1" id="cq-stat-serving">–</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(245,224,48,.5);margin-top:2px">Serving</div>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-radius:var(--rs);padding:10px 6px;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);line-height:1" id="cq-stat-eta">–</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(245,224,48,.5);margin-top:2px">Min wait</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Closed state -->
+      <div id="cq-closed-msg" style="display:none;background:var(--surface);border-radius:var(--r);padding:28px 16px;text-align:center;border:2px dashed var(--border);margin-bottom:14px">
+        <div style="font-size:40px;margin-bottom:10px;opacity:.4">✂️</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">Queue Closed</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.5">The queue is not open right now.<br>Please walk in or check back soon.</div>
+      </div>
+
+      <!-- Paused state (intake paused by manager) -->
+      <div id="cq-paused-msg" style="display:none;background:var(--surface);border-radius:var(--r);padding:28px 16px;text-align:center;border:2px dashed rgba(194,65,12,.35);margin-bottom:14px">
+        <div style="font-size:40px;margin-bottom:10px">⏸</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#C2410C;letter-spacing:1px;margin-bottom:6px">Queue Paused</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.5">We have enough customers for now.<br>Please check back in a little while — we'll be accepting again soon!</div>
+      </div>
+
+      <!-- Camera — join page -->
+      <div class="cq-cam-section" id="cq-cam-section-j" style="display:none">
+        <div class="cq-cam-header"><div class="cq-cam-label">📷 Live Camera</div></div>
+        <div class="cq-cam-tabs" id="cq-cam-tabs-j"></div>
+        <div class="cq-cam-snap-wrap" id="cq-cam-snap-wrap-j" onclick="cqCamStartLive(false)">
+          <div class="cq-cam-snap-placeholder" id="cq-cam-snap-placeholder-j"></div>
+          <img class="cq-cam-snap-img" id="cq-cam-snap-img-j" style="display:none" alt="Salon snapshot">
+          <div class="cq-cam-snap-play" id="cq-cam-snap-play-j">
+            <div class="cq-cam-snap-play-btn"><div class="cq-cam-snap-play-icon"></div></div>
+            <div class="cq-cam-snap-play-lbl">Watch Live</div>
+          </div>
+          <div class="cq-cam-snap-age" id="cq-cam-snap-age-j" style="display:none"></div>
+          <button class="cq-cam-snap-refresh" onclick="event.stopPropagation();cqCamRefreshSnap(false)" title="Refresh photo">↺</button>
+        </div>
+        <div class="cq-cam-live-bar" id="cq-cam-live-bar-j" style="display:none">
+          <div class="cq-cam-live-badge" id="cq-cam-live-badge-j">
+            <div class="cq-cam-live-dot"></div>
+            <span id="cq-cam-live-label-j">Connecting…</span>
+          </div>
+          <button class="cq-cam-live-close" onclick="cqCamStopLive(false)">✕ Stop</button>
+        </div>
+        <div class="cq-cam-live-wrap" id="cq-cam-live-wrap-j">
+          <video id="cq-cam-video-j" muted playsinline controls></video>
+          <div class="cq-cam-overlay" id="cq-cam-overlay-j">
+            <div class="cq-cam-spinner"></div>
+            <div class="cq-cam-overlay-msg" id="cq-cam-overlay-msg-j">Connecting…</div>
+          </div>
+        </div>
+        <div class="cq-cam-progress-bar" id="cq-cam-progress-bar-j" style="display:none">
+          <div class="cq-cam-progress-fill" id="cq-cam-progress-fill-j"></div>
+        </div>
+        <button class="cq-cam-resume-btn" id="cq-cam-resume-btn-j" onclick="cqCamStartLive(false)">▶ Resume Live Feed</button>
+      </div>
+
+      <!-- Choose stylist -->
+      <div class="card" id="cq-form-card">
+        <div class="card-hdr"><div class="card-title">Choose Stylist</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px" id="cq-stylist-grid">
+            <button class="btn btn-g" style="grid-column:1/-1;font-size:12px" data-id="any" id="cq-any-btn" onclick="cqSelectStylist('any')">✓ Any Available</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Services</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:600">optional · improves ETA</div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;flex-wrap:wrap;gap:7px" id="cq-svc-chips"></div>
+        </div>
+      </div>
+
+      <!-- Offers -->
+      <div class="card" id="cq-offers-card" style="display:none">
+        <div class="card-hdr"><div class="card-title">Claim an Offer</div></div>
+        <div class="card-body" id="cq-offers-list"></div>
+      </div>
+
+      <!-- Join button -->
+      <button onclick="cqJoin()" style="width:100%;padding:15px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:800;cursor:pointer;font-family:'Barlow',sans-serif;letter-spacing:.5px;margin-bottom:10px">
+        🔢 Join Queue
+      </button>
+      <button onclick="cqJoinAnon()" style="width:100%;padding:11px;background:transparent;border:1.5px dashed var(--border);color:var(--muted);border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif">
+        Join without selecting services
+      </button>
+    </div>
+
+    <!-- Tracker section (shown when in queue) -->
+    <div id="cq-tracker-section" style="display:none">
+
+      <!-- Head-in-now alert -->
+      <div id="cq-alert-banner" style="display:none;background:var(--gold);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:14px;animation:pulse-cq 1.4s ease-in-out infinite">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#003D2B;letter-spacing:1px">Head in now!</div>
+        <div style="font-size:13px;color:#003D2B;font-weight:700;margin-top:4px">Your turn is very near — please come to the salon</div>
+      </div>
+
+      <!-- Token card -->
+      <div style="background:var(--accent);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:6px">Your Token</div>
+        <div id="cq-token-num" style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:var(--gold);letter-spacing:4px;line-height:1">–</div>
+        <div id="cq-token-name" style="font-size:14px;font-weight:700;color:rgba(255,255,255,.9);margin-top:6px"></div>
+        <div id="cq-status-pill" style="display:inline-block;margin-top:8px;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;background:rgba(0,0,0,.2);color:var(--gold);letter-spacing:1px;text-transform:uppercase">Waiting</div>
+      </div>
+
+      <!-- Offer badge -->
+      <div id="cq-offer-badge" style="display:none;background:var(--surface);border:1.5px solid rgba(0,122,86,.25);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:2px">Offer Claimed</div>
+          <div id="cq-offer-name" style="font-size:13px;font-weight:700;color:var(--accent)"></div>
+        </div>
+        <div id="cq-offer-pct" style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent)"></div>
+      </div>
+
+      <!-- Live stats -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="padding:10px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--muted);font-weight:600">Position in queue</span>
+            <span id="cq-pos" style="font-size:15px;font-weight:800;color:var(--accent)">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--muted);font-weight:600">Estimated wait</span>
+            <span id="cq-eta" style="font-size:15px;font-weight:800;color:var(--warn)">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--muted);font-weight:600">Stylist</span>
+            <span id="cq-stylist-name" style="font-size:13px;font-weight:700">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+            <span style="font-size:12px;color:var(--muted);font-weight:600">Services</span>
+            <span id="cq-svc-label" style="font-size:12px;font-weight:600;text-align:right;max-width:60%">–</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:8px">
+        <button onclick="cqCancel()" style="padding:10px 24px;background:transparent;border:1px solid rgba(0,0,0,.1);color:var(--muted);border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif">
+          Cancel my spot
+        </button>
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--muted2)">Updates automatically every 30 seconds</div>
+
+      <!-- Camera — tracker page -->
+      <div class="cq-cam-section" id="cq-cam-section-t" style="display:none">
+        <div class="cq-cam-header"><div class="cq-cam-label">📷 Live Camera</div></div>
+        <div class="cq-cam-tabs" id="cq-cam-tabs-t"></div>
+        <div class="cq-cam-snap-wrap" id="cq-cam-snap-wrap-t" onclick="cqCamStartLive(true)">
+          <div class="cq-cam-snap-placeholder" id="cq-cam-snap-placeholder-t"></div>
+          <img class="cq-cam-snap-img" id="cq-cam-snap-img-t" style="display:none" alt="Salon snapshot">
+          <div class="cq-cam-snap-play" id="cq-cam-snap-play-t">
+            <div class="cq-cam-snap-play-btn"><div class="cq-cam-snap-play-icon"></div></div>
+            <div class="cq-cam-snap-play-lbl">Watch Live</div>
+          </div>
+          <div class="cq-cam-snap-age" id="cq-cam-snap-age-t" style="display:none"></div>
+          <button class="cq-cam-snap-refresh" onclick="event.stopPropagation();cqCamRefreshSnap(true)" title="Refresh photo">↺</button>
+        </div>
+        <div class="cq-cam-live-bar" id="cq-cam-live-bar-t" style="display:none">
+          <div class="cq-cam-live-badge" id="cq-cam-live-badge-t">
+            <div class="cq-cam-live-dot"></div>
+            <span id="cq-cam-live-label-t">Connecting…</span>
+          </div>
+          <button class="cq-cam-live-close" onclick="cqCamStopLive(true)">✕ Stop</button>
+        </div>
+        <div class="cq-cam-live-wrap" id="cq-cam-live-wrap-t">
+          <video id="cq-cam-video-t" muted playsinline controls></video>
+          <div class="cq-cam-overlay" id="cq-cam-overlay-t">
+            <div class="cq-cam-spinner"></div>
+            <div class="cq-cam-overlay-msg" id="cq-cam-overlay-msg-t">Connecting…</div>
+          </div>
+        </div>
+        <div class="cq-cam-progress-bar" id="cq-cam-progress-bar-t" style="display:none">
+          <div class="cq-cam-progress-fill" id="cq-cam-progress-fill-t"></div>
+        </div>
+        <button class="cq-cam-resume-btn" id="cq-cam-resume-btn-t" onclick="cqCamStartLive(true)">▶ Resume Live Feed</button>
+      </div>
+    </div>
+
+    <!-- ── LIVE SALON QUEUE BOARD ── always visible on queue tab -->
+    <div style="margin-top:18px">
+      <div class="sec" style="margin-top:0">Live Salon Queue</div>
+      <div id="cq-live-board" style="background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden">
+        <div style="background:var(--accent);padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:1px">Now Serving</div>
+          <div id="lqb-updated" style="font-size:10px;color:rgba(255,255,255,.6)">Loading…</div>
+        </div>
+        <!-- Now serving -->
+        <div id="lqb-serving" style="padding:16px 14px;border-bottom:1px solid var(--border);min-height:72px;display:flex;align-items:center;justify-content:center">
+          <div style="font-size:13px;color:var(--muted2)">Loading…</div>
+        </div>
+        <!-- Next up header -->
+        <div style="padding:10px 14px 4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)">Next Up</div>
+        <!-- Queue list -->
+        <div id="lqb-list" style="padding:0 14px 12px;min-height:48px">
+          <div style="font-size:13px;color:var(--muted2);padding:8px 0">Loading queue…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes pulse-cq{0%,100%{opacity:1}50%{opacity:.82}}
+
+/* ── REFERRAL CARD (Offers page) ── */
+.ref-card{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--r);padding:18px 16px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.ref-card::after{content:'🎁';position:absolute;right:-8px;bottom:-22px;font-size:110px;opacity:.06;transform:rotate(-12deg)}
+.ref-eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:4px}
+.ref-title{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:1px;line-height:1.05;margin-bottom:4px}
+.ref-title span{color:var(--gold)}
+.ref-sub{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:14px;position:relative;z-index:1}
+.ref-code-row{display:flex;gap:8px;align-items:stretch;margin-bottom:10px;position:relative;z-index:1}
+.ref-code-box{flex:1;background:rgba(0,0,0,.28);border:1px dashed rgba(245,224,48,.4);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center}
+.ref-code-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,224,48,.55);margin-bottom:2px}
+.ref-code-val{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold);letter-spacing:1.5px;line-height:1;word-break:break-all}
+.ref-copy-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-family:var(--BF);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:0 14px;border-radius:8px;cursor:pointer}
+.ref-copy-btn:active{background:rgba(255,255,255,.22)}
+.ref-share-btn{width:100%;background:var(--gold);border:none;color:var(--accent2);font-family:var(--BF);font-weight:800;font-size:14px;letter-spacing:.8px;padding:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1;text-transform:uppercase}
+.ref-share-btn:active{transform:scale(.98)}
+.ref-stats{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,224,48,.18);position:relative;z-index:1}
+.ref-stat{flex:1;text-align:center}
+.ref-stat-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:1px;line-height:1}
+.ref-stat-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,224,48,.5);margin-top:3px}
+
+/* ── REFERRAL CREDIT BADGE (Profile page) ── */
+.credit-badge{background:linear-gradient(135deg,#F5E030,#C8A800);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.credit-badge-icon{font-size:24px;flex-shrink:0}
+.credit-badge-txt{flex:1}
+.credit-badge-amt{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent2);letter-spacing:.5px;line-height:1}
+.credit-badge-sub{font-size:11px;color:rgba(0,61,43,.7);margin-top:2px}
+
+/* ── REFERRAL ROW (Profile page, secondary entry) ── */
+.ref-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ref-row:active{background:var(--surface2)}
+.ref-row-icon{font-size:22px;flex-shrink:0}
+.ref-row-txt{flex:1}
+.ref-row-title{font-weight:700;font-size:14px;color:var(--accent);letter-spacing:.3px}
+.ref-row-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.ref-row-arrow{font-size:18px;color:var(--muted2);font-weight:700}
+</style>
+
+<!-- QR MODAL -->
+<div class="modal-bg" id="qrModal" onclick="if(event.target===this)closeModal('qrModal')">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="mh"></div>
+    <div class="mt" id="qrTitle">My QR Code</div>
+    <div class="ms">Show this to your barber to load your style card</div>
+    <div style="display:flex;justify-content:center;margin:10px 0 14px"><div class="qr-wrap" id="qrCanvas"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="qrInfo"></div>
+    <button class="btn btn-s btn-full" onclick="closeModal('qrModal')">Close</button>
+  </div>
+</div>
+
+<!-- CARD DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')">
+  <div class="modal-sheet" id="detailContent"></div>
+</div>
+
+<!-- BILL DETAIL MODAL -->
+<div class="modal-bg" id="billModal" onclick="if(event.target===this)closeModal('billModal')">
+  <div class="modal-sheet" id="billModalContent"></div>
+</div>
+
+<!-- ════ COMPLAINT FORM MODAL ════ -->
+<div class="modal-bg" id="complaintModal" onclick="if(event.target===this)closeModal('complaintModal')">
+  <div class="modal-sheet" id="complaintModalContent"></div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
 <script>
-// ── Auth ──
-var s = msSession();
-if(!s.tenantId || s.role!=='customer'){
-  var slug = sessionStorage.getItem('ms_slug')||'';
-  window.location.href = 'login-customer.html'+(slug?'?salon='+encodeURIComponent(slug):'');
+// ── AUTH ──
+// Session credentials live in localStorage (persistent) so the customer stays
+// logged in across tab closes, browser restarts, PWA launches, and device
+// reboots — until they explicitly tap Logout. We still check sessionStorage
+// first for backward-compat with users who logged in BEFORE this change shipped
+// (those keys were written to sessionStorage by login-customer.html). If we
+// find them there, we promote them to localStorage on this load so they
+// persist from now on.
+var SESSION_PHONE = sessionStorage.getItem('bb_phone') || localStorage.getItem('bb_phone');
+var SESSION_ROLE  = sessionStorage.getItem('bb_role')  || localStorage.getItem('bb_role');
+if (!SESSION_PHONE || SESSION_ROLE !== 'customer') {
+  window.location.href = 'login-customer.html';
+}
+// Mirror to localStorage every load. login-customer.html may still write to
+// sessionStorage only (we don't control that file from here); this line is
+// what makes subsequent loads persistent without needing to edit login.
+try {
+  localStorage.setItem('bb_phone', SESSION_PHONE);
+  localStorage.setItem('bb_role',  SESSION_ROLE);
+} catch(e){ /* private-mode quota or disabled storage — ignore */ }
+
+// ── PWA: install on home screen ───────────────────────────────────────
+// Register the service worker (required for Chrome/Android install) and wire
+// up the install-banner UI. iOS Safari can't trigger native install so we
+// show a Share→Add to Home Screen instructional banner instead.
+(function pwaSetup(){
+  // 1. Register service worker. Network-only passthrough; just exists to
+  //    satisfy Chrome's "installable PWA" criteria. We swallow errors so
+  //    the app still loads on browsers that don't support SW.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/service-worker.js')
+        .catch(function(err){ console.warn('[BB] SW registration failed:', err); });
+    });
+  }
+
+  // 2. Skip if already installed (running in standalone PWA mode).
+  //    `display-mode: standalone` matches Android/Chrome installed state;
+  //    `navigator.standalone === true` is the iOS-specific signal.
+  var isStandalone =
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    window.navigator.standalone === true;
+  if(isStandalone) return;
+
+  // 3. Skip if the user dismissed recently. We remember in localStorage and
+  //    re-show after 14 days — long enough not to be annoying, short enough
+  //    to remind users who change their mind.
+  var DISMISS_KEY = 'bb_pwa_dismissed_at';
+  var DISMISS_COOLDOWN_DAYS = 14;
+  var lastDismiss = parseInt(localStorage.getItem(DISMISS_KEY)||'0', 10);
+  if(lastDismiss){
+    var daysSince = (Date.now() - lastDismiss) / (1000*60*60*24);
+    if(daysSince < DISMISS_COOLDOWN_DAYS) return;
+  }
+
+  // 4. Detect iOS Safari — only Safari can install on iOS (Chrome/Firefox
+  //    on iOS use WebKit too, but the Add-to-Home-Screen menu only exists
+  //    in Safari). On iOS Chrome/Firefox we just don't show the prompt.
+  var ua = navigator.userAgent || '';
+  var isIos = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isIosSafari = isIos && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+
+  // 5. iOS Safari path: show instructional banner immediately. No native
+  //    install dialog is available, so this is the best we can do.
+  if(isIosSafari){
+    var iosBanner = document.getElementById('pwaIosBanner');
+    if(iosBanner){
+      iosBanner.style.display = 'block';
+      var iosDismiss = document.getElementById('pwaIosDismiss');
+      if(iosDismiss){
+        iosDismiss.addEventListener('click', function(){
+          iosBanner.style.display = 'none';
+          localStorage.setItem(DISMISS_KEY, String(Date.now()));
+        });
+      }
+    }
+    return;
+  }
+
+  // 6. Android/desktop Chrome path: catch the beforeinstallprompt event,
+  //    suppress the browser's default mini-bar, and show OUR banner with
+  //    an Install button that triggers the native install dialog on tap.
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    var banner = document.getElementById('pwaInstallBanner');
+    if(!banner) return;
+    banner.style.display = 'block';
+
+    var installBtn = document.getElementById('pwaInstallBtn');
+    if(installBtn){
+      installBtn.addEventListener('click', function onInstall(){
+        if(!deferredPrompt) return;
+        installBtn.removeEventListener('click', onInstall);
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(choice){
+          if(choice.outcome === 'accepted'){
+            // User installed; banner goes away. Don't set the dismiss flag
+            // — the standalone check on next launch already hides it.
+            banner.style.display = 'none';
+          } else {
+            // User declined; respect that and don't ask again for 14 days.
+            banner.style.display = 'none';
+            localStorage.setItem(DISMISS_KEY, String(Date.now()));
+          }
+          deferredPrompt = null;
+        });
+      });
+    }
+
+    var dismissBtn = document.getElementById('pwaInstallDismiss');
+    if(dismissBtn){
+      dismissBtn.addEventListener('click', function(){
+        banner.style.display = 'none';
+        localStorage.setItem(DISMISS_KEY, String(Date.now()));
+      });
+    }
+  });
+
+  // 7. After successful install, clear any saved dismiss timestamp so a
+  //    future uninstall + revisit immediately re-prompts.
+  window.addEventListener('appinstalled', function(){
+    localStorage.removeItem(DISMISS_KEY);
+    var banner = document.getElementById('pwaInstallBanner');
+    if(banner) banner.style.display = 'none';
+  });
+})();
+// ── END PWA SETUP ─────────────────────────────────────────────────────
+
+// ── SHARED STORAGE (same localStorage as barber/manager/admin) ──
+var LS = {
+  get: function(k) { try { return JSON.parse(localStorage.getItem('ms_'+k)); } catch(e) { return null; } },
+  set: function(k,v) { localStorage.setItem('ms_'+k, JSON.stringify(v)); }
+};
+
+// ── HELPERS ──
+function today() { return new Date().toLocaleDateString('en-IN'); }
+function fmtINR(n) { return '₹' + Number(n||0).toLocaleString('en-IN'); }
+function getEntries()   { return LS.get('entries')    || []; }
+function getStyleCards(){ return LS.get('styleCards') || []; }
+function getVisits()    { return LS.get('visits')     || []; }
+function getCustomers() { return LS.get('customers')  || []; }
+
+// parse en-IN date "d/m/yyyy" → Date
+function parseDate(s) {
+  if (!s) return null;
+  var p = s.split('/');
+  return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+}
+// ISO string "yyyy-mm-dd" → en-IN "d/m/yyyy"
+function isoToLocal(ds) {
+  if (!ds) return '';
+  var p = ds.split('-');
+  return parseInt(p[2]) + '/' + parseInt(p[1]) + '/' + p[0];
+}
+function monthKey(dateStr) {  // "d/m/yyyy" → "yyyy-mm"
+  if (!dateStr) return '';
+  var p = dateStr.split('/');
+  return p[2] + '-' + (p[1].length===1?'0':'')+p[1];
+}
+function monthLabel(ym) {  // "yyyy-mm" → "Mar 2026"
+  var p = ym.split('-');
+  var names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return names[parseInt(p[1])-1] + ' ' + p[0];
 }
 
-var TENANT_ID   = s.tenantId;
-var CUSTOMER_ID = s.staffId || sessionStorage.getItem('ms_customer_id');
 
-// Apply branding
-var salonName = sessionStorage.getItem('ms_name')||'MySalon';
-var salonLogo = sessionStorage.getItem('ms_logo')||'';
-document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=salonName; });
-document.title = salonName + ' — My Profile';
-if(salonLogo){ var li=document.getElementById('ms-logo'); li.src=salonLogo; li.style.display='block'; }
+// ── SUPABASE BOOTSTRAP ──
+// Pull fresh data from Supabase on every load
+// Credentials are set here — replace with your actual values
+var SUPA_URL  = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var SUPA_KEY  = 'YOUR_MYSALON_ANON_KEY';
 
-// Profile
-document.getElementById('profileName').textContent  = s.name||'Customer';
-document.getElementById('profilePhone').textContent = '📞 '+(s.phone||'');
-document.getElementById('avatarInitial').textContent = (s.name||'?').charAt(0).toUpperCase();
-document.getElementById('loyaltyPoints').textContent = sessionStorage.getItem('ms_loyalty')||'0';
-var refCode = sessionStorage.getItem('ms_referral_code')||'';
-document.getElementById('refCode').textContent = refCode || '—';
-
-// Tabs
-function switchTab(name,el){
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
-  if(el)el.classList.add('active');
-  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
-  document.getElementById('tab-'+name).classList.add('active');
-  if(name==='history') loadVisits();
+function _supaGet(table, qs){
+  var url = SUPA_URL+'/rest/v1/'+table+'?select=*'+(qs?'&'+qs:'');
+  return fetch(url,{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){ return r.ok?r.json():[]; }).catch(function(){ return []; });
 }
 
-// ── Load Style Cards ──
-function loadStyleCards(){
-  var qs = 'tenant_id=eq.'+encodeURIComponent(TENANT_ID)
-    +'&customer_id=eq.'+encodeURIComponent(CUSTOMER_ID)
-    +'&order=date.desc';
-  msSelect('style_cards', qs).then(function(rows){
-    var el = document.getElementById('styleCardsList');
-    if(!rows||!rows.length){
-      el.innerHTML='<div class="empty-state"><span class="empty-icon">🎨</span>No style cards yet.<br>Your stylist will create one after your next visit.</div>';
+// Central data store — all rendering reads from here, never from localStorage
+var _data = { entries:[], styleCards:[], customers:[], visits:[], complaints:[] };
+
+(function bootCustomer(){
+  function toStr(r,keys){keys.forEach(function(k){if(r[k]!=null)r[k]=String(r[k]);});return r;}
+  // Normalize phone (strip non-digits, last 10) so the lookup matches regardless
+  // of whether SESSION_PHONE has a country-code prefix or whether the Supabase
+  // row was stored with one. Uses `ilike *<phone>` to catch both formats.
+  function _norm(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+  var nphone = _norm(SESSION_PHONE);
+
+  // Phase 1: get customer record by phone (ilike handles legacy +91 prefixes)
+  _supaGet('customers','phone=ilike.*'+encodeURIComponent(nphone))
+  .then(function(custs){
+    // If multiple rows came back (shouldn't happen post-migration, but be safe),
+    // prefer the exact normalized match
+    var c = null;
+    if(custs && custs.length){
+      c = custs.find(function(r){ return _norm(r.phone) === nphone; }) || custs[0];
+      c = toStr(c, ['id','phone','loginPin']);
+    }
+    if(c){
+      ME = c;
+      applyMeToDOM();
+    }
+    // Phase 2: fetch all data filtered for this customer in parallel.
+    // Use ilike for entries too so legacy formatted phones still match.
+    return Promise.all([
+      _supaGet('entries', '"customerPhone"=ilike.*'+encodeURIComponent(nphone)),
+      c ? _supaGet('style_cards', '"customerId"=eq.'+encodeURIComponent(c.id)) : Promise.resolve([]),
+      c ? _supaGet('visits', '"customerId"=eq.'+encodeURIComponent(c.id))      : Promise.resolve([]),
+      _supaGet('customers'),
+      _supaGet('salons'),
+      // Cashback chunks (for FIFO display) — only this customer's chunks.
+      // Caught per-call so a missing table (e.g. before SQL migration runs)
+      // doesn't take down the rest of the bootstrap pipeline.
+      c
+        ? _supaGet('cashback_chunks', 'customer_id=eq.'+encodeURIComponent(c.id)+'&order=expires_at.asc')
+            .catch(function(){ return []; })
+        : Promise.resolve([])
+    ]);
+  })
+  .then(function(res){
+    function toStr(r,keys){keys.forEach(function(k){if(r[k]!=null)r[k]=String(r[k]);});return r;}
+    _data.entries    = (res[0]||[]).map(function(r){return toStr(r,['id','barberId','salonId']);});
+    _data.styleCards = (res[1]||[]).map(function(r){return toStr(r,['id','customerId','barberId','salonId']);});
+    _data.visits     = (res[2]||[]).map(function(r){return toStr(r,['id','customerId','barberId','salonId']);});
+    _data.customers  = (res[3]||[]).map(function(r){return toStr(r,['id','phone','loginPin']);});
+    _data.cashbackChunks = (res[5]||[]);
+    // Also write to localStorage for any legacy helpers that still use LS.get
+    LS.set('entries',    _data.entries);
+    LS.set('styleCards', _data.styleCards);
+    LS.set('visits',     _data.visits);
+    LS.set('customers',  _data.customers);
+    LS.set('salons',     (res[4]||[]).map(function(r){return toStr(r,['id']);}));
+    renderAll();
+  })
+  .catch(function(err){
+    console.warn('[BB] Customer bootstrap failed:', err);
+    renderAll();
+  });
+})();
+
+// ── Refresh ME from Supabase ──
+// Called when the user navigates to home/profile so that a fresh wallet
+// balance shows up after a salon visit (without requiring a full reload).
+// Throttled to once every 10 seconds to avoid hammering Supabase.
+var _meRefreshLast = 0;
+function refreshMe(force){
+  if(!ME || !ME.phone) return;
+  var now = Date.now();
+  if(!force && (now - _meRefreshLast) < 10000) return;
+  _meRefreshLast = now;
+  function _norm(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+  var nphone = _norm(ME.phone || SESSION_PHONE);
+  if(!nphone) return;
+  _supaGet('customers','phone=ilike.*'+encodeURIComponent(nphone)).then(function(rows){
+    if(!rows || !rows.length) return;
+    var fresh = rows.find(function(r){ return _norm(r.phone) === nphone; }) || rows[0];
+    // Merge fresh values into ME (preserving id/phone formatting we already have)
+    Object.keys(fresh).forEach(function(k){ ME[k] = fresh[k]; });
+    // Refresh cashback chunks too (used by the wallet card display).
+    // If the chunks table doesn't exist (SQL migration not yet run) we still
+    // want to render with what we have — so the catch path runs the same
+    // re-render the success path does.
+    var _doRender = function(){
+      if(typeof renderCreditBadge === 'function') renderCreditBadge();
+      if(typeof renderHomeCreditBanner === 'function') renderHomeCreditBanner();
+      if(typeof loadProfile === 'function'){
+        var profilePage = document.getElementById('pg-profile');
+        if(profilePage && profilePage.classList.contains('active')) loadProfile();
+      }
+    };
+    if(ME.id){
+      _supaGet('cashback_chunks', 'customer_id=eq.'+encodeURIComponent(ME.id)+'&order=expires_at.asc')
+        .then(function(chunks){
+          _data.cashbackChunks = chunks || [];
+          _doRender();
+        }).catch(function(){
+          // Chunks table missing or query failed — render with current ME values
+          // so at least the legacy single-bucket wallet shows up.
+          _doRender();
+        });
+    } else {
+      _doRender();
+    }
+  }).catch(function(){ /* silent — keep showing last-known values */ });
+}
+
+// ── Apply ME to DOM ──
+function applyMeToDOM(){
+  if(!ME) return;
+  var parts = ME.name.split(' ');
+  var html = parts[0];
+  for(var i=1;i<parts.length;i++) html += ' <span>'+parts[i]+'</span>';
+  var el;
+  el=document.getElementById('heroName'); if(el) el.innerHTML=html;
+  el=document.getElementById('tbName');   if(el) el.textContent=parts[0];
+  el=document.getElementById('profName'); if(el) el.textContent=ME.name;
+  el=document.getElementById('profPhone');if(el) el.textContent='+91 '+ME.phone;
+  el=document.getElementById('pHair');    if(el) el.textContent=ME.hairType    ||'—';
+  el=document.getElementById('pFace');    if(el) el.textContent=ME.faceShape   ||'—';
+  el=document.getElementById('pDensity'); if(el) el.textContent=ME.density     ||'—';
+  el=document.getElementById('pNotes');   if(el) el.textContent=ME.growthNotes ||'—';
+  var init=ME.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  el=document.getElementById('ava'); if(el) el.textContent=init;
+}
+
+// ── renderAll: refresh current visible tab ──
+function renderAll(){
+  var activePage = document.querySelector('.page.active');
+  if(!activePage) return;
+  var id = activePage.id.replace('pg-','');
+  if(id==='home')    loadHome();
+  if(id==='bills')   loadBills();
+  if(id==='cards')   loadCards();
+  if(id==='profile') loadProfile();
+}
+
+
+
+// seedDemo() removed — was overwriting real customer data with demo "Marcus Williams" entries
+// Data now comes exclusively from Supabase via bootCustomer()
+
+
+
+// ── FIND ME ── (placeholder until Supabase loads)
+var ME = {id:'',phone:SESSION_PHONE,name:'Loading…',role:'customer',hairType:'',faceShape:'',density:'',growthNotes:''};
+applyMeToDOM();
+
+
+
+// ── GET MY DATA — all pre-filtered from Supabase by phone/customerId ──
+function myBills() {
+  // _data.entries already filtered by customerPhone from Supabase
+  return _data.entries;
+}
+function myVisits() {
+  // _data.visits already filtered by customerId from Supabase
+  return _data.visits;
+}
+function myCards() {
+  // _data.styleCards already filtered by customerId from Supabase
+  return _data.styleCards;
+}
+
+// ── NAVIGATE ──
+function go(tab) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('pg-'+tab).classList.add('active');
+  document.getElementById('nb-'+tab).classList.add('on');
+  // Refresh ME from Supabase when navigating to pages that display wallet
+  // balances, so freshly-credited cashback shows up without requiring a reload.
+  // refreshMe is throttled internally to once per 10 seconds.
+  if (tab==='home' || tab==='profile') refreshMe();
+  if (tab==='home')    loadHome();
+  if (tab==='bills')   loadBills();
+  if (tab==='cards')   loadCards();
+  if (tab==='profile') loadProfile();
+  if (tab==='offers')  loadOffers();
+  if (tab==='queue')   loadQueue();
+}
+
+// ── HOME ──
+function loadHome() {
+  var bills   = myBills();
+  var visits  = myVisits();
+  var cards   = myCards();
+  var totalSpend = bills.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var now = new Date();
+  var monthBills = bills.filter(function(e){
+    var mo = parseInt(now.getMonth())+1; var yr = now.getFullYear();
+    var p = e.date.split('/');
+    return parseInt(p[1])===mo && parseInt(p[2])===yr;
+  });
+  var monthSpend = monthBills.reduce(function(a,e){return a+Number(e.total||0);},0);
+
+  document.getElementById('hTotalSpend').textContent  = fmtINR(totalSpend);
+  document.getElementById('hTotalVisits').textContent = bills.length;
+  document.getElementById('hThisMonth').textContent   = fmtINR(monthSpend);
+
+  // Referral credit banner (above Quick Actions)
+  renderHomeCreditBanner();
+
+  // Referral card — rendered above Quick Actions so customers see their share code first
+  var hRefEl = document.getElementById('homeReferralCard');
+  if(hRefEl) hRefEl.innerHTML = buildReferralCard();
+
+  // Active style strip
+  var def = cards.find(function(c){return c.isDefault;}) || cards[0];
+  var strip = document.getElementById('activeStrip');
+  if (def) {
+    var tags = [def.fade, def.guard, def.texture].filter(Boolean).map(function(t){return '<span class="as-tag">'+t+'</span>';}).join('');
+    strip.innerHTML = '<div class="active-strip"><div class="as-pulse"><div class="as-dot"></div>Active Style</div><div class="as-name">'+def.name+'</div><div class="as-tags">'+tags+'</div><div style="display:flex;gap:8px"><button class="btn btn-g btn-sm btn-inline" onclick="viewDetail('+def.id+')">Blueprint</button><button class="btn btn-s btn-sm btn-inline" onclick="showStyleQR(\''+def.cardId+'\',\''+def.name+'\')">My QR</button></div></div>';
+  } else { strip.innerHTML = ''; }
+
+  // Recent bills (last 5)
+  var recent = bills.slice().sort(function(a,b){
+    return parseDate(b.date) - parseDate(a.date);
+  }).slice(0,5);
+  var hb = document.getElementById('homeBills');
+  if (!recent.length) {
+    hb.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>No bills yet. Your services<br>will appear here after your visit.</p></div>';
+  } else {
+    hb.innerHTML = recent.map(function(e){ return billRowHTML(e, true); }).join('') +
+      '<div style="text-align:center;margin-top:10px"><button class="btn btn-s btn-sm" onclick="go(\'bills\')">View All Bills →</button></div>';
+  }
+
+  // Complaints summary (above bills)
+  loadHomeComplaints();
+
+  // Style cards preview
+  var hc = document.getElementById('homeCards');
+  if (!cards.length) {
+    hc.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0 4px">No style cards yet. Your barber will create one for you.</div>';
+  } else {
+    hc.innerHTML = cards.slice(0,2).map(function(c){ return sciHTML(c); }).join('');
+  }
+
+  // Load offers preview (show max 2)
+  var opEl = document.getElementById('homeOffersPreview');
+  if(opEl){
+    opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2)">Loading…</div>';
+    var salonId = ME ? (ME.salonId||'') : '';
+    var qs = salonId
+      ? 'active=eq.true&order=created_at.desc&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)&limit=2'
+      : 'active=eq.true&is_global=eq.true&order=created_at.desc&limit=2';
+    _supaGet('offers', qs).then(function(offers){
+      var now = new Date();
+      var active = (offers||[]).filter(function(o){return !o.expires_at||new Date(o.expires_at)>now;});
+      if(!active.length){
+        opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:6px 0">No active offers right now.</div>';
+        return;
+      }
+      opEl.innerHTML = active.slice(0,2).map(function(o){ return buildOfferCard(o); }).join('');
+    }).catch(function(){
+      opEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:6px 0">—</div>';
+    });
+  }
+}
+
+// ── BILLS PAGE ──
+function loadBills() {
+  var bills = myBills();
+  var totalSpend = bills.reduce(function(a,e){return a+e.total;},0);
+  var totalPh    = bills.reduce(function(a,e){return a+e.phPay;},0);
+  var totalCash  = bills.reduce(function(a,e){return a+e.cash;},0);
+  var avg = bills.length ? Math.round(totalSpend/bills.length) : 0;
+
+  document.getElementById('bTotalSpend').textContent = fmtINR(totalSpend);
+  document.getElementById('bTotalBills').textContent = bills.length;
+  document.getElementById('bPhonePe').textContent    = fmtINR(totalPh);
+  document.getElementById('bCash').textContent       = fmtINR(totalCash);
+  document.getElementById('bAvg').textContent        = fmtINR(avg);
+
+  // Build month chips
+  var monthSet = {};
+  bills.forEach(function(e){ var mk = monthKey(e.date); if(mk) monthSet[mk]=true; });
+  var months = Object.keys(monthSet).sort(function(a,b){return b.localeCompare(a);});
+  var chips = months.map(function(m){
+    return '<button class="mchip'+(_billsFilterMonth===m?' on':'')+'" onclick="setMonthFilter(\''+m+'\')">'+monthLabel(m)+'</button>';
+  }).join('');
+  var allTimeClass = _billsFilterMonth===null ? ' on' : '';
+  document.getElementById('monthChips').innerHTML = chips + '<button class="mchip'+allTimeClass+'" onclick="setMonthFilter(null)">All Time</button>';
+
+  // Service breakdown
+  var svcMap = {};
+  bills.forEach(function(e){ svcMap[e.services] = (svcMap[e.services]||0) + e.total; });
+  var svcArr = Object.entries(svcMap).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  var maxSvc = svcArr[0] ? svcArr[0][1] : 1;
+  var svcColors = ['#003D2B','#1E6FB5','#C2410C','#5F259F','#065f46','#92400e'];
+  document.getElementById('svcBreakdown').innerHTML = svcArr.length ?
+    svcArr.map(function(s,i){ return '<div class="sm-row"><div class="sm-lbl">'+s[0]+'</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(s[1]/maxSvc*100)+'%;background:'+(i===0?'#003D2B':i===1?'#1E6FB5':i===2?'#C2410C':'#5F259F')+'"></div></div><div class="sm-val">'+fmtINR(s[1])+'</div></div>'; }).join('') :
+    '<div style="font-size:13px;color:var(--muted2)">No data yet</div>';
+
+  // Payment split
+  var ttl = totalPh + totalCash || 1;
+  document.getElementById('paymentSplit').innerHTML =
+    '<div class="sm-row"><div class="sm-lbl">PhonePe</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(totalPh/ttl*100)+'%;background:#5F259F"></div></div><div class="sm-val">'+Math.round(totalPh/ttl*100)+'%</div></div>'+
+    '<div class="sm-row"><div class="sm-lbl">Cash</div><div class="sm-track"><div class="sm-fill" style="width:'+Math.round(totalCash/ttl*100)+'%;background:#065f46"></div></div><div class="sm-val">'+Math.round(totalCash/ttl*100)+'%</div></div>';
+
+  renderBillsTable();
+}
+
+var _billsFilterMonth = null;
+function setMonthFilter(m) {
+  _billsFilterMonth = m;
+  var bills = myBills();
+  var monthSet = {};
+  bills.forEach(function(e){ var mk=monthKey(e.date);if(mk)monthSet[mk]=true;});
+  var months=Object.keys(monthSet).sort(function(a,b){return b.localeCompare(a);});
+  var chipsHtml = months.map(function(mo){
+    return '<button class="mchip'+(_billsFilterMonth===mo?' on':'')+'" onclick="setMonthFilter(\''+mo+'\')">'+monthLabel(mo)+'</button>';
+  }).join('');
+  var allClass = _billsFilterMonth===null ? ' on' : '';
+  document.getElementById('monthChips').innerHTML = chipsHtml + '<button class="mchip'+allClass+'" onclick="setMonthFilter(null)">All Time</button>';
+  renderBillsTable();
+}
+
+function renderBillsTable() {
+  var from = document.getElementById('bf-from').value;
+  var to   = document.getElementById('bf-to').value;
+  var bills = myBills();
+
+  // filter by month chip
+  if (_billsFilterMonth) {
+    bills = bills.filter(function(e){ return monthKey(e.date) === _billsFilterMonth; });
+  }
+  // filter by date range
+  if (from) {
+    var fd = new Date(from);
+    bills = bills.filter(function(e){ var d=parseDate(e.date); return d && d>=fd; });
+  }
+  if (to) {
+    var td = new Date(to); td.setHours(23,59,59);
+    bills = bills.filter(function(e){ var d=parseDate(e.date); return d && d<=td; });
+  }
+  bills = bills.sort(function(a,b){ return parseDate(b.date)-parseDate(a.date); });
+
+  var el = document.getElementById('billsTable');
+  if (!bills.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧾</div><p>No bills found for this period.</p></div>';
+    return;
+  }
+  el.innerHTML = bills.map(function(e){ return billRowHTML(e, false); }).join('');
+}
+
+function clearBillFilter() {
+  document.getElementById('bf-from').value = '';
+  document.getElementById('bf-to').value   = '';
+  _billsFilterMonth = null;
+  loadBills();
+}
+
+function billRowHTML(e, compact) {
+  var icon = e.services.includes('Color')?'🎨':e.services.includes('Shave')||e.services.includes('Facial')?'💆':e.services.includes('Combo')?'✂️💈':'✂️';
+  var cbE = Number(e.cashback_earned||0);
+  var cbU = Number(e.cashback_used||0);
+  var rfU = Number(e.referral_credit_used||0);
+  var oN  = e.offerName || '';
+  var cbSrc = e.cashback_source || '';
+  // Chip label preference: explicit cashback_source > offer name > nothing
+  var cbLbl = cbSrc || oN;
+  var rewardChips = '';
+  if(cbE>0) rewardChips += '<span class="pill" style="background:rgba(245,224,48,.15);border:1px solid rgba(200,168,0,.3);color:#7c5e00">💰 +'+fmtINR(cbE)+(cbLbl?' ('+cbLbl+')':'')+'</span>';
+  if(cbU>0) rewardChips += '<span class="pill" style="background:rgba(245,224,48,.15);border:1px solid rgba(200,168,0,.3);color:#7c5e00">💰 −'+fmtINR(cbU)+' used</span>';
+  if(rfU>0) rewardChips += '<span class="pill" style="background:rgba(245,224,48,.15);border:1px solid rgba(200,168,0,.3);color:#7c5e00">🎁 −'+fmtINR(rfU)+' referral</span>';
+  return '<div class="bill-row" onclick="openBillDetail(\''+e.id+'\')">' +
+    '<div class="br-icon">'+icon+'</div>' +
+    '<div class="br-body">' +
+      '<div class="br-svc">'+e.services+'</div>' +
+      '<div class="br-meta">'+e.barberName+(compact?'':' · '+e.date)+'</div>' +
+      '<div class="pay-pills">' +
+        (e.phPay>0?'<span class="pill p-pp">PhonePe '+fmtINR(e.phPay)+'</span>':'')+
+        (e.cash>0 ?'<span class="pill p-cash">Cash '+fmtINR(e.cash)+'</span>':'')+
+        rewardChips +
+      '</div>' +
+    '</div>' +
+    '<div class="br-right"><div class="br-total">'+fmtINR(e.total)+'</div><div class="br-date">'+e.date+'</div></div>' +
+  '</div>';
+}
+
+function openBillDetail(id) {
+  var bills = myBills();
+  var e = bills.find(function(x){ return String(x.id)===String(id); });
+  if (!e) return;
+  var icon = e.services.includes('Color')?'🎨':e.services.includes('Shave')||e.services.includes('Facial')?'💆':'✂️';
+  var cbEarned = Number(e.cashback_earned||0);
+  var cbUsed   = Number(e.cashback_used||0);
+  var refUsed  = Number(e.referral_credit_used||0);
+  var offerDisc= Number(e.offerDiscount||0);
+  var offerN   = e.offerName || '';
+  var cbSource = e.cashback_source || ''; // "Auto 5% cashback" or offer name
+  // Build optional reward rows
+  var rewardRows = '';
+  if(offerDisc>0){
+    rewardRows += '<div class="ir"><span class="ir-l" style="color:var(--accent)">🏷️ '+(offerN||'Offer discount')+'</span><span class="ir-v" style="color:var(--accent);font-weight:700">−'+fmtINR(offerDisc)+'</span></div>';
+  }
+  if(cbEarned>0){
+    // Prefer the explicit source label written at billing time. Fall back to
+    // offer name if older entry, then to a generic label.
+    var earnedLbl = cbSource || (offerN ? offerN : 'Cashback');
+    rewardRows += '<div class="ir"><span class="ir-l" style="color:#C8A800">💰 '+earnedLbl+' earned</span><span class="ir-v" style="color:#C8A800;font-weight:700">+'+fmtINR(cbEarned)+'</span></div>';
+  }
+  if(cbUsed>0){
+    rewardRows += '<div class="ir"><span class="ir-l" style="color:#C8A800">💰 Cashback used</span><span class="ir-v" style="color:#C8A800;font-weight:700">−'+fmtINR(cbUsed)+'</span></div>';
+  }
+  if(refUsed>0){
+    rewardRows += '<div class="ir"><span class="ir-l" style="color:#C8A800">🎁 Referral used</span><span class="ir-v" style="color:#C8A800;font-weight:700">−'+fmtINR(refUsed)+'</span></div>';
+  }
+  document.getElementById('billModalContent').innerHTML =
+    '<div class="mh"></div>' +
+    '<div style="text-align:center;margin-bottom:18px">' +
+      '<div style="font-size:44px;margin-bottom:8px">'+icon+'</div>' +
+      '<div class="mt" style="margin-bottom:4px">'+e.services+'</div>' +
+      '<div style="font-size:13px;color:var(--muted)">'+e.date+' · '+e.time+'</div>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:14px"><div class="card-body">' +
+      '<div class="ir"><span class="ir-l">Barber</span><span class="ir-v">'+e.barberName+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Service</span><span class="ir-v">'+e.services+'</span></div>' +
+      '<div class="ir"><span class="ir-l">PhonePe</span><span class="ir-v" style="color:var(--purple)">'+fmtINR(e.phPay)+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Cash</span><span class="ir-v" style="color:#065f46">'+fmtINR(e.cash)+'</span></div>' +
+      rewardRows +
+      '<div class="ir"><span class="ir-l" style="color:var(--accent);font-weight:800">Total Paid</span><span class="ir-v" style="font-size:22px;font-weight:900;color:var(--accent)">'+fmtINR(e.total)+'</span></div>' +
+    '</div></div>' +
+    '<button class="btn btn-s btn-full" onclick="openComplaintForm(\''+e.id+'\')" style="margin-bottom:8px;background:rgba(194,65,12,.1);border:1.5px solid rgba(194,65,12,.3);color:#c2410c">⚠️ Report a problem with this bill</button>' +
+    '<button class="btn btn-s btn-full" onclick="closeModal(\'billModal\')">Close</button>';
+  openModal('billModal');
+}
+
+// ── STYLE CARDS ──
+function sciHTML(c) {
+  var tags = [c.fade, c.guard, c.texture, c.neckline].filter(Boolean).map(function(t){ return '<span class="sci-tag">'+t+'</span>'; }).join('');
+  return '<div class="sci">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+      '<span class="badge bg-g">'+(c.cardId||'BB-'+c.id)+'</span>' +
+      (c.isDefault?'<span class="badge bg-y">⭐ Default</span>':'')+
+    '</div>' +
+    '<div class="sci-name">'+c.name+'</div>' +
+    '<div class="sci-id">Created: '+c.createdAt+'</div>' +
+    '<div class="sci-tags">'+tags+'</div>' +
+    '<div style="display:flex;gap:7px;margin-top:10px">' +
+      '<button class="btn btn-g btn-sm btn-inline" onclick="viewDetail('+c.id+')">View Blueprint</button>' +
+      '<button class="btn btn-s btn-sm btn-inline" onclick="showStyleQR(\''+c.cardId+'\',\''+c.name+'\')">QR Code</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function loadCards() {
+  var cards = myCards();
+  document.getElementById('allCards').innerHTML = cards.length ?
+    cards.map(function(c){ return sciHTML(c); }).join('') :
+    '<div class="empty"><div class="empty-icon">💈</div><p>No style cards yet.<br>Ask your barber to create one!</p></div>';
+}
+
+// ── HISTORY ──
+// ── PROFILE ──
+function loadProfile() {
+  var bills  = myBills();
+  var visits = myVisits();
+  var vc     = bills.length;
+  var totalSpend = bills.reduce(function(a,e){return a+Number(e.total||0);},0);
+  var totalPh    = bills.reduce(function(a,e){return a+Number(e.phPay||0);},0);
+  var totalCash  = bills.reduce(function(a,e){return a+Number(e.cash||0);},0);
+  document.getElementById('prTotalSpend').textContent = fmtINR(totalSpend);
+  document.getElementById('prVisits').textContent     = vc;
+  document.getElementById('prPhonePe').textContent    = fmtINR(totalPh);
+  document.getElementById('prCash').textContent       = fmtINR(totalCash);
+
+  // Cashback tiles — lifetime earned vs currently available (active = unexpired chunks)
+  var cbLifetimeEl  = document.getElementById('prCashbackLifetime');
+  var cbAvailableEl = document.getElementById('prCashbackAvailable');
+  if(cbLifetimeEl || cbAvailableEl){
+    var lifetimeFromBills = bills.reduce(function(a,e){ return a+Number(e.cashback_earned||0); }, 0);
+    var lifetimeStored    = ME ? Number(ME.cashback_lifetime_earned||0) : 0;
+    // Use the larger — `cashback_lifetime_earned` is authoritative once populated; bills sum is a fallback
+    var lifetime = Math.max(lifetimeFromBills, lifetimeStored);
+    // Available = sum of unexpired chunks with amount_remaining > 0 (FIFO truth source)
+    var available = _activeCashbackTotal();
+    if(cbLifetimeEl)  cbLifetimeEl.textContent  = fmtINR(lifetime);
+    if(cbAvailableEl) cbAvailableEl.textContent = fmtINR(available);
+  }
+
+  // Loyalty based on bill count
+  document.getElementById('loyVisits').innerHTML = vc + ' <span style="font-size:20px;letter-spacing:0">visits</span>';
+  var milestones = [5,10,20,50,100];
+  var next = milestones.find(function(m){return m>vc;}) || (Math.ceil(vc/50)*50+50);
+  var prev = milestones.filter(function(m){return m<=vc;}).pop() || 0;
+  var pct  = Math.min(100, Math.round((vc-prev)/(next-prev)*100));
+  var status = vc>=50?'🏆 VIP Member':vc>=20?'⭐ Regular':vc>=10?'💈 Loyal Customer':vc>=5?'✂️ Regular Visitor':'🌱 New Member';
+  document.getElementById('loyStatus').textContent = status;
+  document.getElementById('loyBar').style.width    = pct + '%';
+  document.getElementById('loyNext').textContent   = vc<next ? (next-vc)+' more visits to reach next milestone' : '🎉 Milestone reached!';
+
+  // Referral credit badge
+  renderCreditBadge();
+  // Update the referral row subtitle to reflect referral count
+  var refCount = (_data.customers || []).filter(function(c){ return ME && c.referred_by && String(c.referred_by) === String(ME.id) && c.referral_reward_paid; }).length;
+  var rsEl = document.getElementById('refRowSub');
+  if(rsEl){
+    rsEl.textContent = refCount > 0
+      ? refCount + ' friend' + (refCount>1?'s':'') + ' joined · ₹' + (refCount*100) + ' earned'
+      : 'Both of you get ₹100 off your next visit';
+  }
+}
+
+// ── CARD DETAIL ──
+function viewDetail(cardId) {
+  var cards = getStyleCards();
+  var c = cards.find(function(x){ return x.id===cardId; });
+  if (!c) return;
+  var zones = c.zones || {};
+  var zKeys = ['fr','to','le','cr','ri','ba'];
+  var zMap  = {fr:'front',to:'top',le:'left',cr:'crown',ri:'right',ba:'back'};
+  var zHTML = '<div class="zones">';
+  zKeys.forEach(function(k){
+    var val = zones[zMap[k]] || '—';
+    var lit = val && val!=='—' ? ' lit':'';
+    zHTML += '<div class="zc'+lit+'" data-z="'+k+'"><div class="zc-l">'+zMap[k]+'</div><div class="zc-v">'+val+'</div></div>';
+  });
+  zHTML += '</div>';
+  var photos = c.photos || {};
+  var pHTML = '<div class="photos">';
+  ['front','side','back'].forEach(function(s){
+    var p = photos[s];
+    pHTML += '<div class="ph'+(p?' has':'')+'">'+( p?'<img src="'+p+'" alt="'+s+'">':'<span style="font-size:22px">📷</span><span>'+s+'</span>' )+'</div>';
+  });
+  pHTML += '</div>';
+  document.getElementById('detailContent').innerHTML =
+    '<div class="mh"></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="mt" style="margin-bottom:0">'+c.name+'</div><span class="badge bg-g">'+(c.cardId||'BB-'+c.id)+'</span></div>' +
+    (c.isDefault?'<div style="margin-bottom:12px"><span class="badge bg-y">⭐ Your Default Style</span></div>':'')+
+    '<div class="card" style="margin-bottom:12px"><div class="card-body">' +
+      '<div class="ir"><span class="ir-l">Top Length</span><span class="ir-v">'+(c.topLength||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Texture</span><span class="ir-v">'+(c.texture||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Fade</span><span class="ir-v">'+(c.fade||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Guard</span><span class="ir-v">'+(c.guard||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Neckline</span><span class="ir-v">'+(c.neckline||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Beard</span><span class="ir-v">'+(c.beard||'—')+'</span></div>' +
+      '<div class="ir"><span class="ir-l">Product</span><span class="ir-v">'+(c.product||'—')+'</span></div>' +
+    '</div></div>' +
+    (c.notes?'<div style="background:rgba(0,61,43,.06);border-left:3px solid var(--accent);padding:12px;border-radius:6px;margin-bottom:14px"><div style="font-size:11px;font-weight:800;color:var(--accent);margin-bottom:5px;letter-spacing:1px">⚠ SALON NOTES</div><div style="font-size:13px">'+c.notes+'</div></div>':'')+
+    '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Zone Blueprint</div>' + zHTML +
+    '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Reference Photos</div>' + pHTML +
+    '<button class="btn btn-s btn-full" onclick="closeModal(\'detailModal\')">Close</button>';
+  openModal('detailModal');
+}
+
+// ── QR ──
+function showQR() {
+  document.getElementById('qrTitle').textContent = ME.name + ' — My QR';
+  document.getElementById('qrInfo').textContent  = 'Phone: +91 ' + ME.phone + ' · Show to barber';
+  var el = document.getElementById('qrCanvas'); el.innerHTML = '';
+  new QRCode(el, { text:'BB-CUST-'+ME.phone, width:190, height:190, colorDark:'#003D2B', colorLight:'#ffffff' });
+  openModal('qrModal');
+}
+function showStyleQR(cardId, name) {
+  document.getElementById('qrTitle').textContent = name;
+  document.getElementById('qrInfo').textContent  = cardId + ' · Show to barber';
+  var el = document.getElementById('qrCanvas'); el.innerHTML = '';
+  new QRCode(el, { text:'BBCARD-'+cardId, width:190, height:190, colorDark:'#003D2B', colorLight:'#ffffff' });
+  openModal('qrModal');
+}
+
+// ── INIT HOME ──
+loadHome();
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg)     { var t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2500); }
+function logout() {
+  // Clear BOTH session and local storage on logout so the customer's auth
+  // keys (bb_phone, bb_role) and any cached state (bb_cq_token, etc.) are
+  // fully wiped. Wrapped in try/catch in case storage is unavailable.
+  try { sessionStorage.clear(); } catch(e){}
+  try {
+    localStorage.removeItem('bb_phone');
+    localStorage.removeItem('bb_role');
+    localStorage.removeItem('bb_cq_token');
+  } catch(e){}
+  window.location.href = 'index.html';
+}
+
+// ════ QUEUE SYSTEM — CUSTOMER APP ════
+
+var CQ_SERVICES = [
+  {code:'H', label:'Haircut',      dur:20},
+  {code:'S', label:'Shave',        dur:15},
+  {code:'T', label:'Trim',         dur:10},
+  {code:'CB',label:'Combo',        dur:30},
+  {code:'HM',label:'Head Massage', dur:15},
+  {code:'F', label:'Facial',       dur:25},
+  {code:'C', label:'Colour',       dur:45},
+  {code:'B', label:'Beard',        dur:15},
+  {code:'D', label:'Detan',        dur:30},
+  {code:'HSpa',label:'Hair Spa',   dur:40},
+  {code:'FS',label:'Face Scrub',   dur:20},
+  {code:'HS',label:'Hair Styling', dur:20},
+  {code:'Oth',label:'Others',      dur:20}
+];
+
+var cqSelectedStylist = 'any';
+var cqSelectedSvcs    = [];
+var cqSelectedOffer   = null;
+var cqMyToken         = null;
+var cqStylists        = [];
+var cqPollTimer       = null;
+var cqRtWs            = null;
+
+function _cqH(){ return {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'}; }
+function _cqGet(p){ return fetch(SUPA_URL+'/rest/v1/'+p,{headers:_cqH()}).then(function(r){return r.json();}); }
+function _cqPost(p,b){ return fetch(SUPA_URL+'/rest/v1/'+p,{method:'POST',headers:_cqH(),body:JSON.stringify(b)}).then(function(r){return r.json();}); }
+function _cqPatch(p,b){ return fetch(SUPA_URL+'/rest/v1/'+p,{method:'PATCH',headers:_cqH(),body:JSON.stringify(b)}).then(function(r){return r.json();}); }
+
+// ════════════════════════════════════════════════════════════════
+//  COMPLAINTS — customer side
+// ════════════════════════════════════════════════════════════════
+
+// Open the complaint form. Pass a bill id to tag it, or omit/null for a
+// general complaint not tied to any bill.
+function openComplaintForm(billId){
+  closeModal('billModal');
+  closeModal('complaintModal');
+  var tagged = null;
+  if(billId !== undefined && billId !== null && billId !== ''){
+    tagged = myBills().find(function(x){ return String(x.id)===String(billId); }) || null;
+  }
+
+  var billLine;
+  if(tagged){
+    // Opened from a specific bill — show it locked-in.
+    billLine = '<div class="card" style="margin-bottom:14px"><div class="card-body">'+
+        '<div class="ir"><span class="ir-l">Tagged bill</span><span class="ir-v">'+_esc(tagged.services)+'</span></div>'+
+        '<div class="ir"><span class="ir-l">Date</span><span class="ir-v">'+_esc(tagged.date)+'</span></div>'+
+        '<div class="ir"><span class="ir-l">Amount</span><span class="ir-v">'+fmtINR(tagged.total)+'</span></div>'+
+      '</div></div>';
+  } else {
+    // General complaint — offer a picker so the customer can optionally tag a bill.
+    var bills = myBills().slice().sort(function(a,b){ return parseDate(b.date)-parseDate(a.date); });
+    var opts = '<option value="">No specific bill (general)</option>' +
+      bills.map(function(e){
+        var label = e.date+' · '+e.services+' · '+fmtINR(e.total);
+        return '<option value="'+_esc(String(e.id))+'">'+_esc(label)+'</option>';
+      }).join('');
+    billLine = '<div class="ifield" style="margin-bottom:14px"><label>Tag a bill (optional)</label>'+
+        '<select id="cmp-bill-select" style="width:100%;padding:11px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:inherit;font-size:14px">'+opts+'</select>'+
+        '<div style="font-size:11px;color:var(--muted2);margin-top:5px">Pick the bill this is about, or leave as general.</div>'+
+      '</div>';
+  }
+
+  document.getElementById('complaintModalContent').innerHTML =
+    '<div class="mh"></div>'+
+    '<div class="mt" style="margin-bottom:4px">⚠️ Report a Problem</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Tell us what went wrong and we\'ll look into it.</div>'+
+    billLine +
+    '<div class="ifield" style="margin-bottom:10px"><label>Subject</label>'+
+      '<input type="text" id="cmp-subject" maxlength="80" placeholder="e.g. Service quality, Billing issue"></div>'+
+    '<div class="ifield" style="margin-bottom:14px"><label>Describe the problem</label>'+
+      '<textarea id="cmp-message" rows="4" maxlength="800" placeholder="What happened?" style="width:100%;padding:11px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:inherit;font-size:14px;resize:vertical"></textarea></div>'+
+    '<button class="btn btn-g btn-full" id="cmp-submit-btn" style="margin-bottom:8px" onclick="submitComplaint('+(tagged?("'"+tagged.id+"'"):'null')+')">Submit Complaint</button>'+
+    '<button class="btn btn-s btn-full" onclick="closeModal(\'complaintModal\')">Cancel</button>';
+  openModal('complaintModal');
+}
+
+function submitComplaint(billId){
+  var subject = (document.getElementById('cmp-subject').value||'').trim();
+  var message = (document.getElementById('cmp-message').value||'').trim();
+  if(!message){ toast('Please describe the problem'); return; }
+
+  // Resolve the tagged bill: an explicit billId (from a specific bill) wins;
+  // otherwise read the optional picker shown on the general form.
+  var taggedId = (billId!==undefined && billId!==null && billId!=='null' && billId!=='') ? String(billId) : null;
+  if(!taggedId){
+    var sel = document.getElementById('cmp-bill-select');
+    if(sel && sel.value) taggedId = String(sel.value);
+  }
+
+  var btn = document.getElementById('cmp-submit-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
+
+  // Snapshot the tagged bill's details (stylist, services, amount, date/time)
+  // and the salon name so back-office staff get full context without a lookup.
+  var bill = taggedId ? myBills().find(function(x){ return String(x.id)===String(taggedId); }) : null;
+  var salonId = (bill && bill.salonId) ? String(bill.salonId) : (ME.salonId ? String(ME.salonId) : null);
+  var salonName = '';
+  if(salonId){
+    var salons = LS.get('salons') || [];
+    var s = salons.find(function(x){ return String(x.id)===String(salonId); });
+    salonName = s ? (s.name||'') : '';
+  }
+
+  var row = {
+    entry_id:       taggedId,
+    customer_id:    ME.id ? String(ME.id) : null,
+    customer_phone: ME.phone || SESSION_PHONE,
+    customer_name:  ME.name || '',
+    salon_id:       salonId,
+    salon_name:     salonName || null,
+    barber_name:    bill ? (bill.barberName || null) : null,
+    bill_services:  bill ? (bill.services || null) : null,
+    bill_amount:    bill ? Number(bill.total||0) : null,
+    bill_date:      bill ? (bill.date || null) : null,
+    bill_time:      bill ? (bill.time || null) : null,
+    subject:        subject || 'General complaint',
+    message:        message,
+    status:         'open'
+  };
+
+  _cqPost('complaints', row).then(function(res){
+    var saved = Array.isArray(res) ? res[0] : res;
+    if(saved && saved.id){ _data.complaints.unshift(saved); }
+    closeModal('complaintModal');
+    toast('✓ Complaint submitted — we\'ll be in touch');
+  }).catch(function(){
+    if(btn){ btn.disabled=false; btn.textContent='Submit Complaint'; }
+    toast('⚠ Could not submit — check your connection');
+  });
+}
+
+// Fetch this customer's complaints from Supabase, then show the list panel.
+function openComplaintsPanel(){
+  document.getElementById('complaintModalContent').innerHTML =
+    '<div class="mh"></div><div class="mt" style="margin-bottom:14px">💬 Help &amp; Complaints</div>'+
+    '<div style="font-size:13px;color:var(--muted);padding:20px 0;text-align:center">Loading…</div>';
+  openModal('complaintModal');
+
+  var phone = encodeURIComponent(ME.phone || SESSION_PHONE);
+  _cqGet('complaints?customer_phone=eq.'+phone+'&order=created_at.desc')
+    .then(function(rows){
+      _data.complaints = Array.isArray(rows) ? rows : [];
+      renderComplaintsPanel();
+    })
+    .catch(function(){
+      // Table may not exist yet (migration not run) — show empty state gracefully
+      _data.complaints = [];
+      renderComplaintsPanel();
+    });
+}
+
+function renderComplaintsPanel(){
+  var list = _data.complaints || [];
+  var items = list.map(function(c){
+    var resolved = c.status === 'resolved';
+    var statusPill = resolved
+      ? '<span class="pill" style="background:rgba(0,122,86,.12);border:1px solid rgba(0,122,86,.3);color:var(--accent)">✓ Resolved</span>'
+      : '<span class="pill" style="background:rgba(194,65,12,.1);border:1px solid rgba(194,65,12,.3);color:#c2410c">● Open</span>';
+    var when = (c.created_at||'').slice(0,10);
+    var billNote = c.entry_id ? '<div style="font-size:11px;color:var(--muted2);margin-top:2px">Linked to a bill</div>' : '';
+    var reply = (resolved && c.resolution_note)
+      ? '<div style="margin-top:8px;padding:8px 10px;background:rgba(0,122,86,.06);border-left:3px solid var(--accent);border-radius:4px;font-size:12px;color:var(--white)"><b style="color:var(--accent)">Response:</b> '+_esc(c.resolution_note)+'</div>'
+      : '';
+    return '<div class="card" style="margin-bottom:10px"><div class="card-body">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'+
+          '<div style="font-weight:700;font-size:14px">'+_esc(c.subject||'Complaint')+'</div>'+statusPill+
+        '</div>'+
+        '<div style="font-size:13px;color:var(--muted);margin-top:4px">'+_esc(c.message||'')+'</div>'+
+        billNote+
+        '<div style="font-size:11px;color:var(--muted2);margin-top:6px">'+when+'</div>'+
+        reply+
+      '</div></div>';
+  }).join('');
+
+  document.getElementById('complaintModalContent').innerHTML =
+    '<div class="mh"></div>'+
+    '<div class="mt" style="margin-bottom:4px">💬 Help &amp; Complaints</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">Your reports and their status</div>'+
+    '<button class="btn btn-g btn-full" style="margin-bottom:14px" onclick="openComplaintForm(null)">+ New Complaint</button>'+
+    (items || '<div style="font-size:13px;color:var(--muted2);text-align:center;padding:16px 0">No complaints yet.</div>')+
+    '<button class="btn btn-s btn-full" style="margin-top:6px" onclick="closeModal(\'complaintModal\')">Close</button>';
+}
+
+// Minimal HTML-escape so customer text can't break the modal markup.
+function _esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Homepage complaints summary — shows the most recent few complaints (or a
+// friendly empty state with a "Report a problem" prompt) just above bills.
+function loadHomeComplaints(){
+  var el = document.getElementById('homeComplaints');
+  if(!el) return;
+  var phone = encodeURIComponent(ME.phone || SESSION_PHONE);
+  _cqGet('complaints?customer_phone=eq.'+phone+'&order=created_at.desc&limit=3')
+    .then(function(rows){
+      _data.complaints = Array.isArray(rows) ? rows : _data.complaints;
+      renderHomeComplaints(Array.isArray(rows) ? rows : []);
+    })
+    .catch(function(){
+      // Table may not exist yet (migration not run) — show the empty/CTA state
+      renderHomeComplaints([]);
+    });
+}
+
+function renderHomeComplaints(rows){
+  var el = document.getElementById('homeComplaints');
+  if(!el) return;
+  if(!rows || !rows.length){
+    el.innerHTML = '<div class="card"><div class="card-body" style="text-align:center;padding:14px 10px">'+
+      '<div style="font-size:13px;color:var(--muted2);margin-bottom:8px">No complaints. Had an issue with a service or bill?</div>'+
+      '<button class="btn btn-s btn-sm" onclick="openComplaintForm(null)">⚠️ Report a problem</button>'+
+      '</div></div>';
+    return;
+  }
+  var open = rows.filter(function(c){ return c.status!=='resolved'; }).length;
+  var summary = open
+    ? '<div style="font-size:12px;color:#c2410c;font-weight:700;margin-bottom:6px">'+open+' open complaint'+(open>1?'s':'')+'</div>'
+    : '<div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:6px">All complaints resolved ✓</div>';
+  var items = rows.map(function(c){
+    var resolved = c.status==='resolved';
+    var pill = resolved
+      ? '<span class="pill" style="background:rgba(0,122,86,.12);border:1px solid rgba(0,122,86,.3);color:var(--accent)">✓ Resolved</span>'
+      : '<span class="pill" style="background:rgba(194,65,12,.1);border:1px solid rgba(194,65,12,.3);color:#c2410c">● Open</span>';
+    return '<div class="bill-row" onclick="openComplaintsPanel()" style="cursor:pointer">'+
+        '<div class="br-left">'+
+          '<div class="br-svc">'+_esc(c.subject||'Complaint')+'</div>'+
+          '<div class="br-meta">'+_esc((c.message||'').slice(0,60))+((c.message||'').length>60?'…':'')+'</div>'+
+        '</div>'+
+        '<div class="br-right">'+pill+'</div>'+
+      '</div>';
+  }).join('');
+  el.innerHTML = '<div class="card"><div class="card-body">'+summary+items+
+    '<div style="text-align:center;margin-top:10px"><button class="btn btn-s btn-sm" onclick="openComplaintsPanel()">View All →</button></div>'+
+    '</div></div>';
+}
+
+function cqTodayStr(){ return new Date().toLocaleDateString('en-IN'); }
+
+function loadQueue(){
+  // Always load the live board regardless of token state
+  lqbLoad();
+
+  // Check for existing token first
+  var saved = sessionStorage.getItem('bb_cq_token');
+  if(saved){ try{ cqMyToken=JSON.parse(saved); }catch(e){} }
+  if(cqMyToken && cqMyToken.tracker_key){
+    cqLoadTracker(cqMyToken.tracker_key);
+    return;
+  }
+  // Load salon + queue status
+  var salonId = ME ? (ME.salonId||'') : '';
+  if(!salonId){
+    // Try to get salonId from entries
+    var entries = _data.entries || [];
+    if(entries.length) salonId = entries[0].salonId || '';
+    if(!salonId){
+      var salons = LS.get('salons')||[];
+      if(salons.length) salonId = salons[0].id || '';
+    }
+  }
+  if(!salonId){ showCQClosed(); return; }
+
+  Promise.all([
+    _cqGet('salons?id=eq.'+encodeURIComponent(salonId)+'&select=id,name,queue_open,service_durations,queue_max_per_stylist'),
+    _cqGet('staff?salonId=eq.'+encodeURIComponent(salonId)+'&role=eq.barber&select=id,name'),
+    _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(cqTodayStr())+'&status=in.(waiting,in_chair)&select=id,status,barber_id,service_duration')
+  ]).then(function(res){
+    var salon = res[0]&&res[0].length?res[0][0]:null;
+    cqStylists = res[1]||[];
+    var tokens = res[2]||[];
+    if(!salon||!salon.queue_open){ showCQClosed(); return; }
+    if(salon.queue_paused){ showCQPaused(); return; } // safe: undefined = false if column missing
+    // Apply service duration overrides from salon
+    if(salon.service_durations){
+      try{
+        var ov = typeof salon.service_durations==='string'?JSON.parse(salon.service_durations):salon.service_durations;
+        CQ_SERVICES.forEach(function(s){ if(ov[s.code]) s.dur=parseInt(ov[s.code])||s.dur; });
+      }catch(e){}
+    }
+    cqBuildForm(salon, tokens);
+    cqLoadOffers(salonId);
+    showCQJoin();
+    cqCamLoad(salonId);
+  }).catch(function(){ showCQClosed(); });
+}
+
+function cqBuildForm(salon, tokens){
+  var waiting = tokens.filter(function(t){return t.status==='waiting';}).length;
+  var serving  = tokens.filter(function(t){return t.status==='in_chair';}).length;
+  // Min wait for a new joiner = total duration of all waiting tokens for the least-busy stylist
+  // Own service time is not counted as wait time
+  var minEta = 0;
+  if(waiting>0){
+    var byBarber={};
+    tokens.filter(function(t){return t.status==='waiting';}).forEach(function(t){
+      var bid=t.barber_id||'any';
+      byBarber[bid]=(byBarber[bid]||0)+(t.service_duration||20);
+    });
+    minEta=Math.min.apply(null,Object.values(byBarber));
+  }
+  document.getElementById('cq-stat-waiting').textContent = waiting;
+  document.getElementById('cq-stat-serving').textContent = serving;
+  document.getElementById('cq-stat-eta').textContent     = waiting>0?(minEta+'m'):'0m';
+
+  // Stylist buttons
+  var grid = document.getElementById('cq-stylist-grid');
+  grid.innerHTML = '<button class="btn btn-g" style="grid-column:1/-1;font-size:12px" data-id="any" id="cq-any-btn" onclick="cqSelectStylist(\'any\')">✓ Any Available</button>';
+  cqStylists.forEach(function(st){
+    var wc = tokens.filter(function(t){return t.barber_id===st.id&&t.status==='waiting';}).length;
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-s';
+    btn.style.cssText = 'font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px';
+    btn.setAttribute('data-id', st.id);
+    btn.setAttribute('id', 'cq-stylist-'+st.id);
+    btn.innerHTML = '<span style="font-weight:800">'+st.name+'</span><span style="font-size:10px;color:var(--muted)">'+wc+' waiting</span>';
+    btn.onclick = function(){ cqSelectStylist(st.id); };
+    grid.appendChild(btn);
+  });
+
+  // Service chips
+  var chips = document.getElementById('cq-svc-chips');
+  chips.innerHTML = '';
+  CQ_SERVICES.forEach(function(s){
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:\'Barlow\',sans-serif;transition:all .15s';
+    btn.setAttribute('data-code', s.code);
+    btn.textContent = s.label+' ('+s.dur+'m)';
+    btn.onclick = function(){ cqToggleSvc(s.code, btn); };
+    chips.appendChild(btn);
+  });
+}
+
+function cqSelectStylist(id){
+  cqSelectedStylist = id;
+  document.querySelectorAll('#cq-stylist-grid button').forEach(function(b){
+    var isSelected = b.getAttribute('data-id')===id;
+    b.style.background  = isSelected ? 'var(--accent)' : '';
+    b.style.color       = isSelected ? 'var(--gold)'   : '';
+    b.style.borderColor = isSelected ? 'var(--accent)' : '';
+    if(isSelected && b.querySelector('span')) b.querySelector('span').style.color='var(--gold)';
+  });
+}
+
+function cqToggleSvc(code, btn){
+  var idx = cqSelectedSvcs.indexOf(code);
+  if(idx>-1) cqSelectedSvcs.splice(idx,1); else cqSelectedSvcs.push(code);
+  btn.style.background  = idx>-1 ? '' : 'rgba(0,122,86,.12)';
+  btn.style.borderColor = idx>-1 ? 'var(--border)' : 'var(--accent)';
+  btn.style.color       = idx>-1 ? 'var(--muted)' : 'var(--accent)';
+}
+
+function cqLoadOffers(salonId){
+  var visitCount = (_data.entries||[]).length;
+  var offersHtml = '';
+
+  // Savings card tier
+  if(visitCount > 0 && SESSION_PHONE){
+    var TIERS=[{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
+    var tier = visitCount<TIERS.length?TIERS[visitCount]:TIERS[TIERS.length-1];
+    var scId = 'savings_card';
+    offersHtml += cqOfferCard(scId, '💳 Savings Card — Visit '+(visitCount+1), tier.pct, 299, 'Your loyalty reward');
+  }
+
+  _cqGet('offers?active=eq.true&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)&order=created_at.desc')
+    .then(function(offers){
+      var now = new Date();
+      (offers||[]).filter(function(o){return o.discount_pct&&(!o.expires_at||new Date(o.expires_at)>now);})
+        .forEach(function(o){
+          offersHtml += cqOfferCard(o.id, (o.emoji||'🎁')+' '+(o.title||'Offer'), o.discount_pct, o.min_billing||0, o.description||'');
+        });
+      var el = document.getElementById('cq-offers-list');
+      if(el) el.innerHTML = offersHtml || '<div style="font-size:13px;color:var(--muted2)">No offers right now</div>';
+      var card = document.getElementById('cq-offers-card');
+      if(card) card.style.display = offersHtml ? 'block' : 'none';
+    }).catch(function(){});
+}
+
+function cqOfferCard(id, title, pct, minBill, desc){
+  return '<div onclick="cqSelectOffer(\''+id+'\',\''+title.replace(/'/g,'')+'\','+pct+','+minBill+')" id="cqoc-'+id+'" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:8px;cursor:pointer;transition:border-color .2s">'+
+    '<div style="background:var(--accent);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:17px;color:#fff;letter-spacing:1px">'+title+'</div>'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:26px;color:var(--gold)">'+pct+'%</div>'+
+    '</div>'+
+    '<div style="padding:8px 14px;display:flex;align-items:center;justify-content:space-between">'+
+      '<div style="font-size:12px;color:var(--muted)">'+desc+(minBill?' · Min ₹'+minBill:'')+'</div>'+
+      '<div id="cqoc-check-'+id+'" style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent">✓</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function cqSelectOffer(id, name, pct, minBill){
+  if(cqSelectedOffer && cqSelectedOffer.id===id){
+    cqSelectedOffer = null;
+  } else {
+    cqSelectedOffer = {id:id, name:name, pct:pct, minBill:minBill};
+  }
+  // Update all offer card borders and checkmarks
+  document.querySelectorAll('[id^="cqoc-"]').forEach(function(el){
+    if(el.id.startsWith('cqoc-check-')) return;
+    var eid = el.id.replace('cqoc-','');
+    var selected = cqSelectedOffer && cqSelectedOffer.id===eid;
+    el.style.borderColor = selected ? 'var(--accent)' : 'var(--border)';
+    el.style.background  = selected ? 'rgba(0,122,86,.03)' : '';
+    var check = document.getElementById('cqoc-check-'+eid);
+    if(check){
+      check.style.background  = selected ? 'var(--accent)' : 'transparent';
+      check.style.borderColor = selected ? 'var(--accent)' : 'var(--border)';
+      check.style.color       = selected ? '#fff' : 'transparent';
+    }
+  });
+}
+
+function cqCalcDuration(){
+  if(!cqSelectedSvcs.length) return 20;
+  return cqSelectedSvcs.reduce(function(sum,code){
+    var s = CQ_SERVICES.find(function(x){return x.code===code;});
+    return sum+(s?s.dur:20);
+  },0);
+}
+
+function cqResolveStyleist(){
+  if(cqSelectedStylist!=='any') return Promise.resolve(cqSelectedStylist);
+  if(!cqStylists.length) return Promise.resolve(null);
+  var salonId = ME?(ME.salonId||''):'';
+  return _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(cqTodayStr())+'&status=in.(waiting,in_chair)&select=barber_id')
+    .then(function(tokens){
+      var counts={};
+      cqStylists.forEach(function(s){counts[s.id]=0;});
+      (tokens||[]).forEach(function(t){if(t.barber_id)counts[t.barber_id]=(counts[t.barber_id]||0)+1;});
+      var best=cqStylists.reduce(function(a,b){return (counts[a.id]||0)<=(counts[b.id]||0)?a:b;});
+      return best.id;
+    });
+}
+
+function cqGetNextToken(salonId){
+  return _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(cqTodayStr())+'&select=token_number&order=join_time.desc&limit=1')
+    .then(function(rows){
+      var last=(rows&&rows.length)?rows[0].token_number:'B-000';
+      var num=parseInt(last.split('-')[1]||'0')+1;
+      return 'B-'+String(num).padStart(3,'0');
+    });
+}
+
+function cqCheckDuplicate(salonId){
+  if(!SESSION_PHONE) return Promise.resolve(null);
+  return _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(cqTodayStr())+'&customer_phone=eq.'+encodeURIComponent(SESSION_PHONE)+'&status=in.(waiting,called,in_chair)&limit=1')
+    .then(function(rows){return rows&&rows.length?rows[0]:null;});
+}
+
+function cqJoin(){ doJoin(false); }
+function cqJoinAnon(){ doJoin(true); }
+
+function doJoin(anon){
+  var salonId = ME?(ME.salonId||''):'';
+  if(!salonId){ var salons=LS.get('salons')||[]; if(salons.length)salonId=salons[0].id||''; }
+  if(!salonId){ toast('Salon not found'); return; }
+
+  var joinBtn = document.querySelector('#cq-join-section button');
+  if(joinBtn) joinBtn.disabled=true;
+
+  // Re-verify queue is still open and not paused before inserting
+  _cqGet('salons?id=eq.'+encodeURIComponent(salonId)+'&select=queue_open,queue_paused')
+    .then(function(res){
+      if(!res||!Array.isArray(res)||!res.length||res.code){ _doJoinInsert(anon, salonId); return; }
+      var salon=res[0];
+      if(!salon.queue_open){ showCQClosed(); return; }
+      if(salon.queue_paused){ showCQPaused(); return; }
+      _doJoinInsert(anon, salonId);
+    }).catch(function(){ _doJoinInsert(anon, salonId); }); // if check fails, proceed anyway
+}
+
+function _doJoinInsert(anon, salonId){
+  cqCheckDuplicate(salonId).then(function(dup){
+    if(dup){
+      toast('You are already in the queue!');
+      cqMyToken=dup;
+      sessionStorage.setItem('bb_cq_token',JSON.stringify(dup));
+      cqLoadTracker(dup.tracker_key);
       return;
     }
-    el.innerHTML = rows.map(function(r){
-      return '<div class="sc-card">'+
-        '<div class="sc-date">'+r.date+'</div>'+
-        '<div class="sc-services">'+escH(r.services_done||'Style record')+'</div>'+
-        '<div class="sc-meta">'+
-          (r.hair_type?'Hair type: '+escH(r.hair_type)+'<br>':'')+
-          (r.hair_length?'Length: '+escH(r.hair_length)+'<br>':'')+
-          (r.products_used?'Products: '+escH(r.products_used):'')+'</div>'+
-        (r.stylist_notes?'<div class="sc-stylist-note">💬 '+escH(r.stylist_notes)+'</div>':'')+
-        (r.next_visit_due?'<span class="sc-next">Next visit: '+r.next_visit_due+'</span>':'')+
-      '</div>';
-    }).join('');
-  }).catch(function(){
-    document.getElementById('styleCardsList').innerHTML='<div class="empty-state">Failed to load style cards.</div>';
+    Promise.all([cqGetNextToken(salonId), cqResolveStyleist()]).then(function(res){
+      var tokenNum=res[0], barberId=res[1];
+      var name = ME&&ME.name&&ME.name!=='Loading…' ? ME.name : 'Guest';
+      var phone = SESSION_PHONE||null;
+      var svcLabels = anon ? [] : cqSelectedSvcs.map(function(c){var s=CQ_SERVICES.find(function(x){return x.code===c;});return s?s.label:c;});
+      var dur = anon ? 20 : cqCalcDuration();
+      var trackerKey = Math.random().toString(36).slice(2)+Date.now().toString(36);
+      var row={
+        salon_id:salonId, barber_id:barberId||null,
+        token_number:tokenNum, customer_name:name,
+        customer_phone:phone,
+        services:svcLabels.join(', ')||null,
+        service_duration:dur, type:'virtual', status:'waiting',
+        offer_id:  cqSelectedOffer&&!anon ? String(cqSelectedOffer.id)   : null,
+        offer_name:cqSelectedOffer&&!anon ? cqSelectedOffer.name         : null,
+        offer_pct: cqSelectedOffer&&!anon ? cqSelectedOffer.pct          : 0,
+        offer_min_bill:cqSelectedOffer&&!anon ? cqSelectedOffer.minBill  : 0,
+        tracker_key:trackerKey, date:cqTodayStr()
+      };
+      return _cqPost('queue_tokens',row).then(function(saved){
+        var token=Array.isArray(saved)?saved[0]:saved;
+        if(!token||token.error) throw new Error('Join failed');
+        cqMyToken=token;
+        sessionStorage.setItem('bb_cq_token',JSON.stringify(token));
+        cqLoadTracker(trackerKey);
+      });
+    });
+  }).catch(function(e){
+    console.error(e);
+    toast('Could not join queue. Try again.');
+    var b=document.querySelector('#cq-join-section button');
+    if(b)b.disabled=false;
   });
 }
 
-// ── Load Visits ──
-function loadVisits(){
-  var qs = 'tenant_id=eq.'+encodeURIComponent(TENANT_ID)
-    +'&customer_id=eq.'+encodeURIComponent(CUSTOMER_ID)
-    +'&order=date.desc&limit=50';
-  msSelect('visits', qs).then(function(rows){
-    document.getElementById('visitCount').textContent = rows.length;
-    var el = document.getElementById('visitsList');
-    if(!rows||!rows.length){
-      el.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span>No visit history yet.</div>';
+function cqLoadTracker(key){
+  _cqGet('queue_tokens?tracker_key=eq.'+encodeURIComponent(key)+'&select=*')
+    .then(function(rows){
+      if(!rows||!rows.length){ cqClearToken(); loadQueue(); return; }
+      cqMyToken=rows[0];
+      cqRenderTracker(rows[0]);
+      showCQTracker();
+      cqSubscribeRealtime(rows[0].id);
+      cqStartPoll(key);
+      // Init tracker camera if devices already loaded; else load from Supabase
+      if (cqCamDevices.length) {
+        cqCamInitSection(true);
+      } else {
+        var tSalonId = ME ? (ME.salonId||'') : '';
+        if (!tSalonId && rows[0].salon_id) tSalonId = rows[0].salon_id;
+        if (tSalonId) {
+          _cqGet('salons?id=eq.'+encodeURIComponent(tSalonId)+'&select=cameras')
+            .then(function(r) {
+              var cameras = r && r[0] && r[0].cameras ? r[0].cameras : null;
+              var list = cqCamParse(cameras);
+              if (!list.length) return;
+              cqCamDevices   = list;
+              cqCamActiveIdx = 0;
+              cqCamInitSection(true);
+            }).catch(function() {});
+        }
+      }
+    }).catch(function(){ showCQJoin(); });
+}
+
+function cqRenderTracker(t){
+  document.getElementById('cq-token-num').textContent  = t.token_number||'–';
+  document.getElementById('cq-token-name').textContent = t.customer_name||'';
+  document.getElementById('cq-pos').textContent  = t.position ? ('#'+t.position) : '–';
+  var eta = t.eta_minutes||0;
+  document.getElementById('cq-eta').textContent  = eta>0?(eta+'–'+(eta+5)+' min'):'–';
+
+  var stylistName='–';
+  if(t.barber_id){
+    var st=cqStylists.find(function(s){return s.id===t.barber_id;});
+    if(st)stylistName=st.name;
+    else{
+      // fetch stylist name if not cached
+      var salonId=ME?(ME.salonId||''):'';
+      if(salonId&&!cqStylists.length){
+        _cqGet('staff?salonId=eq.'+encodeURIComponent(salonId)+'&role=eq.barber&select=id,name')
+          .then(function(staff){ cqStylists=staff||[]; var s2=cqStylists.find(function(x){return x.id===t.barber_id;}); if(s2)document.getElementById('cq-stylist-name').textContent=s2.name; })
+          .catch(function(){});
+      }
+    }
+  }
+  document.getElementById('cq-stylist-name').textContent = stylistName;
+  document.getElementById('cq-svc-label').textContent    = t.services||'–';
+
+  var statusMap={waiting:'Waiting',called:'Head in now!',in_chair:'In Chair',done:'Done',skipped:'Skipped'};
+  var statusColors={waiting:'rgba(0,0,0,.2)',called:'rgba(245,224,48,.3)',in_chair:'rgba(0,122,86,.3)',done:'rgba(22,163,74,.3)'};
+  var pill = document.getElementById('cq-status-pill');
+  pill.textContent   = statusMap[t.status]||t.status;
+  pill.style.background = statusColors[t.status]||'rgba(0,0,0,.2)';
+  pill.style.color   = (t.status==='called')?'#003D2B':'var(--gold)';
+
+  var banner = document.getElementById('cq-alert-banner');
+  if(t.status==='called'||(t.position<=2&&t.status==='waiting')){
+    banner.style.display='block';
+  } else { banner.style.display='none'; }
+
+  var offerBadge = document.getElementById('cq-offer-badge');
+  if(t.offer_pct>0&&t.offer_name){
+    document.getElementById('cq-offer-name').textContent = t.offer_name;
+    document.getElementById('cq-offer-pct').textContent  = t.offer_pct+'% OFF';
+    offerBadge.style.display='flex';
+  } else { offerBadge.style.display='none'; }
+
+  var cancelBtn = document.querySelector('#cq-tracker-section button');
+  if(cancelBtn) cancelBtn.style.display=(t.status==='waiting'||t.status==='called')?'inline-block':'none';
+
+  if(t.status==='done'){ cqStopPoll(); }
+
+  // Update Home button label
+  var homeBtn = document.getElementById('home-queue-btn');
+  if(homeBtn){
+    homeBtn.textContent = (t.status==='waiting'||t.status==='called'||t.status==='in_chair')
+      ? '🔢 My Queue — '+t.token_number
+      : '🔢 Join Queue';
+  }
+}
+
+function cqSubscribeRealtime(tokenId){
+  if(cqRtWs){try{cqRtWs.close();}catch(e){}}
+  if(typeof WebSocket==='undefined') return;
+  try{
+    var url=SUPA_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPA_KEY+'&vsn=1.0.0';
+    cqRtWs=new WebSocket(url);
+    cqRtWs.onopen=function(){
+      cqRtWs.send(JSON.stringify({topic:'realtime:public:queue_tokens:id=eq.'+tokenId,event:'phx_join',payload:{},ref:'cq1'}));
+    };
+    cqRtWs.onmessage=function(e){
+      try{
+        var msg=JSON.parse(e.data);
+        if(msg.event==='postgres_changes'&&msg.payload&&msg.payload.record){
+          cqRenderTracker(msg.payload.record);
+        }
+      }catch(ex){}
+    };
+    cqRtWs.onerror=function(){};
+    cqRtWs.onclose=function(){setTimeout(function(){if(cqMyToken)cqSubscribeRealtime(tokenId);},5000);};
+  }catch(ex){}
+}
+
+function cqStartPoll(key){
+  cqStopPoll();
+  cqPollTimer=setInterval(function(){
+    var sid = ME?(ME.salonId||''):'';
+    if(!sid){ var s=LS.get('salons')||[]; if(s.length) sid=s[0].id||''; }
+    // Re-check queue status so manager auto-close / pause is reflected live
+    if(sid){
+      _cqGet('salons?id=eq.'+encodeURIComponent(sid)+'&select=queue_open,queue_paused')
+        .then(function(res){
+          if(!res||!Array.isArray(res)||!res.length||res.code) return; // ignore errors (column missing etc)
+          var salon=res[0];
+          if(!salon.queue_open){ showCQClosed(); cqStopPoll(); return; }
+          // queue_paused: customer already in queue — tracker continues; don't block them
+        }).catch(function(){});
+    }
+    _cqGet('queue_tokens?tracker_key=eq.'+encodeURIComponent(key)+'&select=*')
+      .then(function(rows){if(rows&&rows.length)cqRenderTracker(rows[0]);})
+      .catch(function(){});
+  },30000);
+}
+
+function cqStopPoll(){
+  if(cqPollTimer){clearInterval(cqPollTimer);cqPollTimer=null;}
+  if(cqRtWs){try{cqRtWs.close();}catch(e){}cqRtWs=null;}
+}
+
+function cqCancel(){
+  if(!cqMyToken)return;
+  if(!confirm('Cancel your spot in the queue?'))return;
+  _cqPatch('queue_tokens?id=eq.'+encodeURIComponent(cqMyToken.id),{status:'cancelled'})
+    .then(function(){
+      cqClearToken();
+      cqStopPoll();
+      toast('Spot cancelled');
+      var homeBtn=document.getElementById('home-queue-btn');
+      if(homeBtn)homeBtn.textContent='🔢 Join Queue';
+      loadQueue();
+    }).catch(function(){toast('Error. Try again.');});
+}
+
+function cqClearToken(){
+  cqMyToken=null;
+  sessionStorage.removeItem('bb_cq_token');
+}
+
+function showCQClosed(){
+  document.getElementById('cq-join-section').style.display='block';
+  document.getElementById('cq-tracker-section').style.display='none';
+  document.getElementById('cq-closed-msg').style.display='block';
+  document.getElementById('cq-paused-msg').style.display='none';
+  document.getElementById('cq-form-card').style.display='none';
+}
+
+function showCQPaused(){
+  document.getElementById('cq-join-section').style.display='block';
+  document.getElementById('cq-tracker-section').style.display='none';
+  document.getElementById('cq-closed-msg').style.display='none';
+  document.getElementById('cq-paused-msg').style.display='block';
+  document.getElementById('cq-form-card').style.display='none';
+}
+
+function showCQJoin(){
+  document.getElementById('cq-join-section').style.display='block';
+  document.getElementById('cq-tracker-section').style.display='none';
+  document.getElementById('cq-closed-msg').style.display='none';
+  document.getElementById('cq-paused-msg').style.display='none';
+  document.getElementById('cq-form-card').style.display='block';
+}
+
+function showCQTracker(){
+  document.getElementById('cq-join-section').style.display='none';
+  document.getElementById('cq-tracker-section').style.display='block';
+}
+
+// Reads from the same Supabase queue_tokens as the digital mirror.
+// Salon ID resolved dynamically from the logged-in customer's session — never hardcoded.
+var lqbPollTimer = null;
+var lqbStaffCache = {};
+
+function lqbGetSalonId(){
+  var sid = ME ? (ME.salonId||'') : '';
+  if(!sid){ var e=_data.entries||[]; if(e.length) sid=e[0].salonId||''; }
+  if(!sid){ var s=LS.get('salons')||[]; if(s.length) sid=s[0].id||''; }
+  return sid;
+}
+
+function lqbLoad(){
+  lqbStopPoll();
+  lqbFetch();
+  lqbPollTimer = setInterval(lqbFetch, 30000);
+}
+
+function lqbStopPoll(){
+  if(lqbPollTimer){ clearInterval(lqbPollTimer); lqbPollTimer=null; }
+}
+
+function lqbFetch(){
+  var salonId = lqbGetSalonId();
+  if(!salonId){
+    document.getElementById('lqb-serving').innerHTML =
+      '<div style="font-size:13px;color:var(--muted2);text-align:center;width:100%">Salon not found</div>';
+    return;
+  }
+  var today = new Date().toLocaleDateString('en-IN');
+  Promise.all([
+    _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(today)+'&status=eq.in_chair&order=start_time.asc&select=*&limit=3'),
+    _cqGet('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(today)+'&status=eq.waiting&order=position.asc&select=*&limit=8'),
+    Object.keys(lqbStaffCache).length ? Promise.resolve(null)
+      : _cqGet('staff?salonId=eq.'+encodeURIComponent(salonId)+'&role=eq.barber&select=id,name')
+  ]).then(function(res){
+    var inChair = res[0]||[];
+    var waiting = res[1]||[];
+    if(res[2]){ res[2].forEach(function(s){ lqbStaffCache[s.id]=s.name; }); }
+    lqbRender(inChair, waiting);
+  }).catch(function(){
+    document.getElementById('lqb-serving').innerHTML =
+      '<div style="font-size:13px;color:var(--muted2);text-align:center;width:100%">Could not load queue</div>';
+  });
+}
+
+function lqbRender(inChair, waiting){
+  // Now serving
+  var servEl = document.getElementById('lqb-serving');
+  if(!inChair.length){
+    servEl.innerHTML = '<div style="text-align:center;width:100%">'+
+      '<div style="font-size:32px;opacity:.2;margin-bottom:6px">✂️</div>'+
+      '<div style="font-size:13px;color:var(--muted2)">No one being served yet</div>'+
+    '</div>';
+  } else {
+    servEl.innerHTML = inChair.map(function(t){
+      var stylistName = t.barber_id?(lqbStaffCache[t.barber_id]||'Stylist'):'Any Stylist';
+      var elapsed = t.start_time ? Math.floor((Date.now()-new Date(t.start_time).getTime())/60000) : 0;
+      // Highlight if this is MY token
+      var isMe = cqMyToken && cqMyToken.id===t.id;
+      return '<div style="display:flex;align-items:center;gap:12px'+(inChair.length>1?';padding-bottom:10px;border-bottom:1px solid var(--border)':'')+'">'+
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:52px;color:'+(isMe?'var(--accent)':'var(--gold-dark)')+';line-height:1;width:64px;text-align:center;flex-shrink:0">'+
+          t.token_number+
+        '</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;font-weight:800;color:var(--white)'+(isMe?' — You!':'')+'">'+(t.customer_name||'Guest')+(isMe?' <span style="color:var(--accent);font-size:11px">← You</span>':'')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">'+stylistName+' · '+(t.services||'Service')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+elapsed+' min elapsed</div>'+
+          (t.offer_pct>0?'<div style="font-size:10px;font-weight:700;color:var(--accent);margin-top:2px">'+t.offer_pct+'% OFF claimed</div>':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Next up list
+  var listEl = document.getElementById('lqb-list');
+  if(!waiting.length){
+    listEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:8px 0;text-align:center">No one waiting — join now!</div>';
+  } else {
+    listEl.innerHTML = waiting.map(function(t, i){
+      var stylistName = t.barber_id?(lqbStaffCache[t.barber_id]||'?'):'Any';
+      var isMe = cqMyToken && cqMyToken.id===t.id;
+      var eta = t.eta_minutes||0;
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);background:'+(isMe?'rgba(0,122,86,.05)':'transparent')+'">'+
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:'+(i===0?'var(--gold-dark)':'var(--muted)')+';width:40px;text-align:center;line-height:1;flex-shrink:0">'+
+          t.token_number.replace('B-','')+
+        '</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:800;color:var(--white)">'+(t.customer_name||'Guest')+(isMe?' <span style="font-size:10px;font-weight:700;color:var(--accent)">← You</span>':'')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:1px">'+(t.services||'Service')+' · '+stylistName+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0">'+
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:var(--accent);line-height:1">'+(eta>0?eta+'m':'–')+'</div>'+
+          '<div style="font-size:9px;color:var(--muted2)">wait</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Timestamp
+  var upd = document.getElementById('lqb-updated');
+  if(upd){
+    var now = new Date();
+    upd.textContent = 'Updated '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// ── OFFERS ──
+function loadOffers(){
+  var salonId = ME ? (ME.salonId||'') : '';
+  var visits  = myBills().length;
+
+  // Referral card (always shown)
+  var rcEl = document.getElementById('referral-card-section');
+  if(rcEl) rcEl.innerHTML = buildReferralCard();
+
+  // Savings card visual
+  var scEl = document.getElementById('savings-card-section');
+  if(scEl) scEl.innerHTML = buildSavingsCard(visits);
+
+  // Fetch offers from Supabase
+  var el = document.getElementById('offers-list');
+  if(el) el.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0">Loading…</div>';
+
+  var qs = salonId
+    ? 'active=eq.true&order=created_at.desc&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)'
+    : 'active=eq.true&is_global=eq.true&order=created_at.desc';
+
+  _supaGet('offers', qs).then(function(offers){
+    if(!offers || !offers.length){
+      if(el) el.innerHTML =
+        '<div class="no-offers">'+
+          '<div class="no-offers-icon">🎁</div>'+
+          '<div style="font-size:13px;line-height:1.6">No active offers right now.<br>Check back soon!</div>'+
+        '</div>';
       return;
     }
-    el.innerHTML = rows.map(function(r){
-      return '<div class="visit-card">'+
-        '<div><div class="visit-service">'+escH(r.services||'Visit')+'</div><div class="visit-date">'+r.date+'</div></div>'+
-        (r.amount?'<div class="visit-amt">'+msRupee(r.amount)+'</div>':'')+
-      '</div>';
-    }).join('');
+    var now = new Date();
+    var active = offers.filter(function(o){
+      if(!o.expires_at) return true;
+      return new Date(o.expires_at) > now;
+    });
+    if(!active.length){
+      if(el) el.innerHTML = '<div class="no-offers"><div class="no-offers-icon">🎁</div><div style="font-size:13px">No active offers right now.</div></div>';
+      return;
+    }
+    if(el) el.innerHTML = active.map(function(o){ return buildOfferCard(o); }).join('');
   }).catch(function(){
-    document.getElementById('visitsList').innerHTML='<div class="empty-state">Failed to load visits.</div>';
+    if(el) el.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0">Could not load offers.</div>';
   });
 }
 
-function copyRefCode(){
-  var code = document.getElementById('refCode').textContent;
-  if(!code||code==='—') return;
-  navigator.clipboard.writeText(code).then(function(){
-    var btn = document.querySelector('.btn-copy');
-    btn.textContent='Copied!'; btn.style.background='var(--ink)'; btn.style.color='var(--lime)';
-    setTimeout(function(){ btn.textContent='Copy'; btn.style.background=''; btn.style.color=''; }, 2000);
-  }).catch(function(){
-    prompt('Copy your referral code:', code);
+// Savings card discount tiers
+var SAVINGS_TIERS = [
+  {visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},
+  {visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}
+];
+function buildSavingsCard(visitCount){
+  var slots = SAVINGS_TIERS.map(function(t,i){
+    var used = visitCount > i;
+    return '<div class="sstrip-slot'+(used?' used':'')+'">'+
+      '<div class="sstrip-num">'+(i+1)+'</div>'+
+      (used?'':('<div class="sstrip-pct">'+t.pct+'%</div><div class="sstrip-off">OFF</div>'))+
+    '</div>';
+  }).join('');
+  var nextTier = SAVINGS_TIERS.find(function(t){return visitCount < t.visit;});
+  var tagline = nextTier
+    ? 'Visit '+(visitCount+1)+' to unlock '+nextTier.pct+'% OFF'
+    : '🎉 You\'ve unlocked all discounts!';
+  return '<div class="savings-strip">'+
+    '<div class="sstrip-title">SAVINGS CARD</div>'+
+    '<div class="sstrip-sub">Earn cashback on every visit · use on the next one</div>'+
+    '<div class="sstrip-slots">'+slots+'</div>'+
+    '<div class="sstrip-tagline">'+tagline+'</div>'+
+  '</div>';
+}
+
+var OFFER_COLORS = ['','gold','purple','orange'];
+function buildOfferCard(o){
+  var colorClass = OFFER_COLORS[o.color_theme||0] || '';
+  var hasDiscount = o.discount_pct && Number(o.discount_pct)>0;
+  var expiryText = '';
+  if(o.expires_at){
+    var d = new Date(o.expires_at);
+    expiryText = 'Expires: '+d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  }
+  var minBilling = o.min_billing ? 'Min billing ₹'+o.min_billing : '';
+  return '<div class="offer-card'+(o.is_featured?' featured':'')+'">'+
+    '<div class="offer-banner '+(colorClass)+'">'+
+      '<div style="display:flex;align-items:center">'+
+        '<span class="offer-emoji">'+(o.emoji||'🎁')+'</span>'+
+        '<div><div class="offer-title">'+(o.title||'Special Offer')+'</div>'+
+        (o.subtitle?'<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:1px">'+o.subtitle+'</div>':'')+'</div>'+
+      '</div>'+
+      (hasDiscount?
+        '<div><div class="offer-badge-pct">'+o.discount_pct+'%</div><div class="offer-badge-off">OFF</div></div>':'')
+    +'</div>'+
+    '<div class="offer-body">'+
+      '<div class="offer-desc">'+(o.description||'')+'</div>'+
+      (hasDiscount?'<div style="font-size:11px;color:var(--accent);font-weight:700;margin-top:6px;padding:5px 8px;background:rgba(0,122,86,.08);border-radius:6px">💰 Earned as cashback — applied on your next visit</div>':'')+
+      '<div class="offer-meta">'+
+        (minBilling?'<span class="offer-pill gold">'+minBilling+'</span>':'')+
+        (o.is_global?'<span class="offer-pill green">All Branches</span>':'<span class="offer-pill green">This Branch</span>')+
+        (o.services_applicable?'<span class="offer-pill green">'+o.services_applicable+'</span>':'')+
+      '</div>'+
+      (expiryText?'<div class="offer-expiry">⏳ '+expiryText+'</div>':'')+
+    '</div>'+
+  '</div>';
+}
+
+// helper for CSS var() in JS string — not needed, using hex directly above
+function varG(){ return '#003D2B'; }
+
+// ════ REFERRAL SYSTEM ════
+// Code format: 'BB' + full 10-digit phone + 2-char hash suffix
+// e.g. phone 9876512345 → BB9876512345K7
+// - Full phone guarantees uniqueness (no collisions ever)
+// - 2-char suffix is a deterministic hash of the phone, so:
+//   (a) the code is verifiable client-side without a DB lookup
+//   (b) someone can't guess a friend's code from just knowing their phone
+// Stored in customers.referral_code on signup; this client reads it.
+
+function _refHash(phone){
+  // Simple deterministic 2-char hash, base36, uppercase.
+  // Not cryptographic — just a guard against phone-number guessing.
+  var s = String(phone);
+  var h = 0;
+  for(var i=0; i<s.length; i++){
+    h = ((h<<5) - h) + s.charCodeAt(i);
+    h = h & h; // 32-bit
+  }
+  // Mix in a salt so the hash isn't trivially reversible
+  h = Math.abs(h ^ 0x5BB1E); // 'BUDGIE' salt
+  var alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
+  var c1 = alphabet[h % alphabet.length];
+  var c2 = alphabet[Math.floor(h / alphabet.length) % alphabet.length];
+  return c1 + c2;
+}
+
+function buildReferralCode(phone){
+  if(!phone) return '';
+  var p = String(phone).replace(/\D/g,'');
+  if(p.length !== 10) return '';
+  return 'BB' + p + _refHash(p);
+}
+
+function myReferralCode(){
+  if(!ME) return '';
+  if(ME.referral_code) return ME.referral_code;
+  // Fallback: derive from phone if backend hasn't populated it yet
+  return buildReferralCode(ME.phone);
+}
+
+function myReferralStats(){
+  // Count customers who used my code AND whose first paid bill triggered the reward
+  if(!ME || !ME.id){ return {joined:0, earned:0}; }
+  var meId = String(ME.id);
+  var joined = (_data.customers || []).filter(function(c){
+    return c.referred_by && String(c.referred_by) === meId && c.referral_reward_paid;
+  }).length;
+  return { joined: joined, earned: joined * 100 };
+}
+
+function buildReferralCard(){
+  var code = myReferralCode();
+  var stats = myReferralStats();
+  if(!code) return '';
+  return '<div class="ref-card">'+
+    '<div class="ref-eyebrow">Refer & Earn</div>'+
+    '<div class="ref-title">Get <span>₹100 OFF</span><br>for you &amp; a friend</div>'+
+    '<div class="ref-sub">Share your code. When they visit, you both save ₹100.</div>'+
+    '<div class="ref-code-row">'+
+      '<div class="ref-code-box">'+
+        '<div class="ref-code-lbl">Your Code</div>'+
+        '<div class="ref-code-val" id="refCodeVal">'+code+'</div>'+
+      '</div>'+
+      '<button class="ref-copy-btn" onclick="copyReferralCode()">Copy</button>'+
+    '</div>'+
+    '<button class="ref-share-btn" onclick="shareReferralWhatsApp()">'+
+      '<span style="font-size:18px">📱</span> Share on WhatsApp'+
+    '</button>'+
+    '<div class="ref-stats">'+
+      '<div class="ref-stat">'+
+        '<div class="ref-stat-num">'+stats.joined+'</div>'+
+        '<div class="ref-stat-lbl">Friends Joined</div>'+
+      '</div>'+
+      '<div class="ref-stat">'+
+        '<div class="ref-stat-num">₹'+stats.earned+'</div>'+
+        '<div class="ref-stat-lbl">Earned</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function copyReferralCode(){
+  var code = myReferralCode();
+  if(!code){ toast('Code not ready yet'); return; }
+  // Try modern clipboard API; fall back to legacy execCommand
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(function(){
+      toast('Code copied: '+code);
+    }).catch(function(){ _copyFallback(code); });
+  } else {
+    _copyFallback(code);
+  }
+}
+function _copyFallback(code){
+  var ta = document.createElement('textarea');
+  ta.value = code;
+  ta.style.position='fixed'; ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); toast('Code copied: '+code); }
+  catch(e){ toast('Could not copy — please type it manually'); }
+  document.body.removeChild(ta);
+}
+
+function shareReferralWhatsApp(){
+  var code = myReferralCode();
+  if(!code){ toast('Code not ready yet'); return; }
+  var name = (ME && ME.name && ME.name !== 'Loading…') ? ME.name.split(' ')[0] : '';
+  var greeting = name ? 'Hey! It\'s '+name+'. ' : 'Hey! ';
+  var msg = greeting +
+    'Get ₹100 off your first cut at MySalon 💈\n\n' +
+    'Use my code: '+code+' when you sign up.\n\n' +
+    'Register in the webapp: https://bb-billing.pages.dev/register-customer';
+  var url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+// ── Cashback chunks helpers ──
+// Active chunks = amount_remaining > 0 AND expires_at > now. Sorted oldest-first (FIFO).
+// Falls back to the legacy single-bucket `customers.cashback_credit` field if no chunks
+// exist yet — this way customers still see their balance even before the SQL migration
+// has run, or if the chunks fetch failed transiently.
+function _activeCashbackChunks(){
+  var chunks = (_data && _data.cashbackChunks) ? _data.cashbackChunks : [];
+  var now = new Date();
+  var active = chunks
+    .filter(function(ch){
+      return Number(ch.amount_remaining||0) > 0
+        && ch.expires_at && new Date(ch.expires_at) > now;
+    })
+    .sort(function(a,b){ return new Date(a.expires_at) - new Date(b.expires_at); });
+  if(active.length) return active;
+  // Fallback: synthesize a single "legacy" chunk from the customer's scalar
+  // cashback_credit + cashback_credit_expires_at so the wallet still displays.
+  if(ME && Number(ME.cashback_credit||0) > 0){
+    var exp = ME.cashback_credit_expires_at;
+    if(!exp || new Date(exp) > now){
+      var fallbackExp = exp || new Date(Date.now() + 90*24*60*60*1000).toISOString();
+      return [{
+        amount_remaining: Number(ME.cashback_credit||0),
+        expires_at:       fallbackExp,
+        source_label:     'Cashback'
+      }];
+    }
+  }
+  return [];
+}
+function _activeCashbackTotal(){
+  return _activeCashbackChunks().reduce(function(s,ch){ return s + Number(ch.amount_remaining||0); }, 0);
+}
+// Render the per-chunk list — used by both the home banner and the profile badge.
+// Each line: "₹X expires DD MMM YYYY" with ⚠️ + "use it now!" warning for ≤7 days.
+function _renderChunkLines(chunks){
+  if(!chunks.length) return '';
+  var now = new Date();
+  return chunks.map(function(ch){
+    var amt = Number(ch.amount_remaining||0);
+    var exp = new Date(ch.expires_at);
+    var daysLeft = Math.max(0, Math.ceil((exp - now)/(1000*60*60*24)));
+    var isUrgent = daysLeft <= 7;
+    var icon = isUrgent ? '⚠️ ' : '';
+    var tail = isUrgent ? ' — use it now!' : '';
+    var color = isUrgent ? '#7c2d12' : '#003D2B';
+    var dateStr = exp.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    return '<div style="font-size:11px;color:'+color+';font-weight:'+(isUrgent?'800':'700')+';margin-top:2px">'+
+      icon+'₹'+amt+' expires '+dateStr+tail+
+    '</div>';
+  }).join('');
+}
+
+function renderCreditBadge(){
+  var el = document.getElementById('creditBadgeSection');
+  if(!el) return;
+  var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
+  var chunks = _activeCashbackChunks();
+  var cbActive = _activeCashbackTotal();
+  var total = refCredit + cbActive;
+
+  var html = '<div class="credit-badge">'+
+    '<div class="credit-badge-icon">💰</div>'+
+    '<div class="credit-badge-txt">'+
+      '<div class="credit-badge-amt">Your Cashback Wallet: ₹'+total+'</div>';
+  if(total > 0){
+    // Per-chunk lines for cashback
+    if(chunks.length){
+      html += _renderChunkLines(chunks);
+    }
+    if(refCredit > 0){
+      html += '<div style="font-size:11px;color:#003D2B;font-weight:700;margin-top:4px">🎁 Referral Credit: ₹'+refCredit+'</div>';
+    }
+    html += '<div class="credit-badge-sub" style="margin-top:6px;font-size:10px">Apply any amount at billing · min bill ₹250 · max 20% of bill</div>';
+  } else {
+    // Zero-state — let the customer know the system exists and how it works.
+    html += '<div style="font-size:11px;color:#003D2B;font-weight:700;margin-top:4px">✨ Earn 5% cashback on every visit</div>'+
+            '<div class="credit-badge-sub" style="margin-top:4px;font-size:10px">Up to ₹50 per bill · valid 90 days · redeem on your next visit</div>';
+  }
+  html += '</div></div>';
+  el.innerHTML = html;
+}
+
+// Home page version — uses the same chunk-list under the bold total header
+function renderHomeCreditBanner(){
+  var el = document.getElementById('homeCreditBanner');
+  if(!el) return;
+  var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
+  var chunks = _activeCashbackChunks();
+  var cbActive = _activeCashbackTotal();
+  var total = refCredit + cbActive;
+
+  // Build the inner block — chunk lines + referral when wallet has money,
+  // or motivational zero-state copy when empty.
+  var inner = '';
+  if(total > 0){
+    if(chunks.length){
+      inner = _renderChunkLines(chunks);
+    }
+    if(refCredit > 0){
+      inner += '<div style="font-size:11px;color:#003D2B;font-weight:700;margin-top:2px">🎁 Referral Credit: ₹'+refCredit+'</div>';
+    }
+    inner += '<div style="font-size:10px;color:rgba(0,61,43,.7);font-weight:600;margin-top:5px">Apply any amount at billing · min bill ₹250 · max 20% of bill</div>';
+  } else {
+    inner = '<div style="font-size:11px;color:#003D2B;font-weight:700;margin-top:3px">✨ Earn 5% cashback on every visit</div>'+
+            '<div style="font-size:10px;color:rgba(0,61,43,.7);font-weight:600;margin-top:3px">Up to ₹50 per bill · valid 90 days · redeem on next visit</div>';
+  }
+
+  el.innerHTML =
+    '<div style="background:linear-gradient(135deg,#F5E030,#C8A800);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(200,168,0,.25);position:relative;overflow:hidden">'+
+      '<div style="position:absolute;right:-10px;bottom:-20px;font-size:80px;opacity:.10;transform:rotate(-10deg);pointer-events:none">💰</div>'+
+      '<div style="display:flex;align-items:center;gap:12px;position:relative;z-index:1">'+
+        '<div style="font-size:28px;flex-shrink:0">💰</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--accent2);letter-spacing:.5px;line-height:1">Your Cashback Wallet: ₹'+total+'</div>'+
+          inner+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+// ════ CAMERA SYSTEM — QUEUE TAB ════
+var CQ_IMOU_WORKER   = 'https://bbsalonlive.abudgetbarber.workers.dev';
+var cqCamDevices     = [];
+var cqCamActiveIdx   = 0;
+var cqCamHlsJ        = null;
+var cqCamHlsT        = null;
+var _cqCamSnapTimerJ = null;
+var _cqCamSnapTimerT = null;
+var _cqCamLiveTimerJ = null;
+var _cqCamLiveTimerT = null;
+var _cqCamSnapFetchedJ = null;
+var _cqCamSnapFetchedT = null;
+var CQ_CAM_LIVE_SECS   = 90;
+var CQ_CAM_SNAP_INTV   = 30000;
+
+// ── Parse cameras column (string CSV or array) ────────────────────────────
+function cqCamParse(cameras) {
+  var list = [];
+  if (!cameras) return list;
+  if (typeof cameras === 'string') {
+    cameras.split(',').forEach(function(d, i) {
+      d = d.trim();
+      if (d) list.push({ label: 'Camera ' + (i + 1), deviceId: d });
+    });
+  } else if (Array.isArray(cameras)) {
+    cameras.forEach(function(c, i) {
+      if (typeof c === 'string' && c.trim()) {
+        list.push({ label: 'Camera ' + (i + 1), deviceId: c.trim() });
+      } else if (c && c.deviceId) {
+        list.push({ label: c.label || ('Camera ' + (i + 1)), deviceId: c.deviceId });
+      }
+    });
+  }
+  return list;
+}
+
+// ── Fetch cameras for a salonId, then init both sections ─────────────────
+function cqCamLoad(salonId) {
+  if (!salonId) return;
+  _cqGet('salons?id=eq.' + encodeURIComponent(salonId) + '&select=cameras')
+    .then(function(r) {
+      var cameras = r && r[0] && r[0].cameras ? r[0].cameras : null;
+      var list = cqCamParse(cameras);
+      if (!list.length) return;
+      cqCamDevices   = list;
+      cqCamActiveIdx = 0;
+      cqCamInitSection(false);  // join page
+    })
+    .catch(function() {});
+}
+
+// ── Init a single section (join = false, tracker = true) ─────────────────
+function cqCamInitSection(isTracker) {
+  if (!cqCamDevices.length) return;
+  var suf = isTracker ? '-t' : '-j';
+  var sec = document.getElementById('cq-cam-section' + suf);
+  if (!sec) return;
+  sec.style.display = 'block';
+  cqCamBuildTabs(isTracker);
+  cqCamFetchSnap(isTracker);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function cqCamBuildTabs(isTracker) {
+  var suf   = isTracker ? '-t' : '-j';
+  var tabsEl = document.getElementById('cq-cam-tabs' + suf);
+  if (!tabsEl || cqCamDevices.length <= 1) return;
+  tabsEl.innerHTML = '';
+  cqCamDevices.forEach(function(c, i) {
+    var btn = document.createElement('button');
+    btn.className = 'cq-cam-tab' + (i === 0 ? ' on' : '');
+    btn.textContent = c.label;
+    btn.onclick = (function(idx, isTrk) {
+      return function() { cqCamSwitch(idx, isTrk); };
+    })(i, isTracker);
+    tabsEl.appendChild(btn);
   });
 }
 
-function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function doLogout(){ sessionStorage.clear(); var sl=sessionStorage.getItem('ms_slug')||''; window.location.href='login-customer.html'+(sl?'?salon='+encodeURIComponent(sl):''); }
+function cqCamSwitch(idx, isTracker) {
+  cqCamActiveIdx = idx;
+  var suf   = isTracker ? '-t' : '-j';
+  var tabs  = document.getElementById('cq-cam-tabs' + suf);
+  if (tabs) Array.prototype.forEach.call(tabs.querySelectorAll('.cq-cam-tab'), function(t, i) {
+    t.classList.toggle('on', i === idx);
+  });
+  cqCamFetchSnap(isTracker);
+  var liveWrap = document.getElementById('cq-cam-live-wrap' + suf);
+  if (liveWrap && liveWrap.classList.contains('active')) cqCamStartLive(isTracker);
+}
 
-// ── Init ──
-if(!CUSTOMER_ID){ window.location.href='login-customer.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
-loadStyleCards();
-loadVisits();
+// ── Snapshot ──────────────────────────────────────────────────────────────
+function cqCamFetchSnap(isTracker) {
+  var deviceId = cqCamDevices[cqCamActiveIdx] && cqCamDevices[cqCamActiveIdx].deviceId;
+  if (!deviceId) return;
+  var suf  = isTracker ? '-t' : '-j';
+  var ph   = document.getElementById('cq-cam-snap-placeholder' + suf);
+  var img  = document.getElementById('cq-cam-snap-img' + suf);
+  var age  = document.getElementById('cq-cam-snap-age' + suf);
+  if (ph)  ph.style.display  = 'block';
+  if (img) img.style.display = 'none';
+  fetch(CQ_IMOU_WORKER + '/snapshot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceId: deviceId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok || !data.url) return;
+    if (img) {
+      img.onload = function() {
+        if (ph)  ph.style.display  = 'none';
+        img.style.display = 'block';
+        if (age) { age.style.display = 'block'; age.textContent = 'Just now'; }
+        if (isTracker) _cqCamSnapFetchedT = Date.now();
+        else           _cqCamSnapFetchedJ = Date.now();
+        cqCamAgeTimer(isTracker);
+      };
+      img.onerror = function() {};
+      img.src = data.url;
+    }
+  })
+  .catch(function() {});
+  // Schedule next auto-refresh
+  if (isTracker) {
+    clearInterval(_cqCamSnapTimerT);
+    _cqCamSnapTimerT = setInterval(function() { cqCamFetchSnap(true); }, CQ_CAM_SNAP_INTV);
+  } else {
+    clearInterval(_cqCamSnapTimerJ);
+    _cqCamSnapTimerJ = setInterval(function() { cqCamFetchSnap(false); }, CQ_CAM_SNAP_INTV);
+  }
+}
+
+function cqCamRefreshSnap(isTracker) {
+  if (isTracker) clearInterval(_cqCamSnapTimerT);
+  else           clearInterval(_cqCamSnapTimerJ);
+  cqCamFetchSnap(isTracker);
+}
+
+function cqCamAgeTimer(isTracker) {
+  var suf  = isTracker ? '-t' : '-j';
+  var age  = document.getElementById('cq-cam-snap-age' + suf);
+  if (!age) return;
+  var tick = setInterval(function() {
+    var fetched = isTracker ? _cqCamSnapFetchedT : _cqCamSnapFetchedJ;
+    if (!fetched) { clearInterval(tick); return; }
+    var sec = Math.round((Date.now() - fetched) / 1000);
+    age.textContent = sec < 60 ? (sec + 's ago') : (Math.round(sec / 60) + 'm ago');
+  }, 5000);
+}
+
+// ── Live stream ───────────────────────────────────────────────────────────
+function cqCamStartLive(isTracker) {
+  var deviceId = cqCamDevices[cqCamActiveIdx] && cqCamDevices[cqCamActiveIdx].deviceId;
+  if (!deviceId) return;
+  var suf       = isTracker ? '-t' : '-j';
+  var snapWrap  = document.getElementById('cq-cam-snap-wrap'      + suf);
+  var liveWrap  = document.getElementById('cq-cam-live-wrap'      + suf);
+  var liveBar   = document.getElementById('cq-cam-live-bar'       + suf);
+  var progBar   = document.getElementById('cq-cam-progress-bar'   + suf);
+  var progFill  = document.getElementById('cq-cam-progress-fill'  + suf);
+  var resumeBtn = document.getElementById('cq-cam-resume-btn'     + suf);
+  var badge     = document.getElementById('cq-cam-live-badge'     + suf);
+  var lbl       = document.getElementById('cq-cam-live-label'     + suf);
+  var overlay   = document.getElementById('cq-cam-overlay'        + suf);
+  var msg       = document.getElementById('cq-cam-overlay-msg'    + suf);
+  var video     = document.getElementById('cq-cam-video'          + suf);
+  if (!video) return;
+
+  if (snapWrap)  snapWrap.style.display  = 'none';
+  if (liveBar)   liveBar.style.display   = 'flex';
+  if (liveWrap)  liveWrap.classList.add('active');
+  if (resumeBtn) resumeBtn.classList.remove('visible');
+  if (progBar)   progBar.style.display   = 'block';
+  if (progFill)  { progFill.style.width = '100%'; progFill.style.transition = 'none'; }
+  if (badge)     badge.classList.remove('live');
+  if (lbl)       lbl.textContent = 'Connecting…';
+  if (overlay)   overlay.classList.remove('hidden');
+  if (msg)       msg.textContent = 'Connecting…';
+
+  // Destroy old HLS instance
+  if (isTracker) { if (cqCamHlsT) { try { cqCamHlsT.destroy(); } catch(e) {} cqCamHlsT = null; } }
+  else           { if (cqCamHlsJ) { try { cqCamHlsJ.destroy(); } catch(e) {} cqCamHlsJ = null; } }
+
+  fetch(CQ_IMOU_WORKER + '/live', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceId: deviceId, streamId: 1 })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) {
+      if (msg) msg.textContent = 'Camera unavailable';
+      if (lbl) lbl.textContent = 'Offline';
+      return;
+    }
+    var hlsUrl =
+      (data.streams && data.streams.find(function(s) { return s.hls && s.hls.startsWith('https') && s.streamId === 1; }) || {}).hls ||
+      (data.streams && data.streams.find(function(s) { return s.hls && s.hls.startsWith('https'); }) || {}).hls ||
+      data.hls;
+    if (!hlsUrl) { if (msg) msg.textContent = 'No stream URL'; return; }
+
+    function onReady() {
+      if (overlay) overlay.classList.add('hidden');
+      if (badge)   badge.classList.add('live');
+      if (lbl)     lbl.textContent = 'LIVE';
+      video.play().catch(function() {});
+      cqCamStart90s(isTracker, progFill, resumeBtn);
+    }
+    function onErr(txt) {
+      if (msg)   msg.textContent = txt || 'Stream error';
+      if (badge) badge.classList.remove('live');
+      if (lbl)   lbl.textContent = 'Error';
+    }
+
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      var h = new Hls({ enableWorker: true });
+      if (isTracker) cqCamHlsT = h; else cqCamHlsJ = h;
+      h.loadSource(hlsUrl);
+      h.attachMedia(video);
+      h.on(Hls.Events.MANIFEST_PARSED, onReady);
+      h.on(Hls.Events.ERROR, function(e, err) { if (err.fatal) onErr('Stream error'); });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = hlsUrl;
+      video.addEventListener('loadedmetadata', onReady, { once: true });
+      video.addEventListener('error', function() { onErr('Playback error'); }, { once: true });
+    } else {
+      if (msg) msg.textContent = 'HLS not supported';
+    }
+  })
+  .catch(function() {
+    if (msg) msg.textContent = 'Network error';
+    if (lbl) lbl.textContent = 'Offline';
+  });
+}
+
+function cqCamStopLive(isTracker) {
+  var suf = isTracker ? '-t' : '-j';
+  if (isTracker) { if (cqCamHlsT) { try { cqCamHlsT.destroy(); } catch(e) {} cqCamHlsT = null; } clearInterval(_cqCamLiveTimerT); }
+  else           { if (cqCamHlsJ) { try { cqCamHlsJ.destroy(); } catch(e) {} cqCamHlsJ = null; } clearInterval(_cqCamLiveTimerJ); }
+  var video     = document.getElementById('cq-cam-video'         + suf);
+  var snapWrap  = document.getElementById('cq-cam-snap-wrap'     + suf);
+  var liveWrap  = document.getElementById('cq-cam-live-wrap'     + suf);
+  var liveBar   = document.getElementById('cq-cam-live-bar'      + suf);
+  var progBar   = document.getElementById('cq-cam-progress-bar'  + suf);
+  var resumeBtn = document.getElementById('cq-cam-resume-btn'    + suf);
+  var badge     = document.getElementById('cq-cam-live-badge'    + suf);
+  if (video)     { video.pause(); video.src = ''; }
+  if (liveWrap)  liveWrap.classList.remove('active');
+  if (liveBar)   liveBar.style.display   = 'none';
+  if (progBar)   progBar.style.display   = 'none';
+  if (resumeBtn) resumeBtn.classList.remove('visible');
+  if (badge)     badge.classList.remove('live');
+  if (snapWrap)  snapWrap.style.display  = 'block';
+  cqCamFetchSnap(isTracker);
+}
+
+// ── 90-second countdown ───────────────────────────────────────────────────
+function cqCamStart90s(isTracker, progFill, resumeBtn) {
+  if (isTracker) clearInterval(_cqCamLiveTimerT);
+  else           clearInterval(_cqCamLiveTimerJ);
+  var elapsed = 0;
+  if (progFill) {
+    progFill.style.transition = 'none';
+    progFill.style.width = '100%';
+    setTimeout(function() {
+      progFill.style.transition = 'width ' + CQ_CAM_LIVE_SECS + 's linear';
+      progFill.style.width = '0%';
+    }, 50);
+  }
+  var timer = setInterval(function() {
+    elapsed++;
+    if (elapsed >= CQ_CAM_LIVE_SECS) {
+      clearInterval(timer);
+      cqCamStopLive(isTracker);
+      var suf = isTracker ? '-t' : '-j';
+      var rb  = document.getElementById('cq-cam-resume-btn' + suf);
+      if (rb) rb.classList.add('visible');
+    }
+  }, 1000);
+  if (isTracker) _cqCamLiveTimerT = timer;
+  else           _cqCamLiveTimerJ = timer;
+}
+
+// ── Page Visibility — pause live when tab hidden ──────────────────────────
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    var lj = document.getElementById('cq-cam-live-wrap-j');
+    var lt = document.getElementById('cq-cam-live-wrap-t');
+    if (lj && lj.classList.contains('active')) cqCamStopLive(false);
+    if (lt && lt.classList.contains('active')) cqCamStopLive(true);
+  }
+});
 </script>
 </body>
 </html>

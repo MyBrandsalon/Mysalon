@@ -3,325 +3,1515 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Join Queue — MySalon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>MySalon – Join Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;
-  --lime:#B8F04A;--lime2:#9ED636;--lime3:#D4F87A;
-  --surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;
-  --danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;
+  --accent:#007A56;--accent2:#005F42;--gold:#F5E030;--gold-dark:#C8A800;
+  --bg:#F5F5F0;--surface:#FFFFFF;--surface2:#F0F0EA;--border:#DDDDD5;
+  --white:#1A1A14;--muted:#666660;--muted2:#999990;
+  --danger:#DC3545;--green:#16A34A;--blue:#1D6DB5;--warn:#C2410C;
+  --r:12px;--rs:8px;--BF:'Barlow',sans-serif;--HF:'Bebas Neue',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--ff);background:var(--surface);min-height:100vh;padding-bottom:40px}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);min-height:100vh;max-width:430px;margin:0 auto}
+.topbar{background:var(--accent);padding:0 14px;display:flex;align-items:center;justify-content:space-between;min-height:52px;position:sticky;top:0;z-index:100}
+.logo{background:var(--gold);border-radius:6px;padding:3px 10px;display:inline-flex;align-items:center}
+.logo span{font-family:var(--HF);font-size:16px;color:#003D2B;line-height:1;letter-spacing:1px}
+.salon-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.9)}
+.lang-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:var(--BF)}
+.lang-btn.active{background:var(--gold);color:#003D2B;border-color:var(--gold)}
 
-/* Header */
-.header{background:var(--ink);padding:20px 18px;text-align:center}
-.salon-logo-wrap{width:56px;height:56px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden}
-#ms-logo{width:48px;height:48px;object-fit:contain;display:none}
-.logo-fallback{font-size:24px}
-.salon-name{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--lime);letter-spacing:.3px}
-.header-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px}
+/* ── PAGES ── */
+.page{display:none;padding:16px;padding-bottom:40px;animation:fi .2s ease}
+.page.show{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* Status display */
-.queue-status{margin:16px 14px 0}
-.queue-live{background:var(--lime3);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
-.ql-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3)}
-.ql-num{font-family:var(--fh);font-size:64px;font-weight:800;color:var(--ink);line-height:1;margin:6px 0}
-.ql-sub{font-size:13px;color:var(--ink3)}
-.ql-wait{font-size:22px;font-weight:700;color:var(--lime2)}
+/* ── JOIN HERO ── */
+.join-hero{background:var(--accent);margin:-16px -16px 16px;padding:20px 16px 16px;position:relative;overflow:hidden}
+.join-hero::after{content:'✂';position:absolute;right:-10px;bottom:-20px;font-size:110px;opacity:.05;transform:rotate(-20deg)}
+.jh-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:4px}
+.jh-title{font-family:var(--HF);font-size:28px;color:#fff;letter-spacing:1px;line-height:1.1;margin-bottom:4px}
+.jh-sub{font-size:12px;color:rgba(255,255,255,.7)}
 
-/* Barber picker */
-.barber-section{margin:0 14px 12px}
-.sec-title{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px}
-.barber-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.barber-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
-.barber-card:hover{border-color:var(--lime2)}
-.barber-card.selected{border-color:var(--lime2);background:var(--lime3)}
-.barber-icon{font-size:28px;display:block;margin-bottom:6px}
-.barber-name{font-size:13px;font-weight:700;color:var(--ink)}
-.barber-queue{font-size:11px;color:var(--ink3);margin-top:2px}
+/* ── QUEUE STATUS STRIP ── */
+.q-status{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.qs-box{background:var(--surface);border-radius:var(--rs);padding:10px 8px;text-align:center;border:1px solid rgba(0,0,0,.06)}
+.qs-val{font-family:var(--HF);font-size:22px;color:var(--accent);line-height:1}
+.qs-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-top:3px}
 
-/* Form */
-.form-box{background:var(--card);border:1.5px solid var(--border);border-radius:16px;margin:0 14px;padding:20px}
-.form-title{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px}
-.fg{margin-bottom:14px}
-label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
-input[type=text],input[type=tel]{
-  width:100%;padding:13px 14px;background:var(--surface);border:2px solid var(--border);border-radius:10px;
-  font-family:var(--ff);font-size:16px;color:var(--ink);outline:none;transition:border-color .2s;-webkit-appearance:none
-}
-input:focus{border-color:var(--lime2)}
-input::placeholder{color:#AAB8B2}
-.btn-join{width:100%;padding:15px;background:var(--ink);color:var(--lime);border:none;border-radius:10px;font-family:var(--fh);font-size:18px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px}
-.btn-join:hover{background:var(--ink2)}
-.btn-join:disabled{background:#C5D0CA;color:#7A9A8A;cursor:not-allowed}
+/* ── FORM ── */
+.form-card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid rgba(0,0,0,.06)}
+.fc-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:12px}
+.ifield{margin-bottom:12px}
+.ifield label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:700}
+.fi{width:100%;padding:11px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:14px;outline:none;transition:border-color .2s;font-family:var(--BF);-webkit-appearance:none}
+.fi:focus{border-color:var(--accent)}
+.fi::placeholder{color:var(--muted2)}
+.fi-note{font-size:10px;color:var(--muted2);margin-top:4px}
 
-/* Token confirmation */
-.token-box{background:var(--ink);border-radius:20px;margin:16px 14px 0;padding:28px;text-align:center}
-.token-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.45);margin-bottom:10px}
-.token-num{font-family:var(--fh);font-size:80px;font-weight:800;color:var(--lime);line-height:1;margin-bottom:8px}
-.token-pos{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:4px}
-.token-eta{font-size:28px;font-weight:700;color:var(--lime3);margin-top:8px}
-.token-eta-label{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
-.token-name{font-size:15px;color:rgba(255,255,255,.8);margin-top:12px}
-.token-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:6px;line-height:1.6}
+/* ── STYLIST GRID ── */
+.stylist-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.stylist-btn{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF);text-align:center}
+.stylist-btn.on{background:rgba(0,122,86,.12);border-color:var(--accent);color:var(--accent)}
+.stylist-btn.any{grid-column:1/-1;border-style:dashed}
 
-/* Offer badge */
-.offer-pill{display:inline-block;background:var(--lime3);color:var(--ink2);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:700;margin-top:10px}
+/* ── SERVICE CHIPS ── */
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.chip{padding:7px 12px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--BF)}
+.chip.on{background:rgba(0,122,86,.12);border-color:var(--accent);color:var(--accent)}
 
-/* Error */
-.err{background:rgba(229,64,58,.06);border:1.5px solid rgba(229,64,58,.2);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--danger);margin:0 14px 14px;text-align:center;display:none}
+/* ── OFFER CARDS ── */
+.offer-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.offer-card.selected{border-color:var(--accent);background:rgba(0,122,86,.04)}
+.oc-banner{background:var(--accent);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.oc-title{font-family:var(--HF);font-size:18px;color:#fff;letter-spacing:1px}
+.oc-pct{font-family:var(--HF);font-size:26px;color:var(--gold)}
+.oc-body{padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.oc-desc{font-size:12px;color:var(--muted);flex:1}
+.oc-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:all .2s;flex-shrink:0}
+.offer-card.selected .oc-check{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* Loading */
-.loading-overlay{display:none;position:fixed;inset:0;background:rgba(247,250,248,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
-.loading-overlay.show{display:flex}
-.spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(158,214,54,.15);border-top-color:var(--lime2);animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:13px;color:var(--ink2);font-weight:600}
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:800;cursor:pointer;font-family:var(--BF);letter-spacing:.5px;transition:all .15s;margin-top:4px}
+.btn-primary:active{transform:scale(.98)}
+.btn-anon{width:100%;padding:11px;background:transparent;border:1.5px dashed var(--border);color:var(--muted);border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--BF);margin-top:8px;transition:border-color .2s}
+.btn-anon:hover{border-color:var(--muted);color:var(--white)}
+.btn-cancel{padding:10px 20px;background:transparent;border:1px solid rgba(0,0,0,.1);color:var(--muted);border-radius:var(--rs);font-size:13px;cursor:pointer;font-family:var(--BF)}
 
-/* View queue button */
-.btn-view{display:block;text-align:center;margin:12px 14px 0;padding:12px;background:transparent;border:2px solid var(--border);border-radius:10px;font-family:var(--fh);font-size:14px;font-weight:700;color:var(--ink3);cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-view:hover{border-color:var(--lime2);color:var(--lime2)}
+/* ── TOKEN DISPLAY ── */
+.token-hero{background:var(--accent);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px}
+.th-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(245,224,48,.6);margin-bottom:6px}
+.th-token{font-family:var(--HF);font-size:64px;color:var(--gold);letter-spacing:4px;line-height:1}
+.th-name{font-size:14px;font-weight:700;color:rgba(255,255,255,.9);margin-top:6px}
+
+/* ── LIVE TRACKER ── */
+.tracker-card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid rgba(0,0,0,.06)}
+.tc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--surface2)}
+.tc-row:last-child{border-bottom:none}
+.tc-lbl{font-size:12px;color:var(--muted);font-weight:600}
+.tc-val{font-size:14px;font-weight:800;color:var(--white)}
+.tc-val.accent{color:var(--accent)}
+.tc-val.warn{color:var(--warn)}
+
+/* ── HEAD IN NOW BANNER ── */
+.alert-banner{background:var(--gold);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:12px;display:none}
+.alert-banner.show{display:block;animation:pulse-bg 1.5s ease-in-out infinite}
+@keyframes pulse-bg{0%,100%{opacity:1}50%{opacity:.85}}
+.ab-title{font-family:var(--HF);font-size:26px;color:#003D2B;letter-spacing:1px}
+.ab-sub{font-size:13px;color:#003D2B;font-weight:700;margin-top:4px}
+
+/* ── STATUS BADGE ── */
+.status-pill{display:inline-block;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px}
+.sp-waiting{background:rgba(194,65,12,.1);color:var(--warn);border:1px solid rgba(194,65,12,.25)}
+.sp-called{background:rgba(245,224,48,.2);color:#7a6500;border:1px solid rgba(245,224,48,.4)}
+.sp-inchair{background:rgba(0,122,86,.12);color:var(--accent);border:1px solid rgba(0,122,86,.25)}
+.sp-done{background:rgba(22,163,74,.1);color:var(--green);border:1px solid rgba(22,163,74,.25)}
+
+/* ── OFFER BADGE ON TRACKER ── */
+.offer-badge{background:rgba(0,122,86,.08);border:1px solid rgba(0,122,86,.2);border-radius:var(--rs);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ob-name{font-size:12px;font-weight:700;color:var(--accent)}
+.ob-pct{font-family:var(--HF);font-size:20px;color:var(--accent)}
+
+/* ── CLOSED STATE ── */
+.closed-card{background:var(--surface);border-radius:var(--r);padding:32px 20px;text-align:center;border:2px dashed var(--border)}
+.cc-icon{font-size:48px;margin-bottom:12px}
+.cc-title{font-family:var(--HF);font-size:24px;color:var(--muted);letter-spacing:1px;margin-bottom:6px}
+.cc-sub{font-size:13px;color:var(--muted2);line-height:1.5}
+
+.loading-wrap{padding:40px;text-align:center;color:var(--muted2);font-size:13px}
+/* ── CAMERA SECTION ── */
+.cam-section{margin:20px 0 0}
+.cam-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cam-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+.cam-tabs{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.cam-tab{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--BF);transition:all .15s}
+.cam-tab.on{background:rgba(0,122,86,.12);border-color:var(--accent);color:var(--accent)}
+
+/* Snapshot frame — always visible when camera configured */
+.cam-snap-wrap{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative;background:#0a0a0a;cursor:pointer}
+.cam-snap-img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s}
+.cam-snap-wrap:hover .cam-snap-img{filter:brightness(.75)}
+/* Placeholder shimmer while snapshot loads */
+.cam-snap-placeholder{position:absolute;inset:0;background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:cam-shimmer 1.4s infinite}
+@keyframes cam-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* "Watch Live" play button overlay on snapshot */
+.cam-snap-play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.32);transition:background .2s}
+.cam-snap-wrap:hover .cam-snap-play{background:rgba(0,0,0,.5)}
+.cam-snap-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:transform .15s,background .15s}
+.cam-snap-wrap:hover .cam-snap-play-btn{transform:scale(1.08);background:rgba(255,255,255,.25)}
+.cam-snap-play-icon{width:0;height:0;border-style:solid;border-width:10px 0 10px 18px;border-color:transparent transparent transparent #fff;margin-left:3px}
+.cam-snap-play-lbl{font-size:11px;font-weight:800;color:#fff;letter-spacing:.8px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+/* Snapshot age badge bottom-right */
+.cam-snap-age{position:absolute;bottom:6px;right:8px;font-size:9px;font-weight:700;color:rgba(255,255,255,.55);background:rgba(0,0,0,.45);border-radius:3px;padding:2px 5px;pointer-events:none}
+/* Snap refresh button top-right */
+.cam-snap-refresh{position:absolute;top:6px;right:8px;font-size:11px;background:rgba(0,0,0,.45);border:none;color:rgba(255,255,255,.6);border-radius:4px;padding:3px 7px;cursor:pointer;font-family:var(--BF);font-weight:700;opacity:0;transition:opacity .2s}
+.cam-snap-wrap:hover .cam-snap-refresh{opacity:1}
+
+/* Live video frame — hidden until customer clicks Watch Live */
+.cam-live-wrap{display:none;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;position:relative;background:#000;margin-top:0}
+.cam-live-wrap.active{display:block}
+.cam-live-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.cam-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.75);gap:8px}
+.cam-overlay.hidden{display:none}
+.cam-spinner{width:28px;height:28px;border:2.5px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:spin-cam .8s linear infinite}
+@keyframes spin-cam{to{transform:rotate(360deg)}}
+.cam-overlay-msg{font-size:12px;color:rgba(255,255,255,.6);text-align:center;padding:0 16px}
+/* LIVE badge + close row above live video */
+.cam-live-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 0 6px}
+.cam-live-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--muted2)}
+.cam-live-badge.live{color:var(--accent)}
+.cam-live-dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.cam-live-badge.live .cam-live-dot{background:var(--danger);animation:pulse-cam 1.5s infinite}
+@keyframes pulse-cam{0%,100%{opacity:1}50%{opacity:.3}}
+.cam-live-close{font-size:11px;font-weight:700;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:var(--BF);padding:0}
+.cam-live-close:hover{color:var(--danger)}
+/* 90s progress bar under live video */
+.cam-progress-bar{height:2px;background:var(--border);border-radius:1px;margin-top:5px;overflow:hidden}
+.cam-progress-fill{height:100%;background:var(--accent);width:100%;transform-origin:left;transition:width 1s linear}
+.cam-resume-btn{width:100%;margin-top:8px;padding:11px;border-radius:var(--r);border:1.5px solid var(--accent);background:rgba(0,122,86,.08);color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--BF);display:none}
+.cam-resume-btn.visible{display:block}
+.toast-el{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A14;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast-el.show{opacity:1}
+.divider{display:flex;align-items:center;gap:8px;margin:4px 0 12px;color:var(--muted2);font-size:11px;font-weight:700}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── BB Topbar Logo ── */
+.bb-logo-sm{display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0}
+.bb-logo-sm-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#003D2B;letter-spacing:1.5px;line-height:1;padding:2px 6px 1px;text-align:center}
+.bb-logo-sm-div{display:block;background:#003D2B;height:1px}
+.bb-logo-sm-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#C8A800;letter-spacing:1.5px;line-height:1;padding:1px 6px 2px;text-align:center}
+
+/* ── BB Logo ── */
+.logo-wrap{text-align:center;margin-bottom:24px}
+.bb-logo{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;text-decoration:none}
+.bb-logo-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#003D2B;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
+.bb-logo-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C8A800;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
+.bb-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#003D2B;margin-top:7px;display:block}
+
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="salon-logo-wrap">
-    <img id="ms-logo" alt="logo">
-    <span class="logo-fallback" id="logoFallback">✂</span>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="bb-logo-sm">
+    <span class="bb-logo-sm-top">MY</span>
+    <span class="bb-logo-sm-div"></span>
+    <span class="bb-logo-sm-bot">SALON</span>
   </div>
-  <div class="salon-name ms-salon-name">MySalon</div>
-  <div class="header-sub">Save-the-Time Queue · Join from here</div>
-</div>
-
-<!-- LIVE QUEUE STATUS -->
-<div class="queue-status">
-  <div class="queue-live" id="queueStatus">
-    <div class="ql-label">Currently waiting</div>
-    <div class="ql-num" id="waitingCount">—</div>
-    <div class="ql-sub">~<span class="ql-wait" id="estWait">—</span> min estimated wait</div>
+    <span class="salon-name" id="tb-salon-name">MySalon</span>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-te" onclick="setLang('te')">తె</button>
   </div>
 </div>
 
-<!-- BARBER PICKER (shows once tenant loaded) -->
-<div class="barber-section" id="barberSection" style="display:none">
-  <div class="sec-title">Choose your stylist</div>
-  <div class="barber-cards" id="barberCards"></div>
+<!-- PAGE: LOADING -->
+<div class="page show" id="pg-loading">
+  <div class="loading-wrap" id="loading-msg">Loading…</div>
 </div>
 
-<!-- FORM -->
-<div id="errMsg" class="err"></div>
-
-<div class="form-box" id="joinForm">
-  <div class="form-title">Get your token</div>
-  <div class="fg">
-    <label>Your Name *</label>
-    <input type="text" id="custName" placeholder="Your name">
+<!-- PAGE: CLOSED -->
+<div class="page" id="pg-closed">
+  <div style="padding:16px">
+    <div class="closed-card">
+      <div class="cc-icon">✂️</div>
+      <div class="cc-title" id="closed-title">Queue Closed</div>
+      <div class="cc-sub" id="closed-sub">The queue is not open right now.<br>Please walk in or check back soon.</div>
+    </div>
   </div>
-  <div class="fg">
-    <label>Mobile Number *</label>
-    <input type="tel" id="custPhone" placeholder="10-digit number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
-  </div>
-  <div class="fg">
-    <label>Services Needed</label>
-    <input type="text" id="custServices" placeholder="e.g. Haircut, Beard trim">
-  </div>
-  <button class="btn-join" id="joinBtn" onclick="joinQueue()">Get My Token →</button>
 </div>
 
-<!-- TOKEN SUCCESS -->
-<div id="tokenSuccess" style="display:none">
-  <div class="token-box">
-    <div class="token-label">Your token</div>
-    <div class="token-num" id="tokenNumber">A1</div>
-    <div class="token-pos">Position: <strong id="tokenPos">1</strong> in queue</div>
-    <div class="token-eta" id="tokenEta">~15 min</div>
-    <div class="token-eta-label">estimated wait time</div>
-    <div class="token-name" id="tokenName">Ready!</div>
-    <div class="token-sub" id="tokenBarber">We'll call you when your stylist is ready.<br>Please stay nearby.</div>
-    <div id="tokenOffer"></div>
+<!-- PAGE: PAUSED (intake paused by manager) -->
+<div class="page" id="pg-paused">
+  <div style="padding:16px">
+    <div class="closed-card" style="border-color:rgba(194,65,12,.25);background:rgba(194,65,12,.04)">
+      <div class="cc-icon">⏸</div>
+      <div class="cc-title" style="color:#C2410C">Queue Paused</div>
+      <div class="cc-sub">We have enough customers for now.<br>Please check back in a little while — we'll be accepting again soon!</div>
+      <button onclick="location.reload()" style="margin-top:18px;padding:11px 28px;background:#C2410C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🔄 Check Again</button>
+    </div>
   </div>
-  <a href="#" id="viewQueueLink" class="btn-view">View live queue screen →</a>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-txt" id="loadingTxt">Loading…</div>
+<!-- PAGE: JOIN FORM -->
+<div class="page" id="pg-join">
+  <div class="join-hero">
+    <div class="jh-label" id="lbl-welcome">Join the queue</div>
+    <div class="jh-title" id="lbl-title">Skip the wait</div>
+    <div class="jh-sub" id="lbl-sub">Get a token · see your estimated time · relax</div>
+  </div>
+
+  <!-- Queue live status -->
+  <div class="q-status">
+    <div class="qs-box">
+      <div class="qs-val" id="qs-waiting">–</div>
+      <div class="qs-lbl" id="lbl-waiting">Waiting</div>
+    </div>
+    <div class="qs-box">
+      <div class="qs-val" id="qs-serving">–</div>
+      <div class="qs-lbl" id="lbl-serving">Serving</div>
+    </div>
+    <div class="qs-box">
+      <div class="qs-val" id="qs-eta">–</div>
+      <div class="qs-lbl" id="lbl-eta-lbl">Min wait</div>
+    </div>
+  </div>
+
+  <!-- Camera section — shown only if salon has cameras configured -->
+  <div class="cam-section" id="cam-section" style="display:none">
+    <div class="cam-header">
+      <div class="cam-label">📷 Live Camera</div>
+    </div>
+    <div class="cam-tabs" id="cam-tabs"></div>
+    <!-- Snapshot — always visible, click to go live -->
+    <div class="cam-snap-wrap" id="cam-snap-wrap" onclick="camStartLive(false)">
+      <div class="cam-snap-placeholder" id="cam-snap-placeholder"></div>
+      <img class="cam-snap-img" id="cam-snap-img" style="display:none" alt="Salon live snapshot">
+      <div class="cam-snap-play" id="cam-snap-play">
+        <div class="cam-snap-play-btn"><div class="cam-snap-play-icon"></div></div>
+        <div class="cam-snap-play-lbl">Watch Live</div>
+      </div>
+      <div class="cam-snap-age" id="cam-snap-age" style="display:none"></div>
+      <button class="cam-snap-refresh" id="cam-snap-refresh" onclick="event.stopPropagation();camRefreshSnap(false)" title="Refresh photo">↺</button>
+    </div>
+    <!-- Live video — hidden until customer clicks Watch Live -->
+    <div class="cam-live-bar" id="cam-live-bar" style="display:none">
+      <div class="cam-live-badge" id="cam-live-badge">
+        <div class="cam-live-dot"></div>
+        <span id="cam-live-label">Connecting…</span>
+      </div>
+      <button class="cam-live-close" onclick="camStopLive(false)">✕ Stop</button>
+    </div>
+    <div class="cam-live-wrap" id="cam-live-wrap">
+      <video id="cam-video" muted playsinline controls></video>
+      <div class="cam-overlay" id="cam-overlay">
+        <div class="cam-spinner" id="cam-spinner"></div>
+        <div class="cam-overlay-msg" id="cam-overlay-msg">Connecting…</div>
+      </div>
+    </div>
+    <div class="cam-progress-bar" id="cam-progress-bar" style="display:none">
+      <div class="cam-progress-fill" id="cam-progress-fill"></div>
+    </div>
+    <button class="cam-resume-btn" id="cam-resume-btn" onclick="camStartLive(false)">▶ Resume Live Feed</button>
+  </div>
+
+  <!-- Name + Mobile -->
+  <div class="form-card">
+    <div class="fc-title" id="lbl-your-details">Your Details</div>
+    <div class="ifield">
+      <label id="lbl-name">Your Name</label>
+      <input type="text" class="fi" id="inp-name" placeholder="e.g. Ravi Kumar" autocomplete="given-name">
+    </div>
+    <div class="ifield" style="margin-bottom:0">
+      <label id="lbl-mobile">Mobile Number <span style="color:var(--muted2);font-weight:400">(for alert when your turn is near)</span></label>
+      <input type="tel" class="fi" id="inp-phone" placeholder="10-digit number" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'');onPhoneInput(this.value)">
+      <div class="fi-note" id="phone-status"></div>
+    </div>
+  </div>
+
+  <!-- Stylist selection -->
+  <div class="form-card">
+    <div class="fc-title" id="lbl-choose-stylist">Choose Stylist</div>
+    <div class="stylist-grid" id="stylist-grid">
+      <button class="stylist-btn any on" data-id="any" onclick="selectStylist('any')" id="btn-any-stylist">Any Available</button>
+    </div>
+  </div>
+
+  <!-- Service chips -->
+  <div class="form-card">
+    <div class="fc-title" id="lbl-services">Services <span style="color:var(--muted2);font-size:9px;font-weight:600">(optional — improves wait estimate)</span></div>
+    <div class="chip-grid" id="svc-chips"></div>
+    <div class="fi-note" id="lbl-svc-note">Tap to select. Skip if unsure.</div>
+  </div>
+
+  <!-- Offers -->
+  <div class="form-card" id="offers-section" style="display:none">
+    <div class="fc-title" id="lbl-offers">Available Offers</div>
+    <div id="offers-list"></div>
+  </div>
+
+  <button class="btn-primary" id="btn-join" onclick="joinQueue()">
+    <span id="lbl-btn-join">Join Queue</span>
+  </button>
+  <div class="divider" id="lbl-or">OR</div>
+  <button class="btn-anon" onclick="joinAnonymous()">
+    <span id="lbl-btn-anon">Join without details (Walk-in)</span>
+  </button>
+
+  <!-- Live queue board — always visible on join page -->
+  <div style="margin-top:20px" id="join-live-board">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px" id="lbl-live-board">Live Queue</div>
+    <div style="background:var(--surface);border-radius:var(--r);border:1px solid rgba(0,0,0,.06);overflow:hidden">
+      <div style="background:var(--accent);padding:11px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:var(--HF);font-size:17px;color:#fff;letter-spacing:1px" id="lbl-now-serving">Now Serving</div>
+        <div id="jlqb-updated" style="font-size:10px;color:rgba(255,255,255,.55)"></div>
+      </div>
+      <div id="jlqb-serving" style="padding:14px;border-bottom:1px solid var(--surface2);min-height:64px;display:flex;align-items:center;justify-content:center">
+        <div style="font-size:13px;color:var(--muted2)">Loading…</div>
+      </div>
+      <div style="padding:8px 14px 2px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2)" id="lbl-next-up">Next Up</div>
+      <div id="jlqb-list" style="padding:0 14px 10px;min-height:40px">
+        <div style="font-size:13px;color:var(--muted2);padding:8px 0">Loading…</div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- PAGE: TRACKER -->
+<div class="page" id="pg-tracker">
+  <div style="padding:16px">
+    <!-- Alert banner -->
+    <div class="alert-banner" id="alert-banner">
+      <div class="ab-title" id="lbl-head-in">Head in now!</div>
+      <div class="ab-sub" id="lbl-head-sub">Your turn is very near — please come to the salon</div>
+    </div>
+
+    <!-- Token hero -->
+    <div class="token-hero">
+      <div class="th-label" id="lbl-your-token">Your Token</div>
+      <div class="th-token" id="tracker-token">–</div>
+      <div class="th-name" id="tracker-name"></div>
+    </div>
+
+    <!-- Status pill -->
+    <div id="status-pill-wrap" style="text-align:center"></div>
+
+    <!-- Offer badge if claimed -->
+    <div class="offer-badge" id="tracker-offer" style="display:none">
+      <div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:2px" id="lbl-offer-claimed">Offer Claimed</div>
+        <div class="ob-name" id="tracker-offer-name"></div>
+      </div>
+      <div class="ob-pct" id="tracker-offer-pct"></div>
+    </div>
+
+    <!-- Live stats -->
+    <div class="tracker-card">
+      <div class="tc-row">
+        <span class="tc-lbl" id="lbl-position">Position in queue</span>
+        <span class="tc-val accent" id="tracker-pos">–</span>
+      </div>
+      <div class="tc-row">
+        <span class="tc-lbl" id="lbl-eta">Estimated wait</span>
+        <span class="tc-val warn" id="tracker-eta">–</span>
+      </div>
+      <div class="tc-row">
+        <span class="tc-lbl" id="lbl-stylist-label">Stylist</span>
+        <span class="tc-val" id="tracker-stylist">–</span>
+      </div>
+      <div class="tc-row">
+        <span class="tc-lbl" id="lbl-services-label">Services</span>
+        <span class="tc-val" id="tracker-services">–</span>
+      </div>
+    </div>
+
+    <!-- Cancel button -->
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn-cancel" id="btn-cancel-token" onclick="cancelToken()">
+        <span id="lbl-cancel">Cancel my spot</span>
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--muted2)" id="lbl-auto-refresh">Updates automatically</div>
+
+    <!-- Camera section on tracker page -->
+    <div class="cam-section" id="cam-section-t" style="display:none">
+      <div class="cam-header">
+        <div class="cam-label">📷 Live Camera</div>
+      </div>
+      <div class="cam-tabs" id="cam-tabs-t"></div>
+      <!-- Snapshot -->
+      <div class="cam-snap-wrap" id="cam-snap-wrap-t" onclick="camStartLive(true)">
+        <div class="cam-snap-placeholder" id="cam-snap-placeholder-t"></div>
+        <img class="cam-snap-img" id="cam-snap-img-t" style="display:none" alt="Salon live snapshot">
+        <div class="cam-snap-play" id="cam-snap-play-t">
+          <div class="cam-snap-play-btn"><div class="cam-snap-play-icon"></div></div>
+          <div class="cam-snap-play-lbl">Watch Live</div>
+        </div>
+        <div class="cam-snap-age" id="cam-snap-age-t" style="display:none"></div>
+        <button class="cam-snap-refresh" id="cam-snap-refresh-t" onclick="event.stopPropagation();camRefreshSnap(true)" title="Refresh photo">↺</button>
+      </div>
+      <!-- Live video -->
+      <div class="cam-live-bar" id="cam-live-bar-t" style="display:none">
+        <div class="cam-live-badge" id="cam-live-badge-t">
+          <div class="cam-live-dot"></div>
+          <span id="cam-live-label-t">Connecting…</span>
+        </div>
+        <button class="cam-live-close" onclick="camStopLive(true)">✕ Stop</button>
+      </div>
+      <div class="cam-live-wrap" id="cam-live-wrap-t">
+        <video id="cam-video-t" muted playsinline controls></video>
+        <div class="cam-overlay" id="cam-overlay-t">
+          <div class="cam-spinner" id="cam-spinner-t"></div>
+          <div class="cam-overlay-msg" id="cam-overlay-msg-t">Connecting…</div>
+        </div>
+      </div>
+      <div class="cam-progress-bar" id="cam-progress-bar-t" style="display:none">
+        <div class="cam-progress-fill" id="cam-progress-fill-t"></div>
+      </div>
+      <button class="cam-resume-btn" id="cam-resume-btn-t" onclick="camStartLive(true)">▶ Resume Live Feed</button>
+    </div>
+
+    <!-- Live queue board — always visible on tracker page -->
+    <div style="margin-top:20px">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px" id="lbl-live-board-t">Live Queue</div>
+      <div style="background:var(--surface);border-radius:var(--r);border:1px solid rgba(0,0,0,.06);overflow:hidden">
+        <div style="background:var(--accent);padding:11px 14px;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-family:var(--HF);font-size:17px;color:#fff;letter-spacing:1px" id="lbl-now-serving-t">Now Serving</div>
+          <div id="tlqb-updated" style="font-size:10px;color:rgba(255,255,255,.55)"></div>
+        </div>
+        <div id="tlqb-serving" style="padding:14px;border-bottom:1px solid var(--surface2);min-height:64px;display:flex;align-items:center;justify-content:center">
+          <div style="font-size:13px;color:var(--muted2)">Loading…</div>
+        </div>
+        <div style="padding:8px 14px 2px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2)" id="lbl-next-up-t">Next Up</div>
+        <div id="tlqb-list" style="padding:0 14px 10px;min-height:40px">
+          <div style="font-size:13px;color:var(--muted2);padding:8px 0">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-el" id="toastEl"></div>
 
 <script>
-var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
-var MS_KEY = 'sb_publishable_GtdUt6IV6TcsGoyOP02oIQ_CZf0vLQy';
-var _tenant = null;
-var _salons  = [];
-var _staff   = [];
-var _selectedBarberId = null;
-var _today = new Date().toLocaleDateString('en-CA');
+var SUPA_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var SUPA_KEY = 'YOUR_MYSALON_ANON_KEY';
 
-function _h(){ return { 'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY,'Prefer':'return=representation' }; }
-function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[]}); }
-function _post(p,body){
-  return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:_h(),body:JSON.stringify(body)})
-    .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t);}); return r.json(); })
-    .then(function(r){ return Array.isArray(r)?r[0]:r; });
+var SERVICES = [
+  {code:'H',  label:'Haircut',      dur:20},
+  {code:'S',  label:'Shave',        dur:15},
+  {code:'T',  label:'Trim',         dur:10},
+  {code:'CB', label:'Combo',        dur:30},
+  {code:'HM', label:'Head Massage', dur:15},
+  {code:'F',  label:'Facial',       dur:25},
+  {code:'C',  label:'Colour',       dur:45},
+  {code:'B',  label:'Beard',        dur:15},
+  {code:'D',  label:'Detan',        dur:30},
+  {code:'HSpa',label:'Hair Spa',    dur:40},
+  {code:'FS', label:'Face Scrub',   dur:20},
+  {code:'HS', label:'Hair Styling', dur:20},
+  {code:'Oth',label:'Others',       dur:20}
+];
+
+var LANG = {
+  en:{
+    welcome:'Join the queue', title:'Skip the wait',
+    sub:'Get a token · see your estimated time · relax',
+    waiting:'Waiting', serving:'Serving', etaLbl:'Min wait',
+    yourDetails:'Your Details', name:'Your Name', mobile:'Mobile Number',
+    mobileNote:'(for alert when your turn is near)',
+    chooseStylist:'Choose Stylist', anyStyleist:'Any Available',
+    services:'Services', svcNote:'Tap to select. Skip if unsure.',
+    offers:'Available Offers', joinBtn:'Join Queue',
+    orText:'OR', anonBtn:'Join without details (Walk-in)',
+    yourToken:'Your Token', headIn:'Head in now!',
+    headSub:'Your turn is very near — please come to the salon',
+    position:'Position in queue', eta:'Estimated wait',
+    stylistLabel:'Stylist', servicesLabel:'Services',
+    cancel:'Cancel my spot', autoRefresh:'Updates automatically',
+    offerClaimed:'Offer Claimed', closedTitle:'Queue Closed',
+    closedSub:'The queue is not open right now.\nPlease walk in or check back soon.',
+    statusWaiting:'Waiting', statusCalled:'Called — Head in!',
+    statusInChair:'In Chair', statusDone:'Done',
+    dupMsg:'You are already in the queue!',
+    cancelConfirm:'Cancel your spot in the queue?',
+    cancelled:'Spot cancelled',
+    joinError:'Could not join. Please try again.',
+    noStylists:'No stylists available right now',
+    savingsCard:'Savings Card'
+  },
+  te:{
+    welcome:'క్యూలో చేరండి', title:'వేచి ఉండకండి',
+    sub:'టోకెన్ తీసుకోండి · మీ సమయాన్ని చూడండి · రిలాక్స్ అవ్వండి',
+    waiting:'వేచి ఉన్నారు', serving:'సేవలో ఉన్నారు', etaLbl:'కనీస వేచి',
+    yourDetails:'మీ వివరాలు', name:'మీ పేరు', mobile:'మొబైల్ నంబర్',
+    mobileNote:'(మీ వంతు వచ్చినప్పుడు అలర్ట్ కోసం)',
+    chooseStylist:'స్టైలిస్ట్ ఎంచుకోండి', anyStyleist:'ఎవరైనా సరే',
+    services:'సేవలు', svcNote:'సేవలు నొక్కండి. ఖాళీగా వదిలేయవచ్చు.',
+    offers:'అందుబాటులో ఉన్న ఆఫర్లు', joinBtn:'క్యూలో చేరండి',
+    orText:'లేదా', anonBtn:'వివరాలు లేకుండా చేరండి',
+    yourToken:'మీ టోకెన్', headIn:'ఇప్పుడు రండి!',
+    headSub:'మీ వంతు చాలా దగ్గర్లో ఉంది — సెలూన్‌కు వచ్చేయండి',
+    position:'క్యూలో స్థానం', eta:'అంచనా వేచి సమయం',
+    stylistLabel:'స్టైలిస్ట్', servicesLabel:'సేవలు',
+    cancel:'నా స్థానం రద్దు చేయండి', autoRefresh:'స్వయంచాలకంగా అప్‌డేట్ అవుతుంది',
+    offerClaimed:'ఆఫర్ క్లెయిమ్ చేయబడింది', closedTitle:'క్యూ మూసివేయబడింది',
+    closedSub:'క్యూ ఇప్పుడు తెరవబడలేదు.\nదయచేసి నేరుగా వచ్చేయండి.',
+    statusWaiting:'వేచి ఉన్నారు', statusCalled:'పిలవబడ్డారు!',
+    statusInChair:'సేవలో ఉన్నారు', statusDone:'పూర్తయింది',
+    dupMsg:'మీరు ఇప్పటికే క్యూలో ఉన్నారు!',
+    cancelConfirm:'మీ స్థానాన్ని రద్దు చేయాలా?',
+    cancelled:'స్థానం రద్దు చేయబడింది',
+    joinError:'చేరడం సాధ్యం కాలేదు. మళ్ళీ ప్రయత్నించండి.',
+    noStylists:'ఇప్పుడు స్టైలిస్ట్‌లు అందుబాటులో లేరు',
+    savingsCard:'సేవింగ్స్ కార్డ్'
+  }
+};
+
+var curLang = localStorage.getItem('bb_lang') || 'en';
+var L = LANG[curLang];
+
+var salonId = (new URLSearchParams(location.search).get('salon')) || '';
+var salonData = null;
+var stylists = [];
+var selectedStylist = 'any';
+var selectedSvcs = [];
+var selectedOffer = null;
+var myToken = null;
+var realtimeChannel = null;
+var refreshTimer = null;
+
+function setLang(l){
+  curLang = l; L = LANG[l];
+  localStorage.setItem('bb_lang', l);
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.getElementById('btn-te').classList.toggle('active', l==='te');
+  applyLang();
+}
+function applyLang(){
+  var ids = {
+    'lbl-welcome':'welcome','lbl-title':'title','lbl-sub':'sub',
+    'lbl-waiting':'waiting','lbl-serving':'serving','lbl-eta-lbl':'etaLbl',
+    'lbl-your-details':'yourDetails','lbl-name':'name','lbl-mobile':'mobile',
+    'lbl-choose-stylist':'chooseStylist','lbl-services':'services',
+    'lbl-svc-note':'svcNote','lbl-offers':'offers',
+    'lbl-btn-join':'joinBtn','lbl-or':'orText','lbl-btn-anon':'anonBtn',
+    'lbl-your-token':'yourToken','lbl-head-in':'headIn','lbl-head-sub':'headSub',
+    'lbl-position':'position','lbl-eta':'eta','lbl-stylist-label':'stylistLabel',
+    'lbl-services-label':'servicesLabel','lbl-cancel':'cancel',
+    'lbl-auto-refresh':'autoRefresh','lbl-offer-claimed':'offerClaimed',
+    'closed-title':'closedTitle','lbl-head-in':'headIn'
+  };
+  Object.keys(ids).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = L[ids[id]] || '';
+  });
+  var mobileLabel = document.getElementById('lbl-mobile');
+  if(mobileLabel) mobileLabel.innerHTML = L.mobile + ' <span style="color:var(--muted2);font-weight:400">'+L.mobileNote+'</span>';
+  var anyBtn = document.getElementById('btn-any-stylist');
+  if(anyBtn) anyBtn.textContent = L.anyStyleist;
+  var svcSec = document.getElementById('lbl-services');
+  if(svcSec) svcSec.innerHTML = L.services + ' <span style="color:var(--muted2);font-size:9px;font-weight:600">(optional — improves wait estimate)</span>';
 }
 
-(function init(){
-  var slug = new URLSearchParams(location.search).get('salon') || sessionStorage.getItem('ms_slug') || '';
-  if(!slug){ showErr('No salon ID. Please use your salon QR code link.'); return; }
-  sessionStorage.setItem('ms_slug', slug);
-  document.getElementById('joinBtn').disabled = true;
-  showLoading('Loading queue…');
+function _supaH(){
+  return {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'};
+}
+function _get(path){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{headers:_supaH()}).then(function(r){return r.json();});
+}
+function _post(path,body){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{method:'POST',headers:_supaH(),body:JSON.stringify(body)}).then(function(r){return r.json();});
+}
+function _patch(path,body){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{method:'PATCH',headers:_supaH(),body:JSON.stringify(body)}).then(function(r){return r.json();});
+}
 
-  _get('tenants?slug=eq.'+encodeURIComponent(slug)+'&is_active=eq.true&select=id,name,logo_url,plan')
-    .then(function(rows){
-      if(!rows||!rows.length){ throw new Error('Salon not found.'); }
-      _tenant = rows[0];
-      if(_tenant.plan === 'free'){ throw new Error('Queue is not enabled on this salon\'s plan. Please ask them to upgrade to MySalon Pro.'); }
-      applyBranding(_tenant);
-      return Promise.all([
-        _get('salons?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&is_active=eq.true&select=id,name'),
-        _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=eq.stylist&active=eq.true&select=id,name,salon_id')
-      ]);
-    })
-    .then(function(res){
-      _salons = res[0]||[];
-      _staff  = res[1]||[];
-      return loadQueueStatus();
-    })
-    .then(function(){
-      renderBarbers();
-      document.getElementById('joinBtn').disabled = false;
-      hideLoading();
-    })
-    .catch(function(err){
-      hideLoading();
-      showErr(err.message||'Failed to load.');
+function todayStr(){
+  return new Date().toLocaleDateString('en-IN');
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});
+  document.getElementById(id).classList.add('show');
+}
+
+function toast(msg){
+  var t=document.getElementById('toastEl');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+function init(){
+  applyLang();
+  var saved = sessionStorage.getItem('bb_queue_token');
+  if(saved){
+    try{ myToken = JSON.parse(saved); }catch(e){}
+  }
+  if(myToken && myToken.tracker_key){
+    loadTrackerFromKey(myToken.tracker_key);
+    return;
+  }
+  if(!salonId){
+    document.getElementById('loading-msg').textContent = 'No salon specified in QR code.';
+    return;
+  }
+  loadSalonAndQueue();
+}
+
+function loadSalonAndQueue(){
+  Promise.all([
+    _get('salons?id=eq.'+encodeURIComponent(salonId)+'&select=id,name,queue_open,service_durations,queue_max_per_stylist'),
+    _get('staff?salonId=eq.'+encodeURIComponent(salonId)+'&role=eq.barber&select=id,name'),
+    _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(todayStr())+'&status=in.(waiting,in_chair)&select=id,status,barber_id,service_duration')
+  ]).then(function(results){
+    var salons = results[0]; var staff = results[1]; var tokens = results[2];
+    if(!salons||!salons.length){ document.getElementById('loading-msg').textContent='Salon not found.'; return; }
+    salonData = salons[0];
+    stylists = staff||[];
+    document.getElementById('tb-salon-name').textContent = salonData.name||'MySalon';
+    if(salonData.service_durations){
+      try{
+        var overrides = typeof salonData.service_durations==='string'?JSON.parse(salonData.service_durations):salonData.service_durations;
+        SERVICES.forEach(function(s){ if(overrides[s.code]) s.dur=parseInt(overrides[s.code])||s.dur; });
+      }catch(e){}
+    }
+    if(!salonData.queue_open){
+      document.getElementById('closed-sub').textContent = L.closedSub;
+      showPage('pg-closed'); return;
+    }
+    // queue_paused — check safely; column may not exist yet in DB
+    var paused = salonData.queue_paused || false;
+    if(paused){ showPage('pg-paused'); return; }
+    buildJoinForm(tokens||[]);
+    loadOffers();
+    showPage('pg-join');
+    startQueuePoll();
+    lqbLoad();
+    // Load cameras inside then() so camInit always gets the data
+    _get('salons?id=eq.'+encodeURIComponent(salonId)+'&select=cameras')
+      .then(function(r){
+        if(r&&r[0]&&r[0].cameras) salonData.cameras=r[0].cameras;
+        camInit(salonData.cameras);
+      }).catch(function(){ camInit(null); });
+  }).catch(function(e){
+    document.getElementById('loading-msg').textContent='Could not load. Please try again.';
+    console.error(e);
+  });
+}
+
+function buildJoinForm(tokens){
+  var waiting=tokens.filter(function(t){return t.status==='waiting';}).length;
+  var serving=tokens.filter(function(t){return t.status==='in_chair';}).length;
+  // Min wait for a new joiner = total duration of all waiting tokens for the least-busy stylist
+  // (own service time not included — that's what the customer will spend, not wait)
+  var minEta = 0;
+  if(waiting>0){
+    var byBarber={};
+    tokens.filter(function(t){return t.status==='waiting';}).forEach(function(t){
+      var bid=t.barber_id||'any';
+      byBarber[bid]=(byBarber[bid]||0)+(t.service_duration||20);
     });
-})();
+    minEta=Math.min.apply(null,Object.values(byBarber));
+  }
+  document.getElementById('qs-waiting').textContent = waiting;
+  document.getElementById('qs-serving').textContent = serving;
+  document.getElementById('qs-eta').textContent = waiting>0?(minEta+'m'):'0m';
 
-function applyBranding(t){
-  document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=t.name; });
-  document.title = t.name+' — Join Queue';
-  if(t.logo_url){
-    var img=document.getElementById('ms-logo'); img.src=t.logo_url; img.style.display='block';
-    document.getElementById('logoFallback').style.display='none';
-    img.onerror=function(){img.style.display='none';document.getElementById('logoFallback').style.display='block';};
+  var grid = document.getElementById('stylist-grid');
+  grid.innerHTML = '<button class="stylist-btn any on" data-id="any" id="btn-any-stylist" onclick="selectStylist(\'any\')">'+L.anyStyleist+'</button>';
+  stylists.forEach(function(st){
+    var waiting_count = tokens.filter(function(t){return t.barber_id===st.id&&t.status==='waiting';}).length;
+    var btn=document.createElement('button');
+    btn.className='stylist-btn';
+    btn.setAttribute('data-id',st.id);
+    btn.onclick=function(){selectStylist(st.id);};
+    btn.innerHTML='<div style="font-weight:800">'+st.name+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+waiting_count+' waiting</div>';
+    grid.appendChild(btn);
+  });
+
+  var chips=document.getElementById('svc-chips');
+  chips.innerHTML='';
+  SERVICES.forEach(function(s){
+    var btn=document.createElement('button');
+    btn.className='chip';
+    btn.setAttribute('data-code',s.code);
+    btn.textContent=s.label+' ('+s.dur+'m)';
+    btn.onclick=function(){toggleSvc(s.code);};
+    chips.appendChild(btn);
+  });
+}
+
+function selectStylist(id){
+  selectedStylist=id;
+  document.querySelectorAll('.stylist-btn').forEach(function(b){
+    b.classList.toggle('on',b.getAttribute('data-id')===id);
+  });
+}
+
+function toggleSvc(code){
+  var idx=selectedSvcs.indexOf(code);
+  if(idx>-1)selectedSvcs.splice(idx,1); else selectedSvcs.push(code);
+  document.querySelectorAll('#svc-chips .chip').forEach(function(b){
+    b.classList.toggle('on',selectedSvcs.indexOf(b.getAttribute('data-code'))>-1);
+  });
+}
+
+function onPhoneInput(phone){
+  var st=document.getElementById('phone-status');
+  if(phone.length===10){
+    st.textContent='✓';st.style.color='var(--accent)';
+    checkSavingsCard(phone);
+  } else {
+    st.textContent=''; checkSavingsCard('');
   }
 }
 
-function loadQueueStatus(){
-  if(!_tenant) return Promise.resolve();
-  return _get('queue_tokens?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&date=eq.'+_today+'&status=in.(waiting,in_chair)&select=id,position,eta_minutes,barber_id,status&order=position.asc')
+function checkSavingsCard(phone){
+  if(phone.length!==10){renderOfferCards([],'savings',0);return;}
+  _get('entries?customerPhone=eq.'+encodeURIComponent(phone)+'&salonId=eq.'+encodeURIComponent(salonId)+'&select=id')
+    .then(function(entries){
+      renderOfferCards(null,'savings',(entries||[]).length);
+    }).catch(function(){renderOfferCards(null,'savings',0);});
+}
+
+function loadOffers(){
+  _get('offers?active=eq.true&or=(salon_id.eq.'+encodeURIComponent(salonId)+',is_global.eq.true)&order=created_at.desc')
+    .then(function(offers){
+      var now=new Date();
+      var active=(offers||[]).filter(function(o){return !o.expires_at||new Date(o.expires_at)>now;});
+      renderOfferCards(active,'offers',0);
+    }).catch(function(){});
+}
+
+var _customOffers=[];
+function renderOfferCards(offers, source, visitCount){
+  if(source==='offers'&&offers) _customOffers=offers;
+  var sec=document.getElementById('offers-section');
+  var list=document.getElementById('offers-list');
+  var cards='';
+  var TIERS=[{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
+  if(visitCount>0){
+    var tier=visitCount<TIERS.length?TIERS[visitCount]:TIERS[TIERS.length-1];
+    var scId='savings_card';
+    var selected=selectedOffer&&selectedOffer.id===scId;
+    cards+='<div class="offer-card'+(selected?' selected':'')+'" onclick="selectOffer({id:\''+scId+'\',name:\''+L.savingsCard+' Visit '+(visitCount+1)+'\',pct:'+tier.pct+',minBill:299})">'+
+      '<div class="oc-banner"><div class="oc-title">'+L.savingsCard+'</div><div class="oc-pct">'+tier.pct+'%</div></div>'+
+      '<div class="oc-body"><div class="oc-desc">Visit '+(visitCount+1)+' · Min ₹299</div><div class="oc-check">✓</div></div>'+
+    '</div>';
+  }
+  _customOffers.forEach(function(o){
+    if(!o.discount_pct)return;
+    var selected=selectedOffer&&selectedOffer.id===o.id;
+    cards+='<div class="offer-card'+(selected?' selected':'')+'" onclick="selectOffer({id:\''+o.id+'\',name:\''+(o.emoji||'')+(o.title||'Offer')+'\',pct:'+(o.discount_pct||0)+',minBill:'+(o.min_billing||0)+'})">'+
+      '<div class="oc-banner"><div class="oc-title">'+(o.emoji||'🎁')+' '+(o.title||'Offer')+'</div><div class="oc-pct">'+(o.discount_pct||0)+'%</div></div>'+
+      '<div class="oc-body"><div class="oc-desc">'+(o.description||'')+''+(o.min_billing?' · Min ₹'+o.min_billing:'')+'</div><div class="oc-check">✓</div></div>'+
+    '</div>';
+  });
+  if(cards){ sec.style.display='block'; list.innerHTML=cards; }
+  else sec.style.display='none';
+}
+
+function selectOffer(offer){
+  if(selectedOffer&&selectedOffer.id===offer.id){selectedOffer=null;}
+  else{ selectedOffer=offer; }
+  renderOfferCards(null,'rerender',0);
+}
+
+function calcDuration(){
+  if(!selectedSvcs.length) return 20;
+  return selectedSvcs.reduce(function(sum,code){
+    var s=SERVICES.find(function(x){return x.code===code;});
+    return sum+(s?s.dur:20);
+  },0);
+}
+
+function getNextTokenNumber(){
+  return _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(todayStr())+'&select=token_number&order=join_time.desc&limit=1')
     .then(function(rows){
-      var waiting = rows.filter(function(r){return r.status==='waiting';});
-      document.getElementById('waitingCount').textContent = waiting.length;
-      var avgEta = waiting.length > 0 ? waiting.length * 15 : 0;
-      document.getElementById('estWait').textContent = avgEta||'—';
+      if(!rows||!rows.length) return 'B-001';
+      var last=rows[0].token_number||'B-000';
+      var num=parseInt(last.split('-')[1]||'0')+1;
+      return 'B-'+String(num).padStart(3,'0');
     });
 }
 
-function renderBarbers(){
-  if(!_staff.length) return;
-  document.getElementById('barberSection').style.display='block';
-  document.getElementById('barberCards').innerHTML = _staff.map(function(s){
-    return '<div class="barber-card" id="bc-'+s.id+'" onclick="selectBarber(\''+s.id+'\')">'+
-      '<span class="barber-icon">✂️</span>'+
-      '<div class="barber-name">'+escH(s.name)+'</div>'+
-      '<div class="barber-queue">0 ahead</div>'+
-    '</div>';
-  }).join('');
-  // Update queue counts per barber
-  _get('queue_tokens?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&date=eq.'+_today+'&status=eq.waiting&select=barber_id')
-    .then(function(rows){
-      var cnt={};
-      rows.forEach(function(r){ cnt[r.barber_id]=(cnt[r.barber_id]||0)+1; });
-      _staff.forEach(function(s){
-        var el=document.getElementById('bc-'+s.id);
-        if(el) el.querySelector('.barber-queue').textContent=(cnt[s.id]||0)+' ahead';
+function resolveStyleist(){
+  if(selectedStylist!=='any') return Promise.resolve(selectedStylist);
+  if(!stylists.length) return Promise.resolve(null);
+  return _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(todayStr())+'&status=in.(waiting,in_chair)&select=barber_id')
+    .then(function(tokens){
+      var counts={};
+      stylists.forEach(function(s){counts[s.id]=0;});
+      (tokens||[]).forEach(function(t){if(t.barber_id)counts[t.barber_id]=(counts[t.barber_id]||0)+1;});
+      var best=stylists.reduce(function(a,b){return (counts[a.id]||0)<=(counts[b.id]||0)?a:b;});
+      return best.id;
+    });
+}
+
+function checkDuplicate(phone){
+  if(!phone||phone.length!==10) return Promise.resolve(null);
+  return _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(todayStr())+'&customer_phone=eq.'+encodeURIComponent(phone)+'&status=in.(waiting,called,in_chair)&limit=1')
+    .then(function(rows){return (rows&&rows.length)?rows[0]:null;});
+}
+
+function joinQueue(){
+  var name=(document.getElementById('inp-name').value||'').trim()||'Guest';
+  var phone=(document.getElementById('inp-phone').value||'').trim();
+  doJoin(name,phone);
+}
+
+function joinAnonymous(){
+  doJoin('Guest','');
+}
+
+function doJoin(name,phone){
+  document.getElementById('btn-join').disabled=true;
+  // Re-verify queue is still open and not paused before inserting
+  _get('salons?id=eq.'+encodeURIComponent(salonId)+'&select=queue_open,queue_paused')
+    .then(function(res){
+      // If response is an error object or empty, proceed (don't block the join)
+      if(!res||!Array.isArray(res)||!res.length||res.code){ _doJoinInsert(name,phone); return; }
+      var s=res[0];
+      if(!s.queue_open){ showPage('pg-closed'); stopPoll(); return; }
+      if(s.queue_paused){ showPage('pg-paused'); stopPoll(); return; }
+      _doJoinInsert(name,phone);
+    }).catch(function(){ _doJoinInsert(name,phone); }); // if check fails, proceed anyway
+}
+
+function _doJoinInsert(name,phone){
+  checkDuplicate(phone).then(function(dup){
+    if(dup){
+      toast(L.dupMsg);
+      document.getElementById('btn-join').disabled=false;
+      myToken=dup;
+      sessionStorage.setItem('bb_queue_token',JSON.stringify(dup));
+      loadTrackerFromKey(dup.tracker_key);
+      return;
+    }
+    Promise.all([getNextTokenNumber(),resolveStyleist()])
+      .then(function(res){
+        var tokenNum=res[0]; var barberId=res[1];
+        var svcLabels=selectedSvcs.map(function(c){var s=SERVICES.find(function(x){return x.code===c;});return s?s.label:c;});
+        var dur=calcDuration();
+        var trackerKey=Math.random().toString(36).slice(2)+Date.now().toString(36);
+        var row={
+          salon_id:salonId, barber_id:barberId||null,
+          token_number:tokenNum, customer_name:name,
+          customer_phone:phone||null,
+          services:svcLabels.join(', ')||null,
+          service_duration:dur, type:'virtual', status:'waiting',
+          offer_id:selectedOffer?String(selectedOffer.id):null,
+          offer_name:selectedOffer?selectedOffer.name:null,
+          offer_pct:selectedOffer?selectedOffer.pct:0,
+          offer_min_bill:selectedOffer?selectedOffer.minBill:0,
+          tracker_key:trackerKey, date:todayStr()
+        };
+        return _post('queue_tokens',row).then(function(saved){
+          var token=Array.isArray(saved)?saved[0]:saved;
+          if(!token||token.error){throw new Error(token?JSON.stringify(token):'insert failed');}
+          myToken=token;
+          sessionStorage.setItem('bb_queue_token',JSON.stringify(token));
+          calcAndUpdatePositions(salonId);
+          loadTrackerFromKey(trackerKey);
+        });
+      }).catch(function(e){
+        console.error(e);
+        toast(L.joinError);
+        document.getElementById('btn-join').disabled=false;
+      });
+  });
+}
+
+function calcAndUpdatePositions(sid){
+  _get('queue_tokens?salon_id=eq.'+encodeURIComponent(sid)+'&date=eq.'+encodeURIComponent(todayStr())+'&status=eq.waiting&order=join_time.asc&select=id,barber_id,service_duration')
+    .then(function(tokens){
+      if(!tokens||!tokens.length) return;
+      var byStyleist={};
+      tokens.forEach(function(t){
+        var bid=t.barber_id||'any';
+        if(!byStyleist[bid])byStyleist[bid]=[];
+        byStyleist[bid].push(t);
+      });
+      var updates=[];
+      Object.keys(byStyleist).forEach(function(bid){
+        var list=byStyleist[bid];
+        var cumEta=0;
+        list.forEach(function(t,i){
+          // Wait = sum of durations of people AHEAD, not including own service time
+          updates.push({id:t.id,position:i+1,eta_minutes:cumEta});
+          cumEta+=t.service_duration||20;
+        });
+      });
+      updates.forEach(function(u){
+        fetch(SUPA_URL+'/rest/v1/queue_tokens?id=eq.'+encodeURIComponent(u.id),{
+          method:'PATCH',headers:_supaH(),
+          body:JSON.stringify({position:u.position,eta_minutes:u.eta_minutes})
+        }).catch(function(){});
       });
     });
 }
 
-function selectBarber(id){
-  _selectedBarberId = id;
-  document.querySelectorAll('.barber-card').forEach(function(c){ c.classList.remove('selected'); });
-  var el=document.getElementById('bc-'+id);
-  if(el) el.classList.add('selected');
+function loadTrackerFromKey(key){
+  stopPoll();
+  _get('queue_tokens?tracker_key=eq.'+encodeURIComponent(key)+'&select=*')
+    .then(function(rows){
+      if(!rows||!rows.length){sessionStorage.removeItem('bb_queue_token');loadSalonAndQueue();return;}
+      var token=rows[0];
+      myToken=token;
+      renderTracker(token);
+      showPage('pg-tracker');
+      subscribeRealtime(token.id);
+      startRefreshTimer(key);
+      lqbLoad();
+      // Load camera for tracker page
+      if(salonData && salonData.cameras) {
+        camInitTracker(salonData.cameras);
+      } else if(token.salon_id) {
+        _get('salons?id=eq.'+encodeURIComponent(token.salon_id)+'&select=cameras')
+          .then(function(r){
+            if(r&&r[0]&&r[0].cameras) camInitTracker(r[0].cameras);
+          }).catch(function(){});
+      }
+    }).catch(function(){ showPage('pg-join'); });
 }
 
-function joinQueue(){
-  var name   = document.getElementById('custName').value.trim();
-  var phone  = document.getElementById('custPhone').value.trim();
-  var svcs   = document.getElementById('custServices').value.trim();
-  hideErr();
-  if(!name)           { showErr('Please enter your name.'); return; }
-  if(phone.length<10) { showErr('Enter a valid 10-digit number.'); return; }
+function renderTracker(t){
+  document.getElementById('tracker-token').textContent=t.token_number||'–';
+  document.getElementById('tracker-name').textContent=t.customer_name||'';
+  document.getElementById('tracker-pos').textContent=t.position?('#'+t.position):'–';
+  var eta=t.eta_minutes||0;
+  document.getElementById('tracker-eta').textContent=eta>0?(eta+'–'+(eta+5)+' min'):'–';
+  var stylistName='–';
+  if(t.barber_id){
+    var st=stylists.find(function(s){return s.id===t.barber_id;});
+    if(st)stylistName=st.name;
+  }
+  document.getElementById('tracker-stylist').textContent=stylistName;
+  document.getElementById('tracker-services').textContent=t.services||'–';
 
-  showLoading('Getting your token…');
+  var statusMap={waiting:'sp-waiting',called:'sp-called',in_chair:'sp-inchair',done:'sp-done'};
+  var labelMap={waiting:L.statusWaiting,called:L.statusCalled,in_chair:L.statusInChair,done:L.statusDone};
+  var pillWrap=document.getElementById('status-pill-wrap');
+  pillWrap.innerHTML='<span class="status-pill '+(statusMap[t.status]||'sp-waiting')+'">'+(labelMap[t.status]||t.status)+'</span>';
 
-  // Get current queue length for this barber (or general)
-  var qs = 'tenant_id=eq.'+encodeURIComponent(_tenant.id)
-    +'&date=eq.'+_today
-    +'&status=in.(waiting,in_chair)'
-    +'&order=position.desc&limit=1';
-  if(_selectedBarberId) qs += '&barber_id=eq.'+encodeURIComponent(_selectedBarberId);
+  var offerBadge=document.getElementById('tracker-offer');
+  if(t.offer_pct>0&&t.offer_name){
+    document.getElementById('tracker-offer-name').textContent=t.offer_name;
+    document.getElementById('tracker-offer-pct').textContent=t.offer_pct+'% OFF';
+    offerBadge.style.display='flex';
+  } else { offerBadge.style.display='none'; }
 
-  _get('queue_tokens?'+qs).then(function(rows){
-    var nextPos   = rows.length ? (rows[0].position||0)+1 : 1;
-    var tokenStr  = String.fromCharCode(64+Math.min(nextPos,26)) + nextPos;
-    var etaMin    = nextPos * 15;
-    var barberSm  = _staff.find(function(s){ return s.id===_selectedBarberId; });
+  var banner=document.getElementById('alert-banner');
+  if(t.status==='called'||(t.position<=2&&t.status==='waiting')){
+    banner.classList.add('show');
+  } else { banner.classList.remove('show'); }
 
-    var row = {
-      tenant_id:    _tenant.id,
-      salon_id:     (_salons[0]||{}).id || null,
-      barber_id:    _selectedBarberId || null,
-      customer_name:name,
-      customer_phone:phone,
-      token_number: tokenStr,
-      position:     nextPos,
-      services:     svcs || null,
-      status:       'waiting',
-      eta_minutes:  etaMin,
-      date:         _today
-    };
-    return _post('queue_tokens', row).then(function(token){
-      hideLoading();
-      showToken(token, barberSm, etaMin);
-      document.getElementById('joinForm').style.display='none';
-      document.getElementById('barberSection').style.display='none';
-    });
-  }).catch(function(err){
-    hideLoading();
-    showErr(err.message||'Failed to join queue. Please try again.');
-  });
-}
+  var cancelBtn=document.getElementById('btn-cancel-token');
+  cancelBtn.style.display=(t.status==='waiting'||t.status==='called')?'inline-block':'none';
 
-function showToken(token, barber, eta){
-  document.getElementById('tokenSuccess').style.display='block';
-  document.getElementById('tokenNumber').textContent = token.token_number||'A1';
-  document.getElementById('tokenPos').textContent    = token.position||1;
-  document.getElementById('tokenEta').textContent    = '~'+eta+' min';
-  document.getElementById('tokenName').textContent   = '👋 You\'re in, '+(document.getElementById('custName').value.trim()||'!')+'!';
-  var slug = sessionStorage.getItem('ms_slug')||'';
-  var barberTxt = barber ? 'Your stylist: '+barber.name+'<br>' : '';
-  document.getElementById('tokenBarber').innerHTML = barberTxt+'We\'ll call your name when it\'s your turn.<br>Please stay nearby.';
-  document.getElementById('viewQueueLink').href = 'queue-display.html'+(slug?'?salon='+encodeURIComponent(slug):'');
-  // Any active offer
-  if(token.offer_pct && token.offer_pct>0){
-    document.getElementById('tokenOffer').innerHTML='<div class="offer-pill">🎉 '+token.offer_pct+'% off — '+escH(token.offer_name||'Special offer')+'</div>';
+  if(t.status==='done'){
+    stopPoll();
+    document.getElementById('tracker-eta').textContent='–';
+    sessionStorage.removeItem('bb_queue_token');
   }
 }
 
-function showErr(m){ var e=document.getElementById('errMsg'); e.textContent=m; e.style.display='block'; }
-function hideErr(){ document.getElementById('errMsg').style.display='none'; }
-function showLoading(t){ document.getElementById('loadingTxt').textContent=t||'Loading…'; document.getElementById('loadingOverlay').classList.add('show'); }
-function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
-function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function subscribeRealtime(tokenId){
+  if(typeof WebSocket==='undefined') return;
+  try{
+    var wsUrl=SUPA_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPA_KEY+'&vsn=1.0.0';
+    var ws=new WebSocket(wsUrl);
+    ws.onopen=function(){
+      ws.send(JSON.stringify({topic:'realtime:public:queue_tokens:id=eq.'+tokenId,event:'phx_join',payload:{},ref:'1'}));
+    };
+    ws.onmessage=function(e){
+      try{
+        var msg=JSON.parse(e.data);
+        if(msg.event==='postgres_changes'&&msg.payload&&msg.payload.record){
+          renderTracker(msg.payload.record);
+        }
+      }catch(ex){}
+    };
+    ws.onerror=function(){};
+    realtimeChannel=ws;
+  }catch(ex){}
+}
+
+function startRefreshTimer(key){
+  stopPoll();
+  refreshTimer=setInterval(function(){
+    _get('queue_tokens?tracker_key=eq.'+encodeURIComponent(key)+'&select=*')
+      .then(function(rows){if(rows&&rows.length)renderTracker(rows[0]);})
+      .catch(function(){});
+  },30000);
+}
+
+function startQueuePoll(){
+  stopPoll();
+  refreshTimer=setInterval(function(){
+    if(!salonId)return;
+    // Re-check salon status (catches auto-close and pause from manager)
+    // Only select queue_open (guaranteed column); queue_paused is checked safely
+    _get('salons?id=eq.'+encodeURIComponent(salonId)+'&select=queue_open,queue_paused')
+      .then(function(res){
+        if(!res||!res.length||res.code) return; // ignore errors (e.g. column missing)
+        var s=res[0];
+        if(!s.queue_open){ showPage('pg-closed'); stopPoll(); return; }
+        if(s.queue_paused){ showPage('pg-paused'); stopPoll(); return; }
+      }).catch(function(){});
+    _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(todayStr())+'&status=in.(waiting,in_chair)&select=id,status,barber_id,service_duration')
+      .then(function(tokens){
+        var t=tokens||[];
+        var waiting=t.filter(function(x){return x.status==='waiting';}).length;
+        var serving=t.filter(function(x){return x.status==='in_chair';}).length;
+        document.getElementById('qs-waiting').textContent=waiting;
+        document.getElementById('qs-serving').textContent=serving;
+      }).catch(function(){});
+  },30000);
+}
+
+function stopPoll(){
+  if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}
+  if(realtimeChannel){try{realtimeChannel.close();}catch(e){}realtimeChannel=null;}
+}
+
+function cancelToken(){
+  if(!myToken) return;
+  if(!confirm(L.cancelConfirm)) return;
+  fetch(SUPA_URL+'/rest/v1/queue_tokens?id=eq.'+encodeURIComponent(myToken.id),{
+    method:'PATCH',headers:_supaH(),body:JSON.stringify({status:'cancelled'})
+  }).then(function(){
+    sessionStorage.removeItem('bb_queue_token');
+    myToken=null;
+    stopPoll();
+    toast(L.cancelled);
+    setTimeout(function(){location.reload();},1500);
+  }).catch(function(){toast('Error. Try again.');});
+}
+
+// ════ LIVE QUEUE BOARD (queue-join.html) ════
+// salonId comes from URL ?salon= param — already resolved at page load
+var lqbPollTimer = null;
+var lqbStaffCache = {};
+
+function lqbLoad(){
+  lqbStopPoll();
+  lqbFetch();
+  lqbPollTimer = setInterval(lqbFetch, 30000);
+}
+
+function lqbStopPoll(){
+  if(lqbPollTimer){ clearInterval(lqbPollTimer); lqbPollTimer = null; }
+}
+
+function lqbFetch(){
+  if(!salonId) return;
+  var today = todayStr();
+  Promise.all([
+    _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(today)+'&status=eq.in_chair&order=start_time.asc&select=*&limit=3'),
+    _get('queue_tokens?salon_id=eq.'+encodeURIComponent(salonId)+'&date=eq.'+encodeURIComponent(today)+'&status=eq.waiting&order=position.asc&select=*&limit=8'),
+    Object.keys(lqbStaffCache).length ? Promise.resolve(null)
+      : _get('staff?salonId=eq.'+encodeURIComponent(salonId)+'&role=eq.barber&select=id,name')
+  ]).then(function(res){
+    var inChair = res[0]||[];
+    var waiting = res[1]||[];
+    if(res[2]){ res[2].forEach(function(s){ lqbStaffCache[s.id] = s.name; }); }
+    lqbRenderTo('jlqb-serving','jlqb-list','jlqb-updated', inChair, waiting);
+    lqbRenderTo('tlqb-serving','tlqb-list','tlqb-updated', inChair, waiting);
+  }).catch(function(){
+    ['jlqb-serving','tlqb-serving'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.innerHTML='<div style="font-size:13px;color:var(--muted2);text-align:center;width:100%">Could not load queue</div>';
+    });
+  });
+}
+
+function lqbRenderTo(servId, listId, updId, inChair, waiting){
+  var servEl = document.getElementById(servId);
+  var listEl = document.getElementById(listId);
+  var updEl  = document.getElementById(updId);
+  if(!servEl||!listEl) return;
+
+  // Now serving
+  if(!inChair.length){
+    servEl.innerHTML =
+      '<div style="text-align:center;width:100%">'+
+        '<div style="font-size:32px;opacity:.2;margin-bottom:6px">✂️</div>'+
+        '<div style="font-size:13px;color:var(--muted2)">No one being served yet</div>'+
+      '</div>';
+  } else {
+    servEl.style.display = 'block';
+    servEl.innerHTML = inChair.map(function(t, i){
+      var stylistName = t.barber_id ? (lqbStaffCache[t.barber_id]||'Stylist') : 'Any Stylist';
+      var elapsed = t.start_time ? Math.floor((Date.now()-new Date(t.start_time).getTime())/60000) : 0;
+      var isMe = myToken && myToken.id === t.id;
+      return '<div style="display:flex;align-items:center;gap:12px'+(i>0?';margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2)':'')+'">'+
+        '<div style="font-family:var(--HF);font-size:52px;color:'+(isMe?'var(--accent)':'var(--gold-dark)')+';line-height:1;width:68px;text-align:center;flex-shrink:0">'+
+          t.token_number+
+        '</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;font-weight:800;color:var(--white)">'+
+            (t.customer_name||'Guest')+
+            (isMe?' <span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(0,122,86,.1);padding:2px 7px;border-radius:10px">← You</span>':'')+
+          '</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:3px">'+stylistName+' · '+(t.services||'Service')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+elapsed+' min elapsed</div>'+
+          (t.offer_pct>0?'<div style="font-size:10px;font-weight:700;color:var(--accent);margin-top:2px">'+t.offer_pct+'% OFF claimed</div>':'')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Next up list
+  if(!waiting.length){
+    listEl.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:8px 0;text-align:center">Queue is empty — join now!</div>';
+  } else {
+    listEl.innerHTML = waiting.map(function(t, i){
+      var stylistName = t.barber_id ? (lqbStaffCache[t.barber_id]||'?') : 'Any';
+      var isMe = myToken && myToken.id === t.id;
+      var eta  = t.eta_minutes||0;
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--surface2);background:'+(isMe?'rgba(0,122,86,.04)':'transparent')+'">'+
+        '<div style="font-family:var(--HF);font-size:20px;color:'+(i===0?'var(--gold-dark)':'var(--muted)')+';width:42px;text-align:center;line-height:1;flex-shrink:0">'+
+          t.token_number.replace('B-','')+
+        '</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:800;color:var(--white)">'+
+            (t.customer_name||'Guest')+
+            (isMe?' <span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(0,122,86,.1);padding:2px 7px;border-radius:10px">← You</span>':'')+
+          '</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:1px">'+(t.services||'Service')+' · '+stylistName+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0">'+
+          '<div style="font-family:var(--HF);font-size:18px;color:var(--accent);line-height:1">'+(eta>0?eta+'m':'–')+'</div>'+
+          '<div style="font-size:9px;color:var(--muted2)">wait</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Timestamp
+  if(updEl){
+    var now = new Date();
+    updEl.textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// Update LANG objects with live board labels
+LANG.en.liveBoardTitle = 'Live Queue';
+LANG.en.nowServing     = 'Now Serving';
+LANG.en.nextUp         = 'Next Up';
+LANG.te.liveBoardTitle = 'లైవ్ క్యూ';
+LANG.te.nowServing     = 'ఇప్పుడు సేవిస్తున్నారు';
+LANG.te.nextUp         = 'తర్వాత';
+
+
+// ════ CAMERA SECTION ════
+var IMOU_WORKER = 'https://bbsalonlive.abudgetbarber.workers.dev';
+var camHlsJ = null;
+var camHlsT = null;
+var camDevices = [];
+var camActiveIdx = 0;
+var _camSnapTimerJ = null;  // snapshot auto-refresh interval (join)
+var _camSnapTimerT = null;  // snapshot auto-refresh interval (tracker)
+var _camLiveTimerJ = null;  // 90s countdown timer (join)
+var _camLiveTimerT = null;  // 90s countdown timer (tracker)
+var _camSnapFetchedJ = null; // timestamp of last snapshot (join)
+var _camSnapFetchedT = null; // timestamp of last snapshot (tracker)
+var CAM_LIVE_SECS = 90;     // auto-pause after this many seconds
+var CAM_SNAP_INTERVAL = 30000; // snapshot refresh every 30s (ms)
+
+// ── Parse cameras column ───────────────────────────────────────────────────
+function camParseCameras(cameras) {
+  var list = [];
+  if (!cameras) return list;
+  if (typeof cameras === 'string') {
+    cameras.split(',').forEach(function(d, i) {
+      d = d.trim();
+      if (d) list.push({ label: 'Camera ' + (i + 1), deviceId: d });
+    });
+  } else if (Array.isArray(cameras)) {
+    cameras.forEach(function(c, i) {
+      if (typeof c === 'string' && c.trim()) {
+        list.push({ label: 'Camera ' + (i + 1), deviceId: c.trim() });
+      } else if (c && c.deviceId) {
+        list.push({ label: c.label || ('Camera ' + (i + 1)), deviceId: c.deviceId });
+      }
+    });
+  }
+  return list;
+}
+
+// ── Init (called after cameras loaded from Supabase) ──────────────────────
+function camInit(cameras) {
+  var list = camParseCameras(cameras);
+  if (!list.length) return;
+  camDevices = list;
+  var sec = document.getElementById('cam-section');
+  if (sec) {
+    sec.style.display = 'block';
+    camBuildTabs('cam-tabs', false);
+    camFetchSnap(false);
+  }
+}
+
+function camInitTracker(cameras) {
+  var list = camParseCameras(cameras);
+  if (!list.length) return;
+  camDevices = list;
+  var sec = document.getElementById('cam-section-t');
+  if (sec) {
+    sec.style.display = 'block';
+    camBuildTabs('cam-tabs-t', true);
+    camFetchSnap(true);
+  }
+}
+
+// ── Tabs (multi-camera) ───────────────────────────────────────────────────
+function camBuildTabs(tabsId, isTracker) {
+  var tabsEl = document.getElementById(tabsId);
+  if (!tabsEl || camDevices.length <= 1) return;
+  tabsEl.innerHTML = '';
+  camDevices.forEach(function(c, i) {
+    var btn = document.createElement('button');
+    btn.className = 'cam-tab' + (i === 0 ? ' on' : '');
+    btn.textContent = c.label;
+    btn.onclick = (function(idx, isTrk) {
+      return function() { camSwitch(idx, isTrk); };
+    })(i, isTracker);
+    tabsEl.appendChild(btn);
+  });
+}
+
+function camSwitch(idx, isTracker) {
+  camActiveIdx = idx;
+  var tabsId = isTracker ? 'cam-tabs-t' : 'cam-tabs';
+  var tabs = document.getElementById(tabsId);
+  if (tabs) Array.prototype.forEach.call(tabs.querySelectorAll('.cam-tab'), function(t, i) {
+    t.classList.toggle('on', i === idx);
+  });
+  // Refresh snapshot for new camera
+  camFetchSnap(isTracker);
+  // If live was playing, switch the live stream too
+  var liveWrap = document.getElementById(isTracker ? 'cam-live-wrap-t' : 'cam-live-wrap');
+  if (liveWrap && liveWrap.classList.contains('active')) {
+    camStartLive(isTracker);
+  }
+}
+
+// ── SNAPSHOT ─────────────────────────────────────────────────────────────
+function camFetchSnap(isTracker) {
+  var deviceId = camDevices[camActiveIdx] && camDevices[camActiveIdx].deviceId;
+  if (!deviceId) return;
+
+  var suf       = isTracker ? '-t' : '';
+  var ph        = document.getElementById('cam-snap-placeholder' + suf);
+  var img       = document.getElementById('cam-snap-img' + suf);
+  var ageEl     = document.getElementById('cam-snap-age' + suf);
+
+  // Show shimmer while fetching
+  if (ph)  ph.style.display = 'block';
+  if (img) img.style.display = 'none';
+
+  fetch(IMOU_WORKER + '/snapshot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceId: deviceId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok || !data.url) return; // silently keep shimmer
+    if (img) {
+      img.onload = function() {
+        if (ph)  ph.style.display = 'none';
+        img.style.display = 'block';
+        if (ageEl) { ageEl.style.display = 'block'; ageEl.textContent = 'Just now'; }
+        if (isTracker) _camSnapFetchedT = Date.now();
+        else           _camSnapFetchedJ = Date.now();
+        camStartSnapAgeTimer(isTracker);
+      };
+      img.onerror = function() { /* keep shimmer */ };
+      img.src = data.url;
+    }
+  })
+  .catch(function() { /* keep shimmer — don't show error for background snap */ });
+
+  // Schedule next auto-refresh
+  if (isTracker) {
+    clearInterval(_camSnapTimerT);
+    _camSnapTimerT = setInterval(function(){ camFetchSnap(true); }, CAM_SNAP_INTERVAL);
+  } else {
+    clearInterval(_camSnapTimerJ);
+    _camSnapTimerJ = setInterval(function(){ camFetchSnap(false); }, CAM_SNAP_INTERVAL);
+  }
+}
+
+function camRefreshSnap(isTracker) {
+  // Clear auto-timer so this manual refresh resets the 30s clock
+  if (isTracker) clearInterval(_camSnapTimerT);
+  else           clearInterval(_camSnapTimerJ);
+  camFetchSnap(isTracker);
+}
+
+// Tick the "X seconds ago" snapshot age label
+function camStartSnapAgeTimer(isTracker) {
+  var suf   = isTracker ? '-t' : '';
+  var ageEl = document.getElementById('cam-snap-age' + suf);
+  if (!ageEl) return;
+  var tick = setInterval(function() {
+    var fetched = isTracker ? _camSnapFetchedT : _camSnapFetchedJ;
+    if (!fetched) { clearInterval(tick); return; }
+    var sec = Math.round((Date.now() - fetched) / 1000);
+    if (sec < 60) ageEl.textContent = sec + 's ago';
+    else          ageEl.textContent = Math.round(sec/60) + 'm ago';
+  }, 5000);
+}
+
+// ── LIVE STREAM ──────────────────────────────────────────────────────────
+function camStartLive(isTracker) {
+  var suf     = isTracker ? '-t' : '';
+  var deviceId = camDevices[camActiveIdx] && camDevices[camActiveIdx].deviceId;
+  if (!deviceId) return;
+
+  // Switch from snapshot view to live view
+  var snapWrap  = document.getElementById('cam-snap-wrap'  + suf);
+  var liveWrap  = document.getElementById('cam-live-wrap'  + suf);
+  var liveBar   = document.getElementById('cam-live-bar'   + suf);
+  var progBar   = document.getElementById('cam-progress-bar' + suf);
+  var progFill  = document.getElementById('cam-progress-fill' + suf);
+  var resumeBtn = document.getElementById('cam-resume-btn' + suf);
+  var badge     = document.getElementById('cam-live-badge' + suf);
+  var lbl       = document.getElementById('cam-live-label' + suf);
+  var overlay   = document.getElementById('cam-overlay'    + suf);
+  var spinner   = document.getElementById('cam-spinner'    + suf);
+  var msg       = document.getElementById('cam-overlay-msg'+ suf);
+  var video     = document.getElementById('cam-video'      + suf);
+  if (!video) return;
+
+  if (snapWrap)  snapWrap.style.display  = 'none';
+  if (liveBar)   liveBar.style.display   = 'flex';
+  if (liveWrap)  liveWrap.classList.add('active');
+  if (resumeBtn) resumeBtn.classList.remove('visible');
+  if (progBar)   { progBar.style.display = 'block'; }
+  if (progFill)  { progFill.style.width = '100%'; progFill.style.transition = 'none'; }
+  if (badge)     badge.classList.remove('live');
+  if (lbl)       lbl.textContent = 'Connecting…';
+  if (overlay)   overlay.classList.remove('hidden');
+  if (spinner)   spinner.style.display = 'block';
+  if (msg)       msg.textContent = 'Connecting…';
+
+  // Destroy old HLS
+  if (isTracker) { if (camHlsT) { try{camHlsT.destroy();}catch(e){} camHlsT = null; } }
+  else           { if (camHlsJ) { try{camHlsJ.destroy();}catch(e){} camHlsJ = null; } }
+
+  fetch(IMOU_WORKER + '/live', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceId: deviceId, streamId: 1 })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) {
+      if (spinner) spinner.style.display = 'none';
+      if (msg)     msg.textContent = 'Camera unavailable';
+      if (lbl)     lbl.textContent = 'Offline';
+      return;
+    }
+    var hlsUrl =
+      (data.streams && data.streams.find(function(s){ return s.hls && s.hls.startsWith('https') && s.streamId === 1; }) || {}).hls ||
+      (data.streams && data.streams.find(function(s){ return s.hls && s.hls.startsWith('https'); }) || {}).hls ||
+      data.hls;
+    if (!hlsUrl) { if (msg) msg.textContent = 'No stream URL'; return; }
+
+    function onReady() {
+      if (overlay)  overlay.classList.add('hidden');
+      if (badge)    badge.classList.add('live');
+      if (lbl)      lbl.textContent = 'LIVE';
+      video.play().catch(function(){});
+      // Start 90s countdown
+      camStart90sTimer(isTracker, progFill, resumeBtn);
+    }
+    function onErr(txt) {
+      if (spinner) spinner.style.display = 'none';
+      if (msg)     msg.textContent = txt || 'Stream error';
+      if (badge)   badge.classList.remove('live');
+      if (lbl)     lbl.textContent = 'Error';
+    }
+
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      var h = new Hls({ enableWorker: true });
+      if (isTracker) camHlsT = h; else camHlsJ = h;
+      h.loadSource(hlsUrl);
+      h.attachMedia(video);
+      h.on(Hls.Events.MANIFEST_PARSED, onReady);
+      h.on(Hls.Events.ERROR, function(e, err) { if (err.fatal) onErr('Stream error'); });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = hlsUrl;
+      video.addEventListener('loadedmetadata', onReady, { once: true });
+      video.addEventListener('error', function(){ onErr('Playback error'); }, { once: true });
+    } else {
+      if (spinner) spinner.style.display = 'none';
+      if (msg) msg.textContent = 'HLS not supported';
+    }
+  })
+  .catch(function() {
+    if (spinner) spinner.style.display = 'none';
+    if (msg)     msg.textContent = 'Network error';
+    if (lbl)     lbl.textContent = 'Offline';
+  });
+}
+
+function camStopLive(isTracker) {
+  var suf = isTracker ? '-t' : '';
+  if (isTracker) { if (camHlsT){try{camHlsT.destroy();}catch(e){} camHlsT=null;} clearInterval(_camLiveTimerT); }
+  else           { if (camHlsJ){try{camHlsJ.destroy();}catch(e){} camHlsJ=null;} clearInterval(_camLiveTimerJ); }
+
+  var video     = document.getElementById('cam-video'       + suf);
+  var snapWrap  = document.getElementById('cam-snap-wrap'   + suf);
+  var liveWrap  = document.getElementById('cam-live-wrap'   + suf);
+  var liveBar   = document.getElementById('cam-live-bar'    + suf);
+  var progBar   = document.getElementById('cam-progress-bar'+ suf);
+  var resumeBtn = document.getElementById('cam-resume-btn'  + suf);
+  var badge     = document.getElementById('cam-live-badge'  + suf);
+
+  if (video)     { video.pause(); video.src = ''; }
+  if (liveWrap)  liveWrap.classList.remove('active');
+  if (liveBar)   liveBar.style.display   = 'none';
+  if (progBar)   progBar.style.display   = 'none';
+  if (resumeBtn) resumeBtn.classList.remove('visible');
+  if (badge)     badge.classList.remove('live');
+  if (snapWrap)  snapWrap.style.display  = 'block';
+  // Refresh snapshot so the freeze frame is current
+  camFetchSnap(isTracker);
+}
+
+// ── 90-second countdown ───────────────────────────────────────────────────
+function camStart90sTimer(isTracker, progFill, resumeBtn) {
+  if (isTracker) clearInterval(_camLiveTimerT);
+  else           clearInterval(_camLiveTimerJ);
+
+  var elapsed = 0;
+  // Kick off CSS transition for progress bar drain
+  if (progFill) {
+    progFill.style.transition = 'none';
+    progFill.style.width = '100%';
+    setTimeout(function(){
+      progFill.style.transition = 'width ' + CAM_LIVE_SECS + 's linear';
+      progFill.style.width = '0%';
+    }, 50);
+  }
+
+  var timer = setInterval(function() {
+    elapsed++;
+    if (elapsed >= CAM_LIVE_SECS) {
+      clearInterval(timer);
+      // Auto-pause: stop stream, show snapshot + resume button
+      camStopLive(isTracker);
+      var suf = isTracker ? '-t' : '';
+      var rb  = document.getElementById('cam-resume-btn' + suf);
+      if (rb) rb.classList.add('visible');
+    }
+  }, 1000);
+
+  if (isTracker) _camLiveTimerT = timer;
+  else           _camLiveTimerJ = timer;
+}
+
+// ── Page Visibility — pause live when tab hidden ──────────────────────────
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    var liveJ = document.getElementById('cam-live-wrap');
+    var liveT = document.getElementById('cam-live-wrap-t');
+    if (liveJ && liveJ.classList.contains('active')) camStopLive(false);
+    if (liveT && liveT.classList.contains('active')) camStopLive(true);
+  }
+});
+
+init();
 </script>
 </body>
 </html>
