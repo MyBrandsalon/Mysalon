@@ -1976,12 +1976,12 @@ function _sheetToTable(name){
 // Session credentials live in localStorage (persistent) so the manager stays
 // logged in across tab closes, browser restarts, and PWA launches — until
 // they explicitly tap Logout.
-var SESSION_PHONE = sessionStorage.getItem('bb_phone') || localStorage.getItem('bb_phone');
-var SESSION_ROLE  = sessionStorage.getItem('bb_role')  || localStorage.getItem('bb_role');
-if (!SESSION_PHONE || SESSION_ROLE !== 'manager') { window.location.href = 'login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
+var SESSION_PHONE = sessionStorage.getItem('ms_phone') || sessionStorage.getItem('bb_phone') || localStorage.getItem('ms_phone') || localStorage.getItem('bb_phone');
+var SESSION_ROLE  = sessionStorage.getItem('ms_role') || sessionStorage.getItem('bb_mgr_role') || localStorage.getItem('ms_role') || localStorage.getItem('bb_role');
+if (!SESSION_PHONE || (SESSION_ROLE !== 'manager' && SESSION_ROLE !== 'owner')) { window.location.href = 'login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); }
 try {
   localStorage.setItem('bb_phone', SESSION_PHONE);
-  localStorage.setItem('bb_role',  SESSION_ROLE);
+  localStorage.setItem('ms_role', SESSION_ROLE);
 } catch(e){ /* private-mode quota or disabled storage — ignore */ }
 
 // ── PWA: install on home screen ───────────────────────────────────────
@@ -2089,8 +2089,9 @@ var ME=null, mySalonId=null, mySalonName='My Salon';
 
 function _initApp(){
   var staff=LS.get('staff')||[];
-  ME=staff.find(function(u){return u.phone===SESSION_PHONE&&u.role==='manager'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
-  if(!ME){ sessionStorage.clear(); window.location.href='login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); return; }
+  ME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); window.location.href='login-owner.html?salon='+(sessionStorage.getItem('ms_slug')||''); return; }
+if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
   mySalonId=ME.salonId;
   var salons=LS.get('salons')||[];
   var salon=salons.find(function(s){return s.id===mySalonId;});
