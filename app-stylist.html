@@ -1379,7 +1379,7 @@ function _sheetToTable(name){
 // change; values get mirrored into localStorage on every load.
 var SESSION_PHONE = sessionStorage.getItem('bb_phone') || localStorage.getItem('bb_phone');
 var SESSION_ROLE  = sessionStorage.getItem('bb_role')  || localStorage.getItem('bb_role');
-if (!SESSION_PHONE || SESSION_ROLE !== 'stylist') { window.location.href = '/BB/login-stylist.html'; }
+if (!SESSION_PHONE || SESSION_ROLE !== 'stylist' && SESSION_ROLE !== 'barber') { window.location.href = '/BB/login-stylist.html'; }
 try {
   localStorage.setItem('ms_phone', SESSION_PHONE);
   localStorage.setItem('ms_role', SESSION_ROLE);

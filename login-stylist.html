@@ -79,7 +79,7 @@ function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function
       sessionStorage.setItem('ms_tenant_id',_tenant.id);
       sessionStorage.setItem('ms_plan',_tenant.plan||'free');
       sessionStorage.setItem('ms_name',_tenant.name);
-      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=eq.stylist&active=eq.true&select=id,name,phone,login_pin,loginPin,salon_id,salonId,fixedSalary,fixed_salary,foodMoney,food_money,cleaningMoney,cleaning_money');
+      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&role=in.(stylist,barber)&active=eq.true&select=id,name,phone,login_pin,loginPin,salon_id,salonId,fixedSalary,fixed_salary,foodMoney,food_money,cleaningMoney,cleaning_money');
     }).then(function(staff){
       if(!staff)return;
       var norm=staff.map(function(s){
