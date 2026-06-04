@@ -3169,8 +3169,13 @@ function addMgrBill(){
     cashback_earned:      entry.cashback_earned,
     cashback_source:      entry.cashback_source,
     cashback_used:        entry.cashback_used,
-    referral_credit_used: entry.referral_credit_used
+    referral_credit_used: entry.referral_credit_used,
+    amount:        entry.total,
+    discount:      0,
+    final_amount:  entry.total
   };
+  // Remove any fields that could conflict with DB constraints
+  delete dbRow.id; // Let Supabase generate UUID — avoids type mismatch with bigint id
   // Save bill to Supabase. If insert fails (e.g. cashback_source column doesn't
   // exist yet), retry once without that field so the bill still saves.
   var _onMgrSavedOk = function(saved){
@@ -3196,10 +3201,13 @@ function addMgrBill(){
     var discMsg= offerDiscount>0 ? ' · 🏷️ '+offerName+' −₹'+offerDiscount : '';
     toast('✅ Entry saved for ' + (barber ? barber.name : 'stylist') + discMsg + cbMsg + refMsg);
   };
+  console.log('[MySalon] Inserting entry to Supabase:', JSON.stringify(dbRow));
   sbInsert('entries', dbRow)
     .then(_onMgrSavedOk)
     .catch(function(err){
-      console.warn('[BB] addMgrBill insert failed, retrying without cashback_source:', err);
+      var _err1 = err && err.message ? err.message : String(err);
+      console.warn('[MySalon] Entry insert failed ('+_err1+'), retrying...');
+      toast('⚠ First insert failed: '+_err1+' — retrying...');
       var fallback = {};
       Object.keys(dbRow).forEach(function(k){
         if(k !== 'cashback_source') fallback[k] = dbRow[k];
@@ -3212,7 +3220,9 @@ function addMgrBill(){
           cached.push(entry);
           LS.set('entries', cached);
           renderDashboard();
-          toast('⚠ Saved locally — Supabase error: '+err2);
+          var errMsg2 = err2 && err2.message ? err2.message : String(err2);
+          toast('⚠ Saved locally — DB Error: '+errMsg2);
+          console.error('[MySalon] Full error:', errMsg2);
         });
     });
   // Clear form immediately for UX

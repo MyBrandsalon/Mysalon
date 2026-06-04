@@ -2181,7 +2181,10 @@ function addBill(){
     cashback_earned: cashbackEarned,
     cashback_source: cashbackLabel,
     cashback_used: split.cbUsed,
-    referral_credit_used: split.refUsed
+    referral_credit_used: split.refUsed,
+    amount:       ph+cash,
+    discount:     0,
+    final_amount: ph+cash
   };
   var entries=getEntries();
   entries.push(entry);
@@ -2191,7 +2194,9 @@ function addBill(){
   // cashback_source field so the bill still saves.
   sbInsert('entries', entry)
     .catch(function(err){
-      console.warn('[BB] entries insert failed, retrying without cashback_source:', err);
+      var _se=err&&err.message?err.message:String(err);
+      console.warn('[MySalon] entry insert failed:',_se);
+      toast('⚠ Entry insert failed: '+_se+' — retrying...');
       var fallback = {};
       Object.keys(entry).forEach(function(k){
         if(k !== 'cashback_source') fallback[k] = entry[k];
@@ -2200,7 +2205,7 @@ function addBill(){
     })
     .catch(function(err){
       console.warn('[BB] entries insert failed even on retry:', err);
-      toast('⚠ Saved locally — Supabase rejected the row');
+      toast('⚠ DB Error (see console for details)');
     });
 
   // Create/dedup customer in Supabase (UPSERT on phone unique index).
@@ -3744,7 +3749,10 @@ function saveQueueBill(){
     cashback_earned: cashbackEarned,
     cashback_source: cashbackLabel,
     cashback_used: split.cbUsed,
-    referral_credit_used: split.refUsed
+    referral_credit_used: split.refUsed,
+    amount:       ph+cash,
+    discount:     0,
+    final_amount: ph+cash
   };
   // Save bill to Supabase. Retry without cashback_source if the column doesn't
   // exist yet (e.g. schema-cashback-source-column.sql wasn't run).
