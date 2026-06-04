@@ -6,7 +6,7 @@
 // ════════════════════════════════════════════════════════════════
 
 var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
-var MS_KEY = 'YOUR_MYSALON_ANON_KEY'; // eyJ... key from Supabase → Settings → API
+var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk'; // eyJ... key from Supabase → Settings → API
 
 // ── Low-level helpers ─────────────────────────────────────────
 function _msHeaders() {

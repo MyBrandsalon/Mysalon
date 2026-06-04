@@ -1226,7 +1226,7 @@ function monthLabel(ym) {  // "yyyy-mm" → "Mar 2026"
 // Pull fresh data from Supabase on every load
 // Credentials are set here — replace with your actual values
 var SUPA_URL  = 'https://sgliztuggyksdemzkaxr.supabase.co';
-var SUPA_KEY  = 'YOUR_MYSALON_ANON_KEY';
+var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
 
 function _supaGet(table, qs){
   var url = SUPA_URL+'/rest/v1/'+table+'?select=*'+(qs?'&'+qs:'');
