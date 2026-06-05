@@ -1247,6 +1247,21 @@ function _supaFetch(path, opts){
     }).catch(function(){ return []; });
 }
 
+function sbSelect(table, qs){
+  var url = table + (qs ? '?' + qs + '&limit=10000' : '?limit=10000');
+  return fetch(SUPA_URL + '/rest/v1/' + url, {
+    method: 'GET',
+    headers: { 'Content-Type':'application/json', 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY }
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ console.warn('[SA] sbSelect error '+table+':',t); return []; });
+    var ct = r.headers.get('content-type')||'';
+    return ct.indexOf('application/json')!==-1 ? r.json() : [];
+  }).then(function(rows){
+    if(!rows || !Array.isArray(rows)){ console.warn('[SA] sbSelect non-array',table,rows); return []; }
+    return rows;
+  }).catch(function(e){ console.warn('[SA] sbSelect catch',table,e); return []; });
+}
+
 // INSERT single row — returns the new row
 function sbInsert(table, row){
   return _supaFetch(table, { method:'POST', body: JSON.stringify(row) })
@@ -1281,7 +1296,6 @@ function sbDelete(table, id){
 var SB = {
   // ─ READ ALL (used for bootstrap cache) ─
   readAll: function(){
-    // Safe wrapper — returns [] on any error, never throws
     function _safe(table){
       return sbSelect(table).then(function(r){
         if(!r || !Array.isArray(r)) return [];
