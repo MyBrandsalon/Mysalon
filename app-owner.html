@@ -441,6 +441,34 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- ── TOPBAR ── FIX 1: Outlet name -->
 <div id="app-content">
+
+<!-- ── DIAGNOSTIC BANNER — remove after fixing ── -->
+<div id="ms-diag-banner" style="background:#1e40af;color:white;padding:10px 14px;font-size:12px;font-family:monospace;display:block;position:sticky;top:0;z-index:9999;word-break:break-all">
+  <strong>DIAG:</strong>
+  PHONE=<span id="diag-phone">?</span> |
+  ROLE=<span id="diag-role">?</span> |
+  TENANT=<span id="diag-tenant">?</span> |
+  SLUG=<span id="diag-slug">?</span> |
+  PLAN=<span id="diag-plan">?</span>
+  <button onclick="document.getElementById('ms-diag-banner').remove()"
+    style="float:right;background:rgba(255,255,255,.2);border:none;color:white;padding:2px 8px;cursor:pointer;border-radius:4px">✕</button>
+</div>
+<script>
+(function(){
+  var p=localStorage.getItem('ms_phone')||sessionStorage.getItem('ms_phone')||'EMPTY';
+  var r=localStorage.getItem('ms_role')||sessionStorage.getItem('ms_role')||'EMPTY';
+  var t=localStorage.getItem('ms_tenant_id')||sessionStorage.getItem('ms_tenant_id')||'EMPTY';
+  var s=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||new URLSearchParams(location.search).get('salon')||'EMPTY';
+  var pl=localStorage.getItem('ms_plan')||sessionStorage.getItem('ms_plan')||'EMPTY';
+  document.getElementById('diag-phone').textContent=p;
+  document.getElementById('diag-role').textContent=r;
+  document.getElementById('diag-tenant').textContent=t.slice(0,8)+'...';
+  document.getElementById('diag-slug').textContent=s;
+  document.getElementById('diag-plan').textContent=pl;
+})();
+</script>
+<!-- ── END DIAGNOSTIC ── -->
+
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
@@ -2039,8 +2067,25 @@ if(SESSION_PHONE) sessionStorage.setItem('ms_phone',      SESSION_PHONE);
 if(SESSION_ROLE)  sessionStorage.setItem('ms_role',       SESSION_ROLE);
 
 var _msSlugParam = new URLSearchParams(location.search).get('salon') || MS_SLUG || '';
+
+// ── Auth guard ───────────────────────────────────────────────
 if (!SESSION_PHONE || (SESSION_ROLE !== 'manager' && SESSION_ROLE !== 'owner')) {
-  window.location.href = 'salon-portal.html' + (_msSlugParam ? '?salon='+encodeURIComponent(_msSlugParam) : '');
+  // Not logged in — go to login page, not portal
+  window.location.href = 'login-owner.html' + (_msSlugParam ? '?salon='+encodeURIComponent(_msSlugParam) : '');
+}
+
+// ── Ensure tenant data is restored from localStorage ────────
+if(MS_SLUG) {
+  sessionStorage.setItem('ms_slug',      MS_SLUG);
+  sessionStorage.setItem('ms_tenant_id', MS_TENANT_ID);
+  sessionStorage.setItem('ms_role',      SESSION_ROLE);
+  sessionStorage.setItem('ms_phone',     SESSION_PHONE);
+  var _sn = localStorage.getItem('ms_user_name')||'';
+  var _mn = localStorage.getItem('ms_name')||'';
+  var _pl = localStorage.getItem('ms_plan')||'free';
+  if(_sn) sessionStorage.setItem('ms_user_name', _sn);
+  if(_mn) sessionStorage.setItem('ms_name', _mn);
+  if(_pl) sessionStorage.setItem('ms_plan', _pl);
 }
 
 // ── PWA: install on home screen ───────────────────────────────────────
@@ -7476,7 +7521,7 @@ function mgrWaGated(type, customerId){
   var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
   if(plan === 'free'){
     // Show upgrade modal instead of toast
-    _showWaUpgradeModal();
+    showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
     return;
   }
   if(type === 'reminder') mgrSendReminderNow();
@@ -7485,25 +7530,64 @@ function mgrWaGated(type, customerId){
 }
 
 function _showWaUpgradeModal(){
-  // Create and show upgrade banner
   var existing = document.getElementById('wa-upgrade-toast');
-  if(existing){ existing.remove(); }
-  var el = document.createElement('div');
-  el.id = 'wa-upgrade-toast';
-  el.innerHTML =
-    '<div style="position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:9999;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.3)">' +
-      '<div style="font-size:28px">🔒</div>' +
-      '<div style="flex:1">' +
-        '<div style="font-family:var(--HF);font-size:16px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>' +
-        '<div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px">WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong></div>' +
-      '</div>' +
-      '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" ' +
-         'style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:var(--HF);font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap">UPGRADE →</a>' +
-      '<button onclick="document.getElementById('wa-upgrade-toast').remove()" ' +
-        'style="background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;padding:0 4px">✕</button>' +
-    '</div>';
-  document.body.appendChild(el);
-  setTimeout(function(){ if(el.parentNode) el.remove(); }, 6000);
+  if(existing) existing.remove();
+
+  // Build banner using DOM — no innerHTML escaping issues
+  var wrap = document.createElement('div');
+  wrap.id = 'wa-upgrade-toast';
+  wrap.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:99999;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.4);font-family:Barlow,sans-serif';
+
+  // Lock icon
+  var icon = document.createElement('div');
+  icon.style.cssText = 'font-size:28px;flex-shrink:0';
+  icon.textContent = '🔒';
+  wrap.appendChild(icon);
+
+  // Text block
+  var txt = document.createElement('div');
+  txt.style.cssText = 'flex:1;min-width:0';
+  var h = document.createElement('div');
+  h.style.cssText = 'font-family:"Bebas Neue",Barlow,sans-serif;font-size:17px;color:#F5E030;letter-spacing:1px';
+  h.textContent = 'PRO FEATURE';
+  var p = document.createElement('div');
+  p.style.cssText = 'font-size:12px;color:rgba(255,255,255,.75);margin-top:3px';
+  p.innerHTML = 'WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>';
+  txt.appendChild(h);
+  txt.appendChild(p);
+  wrap.appendChild(txt);
+
+  // Upgrade button
+  var btn = document.createElement('a');
+  btn.href = 'https://mybrandsalon.github.io/Mysalon/upgrade.html';
+  btn.target = '_blank';
+  btn.style.cssText = 'padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:"Bebas Neue",Barlow,sans-serif;font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0';
+  btn.textContent = 'UPGRADE →';
+  wrap.appendChild(btn);
+
+  // Close button
+  var cls = document.createElement('button');
+  cls.style.cssText = 'background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1';
+  cls.textContent = '✕';
+  cls.onclick = function(){ wrap.remove(); };
+  wrap.appendChild(cls);
+
+  document.body.appendChild(wrap);
+
+  // Slide up animation
+  wrap.style.transform = 'translateY(100%)';
+  wrap.style.transition = 'transform .3s ease';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      wrap.style.transform = 'translateY(0)';
+    });
+  });
+
+  // Auto dismiss after 6s
+  setTimeout(function(){
+    wrap.style.transform = 'translateY(100%)';
+    setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 350);
+  }, 6000);
 }
 
 // ── Sales: custom date period hook ──────────────────────────────
@@ -7650,5 +7734,39 @@ function sdBuildTbl(entries, limit){
 
 </script>
 </div><!-- /app-content -->
+
+<!-- ── Pro Upgrade Banner (shown when free plan hits gated feature) ── -->
+<div id="wa-upgrade-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:99999;display:none;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.4);transform:translateY(100%);transition:transform .3s ease">
+  <div style="font-size:28px;flex-shrink:0">🔒</div>
+  <div style="flex:1">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro plan (₹299/mo)</strong></div>
+  </div>
+  <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
+     style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0">UPGRADE →</a>
+  <button onclick="hideUpgradeBanner()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1">✕</button>
+</div>
+<script>
+var _upgradeBannerTimer;
+function showUpgradeBanner(msg){
+  var b = document.getElementById('wa-upgrade-banner');
+  var m = document.getElementById('wa-upgrade-msg');
+  if(!b) return;
+  if(m && msg) m.innerHTML = msg;
+  b.style.display = 'flex';
+  clearTimeout(_upgradeBannerTimer);
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ b.style.transform='translateY(0)'; });
+  });
+  _upgradeBannerTimer = setTimeout(function(){ hideUpgradeBanner(); }, 6000);
+}
+function hideUpgradeBanner(){
+  var b = document.getElementById('wa-upgrade-banner');
+  if(!b) return;
+  b.style.transform = 'translateY(100%)';
+  setTimeout(function(){ b.style.display='none'; }, 350);
+}
+</script>
+
 </body>
 </html>
