@@ -33,21 +33,29 @@ input::placeholder{color:#AAAAAA}
 .btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px}
 .btn-secondary:hover{border-color:#004F38;color:#004F38}
 .err{color:#DC2626;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none;background:rgba(220,38,38,.06);padding:10px;border-radius:8px;border:1px solid rgba(220,38,38,.2)}
+
+/* ── Clean logo section ── */
+.logo-section{text-align:center;margin-bottom:24px}
+.salon-logo-img{width:96px;height:96px;border-radius:16px;object-fit:contain;display:none;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.ms-logo-badge{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800}
+.ms-logo-badge-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
+.ms-logo-badge-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
+.platform-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#555;margin-top:8px;display:block}
+.salon-name-tag{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="logo-wrap">
-    <div class="ms-logo-wrap" id="logoWrap">
-      <!-- Salon logo shown if uploaded, fallback to MY/SALON badge -->
-      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo" style="display:none;width:88px;height:88px;object-fit:contain;border-radius:12px;border:2px solid #E0E0D8">
-      <div class="ms-logo-mark" id="logoFallback">
-        <span class="ms-logo-top">MY</span>
-        <span class="ms-logo-bot">SALON</span>
-      </div>
+  <div class="logo-section">
+    <!-- Salon logo shows here when uploaded; MY/SALON badge shows as fallback -->
+    <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo">
+    <div id="msBadge" class="ms-logo-badge">
+      <span class="ms-logo-badge-top">MY</span>
+      <span class="ms-logo-badge-bot">SALON</span>
     </div>
-    <span class="ms-logo-tag" id="platformTag">Digital Salon Platform</span>
-    <span class="salon-name-display ms-salon-name">Loading…</span>
+    <span id="platformTag" class="platform-tag">Digital Salon Platform</span>
+    <span class="salon-name-tag ms-salon-name">Loading…</span>
+  </div>
   </div>
   <div class="role-banner">
     <span class="role-icon">👤</span>
@@ -90,6 +98,25 @@ function _post(p,b){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:Obj
         }
       }
       document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
+  // ── Apply salon logo ──────────────────────────────────────
+  var _logoImg  = document.getElementById('salonLogoImg');
+  var _logoBadge = document.getElementById('msBadge');
+  var _logoTag  = document.getElementById('platformTag');
+  var _logoUrl  = (_tenant.logo_url || '').trim();
+  if(_logoUrl && _logoImg){
+    _logoImg.onload = function(){
+      _logoImg.style.display = 'block';
+      if(_logoBadge) _logoBadge.style.display = 'none';
+      if(_logoTag)   _logoTag.style.display   = 'none';
+    };
+    _logoImg.onerror = function(){
+      _logoImg.style.display = 'none';
+      if(_logoBadge) _logoBadge.style.display = '';
+      if(_logoTag)   _logoTag.style.display   = '';
+    };
+    _logoImg.src = _logoUrl;
+  }
+  // ─────────────────────────────────────────────────────────
       document.title=_tenant.name+' – Customer Portal';
       // Apply salon logo if uploaded
       if(_tenant.logo_url){
