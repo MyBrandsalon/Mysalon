@@ -6,48 +6,46 @@
 <title>MySalon – Owner / Manager Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Barlow',sans-serif;background:#F0F0EA;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
-.card{background:white;border-radius:16px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.10);border:1px solid #E0E0D8}
-.logo-wrap{text-align:center;margin-bottom:24px}
-.ms-logo-mark{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800}
-.ms-logo-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
-.ms-logo-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
-.ms-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#555;margin-top:8px;display:block}
-.salon-name-display{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
-.role-banner{background:#7c2d12;color:#F5E030;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.role-icon{font-size:26px}
+.wrap{width:100%;max-width:380px}
+
+/* ── Logo floats above card ── */
+.logo-section{text-align:center;margin-bottom:20px}
+.salon-logo-img{width:100px;height:100px;border-radius:18px;object-fit:contain;display:none;box-shadow:0 4px 20px rgba(0,0,0,.18);margin:0 auto 10px}
+.ms-logo-badge{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;margin-bottom:8px}
+.ms-logo-badge-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
+.ms-logo-badge-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
+.platform-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:4px;display:block}
+.salon-name-tag{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
+
+/* ── Card ── */
+.card{background:white;border-radius:16px;padding:28px 22px;box-shadow:0 4px 24px rgba(0,0,0,.10);border:1px solid #E0E0D8}
+.role-banner{background:#7c2d12;color:#F5E030;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.role-icon{font-size:24px}
 .role-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;display:block}
-.role-sub{font-size:11px;color:rgba(245,224,48,.6);margin-top:2px;display:block}
+.role-sub{font-size:11px;color:rgba(245,224,48,.65);margin-top:2px;display:block}
 h2{font-size:22px;font-weight:800;color:#1A1A14;margin-bottom:4px}
-.sub{font-size:13px;color:#767668;margin-bottom:22px}
-label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#767668;margin-bottom:8px}
+.sub{font-size:13px;color:#767668;margin-bottom:20px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#767668;margin-bottom:7px}
 input[type=tel],input[type=password]{width:100%;background:#F8F8F4;border:2px solid #E0E0D8;border-radius:8px;padding:14px 15px;font-family:'Barlow',sans-serif;font-size:17px;font-weight:500;color:#1A1A14;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus{border-color:#004F38}
+input:focus{border-color:#7c2d12}
 input::placeholder{color:#AAAAAA}
-.fg{margin-bottom:18px}
+.fg{margin-bottom:16px}
 .btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center;text-decoration:none}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:#7c2d12;color:#F5E030}
 .btn-primary:disabled{background:#ccc;color:#888;cursor:not-allowed}
 .btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px}
-.btn-secondary:hover{border-color:#004F38;color:#004F38}
+.btn-secondary:hover{border-color:#003D2B;color:#003D2B}
 .err{color:#DC2626;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none;background:rgba(220,38,38,.06);padding:10px;border-radius:8px;border:1px solid rgba(220,38,38,.2)}
-
-/* ── Clean logo section ── */
-.logo-section{text-align:center;margin-bottom:24px}
-.salon-logo-img{width:96px;height:96px;border-radius:16px;object-fit:contain;display:none;box-shadow:0 4px 20px rgba(0,0,0,.15)}
-.ms-logo-badge{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800}
-.ms-logo-badge-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
-.ms-logo-badge-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
-.platform-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#555;margin-top:8px;display:block}
-.salon-name-tag{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
 </style>
 </head>
 <body>
-<div class="card">
+<div class="wrap">
+
+  <!-- Logo area — floats above the white card, no box around it -->
   <div class="logo-section">
-    <!-- Salon logo shows here when uploaded; MY/SALON badge shows as fallback -->
     <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo">
     <div id="msBadge" class="ms-logo-badge">
       <span class="ms-logo-badge-top">MY</span>
@@ -56,18 +54,22 @@ input::placeholder{color:#AAAAAA}
     <span id="platformTag" class="platform-tag">Digital Salon Platform</span>
     <span class="salon-name-tag ms-salon-name">Loading…</span>
   </div>
+
+  <!-- Login card -->
+  <div class="card">
+    <div class="role-banner">
+      <span class="role-icon">🏪</span>
+      <div><span class="role-title">Owner / Manager Login</span><span class="role-sub">Full salon management access</span></div>
+    </div>
+    <h2>Owner / Manager Login</h2>
+    <p class="sub">Enter your phone number and 6-digit PIN</p>
+    <div id="errMsg" class="err"></div>
+    <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+    <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
   </div>
-  <div class="role-banner">
-    <span class="role-icon">🏪</span>
-    <div><span class="role-title">Owner / Manager Login</span><span class="role-sub">Full salon management access</span></div>
-  </div>
-  <h2>Owner / Manager Login</h2>
-  <p class="sub">Enter your phone number and 6-digit PIN</p>
-  <div id="errMsg" class="err"></div>
-  <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-  <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
-  <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
+
 </div>
 <script>
 var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
