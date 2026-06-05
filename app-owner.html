@@ -444,8 +444,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
-    <div class="tb-mgr-name" id="tbName">Manager</div>
-    <div class="tb-outlet" id="tbOutlet">Loading outlet…</div>
+    <div class="tb-mgr-name" id="tbName">Owner</div>
+    <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
     <span class="tb-badge">🏪 Mgr</span>
@@ -1983,6 +1983,17 @@ var SESSION_ROLE  = localStorage.getItem('ms_role')  || sessionStorage.getItem('
 var MS_TENANT_ID  = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
 var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
 
+// ── Pre-fill topbar from session immediately (before bootstrap) ──
+(function preInitTopbar(){
+  var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
+  var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
+  var _tbN = document.getElementById('tbName');
+  var _tbO = document.getElementById('tbOutlet');
+  if(_tbN) _tbN.textContent = _sName;
+  if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
+})();
+// ─────────────────────────────────────────────────────────────────
+
 // Restore sessionStorage from localStorage if needed (handles page reload)
 if(MS_SLUG)       sessionStorage.setItem('ms_slug',       MS_SLUG);
 if(MS_TENANT_ID)  sessionStorage.setItem('ms_tenant_id',  MS_TENANT_ID);
@@ -2105,12 +2116,23 @@ function _initApp(){
 window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):'');
 return; }
 if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
-  mySalonId=ME.salonId;
-  var salons=LS.get('salons')||[];
-  var salon=salons.find(function(s){return s.id===mySalonId;});
-  mySalonName=salon?salon.name:'My Salon';
-  document.getElementById('tbName').textContent   = ME.name;
-  document.getElementById('tbOutlet').textContent = '📍 '+mySalonName;
+  mySalonId = ME.salonId;
+  var salons = LS.get('salons') || [];
+
+  // For owners: salonId may be empty — pick first salon in their tenant
+  var salon = salons.find(function(s){ return s.id === mySalonId; });
+  if(!salon && salons.length) {
+    salon     = salons[0];
+    mySalonId = salon.id;
+    ME.salonId = mySalonId;
+  }
+
+  // Fallback to tenant name from session if salons not loaded yet
+  var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
+  mySalonName = salon ? salon.name : (_sessionName || 'My Salon');
+
+  document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
+  document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
   document.getElementById('staff-salon-name').textContent = mySalonName;
   var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
