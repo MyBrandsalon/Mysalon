@@ -1233,35 +1233,18 @@ function _supaHeaders(){
 }
 
 function _supaFetch(path, opts){
-  return fetch(SUPA_URL + '/rest/v1/' + path, Object.assign({
-    headers: _supaHeaders()
-  }, opts)).then(function(r){
-    if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
-    var ct = r.headers.get('content-type')||'';
-    return ct.indexOf('application/json') !== -1 ? r.json() : [];
-  });
-}
-
-// ── CRUD wrappers ───────────────────────────────────────────────
-// SELECT  — table, optional query-string filters e.g. "salonId=eq.S1&role=eq.barber"
-function sbSelect(table, qs){
-  // Use limit= query param — works with all Supabase key types including sb_publishable_
-  var url = table + (qs ? '?' + qs + '&limit=10000' : '?limit=10000');
-  return fetch(SUPA_URL + '/rest/v1/' + url, {
-    method: 'GET',
-    headers: {
-      'Content-Type':  'application/json',
-      'apikey':        SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY
-    }
-  }).then(function(r){
-    if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
-    var ct = r.headers.get('content-type')||'';
-    return ct.indexOf('application/json') !== -1 ? r.json() : [];
-  }).then(function(rows){
-    console.log('[BB] sbSelect', table, 'returned:', rows.length, 'rows');
-    return rows;
-  });
+  return fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({ headers: _supaHeaders() }, opts||{}))
+    .then(function(r){
+      if(!r.ok) return r.text().then(function(t){
+        console.warn('[MySalon] '+path+':', t);
+        return [];
+      });
+      var ct = r.headers.get('content-type')||'';
+      return ct.indexOf('application/json')!==-1 ? r.json() : [];
+    }).then(function(d){
+      if(d && !Array.isArray(d) && d.code){ console.warn('[MySalon] error:', d.message); return []; }
+      return d || [];
+    }).catch(function(){ return []; });
 }
 
 // INSERT single row — returns the new row
@@ -1298,21 +1281,28 @@ function sbDelete(table, id){
 var SB = {
   // ─ READ ALL (used for bootstrap cache) ─
   readAll: function(){
+    // Safe wrapper — returns [] on any error, never throws
+    function _safe(table){
+      return sbSelect(table).then(function(r){
+        if(!r || !Array.isArray(r)) return [];
+        return r;
+      }).catch(function(){ return []; });
+    }
     return Promise.all([
-      sbSelect('staff'),
-      sbSelect('salons'),
-      sbSelect('customers'),
-      sbSelect('entries'),
-      sbSelect('cash_in'),
-      sbSelect('expenses'),
-      sbSelect('attendance'),
-      sbSelect('style_cards'),
-      sbSelect('visits'),
-      sbSelect('advances'),
-      sbSelect('mgr_cash_in'),
-      sbSelect('mgr_expenses'),
-      sbSelect('deductions'),
-      sbSelect('att_overrides')
+      _safe('staff'),
+      _safe('salons'),
+      _safe('customers'),
+      _safe('entries'),
+      _safe('cash_in'),
+      _safe('expenses'),
+      _safe('attendance'),
+      _safe('style_cards'),
+      _safe('visits'),
+      _safe('advances'),
+      _safe('mgr_cash_in'),
+      _safe('mgr_expenses'),
+      _safe('deductions'),
+      _safe('att_overrides')
     ]).then(function(results){
       return {
         staff:        results[0]  || [],
@@ -1330,6 +1320,11 @@ var SB = {
         deductions:   results[12] || [],
         attOverrides: results[13] || []
       };
+    }).catch(function(e){
+      console.warn('[MySalon] SB.readAll error:', e);
+      return {staff:[],salons:[],customers:[],entries:[],cashIn:[],expenses:[],
+              attendance:[],styleCards:[],visits:[],advances:[],
+              mgrCashIn:[],mgrExpenses:[],deductions:[],attOverrides:[]};
     });
   },
 
@@ -1406,6 +1401,7 @@ function supaBootstrap(onDone, onError){
     console.log('[BB] Supabase data loaded — entries:', (data.entries||[]).length, 'staff:', (data.staff||[]).length, 'salons:', (data.salons||[]).length);
     ['entries','staff','salons','customers','cashIn','expenses',
      'attendance','styleCards','visits','advances','mgrCashIn','mgrExpenses'].forEach(function(k){
+      if(!data[k]) data[k] = [];  // guard against null/undefined
       localStorage.removeItem('bb_'+k);
     });
     applyRestoredData(data);
@@ -6611,9 +6607,11 @@ function loadAllTenants(){
     fetch(SUPA_URL+'/rest/v1/staff?select=id,tenant_id&limit=5000',{headers:_supaHeaders()}).then(function(r){return r.json();}),
     fetch(SUPA_URL+'/rest/v1/entries?select=id,tenant_id&limit=10000',{headers:_supaHeaders()}).then(function(r){return r.json();})
   ]).then(function(res){
-    _allTenants=Array.isArray(res[0])?res[0]:[];
-    var staff=Array.isArray(res[1])?res[1]:[];
-    var entries=Array.isArray(res[2])?res[2]:[];
+    _allTenants=Array.isArray(res[0])?res[0].filter(function(t){return t&&t.id;}):(res[0]&&res[0].message?[]:res[0]||[]);
+    var staff=Array.isArray(res[1])?res[1]:(res[1]&&res[1].message?[]:res[1]||[]);
+    var entries=Array.isArray(res[2])?res[2]:(res[2]&&res[2].message?[]:res[2]||[]);
+    // Debug
+    console.log('[MySalon SA] Tenants:', _allTenants.length, 'Staff:', staff.length, 'Entries:', entries.length);
     _tStaff={}; staff.forEach(function(s){var t=String(s.tenant_id||'');if(t)_tStaff[t]=(_tStaff[t]||0)+1;});
     _tEntries={}; entries.forEach(function(e){var t=String(e.tenant_id||'');if(t)_tEntries[t]=(_tEntries[t]||0)+1;});
     var pro=_allTenants.filter(function(t){return t.plan==='pro';}).length;
