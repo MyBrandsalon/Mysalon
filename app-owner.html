@@ -5094,7 +5094,7 @@ function mgrRenderCustTable(){
     var waCursor = hasPhone ? 'pointer' : 'not-allowed';
     var waTitle = hasPhone ? ('Send visit-reminder with offers to '+(r.c.name||'customer')) : 'No phone number';
     var waOnClick = hasPhone
-      ? "mgrWhatsAppReminder('"+safePhone+"','"+safeName+"','"+r.lastVisit+"',"+(r.daysSince||0)+",'"+r.dueStatus+"')"
+      ? "mgrWaGated('reminder','','"+safePhone+"','"+safeName+"','"+r.lastVisit+"',"+(r.daysSince||0)+",'"+r.dueStatus+"')"
       : 'void 0';
     var waBtn = '<button onclick="'+waOnClick+'" '+(hasPhone?'':'disabled')+' title="'+waTitle+'" '+
       'style="width:32px;height:32px;border-radius:50%;border:none;background:'+waBg+';color:'+waCol+';cursor:'+waCursor+';display:inline-flex;align-items:center;justify-content:center;line-height:1;transition:transform .15s" '+
@@ -5110,7 +5110,7 @@ function mgrRenderCustTable(){
     var fbCursor = fbEnabled ? 'pointer' : 'not-allowed';
     var fbTitle = !hasPhone ? 'No phone number' : !hasVisit ? 'No visit recorded yet' : ('Send feedback request to '+(r.c.name||'customer'));
     var fbOnClick = fbEnabled
-      ? "mgrWhatsAppFeedback('"+safePhone+"','"+safeName+"')"
+      ? "mgrWaGated('feedback','','"+safePhone+"','"+safeName+"')"
       : 'void 0';
     var fbBtn = '<button onclick="'+fbOnClick+'" '+(fbEnabled?'':'disabled')+' title="'+fbTitle+'" '+
       'style="width:32px;height:32px;border-radius:50%;border:none;background:'+fbBg+';color:'+fbCol+';cursor:'+fbCursor+';display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:transform .15s;font-weight:700" '+
@@ -7517,16 +7517,22 @@ function showQueueGated(){
 }
 
 // WhatsApp — Pro gate
-function mgrWaGated(type, customerId){
+function mgrWaGated(type, customerId, phone, name, lastVisit, daysSince, dueStatus){
   var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
   if(plan === 'free'){
-    // Show upgrade modal instead of toast
     showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
     return;
   }
-  if(type === 'reminder') mgrSendReminderNow();
-  if(type === 'feedback')  mgrSendFeedbackNow();
+  if(type === 'reminder'){
+    if(phone) mgrWhatsAppReminder(phone, name, lastVisit, daysSince||0, dueStatus||'');
+    else mgrSendReminderNow();
+  }
+  if(type === 'feedback'){
+    if(phone) mgrWhatsAppFeedback(phone, name);
+    else mgrSendFeedbackNow();
+  }
   if(type === 'welcome' && customerId) mgrSendWelcomeMessage(customerId);
+  if(type === 'welcome_all') mgrOpenWelcomeBulk();
 }
 
 function _showWaUpgradeModal(){
