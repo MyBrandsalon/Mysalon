@@ -1403,7 +1403,7 @@ var MS_SLUG = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug
 if(MS_SLUG) sessionStorage.setItem('ms_slug', MS_SLUG);
 if(MS_TENANT_ID) sessionStorage.setItem('ms_tenant_id', MS_TENANT_ID);
 if (!SESSION_PHONE || SESSION_ROLE !== 'stylist' && SESSION_ROLE !== 'barber') { var _msSlug = localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||new URLSearchParams(location.search).get('salon')||'';
-window.location.href = 'login-stylist.html' + (_msSlug ? '?salon='+encodeURIComponent(_msSlug) : ''); }
+window.location.href = 'salon-portal.html' + (_msSlug ? '?salon='+encodeURIComponent(_msSlug) : ''); }
 try {
   localStorage.setItem('ms_phone', SESSION_PHONE);
   localStorage.setItem('ms_role', SESSION_ROLE);
