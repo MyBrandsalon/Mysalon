@@ -21,8 +21,8 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 .hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(200,168,0,.04);bottom:-60px;left:-60px;pointer-events:none}
 
 /* Logo area */
-.salon-logo-wrap{width:88px;height:88px;border-radius:18px;border:3px solid rgba(200,168,0,.4);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;position:relative;z-index:1}
-.salon-logo-img{width:80px;height:80px;object-fit:contain;display:none;border-radius:14px}
+.salon-logo-wrap{width:100px;height:100px;border-radius:20px;background:transparent;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;position:relative;z-index:1}
+.salon-logo-img{width:96px;height:96px;object-fit:contain;display:none;border-radius:16px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .logo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%}
 .logo-fallback-top{display:block;background:#C8A800;font-family:var(--HF);font-size:22px;color:#003D2B;letter-spacing:2px;line-height:1;padding:4px 14px 2px;width:100%;text-align:center}
 .logo-fallback-bot{display:block;background:#003D2B;font-family:var(--HF);font-size:13px;color:#C8A800;letter-spacing:2px;line-height:1;padding:2px 14px 4px;width:100%;text-align:center}
@@ -321,22 +321,31 @@ function applyBranding(t){
   // Logo — show salon logo if uploaded, else show MY/SALON fallback
   var img = document.getElementById('salonLogoImg');
   var fb  = document.getElementById('logoFallback');
+  var wrap = document.getElementById('logoWrap');
   var logoUrl = (t.logo_url || '').trim();
   console.log('[MySalon] logo_url from DB:', logoUrl);
   if(logoUrl){
-    img.onload  = function(){ img.style.display='block'; if(fb) fb.style.display='none'; };
-    img.onerror = function(){ img.style.display='none'; if(fb) fb.style.display=''; console.warn('[MySalon] Logo failed to load:', logoUrl); };
+    img.onload = function(){
+      img.style.display = 'block';
+      if(fb)   fb.style.display   = 'none';
+      // Remove dark background + border from wrap when real logo loads
+      if(wrap){ wrap.style.background='transparent'; wrap.style.border='none'; wrap.style.borderRadius='20px'; }
+    };
+    img.onerror = function(){
+      img.style.display = 'none';
+      if(fb) fb.style.display = '';
+      console.warn('[MySalon] Logo failed to load:', logoUrl);
+    };
     img.src = logoUrl;
-    // Also try showing immediately (onload may already have fired if cached)
     if(img.complete && img.naturalWidth > 0){
       img.style.display = 'block';
       if(fb) fb.style.display = 'none';
+      if(wrap){ wrap.style.background='transparent'; wrap.style.border='none'; }
     }
   } else {
-    // No logo — keep fallback visible
     img.style.display = 'none';
     if(fb) fb.style.display = '';
-    console.log('[MySalon] No logo_url for this tenant — showing fallback');
+    console.log('[MySalon] No logo_url — showing fallback');
   }
   // Name + city
   document.getElementById('salonName').textContent = t.name;
