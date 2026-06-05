@@ -1682,10 +1682,10 @@ function filterByMonth(e,mo){if(!mo)return e;var p=mo.split('-');return e.filter
 // Runs every time the app loads. If staff data is missing or stale,
 // silently pulls latest from Google Sheets — no manual action needed.
 (function autoLoad(){
-  loadAllTenants();
+  try{ loadAllTenants(); } catch(e){ console.warn('[SA] loadAllTenants:',e); }
   supaBootstrap(
     function(data){
-      try{ renderOverview(); } catch(e){}
+      try{ if(typeof renderOverview==='function') renderOverview(); } catch(e){ console.warn('[SA] renderOverview:',e); }
       try{ renderManage();   } catch(e){}
       try{ renderDashboard();} catch(e){}
       try{ init();           } catch(e){}
@@ -2015,8 +2015,8 @@ function showTab(tab){
     if(!btn){ toast('⚠ Button not found: nt-'+tab); return; }
     pnl.classList.add('on');
     btn.classList.add('on');
-    if(tab==='allsales'){ supaBootstrap(function(){sdInit();},function(){sdInit();}); }
-    if(tab==='reports'){ supaBootstrap(function(){ _populateCsvSalonFilter(); renderReports(); }, function(){ _populateCsvSalonFilter(); renderReports(); }); }
+    if(tab==='allsales'){ supaBootstrap(function(){try{sdInit();}catch(e){console.warn(e);}},function(){try{sdInit();}catch(e){}}); }
+    if(tab==='reports'){ supaBootstrap(function(){ try{_populateCsvSalonFilter(); renderReports();}catch(e){console.warn(e);} }, function(){ _populateCsvSalonFilter(); renderReports(); }); }
     if(tab==='manage') { supaBootstrap(function(){ renderManage(); }, function(){ renderManage(); }); }
     if(tab==='offers') { populateAdminOfferSalonFilter(); supaBootstrap(function(){ renderAdminOffers(); }, function(){ renderAdminOffers(); }); }
     if(tab==='salonqueue'){ loadSalonQueue(); } else { sqCamDestroyAllTiles(); }
