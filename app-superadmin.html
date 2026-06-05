@@ -314,12 +314,12 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 /* ── BB Logo CSS ── */
 .bb-logo-sm{display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0;vertical-align:middle}
-.bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
+.bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:Bebas Neue,sans-serif;font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
 .bb-logo-sm-div{display:block;background:#003D2B !important;height:1.5px}
-.bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
+.bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:Bebas Neue,sans-serif;font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
 .bb-logo{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;text-decoration:none}
-.bb-logo-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
-.bb-logo-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
+.bb-logo-top{display:block;background:#C8A800 !important;font-family:Bebas Neue,sans-serif;font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
+.bb-logo-bot{display:block;background:#003D2B !important;font-family:Bebas Neue,sans-serif;font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
 .bb-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#003D2B;margin-top:7px;display:block}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
@@ -6636,9 +6636,9 @@ function renderTenantsList(list){
     var plan=t.plan||'free';
     var sc=_tStaff[t.id]||0, ec=_tEntries[t.id]||0;
     var reg=t.created_at?new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
-    var logo=t.logo_url
-      ?'<img src="'+t.logo_url+'" style="width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid var(--border);flex-shrink:0" onerror="this.src='ms-default-logo.svg'">'
-      :'<div style="width:34px;height:34px;border-radius:8px;background:#003D2B;border:2px solid #C8A800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:9px;color:#C8A800;text-align:center;line-height:1.1">MY<br>SALON</div>';
+    var logo = t.logo_url
+      ? ('<img src="' + t.logo_url + '" style="width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid #ddd;flex-shrink:0" onerror="this.style.display=\'none\'">')
+      : '<div style="width:34px;height:34px;border-radius:8px;background:#003D2B;border:2px solid #C8A800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#C8A800;text-align:center;line-height:1.2">MY<br>SALON</div>';
     var badge=t.is_active
       ?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:rgba(22,163,74,.1);color:#16A34A;border:1px solid rgba(22,163,74,.2)">Active</span>'
       :'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:rgba(220,53,69,.1);color:var(--danger);border:1px solid rgba(220,53,69,.2)">Inactive</span>';
