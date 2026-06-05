@@ -407,7 +407,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 .logo-wrap{text-align:center;margin-bottom:24px}
 
 /* ── BB Logo CSS ── */
-.bb-logo-sm{display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0;vertical-align:middle}
+.bb-logo-sm{display:none!important;/*replaced by tenant logo img*/display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0;vertical-align:middle}
 .bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
 .bb-logo-sm-div{display:block;background:#003D2B !important;height:1.5px}
 .bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
@@ -458,12 +458,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <!-- TOPBAR -->
 <div id="app-content">
 <div class="topbar">
-  <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:36px;height:36px;border-radius:8px;object-fit:contain;display:block;flex-shrink:0">
-    <div class="bb-logo-sm">
-    <span class="bb-logo-sm-top">MY</span>
-    <span class="bb-logo-sm-div"></span>
-    <span class="bb-logo-sm-bot">SALON</span>
-  </div>
+  <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
     <div class="tb-owner-name" id="tbName">Franchise Owner</div>
     <div class="tb-outlet" id="tbOutlet">Loading…</div>
