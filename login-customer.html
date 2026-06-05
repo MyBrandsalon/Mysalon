@@ -55,7 +55,7 @@ input::placeholder{color:#AAAAAA}
   <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
   <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
   <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
-  <a href="index.html" class="btn btn-secondary">← Back to MySalon</a>
+  <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
 </div>
 <script>
 var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
@@ -112,6 +112,8 @@ function setSession(role,phone,name,staffId,salonId){
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
 function hideErr(){document.getElementById('errMsg').style.display='none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+function goPortal(){ var s=_slug||localStorage.getItem('ms_slug')||'';
+  window.location.href='salon-portal.html'+(s?'?salon='+encodeURIComponent(s):''); }
 </script>
 </body>
 </html>

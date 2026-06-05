@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MySalon Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F5F0;--surface:#FFFFFF;--surface2:#F0F0EA;--border:#DDDDD5;
+  --accent:#007A56;--accent2:#005F42;--gold:#F5E030;--gold-dark:#C8A800;
+  --ink:#1A1A14;--muted:#666660;--muted2:#999990;--danger:#DC3545;
+  --BF:'Barlow',sans-serif;--HF:'Bebas Neue',sans-serif;--r:14px;--rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── HERO HEADER ── */
+.hero{background:#003D2B;padding:32px 20px 36px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(200,168,0,.06);top:-100px;right:-80px;pointer-events:none}
+.hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(200,168,0,.04);bottom:-60px;left:-60px;pointer-events:none}
+
+/* Logo area */
+.salon-logo-wrap{width:88px;height:88px;border-radius:18px;border:3px solid rgba(200,168,0,.4);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;position:relative;z-index:1}
+.salon-logo-img{width:80px;height:80px;object-fit:contain;display:none;border-radius:14px}
+.logo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%}
+.logo-fallback-top{display:block;background:#C8A800;font-family:var(--HF);font-size:22px;color:#003D2B;letter-spacing:2px;line-height:1;padding:4px 14px 2px;width:100%;text-align:center}
+.logo-fallback-bot{display:block;background:#003D2B;font-family:var(--HF);font-size:13px;color:#C8A800;letter-spacing:2px;line-height:1;padding:2px 14px 4px;width:100%;text-align:center}
+
+.salon-name{font-family:var(--HF);font-size:clamp(28px,6vw,42px);color:var(--gold);letter-spacing:2px;line-height:1;margin-bottom:6px;position:relative;z-index:1}
+.salon-city{font-size:13px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:14px;position:relative;z-index:1}
+.plan-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;position:relative;z-index:1}
+.plan-free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.plan-pro{background:rgba(29,109,181,.3);color:#93B4FF}
+.plan-business{background:rgba(200,168,0,.2);color:var(--gold)}
+
+/* ── PORTALS SECTION ── */
+.portals-section{padding:20px 16px 32px;max-width:480px;margin:0 auto}
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);margin-bottom:14px;text-align:center}
+
+/* Portal cards */
+.portal-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:0;margin-bottom:12px;overflow:hidden;text-decoration:none;display:block;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.portal-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:var(--accent)}
+.portal-card:active{transform:scale(.98)}
+.pc-inner{display:flex;align-items:center;gap:0}
+.pc-color{width:6px;height:100%;min-height:80px;flex-shrink:0}
+.pc-body{flex:1;padding:18px 16px}
+.pc-icon{font-size:28px;display:block;margin-bottom:8px}
+.pc-title{font-family:var(--HF);font-size:22px;color:var(--ink);letter-spacing:1px;line-height:1;display:block}
+.pc-desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.pc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.pc-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.3px}
+.pc-arrow{font-size:20px;color:var(--muted2);padding:0 16px;flex-shrink:0}
+.portal-card:hover .pc-arrow{color:var(--accent)}
+
+/* Colors per portal */
+.pc-owner    .pc-color{background:#003D2B}
+.pc-stylist  .pc-color{background:#C8A800}
+.pc-customer .pc-color{background:#1D6DB5}
+.pc-franchise .pc-color{background:#6D28D9}
+.pc-queue    .pc-color{background:#DC3545}
+
+/* Tags */
+.tag-free{background:rgba(22,163,74,.1);color:#16A34A}
+.tag-pro{background:rgba(29,109,181,.1);color:#1D6DB5}
+.tag-biz{background:rgba(109,40,217,.1);color:#6D28D9}
+.tag-all{background:rgba(0,0,0,.06);color:var(--muted)}
+
+/* Locked overlay */
+.portal-card.locked{opacity:.55;cursor:not-allowed}
+.portal-card.locked:hover{transform:none;box-shadow:none;border-color:var(--border)}
+.lock-badge{font-size:10px;font-weight:800;color:var(--danger);background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:4px 0 16px}
+.section-title{font-family:var(--HF);font-size:16px;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+
+/* ── QR / Share ── */
+.share-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:18px;margin-top:8px;text-align:center}
+.share-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.share-url{font-family:var(--HF);font-size:13px;color:var(--accent);letter-spacing:.3px;word-break:break-all;background:var(--surface2);padding:8px 12px;border-radius:var(--rs);display:block;margin-bottom:10px;cursor:pointer}
+.share-url:hover{background:rgba(0,122,86,.06)}
+.share-btns{display:flex;gap:8px;justify-content:center}
+.btn-share{padding:8px 16px;border-radius:var(--rs);font-family:var(--BF);font-size:12px;font-weight:800;cursor:pointer;border:none;transition:all .2s;text-transform:uppercase;letter-spacing:.3px}
+.btn-copy{background:var(--accent);color:white}
+.btn-copy:hover{background:var(--accent2)}
+.btn-wa{background:#25D366;color:white}
+.btn-wa:hover{background:#1ebe5d}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:20px;font-size:12px;color:var(--muted2)}
+.footer a{color:var(--muted);text-decoration:none}
+.footer a:hover{color:var(--accent)}
+
+/* Loading */
+.page-loader{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#003D2B}
+.loader-spinner{width:44px;height:44px;border-radius:50%;border:3px solid rgba(200,168,0,.2);border-top-color:#C8A800;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-family:var(--HF);font-size:18px;color:rgba(200,168,0,.6);letter-spacing:2px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A1A14;color:white;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;transition:transform .3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- Loading state -->
+<div id="pageLoader" class="page-loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-txt">LOADING…</div>
+</div>
+
+<!-- Main content (hidden until loaded) -->
+<div id="mainContent" style="display:none">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="salon-logo-wrap" id="logoWrap">
+      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo">
+      <div class="logo-fallback" id="logoFallback">
+        <span class="logo-fallback-top">MY</span>
+        <span class="logo-fallback-bot">SALON</span>
+      </div>
+    </div>
+    <div class="salon-name" id="salonName">Loading…</div>
+    <div class="salon-city" id="salonCity"></div>
+    <span class="plan-badge plan-free" id="planBadge">Free Plan</span>
+  </div>
+
+  <div class="portals-section">
+    <div class="section-label">Choose Your Portal</div>
+
+    <!-- OWNER / MANAGER -->
+    <a href="#" id="ownerLink" class="portal-card pc-owner">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">🏪</span>
+          <span class="pc-title">OWNER / MANAGER</span>
+          <div class="pc-desc">Dashboard, billing, staff, payroll, expenses, analytics</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-all">All Plans</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <!-- STYLIST -->
+    <a href="#" id="stylistLink" class="portal-card pc-stylist">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">✂️</span>
+          <span class="pc-title">STYLIST</span>
+          <div class="pc-desc">Log sales, style cards, attendance, cash in</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-all">All Plans</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <!-- CUSTOMER -->
+    <a href="#" id="customerLink" class="portal-card pc-customer">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">👤</span>
+          <span class="pc-title">CUSTOMER</span>
+          <div class="pc-desc">Style history, loyalty points, referral rewards</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-pro">Pro+</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <!-- QUEUE -->
+    <a href="#" id="queueLink" class="portal-card pc-queue">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">⏱️</span>
+          <span class="pc-title">JOIN QUEUE</span>
+          <div class="pc-desc">Save-the-time digital token system</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-pro">Pro+</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <!-- QUEUE DISPLAY -->
+    <a href="#" id="queueDisplayLink" class="portal-card pc-queue">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">📺</span>
+          <span class="pc-title">QUEUE DISPLAY</span>
+          <div class="pc-desc">TV/wall screen showing live token status</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-pro">Pro+</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <!-- FRANCHISE (shown only for business plan) -->
+    <a href="#" id="franchiseLink" class="portal-card pc-franchise" style="display:none">
+      <div class="pc-inner">
+        <div class="pc-color"></div>
+        <div class="pc-body">
+          <span class="pc-icon">🏢</span>
+          <span class="pc-title">FRANCHISE</span>
+          <div class="pc-desc">Multi-branch overview, top stylists across all locations</div>
+          <div class="pc-tags">
+            <span class="pc-tag tag-biz">Business</span>
+          </div>
+        </div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </a>
+
+    <div class="divider"></div>
+
+    <!-- Share section -->
+    <div class="section-title">SHARE THIS PORTAL</div>
+    <div class="share-box">
+      <div class="share-title">Your salon portal link</div>
+      <span class="share-url" id="shareUrl" onclick="copyUrl()"></span>
+      <div class="share-btns">
+        <button class="btn-share btn-copy" onclick="copyUrl()">📋 Copy Link</button>
+        <button class="btn-share btn-wa" onclick="shareWa()">💬 Share on WhatsApp</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Powered by <strong style="font-family:var(--HF);color:var(--accent);letter-spacing:1px">MYSALON</strong>
+    &nbsp;·&nbsp;
+    <a href="index.html">Home</a>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
+
+var _slug = new URLSearchParams(location.search).get('salon') || localStorage.getItem('ms_slug') || '';
+var _tenant = null;
+var _baseUrl = location.origin + location.pathname.replace('salon-portal.html','');
+
+function _h(){ return {'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}; }
+function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[]}); }
+
+(function init(){
+  if(!_slug){
+    document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;padding:40px 20px;text-align:center">NO SALON ID IN URL<br><br><a href="index.html" style="color:rgba(200,168,0,.6);font-size:14px;letter-spacing:1px">← Back to MySalon</a></div>';
+    return;
+  }
+  sessionStorage.setItem('ms_slug', _slug);
+  localStorage.setItem('ms_slug', _slug);
+
+  _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,slug,city,state,plan,logo_url,owner_phone')
+    .then(function(rows){
+      if(!rows||!rows.length){
+        document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;padding:40px 20px;text-align:center">SALON NOT FOUND<br><br><a href="index.html" style="color:rgba(200,168,0,.6);font-size:14px;letter-spacing:1px">← Back to MySalon</a></div>';
+        return;
+      }
+      _tenant = rows[0];
+      applyBranding(_tenant);
+      buildLinks(_tenant);
+      document.getElementById('pageLoader').style.display='none';
+      document.getElementById('mainContent').style.display='block';
+    })
+    .catch(function(e){
+      document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-size:14px;padding:40px;text-align:center">Failed to load: '+e.message+'</div>';
+    });
+})();
+
+function applyBranding(t){
+  // Logo
+  if(t.logo_url){
+    var img = document.getElementById('salonLogoImg');
+    img.src = t.logo_url;
+    img.style.display = 'block';
+    document.getElementById('logoFallback').style.display = 'none';
+    img.onerror = function(){ img.style.display='none'; document.getElementById('logoFallback').style.display='flex'; };
+  }
+  // Name + city
+  document.getElementById('salonName').textContent = t.name;
+  document.title = t.name + ' — Portal';
+  var loc = [t.city, t.state].filter(Boolean).join(', ');
+  document.getElementById('salonCity').textContent = loc || 'Digital Salon Platform';
+  // Plan badge
+  var pb = document.getElementById('planBadge');
+  var planLabels = {free:'Free Plan', pro:'Pro Plan', business:'Business Plan'};
+  pb.textContent = planLabels[t.plan||'free'] || 'Free Plan';
+  pb.className = 'plan-badge plan-'+(t.plan||'free');
+  // Share URL
+  var portalUrl = _baseUrl+'salon-portal.html?salon='+encodeURIComponent(_slug);
+  document.getElementById('shareUrl').textContent = portalUrl;
+  // Store
+  sessionStorage.setItem('ms_tenant_id', t.id);
+  sessionStorage.setItem('ms_plan', t.plan||'free');
+  sessionStorage.setItem('ms_name', t.name);
+  sessionStorage.setItem('ms_logo', t.logo_url||'');
+  localStorage.setItem('ms_tenant_id', t.id);
+  localStorage.setItem('ms_plan', t.plan||'free');
+  localStorage.setItem('ms_name', t.name);
+  localStorage.setItem('ms_logo', t.logo_url||'');
+}
+
+function buildLinks(t){
+  var slug = encodeURIComponent(_slug);
+  var plan = t.plan || 'free';
+  var planRank = {free:0, pro:1, business:2};
+  var rank = planRank[plan] || 0;
+
+  // All portals use ?salon=SLUG
+  document.getElementById('ownerLink').href    = 'login-owner.html?salon='+slug;
+  document.getElementById('stylistLink').href  = 'login-stylist.html?salon='+slug;
+  document.getElementById('customerLink').href = 'login-customer.html?salon='+slug;
+  document.getElementById('queueLink').href    = 'queue-join.html?salon='+slug;
+  document.getElementById('queueDisplayLink').href = 'queue-display.html?salon='+slug;
+  document.getElementById('franchiseLink').href = 'login-franchise.html?salon='+slug;
+
+  // Lock Pro+ features for free plan
+  if(rank < 1){
+    lockCard('customerLink', 'Upgrade to Pro');
+    lockCard('queueLink', 'Upgrade to Pro');
+    lockCard('queueDisplayLink', 'Upgrade to Pro');
+  }
+  // Show franchise only for business
+  if(rank >= 2){
+    document.getElementById('franchiseLink').style.display = 'block';
+  }
+}
+
+function lockCard(id, reason){
+  var card = document.getElementById(id);
+  if(!card) return;
+  card.classList.add('locked');
+  card.onclick = function(e){
+    e.preventDefault();
+    showToast('🔒 '+reason+' to unlock this portal');
+  };
+  // Add lock badge
+  var tags = card.querySelector('.pc-tags');
+  if(tags){
+    var lb = document.createElement('span');
+    lb.className='pc-tag lock-badge';
+    lb.textContent='🔒 '+reason;
+    tags.appendChild(lb);
+  }
+}
+
+function copyUrl(){
+  var url = document.getElementById('shareUrl').textContent;
+  navigator.clipboard.writeText(url)
+    .then(function(){ showToast('✅ Portal link copied!'); })
+    .catch(function(){ prompt('Copy this link:', url); });
+}
+
+function shareWa(){
+  var url = document.getElementById('shareUrl').textContent;
+  var name = _tenant ? _tenant.name : 'our salon';
+  var msg = 'Access '+name+' portal on MySalon: '+url;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
+
+var _toastTimer;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+</script>
+</body>
+</html>

@@ -56,7 +56,7 @@ input::placeholder{color:#AAAAAA}
   <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="Your 10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
   <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
   <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
-  <a href="index.html" class="btn btn-secondary">← Back to MySalon</a>
+  <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
 </div>
 <script>
 var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
@@ -82,11 +82,25 @@ function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function
       sessionStorage.setItem('ms_name',_tenant.name);
       // Query ALL staff for this tenant (no role/active filter)
       console.log('[MySalon] Tenant found:', _tenant.id, _tenant.name);
-      return _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&select=*')
-        .then(function(staffRows){
-          console.log('[MySalon] Staff rows returned:', staffRows.length, staffRows);
-          return staffRows;
-        });
+      var staffUrl = MS_URL+'/rest/v1/staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&select=*';
+      console.log('[MySalon] Fetching staff from:', staffUrl);
+      return fetch(staffUrl, {
+        headers:{
+          'Content-Type':'application/json',
+          'apikey': MS_KEY,
+          'Authorization': 'Bearer '+MS_KEY
+        }
+      }).then(function(r){
+        console.log('[MySalon] Staff response status:', r.status);
+        return r.json();
+      }).then(function(staffRows){
+        console.log('[MySalon] Staff rows:', JSON.stringify(staffRows));
+        if(staffRows && staffRows.code){
+          showErr('DB Error: '+staffRows.message+' | Code: '+staffRows.code);
+          return [];
+        }
+        return staffRows||[];
+      });
     }).then(function(staff){
       if(!staff)return;
       var norm=staff.map(function(s){
@@ -109,6 +123,54 @@ function doLogin(){
   hideErr();
   if(phone.length<10){showErr('Enter valid 10-digit phone.');return;}
   if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
+  if(!_tenant){showErr('Salon not loaded. Refresh page.');return;}
+  // Query staff directly by phone — most reliable approach
+  fetch(MS_URL+'/rest/v1/staff?phone=eq.'+encodeURIComponent(phone)+'&tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&select=*', {
+    headers:{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}
+  }).then(function(r){return r.json();})
+  .then(function(rows){
+    console.log('[MySalon] Direct staff lookup:', JSON.stringify(rows));
+    if(!rows||!rows.length||rows.code){
+      // Fallback: search by phone only (ignore tenant for now)
+      return fetch(MS_URL+'/rest/v1/staff?phone=eq.'+encodeURIComponent(phone)+'&select=*',{
+        headers:{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}
+      }).then(function(r2){return r2.json();})
+      .then(function(rows2){
+        console.log('[MySalon] Fallback staff lookup:', JSON.stringify(rows2));
+        return rows2;
+      });
+    }
+    return rows;
+  })
+  .then(function(rows){
+    if(!rows||rows.code||!rows.length){
+      showErr('Phone '+phone+' not found in staff table. Tenant: '+(_tenant?_tenant.id:'?'));
+      return;
+    }
+    var sm=rows[0];
+    var storedPin=String(sm.login_pin||sm.loginPin||sm['login_pin']||'').trim();
+    console.log('[MySalon] Staff found:',sm.name,'PIN stored:',storedPin,'PIN entered:',pin);
+    if(storedPin!==pin.trim()){
+      showErr('Wrong PIN. Entered: '+pin+' | Stored: '+storedPin);
+      return;
+    }
+    // Success
+    var _sessData={
+      ms_role:'stylist',ms_phone:phone,
+      ms_user_name:sm.name||'Stylist',
+      ms_staff_id:String(sm.id),
+      ms_salon_id:String(sm.salon_id||sm.salonId||''),
+      ms_slug:_slug,
+      ms_tenant_id:String(sm.tenant_id||_tenant.id)
+    };
+    Object.keys(_sessData).forEach(function(k){
+      try{sessionStorage.setItem(k,_sessData[k]);}catch(e){}
+      try{localStorage.setItem(k,_sessData[k]);}catch(e){}
+    });
+    window.location.href='app-stylist.html?salon='+encodeURIComponent(_slug);
+  }).catch(function(e){showErr('Login error: '+e.message);});
+  return; // Skip old login flow below
+  var _DEAD_CODE=true;
   var staff=JSON.parse(localStorage.getItem('ms_staff')||'[]');
   function normPhone(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
   var sm=staff.find(function(u){return normPhone(u.phone)===normPhone(phone);});
@@ -138,6 +200,8 @@ if(_pin!==pin.trim()){showErr('Wrong PIN. Try again.');document.getElementById('
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
 function hideErr(){document.getElementById('errMsg').style.display='none';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+function goPortal(){ var s=_slug||localStorage.getItem('ms_slug')||'';
+  window.location.href='salon-portal.html'+(s?'?salon='+encodeURIComponent(s):''); }
 </script>
 </body>
 </html>
