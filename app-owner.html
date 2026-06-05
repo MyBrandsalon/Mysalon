@@ -442,7 +442,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <!-- ── TOPBAR ── FIX 1: Outlet name -->
 <div id="app-content">
 <div class="topbar">
-  <div class="bb-logo-sm">
+  <div style="width:34px;height:34px;border-radius:8px;border:2px solid rgba(200,168,0,.3);background:#003D2B;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center" id="topbarLogoWrap">
+      <img id="topbar-salon-logo" style="display:none;width:30px;height:30px;object-fit:contain;border-radius:6px" alt="logo">
+      <div id="topbar-logo-fallback" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%">
+        <span style="display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:9px;color:#003D2B;letter-spacing:1px;line-height:1;padding:1px 4px;width:100%;text-align:center">MY</span>
+        <span style="display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:7px;color:#C8A800;letter-spacing:1px;line-height:1;padding:1px 4px;width:100%;text-align:center">SALON</span>
+      </div>
+    </div>
+    <div class="bb-logo-sm">
     <span class="bb-logo-sm-top">MY</span>
     <span class="bb-logo-sm-div"></span>
     <span class="bb-logo-sm-bot">SALON</span>

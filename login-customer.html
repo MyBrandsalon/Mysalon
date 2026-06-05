@@ -38,9 +38,13 @@ input::placeholder{color:#AAAAAA}
 <body>
 <div class="card">
   <div class="logo-wrap">
-    <div class="ms-logo-mark">
-      <span class="ms-logo-top">MY</span>
-      <span class="ms-logo-bot">SALON</span>
+    <div class="ms-logo-wrap" id="logoWrap">
+      <!-- Salon logo shown if uploaded, fallback to MY/SALON badge -->
+      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo" style="display:none;width:88px;height:88px;object-fit:contain;border-radius:12px;border:2px solid #E0E0D8">
+      <div class="ms-logo-mark" id="logoFallback">
+        <span class="ms-logo-top">MY</span>
+        <span class="ms-logo-bot">SALON</span>
+      </div>
     </div>
     <span class="ms-logo-tag">Digital Salon Platform</span>
     <span class="salon-name-display ms-salon-name">Loading…</span>
@@ -74,8 +78,30 @@ function _post(p,b){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:Obj
     .then(function(rows){
       if(!rows||!rows.length){showErr('Salon not found.');return;}
       _tenant=rows[0];
+            // ── Apply salon logo if uploaded ──────────────────────
+      if(_tenant.logo_url){
+        var _img=document.getElementById('salonLogoImg');
+        var _fb=document.getElementById('logoFallback');
+        if(_img){
+          _img.src=_tenant.logo_url;
+          _img.style.cssText='display:block;width:88px;height:88px;object-fit:contain;border-radius:12px;border:2px solid rgba(200,168,0,.3)';
+          _img.onerror=function(){_img.style.display='none';if(_fb)_fb.style.display='';};
+          if(_fb)_fb.style.display='none';
+        }
+      }
       document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
       document.title=_tenant.name+' – Customer Portal';
+      // Apply salon logo if uploaded
+      if(_tenant.logo_url){
+        var _img = document.getElementById('salonLogoImg');
+        var _fb  = document.getElementById('logoFallback');
+        if(_img){
+          _img.src = _tenant.logo_url;
+          _img.style.display = 'block';
+          _img.onerror = function(){ _img.style.display='none'; if(_fb) _fb.style.display='block'; };
+          if(_fb) _fb.style.display = 'none';
+        }
+      }
       sessionStorage.setItem('ms_tenant_id',_tenant.id);
       sessionStorage.setItem('ms_plan',_tenant.plan||'free');
       sessionStorage.setItem('ms_name',_tenant.name);

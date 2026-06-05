@@ -469,7 +469,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <div id="app-content">
 <div class="topbar">
-  <div class="bb-logo-sm">
+  <div style="width:34px;height:34px;border-radius:8px;border:2px solid rgba(200,168,0,.3);background:#003D2B;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center" id="topbarLogoWrap">
+      <img id="topbar-salon-logo" style="display:none;width:30px;height:30px;object-fit:contain;border-radius:6px" alt="logo">
+      <div id="topbar-logo-fallback" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%">
+        <span style="display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:9px;color:#003D2B;letter-spacing:1px;line-height:1;padding:1px 4px;width:100%;text-align:center">MY</span>
+        <span style="display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:7px;color:#C8A800;letter-spacing:1px;line-height:1;padding:1px 4px;width:100%;text-align:center">SALON</span>
+      </div>
+    </div>
+    <div class="bb-logo-sm">
     <span class="bb-logo-sm-top">MY</span>
     <span class="bb-logo-sm-div"></span>
     <span class="bb-logo-sm-bot">SALON</span>
@@ -1380,6 +1387,18 @@ function _sheetToTable(name){
 var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || localStorage.getItem('bb_phone') || sessionStorage.getItem('bb_phone') || '';
 var SESSION_ROLE  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || localStorage.getItem('bb_role') || sessionStorage.getItem('bb_role') || '';
 var MS_TENANT_ID = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+  // ── Apply salon logo in topbar ──────────────────────────────
+  var _msLogoUrl = localStorage.getItem('ms_logo') || sessionStorage.getItem('ms_logo') || '';
+  var _msLogoEl  = document.getElementById('topbar-salon-logo');
+  var _msFbEl    = document.getElementById('topbar-logo-fallback');
+  if(_msLogoUrl && _msLogoEl){
+    _msLogoEl.src   = _msLogoUrl;
+    _msLogoEl.style.display = 'block';
+    _msLogoEl.onerror = function(){ _msLogoEl.style.display='none'; if(_msFbEl) _msFbEl.style.display='flex'; };
+    if(_msFbEl) _msFbEl.style.display = 'none';
+  }
+  // ── End logo fix ─────────────────────────────────────────────
+
 var MS_SLUG = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
 if(MS_SLUG) sessionStorage.setItem('ms_slug', MS_SLUG);
 if(MS_TENANT_ID) sessionStorage.setItem('ms_tenant_id', MS_TENANT_ID);
@@ -3820,7 +3839,8 @@ function logout(){
     localStorage.removeItem('ms_role');
   } catch(e){}
   var _msSlug2 = localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'';
-window.location.href = 'login-stylist.html' + (_msSlug2 ? '?salon='+encodeURIComponent(_msSlug2) : '');
+var _logoutSlug = localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'';
+window.location.href = 'salon-portal.html' + (_logoutSlug ? '?salon='+encodeURIComponent(_logoutSlug) : '');
 }
 
 // ── MySalon multi-tenant patch ──────────────────────────────
