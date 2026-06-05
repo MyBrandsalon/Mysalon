@@ -35,7 +35,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 .plan-business{background:rgba(200,168,0,.2);color:var(--gold)}
 
 /* ── PORTALS SECTION ── */
-.portals-section{padding:20px 16px 32px;max-width:480px;margin:0 auto}
+.portals-section{padding:20px 16px 32px;max-width:560px;margin:0 auto}
 .section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--muted2);margin-bottom:14px;text-align:center}
 
 /* Portal cards */
@@ -101,6 +101,24 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 /* Toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A1A14;color:white;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;transition:transform .3s;z-index:999;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── Portal grid tiles ── */
+.portal-grid-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.portal-tile{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px 16px 16px;text-decoration:none;display:block;transition:all .2s;position:relative;overflow:hidden}
+.portal-tile:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.portal-tile:active{transform:scale(.97)}
+.pt-accent{position:absolute;top:0;left:0;right:0;height:4px}
+.pc-owner    .pt-accent{background:#003D2B}
+.pc-stylist  .pt-accent{background:#C8A800}
+.pc-customer .pt-accent{background:#1D6DB5}
+.pc-franchise .pt-accent{background:#6D28D9}
+.pt-icon{font-size:32px;display:block;margin-bottom:10px;margin-top:4px}
+.pt-title{font-family:var(--HF);font-size:20px;color:var(--ink);letter-spacing:1px;display:block;margin-bottom:6px}
+.pt-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.pt-badge{display:inline-block;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.badge-all{background:rgba(0,122,86,.1);color:#007A56;border:1px solid rgba(0,122,86,.2)}
+.badge-pro{background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2)}
+.badge-biz{background:rgba(109,40,217,.1);color:#6D28D9;border:1px solid rgba(109,40,217,.2)}
 </style>
 </head>
 <body>
@@ -131,101 +149,41 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
   <div class="portals-section">
     <div class="section-label">Choose Your Portal</div>
 
-    <!-- OWNER / MANAGER -->
-    <a href="#" id="ownerLink" class="portal-card pc-owner">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">🏪</span>
-          <span class="pc-title">OWNER / MANAGER</span>
-          <div class="pc-desc">Dashboard, billing, staff, payroll, expenses, analytics</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-all">All Plans</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+    <div class="portal-grid-layout">
 
-    <!-- STYLIST -->
-    <a href="#" id="stylistLink" class="portal-card pc-stylist">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">✂️</span>
-          <span class="pc-title">STYLIST</span>
-          <div class="pc-desc">Log sales, style cards, attendance, cash in</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-all">All Plans</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+      <a href="#" id="ownerLink" class="portal-tile pc-owner">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">🏪</span>
+        <span class="pt-title">OWNER</span>
+        <div class="pt-desc">Dashboard, billing, staff &amp; payroll</div>
+        <span class="pt-badge badge-all">All Plans</span>
+      </a>
 
-    <!-- CUSTOMER -->
-    <a href="#" id="customerLink" class="portal-card pc-customer">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">👤</span>
-          <span class="pc-title">CUSTOMER</span>
-          <div class="pc-desc">Style history, loyalty points, referral rewards</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-pro">Pro+</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+      <a href="#" id="stylistLink" class="portal-tile pc-stylist">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">✂️</span>
+        <span class="pt-title">STYLIST</span>
+        <div class="pt-desc">Log sales, style cards &amp; attendance</div>
+        <span class="pt-badge badge-all">All Plans</span>
+      </a>
 
-    <!-- QUEUE -->
-    <a href="#" id="queueLink" class="portal-card pc-queue">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">⏱️</span>
-          <span class="pc-title">JOIN QUEUE</span>
-          <div class="pc-desc">Save-the-time digital token system</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-pro">Pro+</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+      <a href="#" id="customerLink" class="portal-tile pc-customer">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">👤</span>
+        <span class="pt-title">CUSTOMER</span>
+        <div class="pt-desc">Style history &amp; loyalty rewards</div>
+        <span class="pt-badge badge-all">All Plans</span>
+      </a>
 
-    <!-- QUEUE DISPLAY -->
-    <a href="#" id="queueDisplayLink" class="portal-card pc-queue">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">📺</span>
-          <span class="pc-title">QUEUE DISPLAY</span>
-          <div class="pc-desc">TV/wall screen showing live token status</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-pro">Pro+</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+      <a href="#" id="franchiseLink" class="portal-tile pc-franchise" style="display:none">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">🏢</span>
+        <span class="pt-title">FRANCHISE</span>
+        <div class="pt-desc">Multi-branch overview &amp; analytics</div>
+        <span class="pt-badge badge-biz">Business</span>
+      </a>
 
-    <!-- FRANCHISE (shown only for business plan) -->
-    <a href="#" id="franchiseLink" class="portal-card pc-franchise" style="display:none">
-      <div class="pc-inner">
-        <div class="pc-color"></div>
-        <div class="pc-body">
-          <span class="pc-icon">🏢</span>
-          <span class="pc-title">FRANCHISE</span>
-          <div class="pc-desc">Multi-branch overview, top stylists across all locations</div>
-          <div class="pc-tags">
-            <span class="pc-tag tag-biz">Business</span>
-          </div>
-        </div>
-        <div class="pc-arrow">›</div>
-      </div>
-    </a>
+    </div>
 
     <div class="divider"></div>
 
@@ -367,16 +325,9 @@ function buildLinks(t){
   document.getElementById('ownerLink').href    = 'login-owner.html?salon='+slug;
   document.getElementById('stylistLink').href  = 'login-stylist.html?salon='+slug;
   document.getElementById('customerLink').href = 'login-customer.html?salon='+slug;
-  document.getElementById('queueLink').href    = 'queue-join.html?salon='+slug;
-  document.getElementById('queueDisplayLink').href = 'queue-display.html?salon='+slug;
   document.getElementById('franchiseLink').href = 'login-franchise.html?salon='+slug;
 
-  // Lock Pro+ features for free plan
-  if(rank < 1){
-    lockCard('customerLink', 'Upgrade to Pro');
-    lockCard('queueLink', 'Upgrade to Pro');
-    lockCard('queueDisplayLink', 'Upgrade to Pro');
-  }
+  // Customer is free for all plans — no lock
   // Show franchise only for business
   if(rank >= 2){
     document.getElementById('franchiseLink').style.display = 'block';
