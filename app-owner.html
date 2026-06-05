@@ -2193,7 +2193,14 @@ var LS = {
 function today(){ return new Date().toLocaleDateString('en-IN'); }
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 function fmtINR(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); }
-function getEntries(){ return LS.get('entries')||[]; }
+function getEntries(){
+  var all = LS.get('entries') || [];
+  var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  if(!tid) return all;
+  return all.filter(function(e){
+    return !e.tenant_id || String(e.tenant_id) === String(tid);
+  });
+}
 
 // ── Universal date normalizer ─────────────────────────────────
 // Converts any date string to YYYY-MM-DD for safe comparison
@@ -2481,14 +2488,27 @@ function showTab(tab){
   if(tab==='offers'){ renderMgrOffers(); }
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
   if(tab==='kpi'){   supaBootstrap(function(){ initKPI(); }, function(){ initKPI(); }); }
-  if(tab==='pnl'){ supaBootstrap(function(){ initPNL(); renderPNL(); }, function(){ initPNL(); renderPNL(); }); }
+  if(tab==='pnl'){
+    supaBootstrap(function(){
+      initPNL();
+      renderPNL();
+    }, function(){
+      initPNL();
+      renderPNL();
+    });
+  }
   if(tab==='profile'){
     supaBootstrap(function(){
       var mo=new Date().toISOString().slice(0,7);
       if(typeof mgrFetchSalaryData === 'function'){
-        mgrFetchSalaryData(mo, function(){
+        try {
+          mgrFetchSalaryData(mo, function(){
+            if(typeof renderMgrProfile === 'function') renderMgrProfile();
+          });
+        } catch(e) {
+          console.warn('[MySalon] mgrFetchSalaryData error:', e);
           if(typeof renderMgrProfile === 'function') renderMgrProfile();
-        });
+        }
       } else if(typeof renderMgrProfile === 'function'){
         renderMgrProfile();
       }
