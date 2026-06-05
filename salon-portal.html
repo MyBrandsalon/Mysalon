@@ -117,7 +117,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
   <!-- HERO -->
   <div class="hero">
     <div class="salon-logo-wrap" id="logoWrap">
-      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo">
+      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo" style="display:none">
       <div class="logo-fallback" id="logoFallback">
         <span class="logo-fallback-top">MY</span>
         <span class="logo-fallback-bot">SALON</span>
@@ -290,13 +290,25 @@ function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(functio
 })();
 
 function applyBranding(t){
-  // Logo
-  if(t.logo_url){
-    var img = document.getElementById('salonLogoImg');
-    img.src = t.logo_url;
-    img.style.display = 'block';
-    document.getElementById('logoFallback').style.display = 'none';
-    img.onerror = function(){ img.style.display='none'; document.getElementById('logoFallback').style.display='flex'; };
+  // Logo — show salon logo if uploaded, else show MY/SALON fallback
+  var img = document.getElementById('salonLogoImg');
+  var fb  = document.getElementById('logoFallback');
+  var logoUrl = (t.logo_url || '').trim();
+  console.log('[MySalon] logo_url from DB:', logoUrl);
+  if(logoUrl){
+    img.onload  = function(){ img.style.display='block'; if(fb) fb.style.display='none'; };
+    img.onerror = function(){ img.style.display='none'; if(fb) fb.style.display=''; console.warn('[MySalon] Logo failed to load:', logoUrl); };
+    img.src = logoUrl;
+    // Also try showing immediately (onload may already have fired if cached)
+    if(img.complete && img.naturalWidth > 0){
+      img.style.display = 'block';
+      if(fb) fb.style.display = 'none';
+    }
+  } else {
+    // No logo — keep fallback visible
+    img.style.display = 'none';
+    if(fb) fb.style.display = '';
+    console.log('[MySalon] No logo_url for this tenant — showing fallback');
   }
   // Name + city
   document.getElementById('salonName').textContent = t.name;
