@@ -462,8 +462,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-staff"     onclick="showTab('staff')">👥 Staff</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showTab('offers')">🎁 Offers</button>
-  <button class="nt" id="nt-queue"  onclick="showTab('queue')">🔢 Queue</button>
-  <button class="nt" id="nt-kpi"   onclick="showTab('kpi')">🎯 KPI</button>
+  <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
   <button class="nt" id="nt-pnl" onclick="showTab('pnl')">📊 P&L</button>
   <button class="nt" id="nt-profile" onclick="showTab('profile')">👤 My Profile</button>
 </div>
@@ -669,9 +668,18 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Period tabs -->
   <div class="sd-period-tabs">
-    <button class="sd-pt on" id="sd-pt-today" onclick="sdSetPeriod('today')">Today</button>
-    <button class="sd-pt"    id="sd-pt-month" onclick="sdSetPeriod('month')">Month</button>
-    <button class="sd-pt"    id="sd-pt-year"  onclick="sdSetPeriod('year')">Year</button>
+    <button class="sd-pt on" id="sd-pt-today"  onclick="sdSetPeriod('today')">Today</button>
+    <button class="sd-pt"    id="sd-pt-month"  onclick="sdSetPeriod('month')">Month</button>
+    <button class="sd-pt"    id="sd-pt-year"   onclick="sdSetPeriod('year')">Year</button>
+    <button class="sd-pt"    id="sd-pt-custom" onclick="sdSetPeriod('custom')">📅 Custom</button>
+  </div>
+  <!-- Custom date range picker -->
+  <div id="sd-f-custom" class="sd-filter-row sd-hidden">
+    <div class="ifield" style="flex:1"><label>From</label><input type="date" class="fi" id="sd-custom-from" onchange="sdRender()"></div>
+    <div class="ifield" style="flex:1"><label>To</label><input type="date" class="fi" id="sd-custom-to" onchange="sdRender()"></div>
+    <div class="ifield" style="flex:1"><label>Stylist</label>
+      <select class="fi" id="sd-custom-stylist" onchange="sdRender()"><option value="">All</option></select>
+    </div>
   </div>
 
   <!-- Filters: Today -->
@@ -740,8 +748,18 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)">Transactions</span>
       <span id="sd-tbl-cnt" style="font-size:10px;color:var(--muted2)"></span>
     </div>
-    <div class="sd-tbl-hdr"><span>#</span><span>Stylist / Customer</span><span>Payment</span><span style="text-align:right">Total</span></div>
+    <div style="overflow-x:auto">
+    <div class="sd-tbl-hdr" style="grid-template-columns:28px 1fr 90px 70px 70px 70px 80px">
+      <span>#</span>
+      <span>Stylist / Services</span>
+      <span>Customer</span>
+      <span style="text-align:right">PhonePe</span>
+      <span style="text-align:right">Cash</span>
+      <span style="text-align:right">Tips</span>
+      <span style="text-align:right">Total</span>
+    </div>
     <div id="sd-tbl-body"></div>
+    </div>
   </div>
 </div>
 
@@ -872,8 +890,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <span style="text-align:left">Offers Used</span>
       <span>Last Visit</span>
       <span>Referrals</span>
-      <span title="Send WhatsApp reminder with offer">📲</span>
-      <span title="Send WhatsApp feedback request after visit">⭐</span>
+      <span title="Send WhatsApp reminder (Pro)" onclick="mgrWaGated('reminder')" style="cursor:pointer">📲</span>
+      <span title="Send WhatsApp feedback (Pro)" onclick="mgrWaGated('feedback')" style="cursor:pointer">⭐</span>
       <span title="Send welcome message with login + cashback details">💬</span>
     </div>
     <div class="tbl-body" id="mgr-cust-tbody"></div>
@@ -1132,7 +1150,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('waReminderModal')">Cancel</button>
-      <button class="btn-primary" onclick="mgrSendReminderNow()" style="background:#25D366;border-color:#25D366">📲 Open WhatsApp</button>
+      <button class="btn-primary" onclick="mgrWaGated('reminder')" style="background:#25D366;border-color:#25D366">📲 Open WhatsApp <span style="font-size:10px;opacity:.8">(Pro)</span></button>
     </div>
   </div>
 </div>
@@ -1174,7 +1192,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('waFeedbackModal')">Cancel</button>
-      <button class="btn-primary" onclick="mgrSendFeedbackNow()" style="background:#F59E0B;border-color:#F59E0B">⭐ Open WhatsApp</button>
+      <button class="btn-primary" onclick="mgrWaGated('feedback')" style="background:#F59E0B;border-color:#F59E0B">⭐ Open WhatsApp <span style="font-size:10px;opacity:.8">(Pro)</span></button>
     </div>
   </div>
 </div>
@@ -1570,7 +1588,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 </div>
 
 <!-- ════ KPI PANEL — MANAGER ════ -->
-<div class="panel" id="pn-kpi">
+<div class="panel" id="pn-kpi" style="display:none!important">
 
   <!-- Date picker -->
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap">
@@ -7389,6 +7407,174 @@ supaBootstrap = function(onDone, onError) {
   }
 };
 // ── End MySalon patch ────────────────────────────────────────
+
+
+// ════════════════════════════════════════════════════════════════
+//  MYSALON GATES & OVERRIDES
+// ════════════════════════════════════════════════════════════════
+
+// Queue tab — Pro gate
+function showQueueGated(){
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  if(plan === 'free'){
+    toast('🔒 Queue requires Pro plan. Upgrade at mysalon.in', 3500);
+    return;
+  }
+  showTab('queue');
+}
+
+// WhatsApp — Pro gate
+function mgrWaGated(type){
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  if(plan === 'free'){
+    toast('🔒 WhatsApp reminders require Pro plan. Upgrade at mysalon.in', 3500);
+    return;
+  }
+  if(type === 'reminder') mgrSendReminderNow();
+  if(type === 'feedback')  mgrSendFeedbackNow();
+}
+
+// ── Sales: custom date period hook ──────────────────────────────
+var _sdOrigSetPeriod = typeof sdSetPeriod === 'function' ? sdSetPeriod : null;
+function sdSetPeriod(p){
+  // Show/hide custom date row
+  var customRow = document.getElementById('sd-f-custom');
+  if(customRow) customRow.classList.toggle('sd-hidden', p !== 'custom');
+
+  // Set today default for custom dates
+  if(p === 'custom'){
+    document.querySelectorAll('.sd-pt').forEach(function(b){ b.classList.remove('on'); });
+    var btn = document.getElementById('sd-pt-custom');
+    if(btn) btn.classList.add('on');
+    var cf = document.getElementById('sd-custom-from');
+    var ct = document.getElementById('sd-custom-to');
+    if(cf && !cf.value) cf.value = todayISO();
+    if(ct && !ct.value) ct.value = todayISO();
+    // Populate stylist dropdown
+    var sel = document.getElementById('sd-custom-stylist');
+    if(sel && sel.options.length <= 1){
+      var stf = (LS.get('staff')||[]).filter(function(u){ return u.salonId===mySalonId&&(u.role==='stylist'||u.role==='barber')&&u.active; });
+      stf.forEach(function(u){ var o=document.createElement('option'); o.value=u.id; o.textContent=u.name; sel.appendChild(o); });
+    }
+    sdRenderCustom();
+    return;
+  }
+  if(_sdOrigSetPeriod) _sdOrigSetPeriod(p);
+}
+
+// ── Render custom date range transactions ──────────────────────
+function sdRenderCustom(){
+  var from  = document.getElementById('sd-custom-from');
+  var to    = document.getElementById('sd-custom-to');
+  var styEl = document.getElementById('sd-custom-stylist');
+  if(!from || !to) return;
+
+  var fromDate = from.value; // YYYY-MM-DD
+  var toDate   = to.value;
+  var styId    = styEl ? styEl.value : '';
+
+  var entries = (LS.get('entries')||[]).filter(function(e){
+    var d = _sdEntryDate(e); // normalize to YYYY-MM-DD
+    if(!d) return false;
+    if(fromDate && d < fromDate) return false;
+    if(toDate   && d > toDate)   return false;
+    if(styId    && e.barberId !== styId) return false;
+    return true;
+  });
+
+  // KPI cards
+  var totalRev=0, totalPh=0, totalCash=0, totalTips=0, custSet={};
+  entries.forEach(function(e){
+    totalRev  += Number(e.total||0);
+    totalPh   += Number(e.phPay||0);
+    totalCash += Number(e.cash||0);
+    totalTips += Number(e.tip||0);
+    if(e.customerPhone) custSet[e.customerPhone]=1;
+  });
+  var _sv = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+  _sv('sd-kpi-custs', entries.length);
+  _sv('sd-kpi-rev',   rupeeFmt(totalRev));
+  _sv('sd-kpi-avg',   entries.length ? rupeeFmt(Math.round(totalRev/entries.length)) : '₹0');
+  _sv('sd-kpi-tips',  rupeeFmt(totalTips));
+  _sv('sd-ph-val',    rupeeFmt(totalPh));
+  _sv('sd-cash-val',  rupeeFmt(totalCash));
+
+  // Full transactions table
+  sdBuildFullTable(entries);
+
+  // Hide chart, target, show table
+  var chartB = document.getElementById('sd-chart-block'); if(chartB) chartB.style.display='none';
+  var tgtB   = document.getElementById('sd-tgt-block');   if(tgtB)   tgtB.style.display='none';
+  var tblB   = document.getElementById('sd-tbl-block');   if(tblB)   tblB.style.display='block';
+}
+
+// ── Helper: normalize entry date to YYYY-MM-DD ─────────────────
+function _sdEntryDate(e){
+  if(e.date){
+    // Could be DD/MM/YYYY or YYYY-MM-DD
+    if(e.date.indexOf('-') > -1) return e.date.slice(0,10);
+    var p = e.date.split('/');
+    if(p.length===3) return p[2]+'-'+(p[1].length<2?'0':'')+p[1]+'-'+(p[0].length<2?'0':'')+p[0];
+  }
+  if(e.ts) return new Date(Number(e.ts)).toISOString().slice(0,10);
+  return '';
+}
+
+// ── Full transactions table builder ───────────────────────────
+function sdBuildFullTable(entries){
+  var cntEl = document.getElementById('sd-tbl-cnt');
+  var body  = document.getElementById('sd-tbl-body');
+  if(!body) return;
+  if(cntEl) cntEl.textContent = entries.length + ' transactions';
+
+  var staff = LS.get('staff') || [];
+  function staffName(id){ var s=staff.find(function(u){return u.id===id;}); return s?s.name:'—'; }
+
+  if(!entries.length){
+    body.innerHTML = '<div class="sd-tbl-empty">No transactions in this range</div>';
+    return;
+  }
+
+  // Sort newest first
+  var sorted = entries.slice().sort(function(a,b){
+    var ta = a.ts||0, tb = b.ts||0;
+    if(ta&&tb) return tb-ta;
+    return (_sdEntryDate(b)||'').localeCompare(_sdEntryDate(a)||'');
+  });
+
+  body.innerHTML = sorted.map(function(e,i){
+    var svcShort = (e.services||'').split(',').slice(0,2).join(', ') + ((e.services||'').split(',').length>2?'…':'');
+    var custInfo = e.customerName && e.customerName!=='Walk-in' ? e.customerName : (e.customerPhone||'Walk-in');
+    var ph   = Number(e.phPay||0);
+    var cash = Number(e.cash||0);
+    var tips = Number(e.tip||0);
+    var tot  = Number(e.total||0)||ph+cash;
+    var timeStr = e.time ? '<span style="font-size:9px;color:var(--muted2)">'+e.time+'</span>' : '';
+    return '<div class="sd-tbl-row" style="grid-template-columns:28px 1fr 90px 70px 70px 70px 80px;font-size:11px">'+
+      '<span style="color:var(--muted2)">'+(i+1)+'</span>'+
+      '<div>'+
+        '<div style="font-weight:700;color:var(--white);font-size:11px">'+escH(staffName(e.barberId))+'</div>'+
+        '<div style="font-size:10px;color:var(--muted2)">'+escH(svcShort)+'</div>'+
+        '<div style="font-size:9px;color:var(--muted2)">'+escH(_sdEntryDate(e))+' '+timeStr+'</div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--muted)">'+escH(String(custInfo))+'</div>'+
+      '<div style="text-align:right;color:var(--blue);font-family:var(--HF)">'+( ph?rupeeFmt(ph):'-')+'</div>'+
+      '<div style="text-align:right;color:var(--green);font-family:var(--HF)">'+( cash?rupeeFmt(cash):'-')+'</div>'+
+      '<div style="text-align:right;color:#9333EA;font-family:var(--HF)">'+( tips?rupeeFmt(tips):'-')+'</div>'+
+      '<div style="text-align:right;color:var(--accent);font-family:var(--HF);font-weight:700">'+rupeeFmt(tot)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// Also upgrade existing sd-tbl rendering to use full table
+var _origSdBuildTbl = typeof sdBuildTbl === 'function' ? sdBuildTbl : null;
+function sdBuildTbl(entries, limit){
+  sdBuildFullTable(limit ? entries.slice(0,limit) : entries);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  END MYSALON OVERRIDES
+// ════════════════════════════════════════════════════════════════
 
 </script>
 </div><!-- /app-content -->
