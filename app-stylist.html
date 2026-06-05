@@ -1676,7 +1676,7 @@ function showTab(tab){
 // ── BILLING ──
 function renderBilling(){
   renderCashCounter();
-  var my=getEntries().filter(function(e){ return e.barberId===ME.id && e.date===today(); });
+  var my=getEntries().filter(function(e){ return e.barberId===ME.id && _isTodayEntry(e); });
   var totPh  =my.reduce(function(a,e){return a+Number(e.phPay||0);},0);
   var totCash=my.reduce(function(a,e){return a+Number(e.cash||0);},0);
   var totTip =my.reduce(function(a,e){return a+Number(e.tip||0);},0);
@@ -2176,7 +2176,7 @@ function addBill(){
   var entry={
     id:Date.now(),
     tenant_id: _tenantId,
-    date:today(),
+    date:todayISO(),
     time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
     barberId:ME.id,barber_id:ME.id,barberName:ME.name,salonId:ME.salonId,salon_id:ME.salonId,
     services:selectedSvcs.map(function(s){return s.label;}).join(', '),
@@ -2599,7 +2599,7 @@ function cancelEditExpense(){
 }
 
 function renderExpenseCounter(){
-  var log=(LS.get('expenses')||[]).filter(function(e){return e.date===today()&&String(e.barberId)===String(ME.id);});
+  var log=(LS.get('expenses')||[]).filter(function(e){return _isTodayEntry(e)&&String(e.barberId)===String(ME.id);});
   var total=log.reduce(function(a,e){return a+Number(e.amount||0);},0);
   document.getElementById('exp-total').textContent=fmtINR(total);
   var el=document.getElementById('exp-log');
@@ -2635,7 +2635,7 @@ function deleteExpense(ts){
 // ── MY SALES ── Fix 3+4+7
 function renderMySales(){
   var all=getEntries().filter(function(e){return e.barberId===ME.id;});
-  var td=all.filter(function(e){return e.date===today();});
+  var td=all.filter(function(e){return _isTodayEntry(e);});
   var mo=filterByMonth(all,new Date().toISOString().slice(0,7));
   var tdSales=td.reduce(function(a,e){return a+Number(e.total||0);},0);
   var moSales=mo.reduce(function(a,e){return a+Number(e.total||0);},0);
@@ -2746,7 +2746,7 @@ function renderMySalesTable(){
       '<td class="tp">'+(phTip>0?fmtINR(phTip):'—')+'</td>'+
       '<td class="tp">'+(cashTip>0?fmtINR(cashTip):'—')+'</td>'+
       '<td class="tot">'+fmtINR(sales)+'</td>'+
-      '<td style="white-space:nowrap">'+(e.date===today()?'<button style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0 3px 0 0" onclick="openEditBill('+e.id+')" title="Edit">✏️</button>':'')+'<button style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:0" onclick="delEntry('+e.id+')">✕</button></td>'+
+      '<td style="white-space:nowrap">'+(_isTodayEntry(e)?'<button style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;padding:0 3px 0 0" onclick="openEditBill('+e.id+')" title="Edit">✏️</button>':'')+'<button style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:0" onclick="delEntry('+e.id+')">✕</button></td>'+
     '</tr>';
   }).join('');
   el.innerHTML='<div class="tbl-scroll"><table class="entry-tbl">'+

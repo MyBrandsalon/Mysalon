@@ -2111,13 +2111,38 @@ function today(){ return new Date().toLocaleDateString('en-IN'); }
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 function fmtINR(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); }
 function getEntries(){ return LS.get('entries')||[]; }
+
+// ── Universal date normalizer ─────────────────────────────────
+// Converts any date string to YYYY-MM-DD for safe comparison
+function _normDate(d){
+  if(!d) return '';
+  d = String(d).trim();
+  if(d.indexOf('-') > -1) return d.slice(0,10); // already ISO
+  // Indian format: D/M/YYYY or DD/MM/YYYY
+  var p = d.split('/');
+  if(p.length===3){
+    var dd=p[0].padStart(2,'0'), mm=p[1].padStart(2,'0'), yy=p[2];
+    return yy+'-'+mm+'-'+dd;
+  }
+  return d;
+}
+// Check if entry matches a date string (handles both ISO and Indian)
+function _dateMatch(entryDate, targetDate){
+  return _normDate(entryDate) === _normDate(targetDate);
+}
+function _isTodayEntry(e){
+  return _normDate(e.date) === todayISO();
+}
+// ─────────────────────────────────────────────────────────────
+
 function filterByDate(entries,ds){
   if(!ds)return entries;
-  var p=ds.split('-'); var local=parseInt(p[2])+'/'+parseInt(p[1])+'/'+p[0];
-  return entries.filter(function(e){ return e.date===local; });
+  var iso = _normDate(ds);
+  return entries.filter(function(e){ return _normDate(e.date)===iso; });
 }
 function filterByMonth(entries,mo){
   if(!mo)return entries;
+  // mo is YYYY-MM
   var p=mo.split('-');
   return entries.filter(function(e){
     var d=(e.date||'').split('/');
@@ -2403,7 +2428,7 @@ function renderMgrAttBtn(wrapId){
   var el=document.getElementById(wrapId);
   if(!el)return;
   var log=LS.get('attendance')||[];
-  var todayRec=log.filter(function(r){return r.date===today()&&String(r.barberId)===String(ME.id);});
+  var todayRec=log.filter(function(r){return _isTodayEntry(r)&&String(r.barberId)===String(ME.id);});
   var lastIn=null,lastOut=null;
   todayRec.forEach(function(r){if(r.type==='in')lastIn=r;if(r.type==='out')lastOut=r;});
   var isIn=lastIn&&(!lastOut||lastIn.ts>lastOut.ts);
@@ -3182,11 +3207,8 @@ function addMgrBill(){
     billDateISO=datePickerEl?datePickerEl.value:'';
   }
   // Convert ISO date to local d/m/yyyy format for storage
-  var entryDate=today();
-  if(billDateISO && billDateISO!==todayISO()){
-    var dp=billDateISO.split('-');
-    entryDate=parseInt(dp[2])+'/'+parseInt(dp[1])+'/'+dp[0];
-  }
+  // Store date as ISO YYYY-MM-DD for consistent DB storage and comparison
+  var entryDate = billDateISO || todayISO();
   var staff  = LS.get('staff')||[];
   var barber = staff.find(function(u){return u.id===barberId;});
   var now    = new Date();
@@ -3284,7 +3306,8 @@ function addMgrBill(){
     .catch(function(err){
       var _err1 = err && err.message ? err.message : String(err);
       console.warn('[MySalon] Entry insert failed ('+_err1+'), retrying...');
-      toast('⚠ First insert failed: '+_err1+' — retrying...');
+      // Show first error immediately
+      console.error('[MySalon] First attempt error detail:', _err1);
       var fallback = {};
       Object.keys(dbRow).forEach(function(k){
         if(k !== 'cashback_source') fallback[k] = dbRow[k];
@@ -3299,7 +3322,7 @@ function addMgrBill(){
           renderDashboard();
           var errMsg2 = err2 && err2.message ? err2.message : String(err2);
           toast('⚠ Saved locally — DB Error: '+errMsg2);
-          console.error('[MySalon] Full error:', errMsg2);
+          console.error('[MySalon] Full Supabase error:', errMsg2);
         });
     });
   // Clear form immediately for UX
@@ -3583,7 +3606,7 @@ function deleteMgrHandover(ts){
 function renderMgrCounters(){
   // Expenses section
   var allEX=LS.get('mgrExpenses')||[];
-  var ex=allEX.filter(function(e){return e.date===today()&&String(e.salonId)===String(mySalonId);});
+  var ex=allEX.filter(function(e){return _isTodayEntry(e)&&String(e.salonId)===String(mySalonId);});
   var exT=ex.reduce(function(a,e){return a+Number(e.amount||0);},0);
   document.getElementById('mgr-exp-total').textContent=fmtINR(exT);
   var exEl=document.getElementById('mgr-exp-log');
@@ -3607,8 +3630,8 @@ function renderMgrCashCounter(){
 
   // Cash from billing entries — current month only
   var allE=getEntries().filter(function(e){return String(e.salonId)===String(mySalonId);});
-  var todayCash=allE.filter(function(e){return e.date===today();}).reduce(function(a,e){return a+Number(e.cash||0);},0);
-  var prevDailyCash=allE.filter(function(e){return e.date!==today()&&isCM(e.date);}).reduce(function(a,e){return a+Number(e.cash||0);},0);
+  var todayCash=allE.filter(function(e){return _isTodayEntry(e);}).reduce(function(a,e){return a+Number(e.cash||0);},0);
+  var prevDailyCash=allE.filter(function(e){return !_isTodayEntry(e)&&isCM(e.date);}).reduce(function(a,e){return a+Number(e.cash||0);},0);
 
   // Previous month cash carry-forward (local log)
   var prevCashLog=LS.get('mgrPrevCashLog_'+ME.id)||[];
@@ -3719,7 +3742,7 @@ function renderCashCounter(){ renderMgrCashCounter(); }
 // ════ DASHBOARD ════
 function renderDashboard(){
   var allE      = getEntries().filter(function(e){return e.salonId===mySalonId;});
-  var todayE    = allE.filter(function(e){return e.date===today();});
+  var todayE    = allE.filter(function(e){return _isTodayEntry(e);});
   var monthE    = filterByMonth(allE, new Date().toISOString().slice(0,7));
   var myStylists = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
 
@@ -3735,7 +3758,7 @@ function renderDashboard(){
   // FIX 2: Cash-in counter — now handled by new cash handling section
   var stylistIds = myStylists.map(function(u){return u.id;});
   var allExpenses = (LS.get('expenses')||[]).filter(function(e){
-    return e.date===today() && stylistIds.indexOf(String(e.barberId))>-1;
+    return _isTodayEntry(e) && stylistIds.indexOf(String(e.barberId))>-1;
   });
 
   // Expense log panel (hidden, keep for PNL calcs)
