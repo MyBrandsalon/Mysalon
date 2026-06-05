@@ -885,7 +885,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     📲 Green icon = send <b>visit reminder</b> with current offers · ⭐ Gold icon = send <b>feedback request</b> after their visit · 💬 Blue icon = send <b>welcome message</b> with login + cashback
   </div>
   <div class="tbl-wrap" style="margin-bottom:24px">
-    <div class="tbl-head" style="display:grid;grid-template-columns:1fr 50px 65px 80px 1fr 88px 70px 42px 42px 42px;text-align:center;font-size:10px;gap:3px">
+    <div class="tbl-head" style="display:grid;grid-template-columns:1fr 50px 65px 80px 1fr 88px 70px 70px 42px 42px 42px;text-align:center;font-size:10px;gap:3px">
       <span style="text-align:left">Customer</span>
       <span>Visits</span>
       <span>Spent</span>
@@ -2481,12 +2481,20 @@ function showTab(tab){
   if(tab==='offers'){ renderMgrOffers(); }
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
   if(tab==='kpi'){   supaBootstrap(function(){ initKPI(); }, function(){ initKPI(); }); }
-  if(tab==='pnl'){ initPNL(); renderPNL(); }
+  if(tab==='pnl'){ supaBootstrap(function(){ initPNL(); renderPNL(); }, function(){ initPNL(); renderPNL(); }); }
   if(tab==='profile'){
     supaBootstrap(function(){
       var mo=new Date().toISOString().slice(0,7);
-      mgrFetchSalaryData(mo, renderMgrProfile);
-    }, function(){ renderMgrProfile(); });
+      if(typeof mgrFetchSalaryData === 'function'){
+        mgrFetchSalaryData(mo, function(){
+          if(typeof renderMgrProfile === 'function') renderMgrProfile();
+        });
+      } else if(typeof renderMgrProfile === 'function'){
+        renderMgrProfile();
+      }
+    }, function(){
+      if(typeof renderMgrProfile === 'function') renderMgrProfile();
+    });
   }
   if(tab==='dashboard'){
     supaBootstrap(function(){
@@ -7821,9 +7829,11 @@ function hideUpgradeBanner(){
 
 // ── Offers — Pro gate ─────────────────────────────────────────
 function showOffersGated(){
-  showTab('offers');
   var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
   if(plan === 'free'){
+    // Don't show actual offers content — just show upgrade wall
+    // Still need to show the panel
+    showTab('offers');
     // Show upgrade wall inside the offers panel
     var panel = document.getElementById('pn-offers');
     if(panel){
@@ -7851,6 +7861,10 @@ function showOffersGated(){
           '</div>';
         // Insert after the first child (toolbar row)
         panel.insertBefore(wall, panel.children[1] || null);
+        // Hide all other children except the gate wall
+        Array.from(panel.children).forEach(function(el){
+          if(el.id !== 'offers-gate-wall') el.style.display = 'none';
+        });
       }
     }
   } else {
