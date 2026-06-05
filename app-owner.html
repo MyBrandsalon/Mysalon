@@ -779,6 +779,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <tbody id="yr-body"></tbody>
     </table>
   </div>
+  </div><!-- end queue-pro-content -->
 </div>
 
 <!-- ════ CUSTOMERS ════ -->
@@ -890,8 +891,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <span style="text-align:left">Offers Used</span>
       <span>Last Visit</span>
       <span>Referrals</span>
-      <span title="Send WhatsApp reminder (Pro)" onclick="mgrWaGated('reminder')" style="cursor:pointer">📲</span>
-      <span title="Send WhatsApp feedback (Pro)" onclick="mgrWaGated('feedback')" style="cursor:pointer">⭐</span>
+      <span title="WhatsApp Reminder — Pro Only" onclick="mgrWaGated('reminder')" style="cursor:pointer;opacity:.7">📲</span>
+      <span title="WhatsApp Feedback — Pro Only" onclick="mgrWaGated('feedback')" style="cursor:pointer;opacity:.7">⭐</span>
       <span title="Send welcome message with login + cashback details">💬</span>
     </div>
     <div class="tbl-body" id="mgr-cust-tbody"></div>
@@ -1344,6 +1345,25 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- ════ QUEUE PANEL — MANAGER ════ -->
 <div class="panel" id="pn-queue">
+  <!-- Pro gate overlay — shown for free plan, hidden for pro/business -->
+  <div id="queue-pro-gate" style="display:none;text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border)">
+    <div style="font-size:56px;margin-bottom:16px">🔒</div>
+    <div style="font-family:var(--HF);font-size:28px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.7;max-width:320px;margin-left:auto;margin-right:auto">
+      The <strong>Save-the-Time Queue</strong> lets customers join digitally and see live wait times.<br><br>
+      Upgrade to <strong>Pro (₹299/mo)</strong> to unlock the full queue system.
+    </div>
+    <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
+       style="display:inline-block;padding:14px 32px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:18px;letter-spacing:1px;text-decoration:none">
+      UPGRADE TO PRO →
+    </a>
+    <div style="margin-top:16px;font-size:12px;color:var(--muted2)">
+      <a href="https://wa.me/919999999999?text=I want to upgrade MySalon to Pro" target="_blank"
+         style="color:#25D366;text-decoration:none;font-weight:700">💬 Contact us on WhatsApp</a>
+    </div>
+  </div>
+  <!-- Actual queue content (shown for pro/business) -->
+  <div id="queue-pro-content">
   <!-- Open/Close toggle + stats row -->
   <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid rgba(0,0,0,.06)">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
@@ -5061,7 +5081,7 @@ function mgrRenderCustTable(){
     var wcCursor = wcEnabled ? 'pointer' : 'not-allowed';
     var wcTitle = !wcEnabled ? 'No phone number' : ('Send login + cashback to '+(r.c.name||'customer')+' via WhatsApp');
     var wcOnClick = wcEnabled
-      ? "mgrSendWelcomeMessage('"+String(r.c.id)+"')"
+      ? "mgrWaGated('welcome','"+String(r.c.id)+"')"
       : 'void 0';
     var wcBtn = '<button onclick="'+wcOnClick+'" '+(wcEnabled?'':'disabled')+' title="'+wcTitle+'" '+
       'style="width:32px;height:32px;border-radius:50%;border:none;background:'+wcBg+';color:'+wcCol+';cursor:'+wcCursor+';display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:transform .15s" '+
@@ -7438,23 +7458,52 @@ supaBootstrap = function(onDone, onError) {
 
 // Queue tab — Pro gate
 function showQueueGated(){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
-  if(plan === 'free'){
-    toast('🔒 Queue requires Pro plan. Upgrade at mysalon.in', 3500);
-    return;
-  }
   showTab('queue');
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var gate    = document.getElementById('queue-pro-gate');
+  var content = document.getElementById('queue-pro-content');
+  if(plan === 'free'){
+    if(gate)    gate.style.display    = 'block';
+    if(content) content.style.display = 'none';
+  } else {
+    if(gate)    gate.style.display    = 'none';
+    if(content) content.style.display = 'block';
+  }
 }
 
 // WhatsApp — Pro gate
-function mgrWaGated(type){
+function mgrWaGated(type, customerId){
   var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
   if(plan === 'free'){
-    toast('🔒 WhatsApp reminders require Pro plan. Upgrade at mysalon.in', 3500);
+    // Show upgrade modal instead of toast
+    _showWaUpgradeModal();
     return;
   }
   if(type === 'reminder') mgrSendReminderNow();
   if(type === 'feedback')  mgrSendFeedbackNow();
+  if(type === 'welcome' && customerId) mgrSendWelcomeMessage(customerId);
+}
+
+function _showWaUpgradeModal(){
+  // Create and show upgrade banner
+  var existing = document.getElementById('wa-upgrade-toast');
+  if(existing){ existing.remove(); }
+  var el = document.createElement('div');
+  el.id = 'wa-upgrade-toast';
+  el.innerHTML =
+    '<div style="position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:9999;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.3)">' +
+      '<div style="font-size:28px">🔒</div>' +
+      '<div style="flex:1">' +
+        '<div style="font-family:var(--HF);font-size:16px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>' +
+        '<div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px">WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong></div>' +
+      '</div>' +
+      '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" ' +
+         'style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:var(--HF);font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap">UPGRADE →</a>' +
+      '<button onclick="document.getElementById('wa-upgrade-toast').remove()" ' +
+        'style="background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;padding:0 4px">✕</button>' +
+    '</div>';
+  document.body.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.remove(); }, 6000);
 }
 
 // ── Sales: custom date period hook ──────────────────────────────
