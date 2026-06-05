@@ -1771,21 +1771,26 @@ function sbDelete(table, id){
 var SB = {
   // ─ READ ALL (used for bootstrap cache) ─
   readAll: function(){
+    // ── CRITICAL: filter ALL queries by tenant_id ──────────────
+    var _tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+    if(!_tid){ console.warn('[MySalon] No tenant_id — data will be unscoped!'); }
+    var _tq = _tid ? 'tenant_id=eq.'+encodeURIComponent(_tid) : '';
+    function _ts(table){ return _tq ? table+'?'+_tq : table; }
     return Promise.all([
-      sbSelect('staff'),
-      sbSelect('salons'),
-      sbSelect('customers'),
-      sbSelect('entries'),
-      sbSelect('cash_in'),
-      sbSelect('expenses'),
-      sbSelect('attendance'),
-      sbSelect('style_cards'),
-      sbSelect('visits'),
-      sbSelect('advances'),
-      sbSelect('mgr_cash_in'),
-      sbSelect('mgr_expenses'),
-      sbSelect('deductions'),
-      sbSelect('att_overrides')
+      sbSelect('staff',        _tq),
+      sbSelect('salons',       _tq),
+      sbSelect('customers',    _tq),
+      sbSelect('entries',      _tq),
+      sbSelect('cash_in',      _tq),
+      sbSelect('expenses',     _tq),
+      sbSelect('attendance',   _tq),
+      sbSelect('style_cards',  _tq),
+      sbSelect('visits',       _tq),
+      sbSelect('advances',     _tq),
+      sbSelect('mgr_cash_in',  _tq),
+      sbSelect('mgr_expenses', _tq),
+      sbSelect('deductions',   _tq),
+      sbSelect('att_overrides',_tq)
     ]).then(function(results){
       return {
         staff:        results[0]  || [],
@@ -2131,11 +2136,30 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   renderMgrAttBtn('mgr-att-btn-wrap');
 }
 (function autoLoad(){
+  // ── Fetch tenant logo immediately ─────────────────────────
+  (function(){
+    var tbLogo = document.getElementById('topbarLogo');
+    if(!tbLogo) return;
+    var cached = (localStorage.getItem('ms_logo')||'').trim();
+    if(cached && cached !== 'undefined' && cached !== 'null' && cached !== ''){
+      tbLogo.onerror = function(){ this.src='ms-default-logo.svg'; };
+      tbLogo.src = cached; return;
+    }
+    var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+    if(!tid) return;
+    fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(tid)+'&select=logo_url',{
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    }).then(function(r){return r.json();}).then(function(rows){
+      var url = rows&&rows[0]?(rows[0].logo_url||'').trim():'';
+      if(url){ localStorage.setItem('ms_logo',url); tbLogo.onerror=function(){this.src='ms-default-logo.svg';}; tbLogo.src=url; }
+    }).catch(function(){});
+  })();
+  // ─────────────────────────────────────────────────────────
   supaBootstrap(
     function(){ _initApp(); },
     function(err){
       console.warn('[BB] Supabase load failed, using cache:', err);
-      _initApp();  // still init with cached data
+      _initApp();
     }
   );
 })();

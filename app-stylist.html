@@ -1104,21 +1104,23 @@ function ensureCustomer(phone, name, salonId, extraFields){
 var SB = {
   // ─ READ ALL (used for bootstrap cache) ─
   readAll: function(){
+    var _tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+    var _tq = _tid ? 'tenant_id=eq.'+encodeURIComponent(_tid) : '';
     return Promise.all([
-      sbSelect('staff'),
-      sbSelect('salons'),
-      sbSelect('customers'),
-      sbSelect('entries'),
-      sbSelect('cash_in'),
-      sbSelect('expenses'),
-      sbSelect('attendance'),
-      sbSelect('style_cards'),
-      sbSelect('visits'),
-      sbSelect('advances'),
-      sbSelect('mgr_cash_in'),
-      sbSelect('mgr_expenses'),
-      sbSelect('deductions'),
-      sbSelect('att_overrides')
+      sbSelect('staff',     _tq),
+      sbSelect('salons',    _tq),
+      sbSelect('customers', _tq),
+      sbSelect('entries', _tq),
+      sbSelect('cash_in', _tq),
+      sbSelect('expenses', _tq),
+      sbSelect('attendance', _tq),
+      sbSelect('style_cards', _tq),
+      sbSelect('visits', _tq),
+      sbSelect('advances', _tq),
+      sbSelect('mgr_cash_in', _tq),
+      sbSelect('mgr_expenses', _tq),
+      sbSelect('deductions', _tq),
+      sbSelect('att_overrides', _tq)
     ]).then(function(results){
       return {
         staff:        results[0]  || [],
