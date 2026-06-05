@@ -489,7 +489,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-customers" onclick="showTab('customers')">👤 Customers</button>
   <button class="nt"    id="nt-staff"     onclick="showTab('staff')">👥 Staff</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
-  <button class="nt" id="nt-offers" onclick="showTab('offers')">🎁 Offers</button>
+  <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
   <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
   <button class="nt" id="nt-pnl" onclick="showTab('pnl')">📊 P&L</button>
   <button class="nt" id="nt-profile" onclick="showTab('profile')">👤 My Profile</button>
@@ -1307,7 +1307,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="panel" id="pn-offers">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="font-size:15px;font-weight:700;color:var(--white)">🎁 Offers & Campaigns</div>
-    <button onclick="openModal('addOfferModal')" style="padding:9px 16px;background:rgba(0,196,140,.15);border:1.5px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">+ Create Offer</button>
+    <button onclick="createOfferGated()" style="padding:9px 16px;background:rgba(0,196,140,.15);border:1.5px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">+ Create Offer</button>
   </div>
   <div id="mgr-offers-list"><div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Loading offers…</div></div>
 </div>
@@ -7772,6 +7772,58 @@ function hideUpgradeBanner(){
   b.style.transform = 'translateY(100%)';
   setTimeout(function(){ b.style.display='none'; }, 350);
 }
+
+// ── Offers — Pro gate ─────────────────────────────────────────
+function showOffersGated(){
+  showTab('offers');
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  if(plan === 'free'){
+    // Show upgrade wall inside the offers panel
+    var panel = document.getElementById('pn-offers');
+    if(panel){
+      var existing = panel.querySelector('#offers-gate-wall');
+      if(!existing){
+        var wall = document.createElement('div');
+        wall.id = 'offers-gate-wall';
+        wall.style.cssText = 'text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);margin-top:8px';
+        wall.innerHTML =
+          '<div style="font-size:52px;margin-bottom:14px">🎁</div>'+
+          '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>'+
+          '<div style="font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;margin:0 auto 24px">'+
+            'Create <strong>discount offers & cashback campaigns</strong> to attract and retain customers.<br><br>'+
+            'Upgrade to <strong>Pro (₹299/mo)</strong> to unlock Offers.'+
+          '</div>'+
+          '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" '+
+             'style="display:inline-block;padding:13px 28px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:17px;letter-spacing:1px;text-decoration:none">'+
+            'UPGRADE TO PRO →'+
+          '</a>'+
+          '<div style="margin-top:14px">'+
+            '<a href="https://wa.me/919999999999?text=Upgrade MySalon to Pro" target="_blank" '+
+               'style="color:#25D366;font-size:12px;font-weight:700;text-decoration:none">'+
+              '💬 Contact us on WhatsApp'+
+            '</a>'+
+          '</div>';
+        // Insert after the first child (toolbar row)
+        panel.insertBefore(wall, panel.children[1] || null);
+      }
+    }
+  } else {
+    // Remove gate wall if plan upgraded
+    var wall = document.getElementById('offers-gate-wall');
+    if(wall) wall.remove();
+  }
+}
+
+function createOfferGated(){
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  if(plan === 'free'){
+    showUpgradeBanner('Creating offers requires <strong>Pro plan (₹299/mo)</strong>');
+    return;
+  }
+  openModal('addOfferModal');
+}
+// ─────────────────────────────────────────────────────────────
+
 </script>
 
 </body>
