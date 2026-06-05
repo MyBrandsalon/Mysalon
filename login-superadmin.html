@@ -3,79 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>MySalon — Platform Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>MySalon – Platform Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0F1A14;--ink2:#3A5244;--ink3:#6B8C7E;--lime:#B8F04A;--lime2:#9ED636;--surface:#F7FAF8;--card:#FFFFFF;--border:#DDE8E3;--danger:#E5403A;--ff:'DM Sans',sans-serif;--fh:'Syne',sans-serif;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--ff);background:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
-.wrap{width:100%;max-width:380px}
-.brand{text-align:center;margin-bottom:36px}
-.brand-mark{width:64px;height:64px;background:var(--lime);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:var(--fh);font-size:28px;font-weight:800;color:var(--ink)}
-.brand-name{font-family:var(--fh);font-size:24px;font-weight:800;color:white;display:block}
-.brand-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
-.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px}
-h2{font-family:var(--fh);font-size:20px;font-weight:800;color:white;margin-bottom:4px}
-.sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:22px}
-.fg{margin-bottom:16px}
-label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:7px}
-input[type=tel],input[type=password]{width:100%;padding:14px 15px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-family:var(--ff);font-size:17px;font-weight:500;color:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus{border-color:var(--lime2)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:#0F1A14;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:32px 28px;width:100%;max-width:380px}
+.brand{text-align:center;margin-bottom:28px}
+.brand-mark{width:64px;height:64px;background:#C8A800;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;border:3px solid #003D2B}
+.brand-mark-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#003D2B;letter-spacing:2px;line-height:1;padding:3px 8px 0;text-align:center;width:100%}
+.brand-mark-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:12px;color:#C8A800;letter-spacing:2px;line-height:1;padding:0 8px 3px;text-align:center;width:100%}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:white;letter-spacing:2px;display:block}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+h2{font-family:'Bebas Neue',sans-serif;font-size:24px;color:white;letter-spacing:1px;margin-bottom:6px}
+.sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:22px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:7px}
+input{width:100%;padding:14px 15px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;font-family:'Barlow',sans-serif;font-size:17px;color:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus{border-color:#C8A800}
 input::placeholder{color:rgba(255,255,255,.2)}
-.btn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;font-family:var(--fh);font-size:17px;font-weight:700;transition:all .15s}
-.btn-lime{background:var(--lime2);color:var(--ink)}
-.btn-lime:hover{background:var(--lime)}
-.btn-lime:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed}
-.err{background:rgba(229,64,58,.12);border:1px solid rgba(229,64,58,.3);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;color:#FF9B9B;display:none;margin-bottom:14px;text-align:center}
-.back{display:block;text-align:center;margin-top:14px;font-size:13px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
-.back:hover{color:rgba(255,255,255,.6)}
+.fg{margin-bottom:16px}
+.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;transition:all .15s;display:block;text-align:center;margin-top:4px}
+.btn-primary{background:#C8A800;color:#003D2B}
+.btn-primary:hover{background:#F5E030}
+.btn-primary:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed}
+.btn-back{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);margin-top:10px;font-size:14px;font-family:'Barlow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.err{color:#FF6B6B;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none;background:rgba(220,38,38,.1);padding:10px;border-radius:8px;border:1px solid rgba(220,38,38,.2)}
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(15,26,20,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
 .loading-overlay.show{display:flex}
-.spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(158,214,54,.15);border-top-color:var(--lime2);animation:spin .7s linear infinite}
+.spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(200,168,0,.15);border-top-color:#C8A800;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:13px;color:rgba(255,255,255,.5);font-weight:600}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="card">
   <div class="brand">
-    <div class="brand-mark">MS</div>
-    <span class="brand-name">MySalon</span>
+    <div class="brand-mark">
+      <span class="brand-mark-top">MY</span>
+      <span class="brand-mark-bot">SALON</span>
+    </div>
+    <span class="brand-name">MYSALON</span>
     <span class="brand-sub">Platform Administration</span>
   </div>
-  <div class="card">
-    <h2>Admin Login</h2>
-    <p class="sub">MySalon platform super admin access only</p>
-    <div id="errMsg" class="err"></div>
-    <div class="fg"><label>Admin Mobile</label><input type="tel" id="phoneInput" placeholder="Registered admin number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-    <div class="fg"><label>Admin PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-    <button class="btn btn-lime" id="loginBtn" onclick="doLogin()">Login →</button>
-  </div>
-  <a href="index.html" class="back">← Back to MySalon homepage</a>
+  <h2>Admin Login</h2>
+  <p class="sub">MySalon platform super admin access only</p>
+  <div id="errMsg" class="err"></div>
+  <div class="fg"><label>Admin Mobile</label><input type="tel" id="phoneInput" placeholder="Registered admin number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <div class="fg"><label>Admin PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+  <a href="index.html" class="btn btn-back">← Back to MySalon</a>
 </div>
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-txt">Signing in…</div></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 <script>
-var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';var MS_KEY='sb_publishable_GtdUt6IV6TcsGoyOP02oIQ_CZf0vLQy';
+var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
 function _h(){return{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY};}
-function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[];});}
 function doLogin(){
   var phone=document.getElementById('phoneInput').value.trim();
   var pin=document.getElementById('pinInput').value.trim();
   hideErr();
-  if(phone.length<10){showErr('Enter a valid phone number.');return;}
+  if(phone.length<10){showErr('Enter a valid 10-digit number.');return;}
   if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
   document.getElementById('loadingOverlay').classList.add('show');
-  _get('super_admins?phone=eq.'+encodeURIComponent(phone)+'&active=eq.true&select=id,name,login_pin')
+  document.getElementById('loginBtn').disabled=true;
+  fetch(MS_URL+'/rest/v1/super_admins?phone=eq.'+encodeURIComponent(phone)+'&active=eq.true&select=id,name,login_pin',{headers:_h()})
+    .then(function(r){return r.json();})
     .then(function(rows){
       document.getElementById('loadingOverlay').classList.remove('show');
+      document.getElementById('loginBtn').disabled=false;
       if(!rows||!rows.length){showErr('Admin account not found.');return;}
       var a=rows[0];
-      if(String(a.login_pin||'')!==pin){showErr('Wrong PIN. Try again.');document.getElementById('pinInput').value='';return;}
-      sessionStorage.setItem('ms_superadmin_id',a.id);
-      sessionStorage.setItem('ms_superadmin_name',a.name||'Admin');
-      sessionStorage.setItem('ms_role','superadmin');
+      if(String(a.login_pin||'').trim()!==pin.trim()){showErr('Wrong PIN. Try again.');document.getElementById('pinInput').value='';return;}
+      // Set session — use BOTH ms_ keys and bb_admin_ keys for compatibility
+      var keys={
+        'ms_phone':phone, 'ms_role':'superadmin',
+        'ms_user_name':a.name||'Admin',
+        'ms_superadmin_id':a.id,
+        'bb_admin_phone':phone, 'bb_admin_role':'admin'
+      };
+      Object.keys(keys).forEach(function(k){
+        try{sessionStorage.setItem(k,keys[k]);}catch(e){}
+        try{localStorage.setItem(k,keys[k]);}catch(e){}
+      });
       window.location.href='app-superadmin.html';
-    }).catch(function(){document.getElementById('loadingOverlay').classList.remove('show');showErr('Login failed. Please try again.');});
+    })
+    .catch(function(e){
+      document.getElementById('loadingOverlay').classList.remove('show');
+      document.getElementById('loginBtn').disabled=false;
+      showErr('Login failed: '+e.message);
+    });
 }
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
 function hideErr(){document.getElementById('errMsg').style.display='none';}

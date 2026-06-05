@@ -10,14 +10,14 @@
 <title>MySalon – Super Admin</title>
 
 <!-- ── PWA: install on home screen ──────────────────────────────────── -->
-<link rel="manifest" href="manifest-superadmin.webmanifest">
+<link rel="manifest" href="/manifest-admin.webmanifest">
 <meta name="theme-color" content="#581c87">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MySalon Admin">
-<link rel="apple-touch-icon" href="ms-default-logo.svg">
-<link rel="icon" type="image/png" sizes="192x192" href="ms-default-logo.svg">
-<link rel="icon" type="image/png" sizes="512x512" href="ms-default-logo.svg">
+<link rel="apple-touch-icon" href="/icon-admin-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-admin-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-admin-512.png">
 <!-- ────────────────────────────────────────────────────────────────── -->
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -380,47 +380,35 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 </div>
 
 <!-- OVERVIEW -->
-<!-- ════ TENANTS (ALL SALONS) ════ -->
+<!-- ════ ALL SALONS ════ -->
 <div class="panel on" id="pn-tenants">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <div style="font-family:var(--HF);font-size:22px;letter-spacing:1px">ALL SALONS</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <input type="search" id="tenant-search" placeholder="Name, city, phone…" oninput="filterTenants()"
         style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface2);color:var(--white);font-size:13px;font-family:var(--BF);outline:none;width:200px">
       <select id="tenant-plan-filter" onchange="filterTenants()"
         style="padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface2);color:var(--white);font-size:13px;font-family:var(--BF);outline:none">
-        <option value="">All Plans</option>
-        <option value="free">Free</option>
-        <option value="pro">Pro</option>
-        <option value="business">Business</option>
+        <option value="">All Plans</option><option value="free">Free</option><option value="pro">Pro</option><option value="business">Business</option>
       </select>
-      <button onclick="loadAllTenants()" class="btn-sm on" style="font-size:11px">↺ Refresh</button>
-      <button onclick="showTab('overview')" class="btn-sm" style="font-size:11px">📊 Cross-Salon Analytics</button>
+      <button onclick="loadAllTenants()" class="btn-sm on">↺ Refresh</button>
     </div>
   </div>
-
-  <!-- KPI row -->
   <div class="sg" style="margin-bottom:16px">
     <div class="sc accent"><div class="sc-lbl">Total Salons</div><div class="sc-val" id="t-kpi-total">—</div></div>
-    <div class="sc gold"><div class="sc-lbl">Pro Salons</div><div class="sc-val" id="t-kpi-pro">—</div></div>
+    <div class="sc gold"><div class="sc-lbl">Pro</div><div class="sc-val" id="t-kpi-pro">—</div></div>
     <div class="sc" style="border-color:#6D28D9"><div class="sc-lbl">Business</div><div class="sc-val" id="t-kpi-biz" style="color:#6D28D9">—</div></div>
-    <div class="sc"><div class="sc-lbl">Free Plan</div><div class="sc-val" id="t-kpi-free">—</div></div>
+    <div class="sc"><div class="sc-lbl">Free</div><div class="sc-val" id="t-kpi-free">—</div></div>
     <div class="sc accent"><div class="sc-lbl">Platform MRR</div><div class="sc-val" id="t-kpi-mrr">—</div></div>
-    <div class="sc"><div class="sc-lbl">Total Staff</div><div class="sc-val" id="t-kpi-staff">—</div></div>
+    <div class="sc danger"><div class="sc-lbl">Total Staff</div><div class="sc-val" id="t-kpi-staff">—</div></div>
   </div>
-
-  <!-- Salons table -->
   <div style="background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden">
-    <div style="display:grid;grid-template-columns:1fr 110px 80px 70px 80px 100px 90px;padding:10px 14px;background:rgba(0,122,86,.1);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);gap:8px">
-      <span>Salon</span><span>Owner / Phone</span><span>City</span><span>Plan</span><span>Staff</span><span>Registered</span><span>Actions</span>
+    <div style="display:grid;grid-template-columns:1fr 120px 80px 70px 80px 100px 110px;padding:10px 14px;background:rgba(0,122,86,.1);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);gap:8px">
+      <span>Salon</span><span>Owner</span><span>City</span><span>Plan</span><span>Staff</span><span>Registered</span><span>Actions</span>
     </div>
-    <div id="tenants-list" style="max-height:70vh;overflow-y:auto">
-      <div style="padding:40px;text-align:center;color:var(--muted2)">Loading salons…</div>
-    </div>
+    <div id="tenants-list"><div style="padding:40px;text-align:center;color:var(--muted2)">Loading…</div></div>
   </div>
 </div>
-<!-- ════ END TENANTS ════ -->
-
 <div class="panel" id="pn-overview">
   <!-- Header row: title + Month/Today toggle -->
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
@@ -1312,7 +1300,7 @@ var SB = {
   readAll: function(){
     return Promise.all([
       sbSelect('staff'),
-      sbSelect('salons'),  // No tenant filter — superadmin sees all
+      sbSelect('salons'),
       sbSelect('customers'),
       sbSelect('entries'),
       sbSelect('cash_in'),
@@ -1562,12 +1550,15 @@ function _sheetToTable(name){
 // Session credentials live in localStorage (persistent) so the admin stays
 // logged in across tab closes, browser restarts, and PWA launches — until
 // they explicitly tap Logout.
-var SESSION_PHONE=sessionStorage.getItem('bb_phone') || localStorage.getItem('bb_phone');
-var SESSION_ROLE=sessionStorage.getItem('bb_role') || localStorage.getItem('bb_role');
-if(!SESSION_PHONE||SESSION_ROLE!=='admin'){window.location.href='login-superadmin.html';}
+var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || localStorage.getItem('bb_admin_phone') || '';
+var SESSION_ROLE  = localStorage.getItem('ms_role')  || sessionStorage.getItem('ms_role')  || '';
+if(!SESSION_PHONE || SESSION_ROLE !== 'superadmin'){
+  window.location.href = 'login-superadmin.html';
+}
+try{sessionStorage.setItem('ms_phone',SESSION_PHONE);sessionStorage.setItem('ms_role',SESSION_ROLE);}catch(e){}
 try {
-  localStorage.setItem('bb_phone', SESSION_PHONE);
-  localStorage.setItem('bb_role',  SESSION_ROLE);
+  localStorage.setItem('ms_phone', SESSION_PHONE);
+  localStorage.setItem('ms_role',  SESSION_ROLE);
 } catch(e){ /* private-mode quota or disabled storage — ignore */ }
 
 // ── PWA: install on home screen ───────────────────────────────────────
@@ -1695,6 +1686,7 @@ function filterByMonth(e,mo){if(!mo)return e;var p=mo.split('-');return e.filter
 // Runs every time the app loads. If staff data is missing or stale,
 // silently pulls latest from Google Sheets — no manual action needed.
 (function autoLoad(){
+  loadAllTenants();
   supaBootstrap(
     function(data){
       try{ renderOverview(); } catch(e){}
@@ -1732,7 +1724,6 @@ function filterByMonth(e,mo){if(!mo)return e;var p=mo.split('-');return e.filter
   for(var ry=curYr;ry>=curYr-4;ry--){var ro=document.createElement('option');ro.value=ry;ro.textContent=ry;yrSel.appendChild(ro);}
   // Set default month in reports selector to current month
   var _rms2=document.getElementById('rpt-month-sel'); if(_rms2) _rms2.value=('0'+(new Date().getMonth()+1)).slice(-2);
-  loadAllTenants();
   renderOverview();
 })();
 
@@ -2012,6 +2003,13 @@ function renderSalonPNL(){
 }
 
 function showTab(tab){
+  if(tab==='tenants'){ 
+    document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+    var nb=document.getElementById('nt-tenants'),pb=document.getElementById('pn-tenants');
+    if(nb)nb.classList.add('on'); if(pb)pb.classList.add('on');
+    loadAllTenants(); return; 
+  }
   try{
     document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
     document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
@@ -3301,11 +3299,8 @@ function clearAllData(){
 }
 
 function logout(){
-  try { sessionStorage.clear(); } catch(e){}
-  try {
-    localStorage.removeItem('bb_phone');
-    localStorage.removeItem('bb_role');
-  } catch(e){}
+  try{sessionStorage.clear();}catch(e){}
+  try{localStorage.removeItem('ms_phone');localStorage.removeItem('ms_role');}catch(e){}
   window.location.href = 'login-superadmin.html';
 }
 
@@ -6606,152 +6601,81 @@ window.sdInit=function(){
 };
 })();
 
-// ════════════════════════════════════════════════════════════════
-//  MYSALON SUPER ADMIN — TENANT MANAGEMENT
-// ════════════════════════════════════════════════════════════════
-
-var _allTenants = [];
-var _tenantStaffCounts = {};
-var _tenantEntryCounts = {};
-
+// ════ MYSALON TENANT MANAGEMENT ════
+var _allTenants=[],_tStaff={},_tEntries={};
 function loadAllTenants(){
-  var listEl = document.getElementById('tenants-list');
-  if(listEl) listEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted2)">⏳ Loading all salons…</div>';
-
+  var el=document.getElementById('tenants-list');
+  if(el)el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted2)">⏳ Loading…</div>';
   Promise.all([
-    fetch(SUPA_URL+'/rest/v1/tenants?order=created_at.desc&limit=500&select=*', {
-      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    }).then(function(r){return r.json();}),
-    fetch(SUPA_URL+'/rest/v1/staff?select=id,tenant_id,role,active&limit=5000', {
-      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    }).then(function(r){return r.json();}),
-    fetch(SUPA_URL+'/rest/v1/entries?select=id,tenant_id&limit=10000', {
-      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    }).then(function(r){return r.json();})
-  ]).then(function(results){
-    _allTenants = Array.isArray(results[0]) ? results[0] : [];
-    var staff   = Array.isArray(results[1]) ? results[1] : [];
-    var entries = Array.isArray(results[2]) ? results[2] : [];
-
-    // Build counts per tenant
-    _tenantStaffCounts = {};
-    staff.forEach(function(s){
-      var tid = String(s.tenant_id||'');
-      if(tid) _tenantStaffCounts[tid] = (_tenantStaffCounts[tid]||0) + 1;
-    });
-    _tenantEntryCounts = {};
-    entries.forEach(function(e){
-      var tid = String(e.tenant_id||'');
-      if(tid) _tenantEntryCounts[tid] = (_tenantEntryCounts[tid]||0) + 1;
-    });
-
-    // KPIs
-    var planRank = {free:0, pro:1, business:2};
-    var pro   = _allTenants.filter(function(t){return t.plan==='pro';}).length;
-    var biz   = _allTenants.filter(function(t){return t.plan==='business';}).length;
-    var free  = _allTenants.filter(function(t){return !t.plan||t.plan==='free';}).length;
-    var mrr   = pro*299 + biz*799;
-    var totalStaff = staff.length;
-    _sv('t-kpi-total', _allTenants.length);
-    _sv('t-kpi-pro',   pro);
-    _sv('t-kpi-biz',   biz);
-    _sv('t-kpi-free',  free);
-    _sv('t-kpi-mrr',   '₹'+mrr.toLocaleString('en-IN'));
-    _sv('t-kpi-staff', totalStaff);
-
+    fetch(SUPA_URL+'/rest/v1/tenants?order=created_at.desc&limit=500&select=*',{headers:_supaHeaders()}).then(function(r){return r.json();}),
+    fetch(SUPA_URL+'/rest/v1/staff?select=id,tenant_id&limit=5000',{headers:_supaHeaders()}).then(function(r){return r.json();}),
+    fetch(SUPA_URL+'/rest/v1/entries?select=id,tenant_id&limit=10000',{headers:_supaHeaders()}).then(function(r){return r.json();})
+  ]).then(function(res){
+    _allTenants=Array.isArray(res[0])?res[0]:[];
+    var staff=Array.isArray(res[1])?res[1]:[];
+    var entries=Array.isArray(res[2])?res[2]:[];
+    _tStaff={}; staff.forEach(function(s){var t=String(s.tenant_id||'');if(t)_tStaff[t]=(_tStaff[t]||0)+1;});
+    _tEntries={}; entries.forEach(function(e){var t=String(e.tenant_id||'');if(t)_tEntries[t]=(_tEntries[t]||0)+1;});
+    var pro=_allTenants.filter(function(t){return t.plan==='pro';}).length;
+    var biz=_allTenants.filter(function(t){return t.plan==='business';}).length;
+    var free=_allTenants.filter(function(t){return !t.plan||t.plan==='free';}).length;
+    var mrr=pro*299+biz*799;
+    var setV=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    setV('t-kpi-total',_allTenants.length); setV('t-kpi-pro',pro); setV('t-kpi-biz',biz); setV('t-kpi-free',free);
+    setV('t-kpi-mrr','\u20b9'+mrr.toLocaleString('en-IN')); setV('t-kpi-staff',staff.length);
     renderTenantsList(_allTenants);
-  }).catch(function(err){
-    if(listEl) listEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger)">Error loading: '+err.message+'</div>';
-  });
+  }).catch(function(err){if(el)el.innerHTML='<div style="padding:40px;text-align:center;color:var(--danger)">Error: '+err.message+'</div>';});
 }
-
-function _sv(id, val){
-  var el = document.getElementById(id);
-  if(el) el.textContent = val;
-}
-
-function renderTenantsList(tenants){
-  var el = document.getElementById('tenants-list');
-  if(!el) return;
-  if(!tenants.length){
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted2)">No salons found</div>';
-    return;
-  }
-
-  var planColors = {free:'rgba(100,100,100,.12)', pro:'rgba(29,109,181,.12)', business:'rgba(109,40,217,.12)'};
-  var planText   = {free:'#666', pro:'#1D6DB5', business:'#6D28D9'};
-
-  el.innerHTML = tenants.map(function(t){
-    var staffCount  = _tenantStaffCounts[String(t.id)] || 0;
-    var entryCount  = _tenantEntryCounts[String(t.id)] || 0;
-    var plan        = t.plan || 'free';
-    var registeredDate = t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-    var logoHtml = t.logo_url
-      ? '<img src="'+t.logo_url+'" style="width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid var(--border);flex-shrink:0" onerror="this.src='ms-default-logo.svg'">'
-      : '<div style="width:34px;height:34px;border-radius:8px;background:#003D2B;border:2px solid #C8A800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:10px;color:#C8A800;line-height:1;text-align:center">MY<br>SALON</div>';
-    var activeBadge = t.is_active
-      ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(22,163,74,.1);color:#16A34A;border:1px solid rgba(22,163,74,.25)">Active</span>'
-      : '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:rgba(220,53,69,.1);color:var(--danger);border:1px solid rgba(220,53,69,.25)">Inactive</span>';
-
-    return '<div style="display:grid;grid-template-columns:1fr 110px 80px 70px 80px 100px 90px;padding:12px 14px;border-bottom:1px solid var(--border);align-items:center;gap:8px;transition:background .15s" onmouseover="this.style.background='rgba(0,0,0,.02)'" onmouseout="this.style.background=''">'+
-      '<div style="display:flex;align-items:center;gap:10px;min-width:0">'+
-        logoHtml+
-        '<div style="min-width:0">'+
-          '<div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escH(t.name||'—')+'</div>'+
-          '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+escH(t.slug||'')+'</div>'+
-          '<div style="margin-top:3px">'+activeBadge+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="font-size:11px"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis">'+escH(t.owner_name||'—')+'</div><div style="color:var(--muted);font-size:10px">'+escH(t.owner_phone||'')+'</div></div>'+
-      '<div style="font-size:12px;color:var(--muted)">'+escH(t.city||'—')+'</div>'+
-      '<div><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+planColors[plan]+';color:'+planText[plan]+'">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</span></div>'+
-      '<div style="text-align:center"><span style="font-family:var(--HF);font-size:18px;color:var(--accent)">'+staffCount+'</span><div style="font-size:9px;color:var(--muted2)">'+entryCount+' entries</div></div>'+
-      '<div style="font-size:10px;color:var(--muted)">'+registeredDate+'</div>'+
+function renderTenantsList(list){
+  var el=document.getElementById('tenants-list');
+  if(!el)return;
+  if(!list.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted2)">No salons found</div>';return;}
+  var pc={free:'rgba(100,100,100,.12)',pro:'rgba(29,109,181,.12)',business:'rgba(109,40,217,.12)'};
+  var pt={free:'#666',pro:'#1D6DB5',business:'#6D28D9'};
+  el.innerHTML=list.map(function(t){
+    var plan=t.plan||'free';
+    var sc=_tStaff[t.id]||0, ec=_tEntries[t.id]||0;
+    var reg=t.created_at?new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+    var logo=t.logo_url
+      ?'<img src="'+t.logo_url+'" style="width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid var(--border);flex-shrink:0" onerror="this.src='ms-default-logo.svg'">'
+      :'<div style="width:34px;height:34px;border-radius:8px;background:#003D2B;border:2px solid #C8A800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:9px;color:#C8A800;text-align:center;line-height:1.1">MY<br>SALON</div>';
+    var badge=t.is_active
+      ?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:rgba(22,163,74,.1);color:#16A34A;border:1px solid rgba(22,163,74,.2)">Active</span>'
+      :'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:rgba(220,53,69,.1);color:var(--danger);border:1px solid rgba(220,53,69,.2)">Inactive</span>';
+    return '<div style="display:grid;grid-template-columns:1fr 120px 80px 70px 80px 100px 110px;padding:12px 14px;border-bottom:1px solid var(--border);align-items:center;gap:8px">'+
+      '<div style="display:flex;align-items:center;gap:10px;min-width:0">'+logo+
+        '<div style="min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.name||'—')+'</div>'+
+        '<div style="font-size:10px;color:var(--muted)">@'+esc(t.slug||'')+'</div>'+
+        '<div style="margin-top:2px">'+badge+'</div></div></div>'+
+      '<div style="font-size:11px"><div style="font-weight:600">'+esc(t.owner_name||'—')+'</div><div style="color:var(--muted);font-size:10px">'+esc(t.owner_phone||'')+'</div></div>'+
+      '<div style="font-size:12px;color:var(--muted)">'+esc(t.city||'—')+'</div>'+
+      '<div><span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:'+pc[plan]+';color:'+pt[plan]+'">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</span></div>'+
+      '<div style="text-align:center"><div style="font-family:var(--HF);font-size:18px;color:var(--accent)">'+sc+'</div><div style="font-size:9px;color:var(--muted2)">'+ec+' entries</div></div>'+
+      '<div style="font-size:10px;color:var(--muted)">'+reg+'</div>'+
       '<div style="display:flex;gap:4px;flex-wrap:wrap">'+
-        '<a href="salon-portal.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" '+
-          'style="font-size:10px;font-weight:700;padding:4px 8px;background:rgba(0,122,86,.1);color:var(--accent);border:1px solid rgba(0,122,86,.25);border-radius:6px;text-decoration:none;cursor:pointer">Portal</a>'+
-        '<a href="login-owner.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" '+
-          'style="font-size:10px;font-weight:700;padding:4px 8px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.25);border-radius:6px;text-decoration:none;cursor:pointer">Owner</a>'+
-        '<button onclick="toggleTenantActive(''+t.id+'','+t.is_active+')" '+
-          'style="font-size:10px;font-weight:700;padding:4px 8px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:6px;cursor:pointer">'+
-          (t.is_active?'Disable':'Enable')+
-        '</button>'+
-      '</div>'+
-    '</div>';
+        '<a href="salon-portal.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(0,122,86,.1);color:var(--accent);border:1px solid rgba(0,122,86,.2);border-radius:5px;text-decoration:none">Portal</a>'+
+        '<a href="login-owner.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;text-decoration:none">Owner</a>'+
+        '<button onclick="toggleTenant(''+t.id+'','+t.is_active+')" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(t.is_active?'Disable':'Enable')+'</button>'+
+      '</div></div>';
   }).join('');
 }
-
 function filterTenants(){
-  var q    = (document.getElementById('tenant-search')     ? document.getElementById('tenant-search').value     : '').toLowerCase().trim();
-  var plan = (document.getElementById('tenant-plan-filter') ? document.getElementById('tenant-plan-filter').value : '');
-  var filtered = _allTenants.filter(function(t){
-    var matchPlan  = !plan || t.plan === plan || (!t.plan && plan === 'free');
-    var matchQ     = !q || (t.name||'').toLowerCase().indexOf(q) > -1 ||
-                     (t.owner_phone||'').indexOf(q) > -1 ||
-                     (t.city||'').toLowerCase().indexOf(q) > -1 ||
-                     (t.slug||'').toLowerCase().indexOf(q) > -1 ||
-                     (t.owner_name||'').toLowerCase().indexOf(q) > -1;
-    return matchPlan && matchQ;
-  });
-  renderTenantsList(filtered);
+  var q=(document.getElementById('tenant-search')||{}).value||''; q=q.toLowerCase().trim();
+  var plan=(document.getElementById('tenant-plan-filter')||{}).value||'';
+  renderTenantsList(_allTenants.filter(function(t){
+    var mp=!plan||(t.plan||'free')===plan;
+    var mq=!q||(t.name||'').toLowerCase().indexOf(q)>-1||(t.owner_phone||'').indexOf(q)>-1||(t.city||'').toLowerCase().indexOf(q)>-1||(t.slug||'').toLowerCase().indexOf(q)>-1||(t.owner_name||'').toLowerCase().indexOf(q)>-1;
+    return mp&&mq;
+  }));
 }
-
-function toggleTenantActive(tenantId, isActive){
-  if(!confirm((isActive ? 'Disable' : 'Enable') + ' this salon?')) return;
-  fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(tenantId), {
-    method:'PATCH',
-    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
-    body:JSON.stringify({is_active: !isActive})
-  }).then(function(){
-    var t = _allTenants.find(function(x){ return x.id === tenantId; });
-    if(t) t.is_active = !isActive;
-    filterTenants();
-    toast('✅ Salon '+(isActive?'disabled':'enabled'));
-  }).catch(function(e){ toast('Error: '+e.message); });
+function toggleTenant(id,active){
+  if(!confirm((active?'Disable':'Enable')+' this salon?'))return;
+  fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign(_supaHeaders()),body:JSON.stringify({is_active:!active})})
+    .then(function(){var t=_allTenants.find(function(x){return x.id===id;});if(t)t.is_active=!active;filterTenants();toast('Done');})
+    .catch(function(e){toast('Error: '+e.message);});
 }
-
-function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-// ════════════════════════════════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// ════ END TENANT MANAGEMENT ════
 
 </script>
 
