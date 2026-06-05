@@ -2286,7 +2286,22 @@ function showTab(tab){
   document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pn-'+tab).classList.add('on');
   document.getElementById('nt-'+tab).classList.add('on');
-  if(tab==='sales')    { supaBootstrap(function(){ sdInit(); }, function(){ sdInit(); }); }
+  if(tab==='sales')    { supaBootstrap(function(){
+  // Load tenant logo
+  (function(){
+    var tbLogo = document.getElementById('topbarLogo');
+    if(!tbLogo) return;
+    var cached = localStorage.getItem('ms_logo') || sessionStorage.getItem('ms_logo') || '';
+    if(cached){ tbLogo.onerror=function(){this.src='ms-default-logo.svg';}; tbLogo.src=cached; return; }
+    var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+    if(!tid) return;
+    fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(tid)+'&select=logo_url',{
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    }).then(function(r){return r.json();}).then(function(rows){
+      var url=rows&&rows[0]&&rows[0].logo_url?rows[0].logo_url.trim():'';
+      if(url){localStorage.setItem('ms_logo',url);tbLogo.onerror=function(){this.src='ms-default-logo.svg';};tbLogo.src=url;}
+    }).catch(function(){});
+  })(); sdInit(); }, function(){ sdInit(); }); }
   if(tab==='yearly')   { supaBootstrap(function(){ renderYearly(); }, function(){ renderYearly(); }); }
   if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
   if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); }, function(){ renderStaff(); }); }

@@ -120,6 +120,7 @@ function _post(p,b){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:Obj
       sessionStorage.setItem('ms_tenant_id',_tenant.id);
       sessionStorage.setItem('ms_plan',_tenant.plan||'free');
       sessionStorage.setItem('ms_name',_tenant.name);
+      var _lu=(_tenant.logo_url||'').trim();if(_lu){sessionStorage.setItem('ms_logo',_lu);localStorage.setItem('ms_logo',_lu);}
       document.getElementById('loginBtn').disabled=false;
       document.getElementById('loginBtn').textContent='Login →';
     }).catch(function(){showErr('Failed to load.');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';});
