@@ -442,32 +442,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <!-- ── TOPBAR ── FIX 1: Outlet name -->
 <div id="app-content">
 
-<!-- ── DIAGNOSTIC BANNER — remove after fixing ── -->
-<div id="ms-diag-banner" style="background:#1e40af;color:white;padding:10px 14px;font-size:12px;font-family:monospace;display:block;position:sticky;top:0;z-index:9999;word-break:break-all">
-  <strong>DIAG:</strong>
-  PHONE=<span id="diag-phone">?</span> |
-  ROLE=<span id="diag-role">?</span> |
-  TENANT=<span id="diag-tenant">?</span> |
-  SLUG=<span id="diag-slug">?</span> |
-  PLAN=<span id="diag-plan">?</span>
-  <button onclick="document.getElementById('ms-diag-banner').remove()"
-    style="float:right;background:rgba(255,255,255,.2);border:none;color:white;padding:2px 8px;cursor:pointer;border-radius:4px">✕</button>
-</div>
-<script>
-(function(){
-  var p=localStorage.getItem('ms_phone')||sessionStorage.getItem('ms_phone')||'EMPTY';
-  var r=localStorage.getItem('ms_role')||sessionStorage.getItem('ms_role')||'EMPTY';
-  var t=localStorage.getItem('ms_tenant_id')||sessionStorage.getItem('ms_tenant_id')||'EMPTY';
-  var s=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||new URLSearchParams(location.search).get('salon')||'EMPTY';
-  var pl=localStorage.getItem('ms_plan')||sessionStorage.getItem('ms_plan')||'EMPTY';
-  document.getElementById('diag-phone').textContent=p;
-  document.getElementById('diag-role').textContent=r;
-  document.getElementById('diag-tenant').textContent=t.slice(0,8)+'...';
-  document.getElementById('diag-slug').textContent=s;
-  document.getElementById('diag-plan').textContent=pl;
-})();
-</script>
-<!-- ── END DIAGNOSTIC ── -->
+
 
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
@@ -566,7 +541,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div id="mgr-offer-selector-wrap" style="display:none;margin-bottom:10px">
       <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">🎁 Apply Offer / Discount</label>
       <select id="mgr-inp-offer" class="fi" onchange="mgrApplyOfferDiscount()" style="width:100%">
-        <option value="savings">💳 Savings Card (auto)</option>
       </select>
       <!-- Cashback vs instant-discount mode toggle (default = cashback for next visit) -->
       <div id="mgr-offer-mode-wrap" style="display:none;margin-top:6px;padding:7px 10px;background:rgba(0,122,86,.05);border:1px dashed rgba(0,122,86,.3);border-radius:var(--rs)">
@@ -926,10 +900,13 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div class="tbl-body" id="mgr-cust-tbody"></div>
   </div>
 
-  <!-- Customer Directory (existing — kept below) -->
-  <div class="sec-hdr"><div class="sec-title">Customer Directory</div></div>
+  <!-- Customer Directory — with Login PIN column -->
+  <div class="sec-hdr">
+    <div class="sec-title">Customer Directory</div>
+    <button class="btn-sm" onclick="generateAllLoginPins()" style="background:rgba(0,196,140,.1);border-color:var(--accent);color:var(--accent)">⚡ Generate All PINs</button>
+  </div>
   <div class="tbl-wrap">
-    <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:460px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px">
       <thead>
         <tr style="background:rgba(0,196,140,.15);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent)">
           <th style="padding:9px 12px;text-align:left">Name</th>
@@ -937,7 +914,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
           <th style="padding:9px 12px;text-align:left">Visits</th>
           <th style="padding:9px 12px;text-align:left">Last Visit</th>
           <th style="padding:9px 12px;text-align:left">Fav Style</th>
-          <th style="padding:9px 12px;text-align:left">Login OTP</th>
+          <th style="padding:9px 12px;text-align:left">Login PIN <span style="color:var(--muted2);font-size:9px;text-transform:none">(auto-generated)</span></th>
           <th style="padding:9px 12px;text-align:center">Edit</th>
         </tr>
       </thead>
@@ -953,6 +930,66 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <button class="btn-sm" onclick="openModal('addStaffModal')">+ Add Hairstylist</button>
   </div>
   <div class="staff-grid" id="staff-list"></div>
+
+  <!-- ══ HIRE STYLIST SECTION ══════════════════════════════════ -->
+  <div style="margin-top:24px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="height:1px;flex:1;background:var(--border)"></div>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2)">Hire Hairstylists</span>
+      <div style="height:1px;flex:1;background:var(--border)"></div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#003D2B,#005F42);border-radius:var(--r);padding:20px;position:relative;overflow:hidden">
+      <!-- Background decoration -->
+      <div style="position:absolute;right:-20px;top:-20px;font-size:80px;opacity:.08;pointer-events:none">✂️</div>
+
+      <div style="position:relative;z-index:1">
+        <div style="font-family:var(--HF);font-size:22px;color:#F5E030;letter-spacing:1px;margin-bottom:6px">FIND HAIRSTYLISTS</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:16px">
+          Post job openings and connect with skilled stylists looking for opportunities.
+          Use your salon credentials to login — no separate registration needed.
+        </div>
+
+        <!-- Salon credentials card -->
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:14px;margin-bottom:16px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:10px">Your Login Credentials for Staff Hiring Portal</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Salon Name</div>
+              <div style="font-size:13px;font-weight:700;color:white" id="hire-salon-name">Loading…</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Phone (Username)</div>
+              <div style="font-size:13px;font-weight:700;color:#F5E030" id="hire-phone">Loading…</div>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Portal URL</div>
+            <div style="font-size:11px;color:#86efac;word-break:break-all">https://bbstaff.abudgetbarber.workers.dev/</div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="openHirePortal()"
+            style="padding:11px 20px;background:#C8A800;color:#003D2B;border:none;border-radius:8px;font-family:var(--HF);font-size:16px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:8px">
+            🔍 Browse &amp; Post Jobs
+          </button>
+          <button onclick="autoRegisterHire()"
+            style="padding:11px 20px;background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
+            ⚡ Auto-Register &amp; Login
+          </button>
+          <button onclick="copyHireCredentials()"
+            style="padding:11px 20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
+            📋 Copy Credentials
+          </button>
+        </div>
+
+        <div id="hire-status" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.6);display:none"></div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ END HIRE STYLIST SECTION ══════════════════════════════ -->
 </div>
 
 <!-- ── EDIT BILL MODAL ── -->
@@ -2457,7 +2494,7 @@ function showTab(tab){
     }).catch(function(){});
   })(); sdInit(); }, function(){ sdInit(); }); }
   if(tab==='yearly')   { supaBootstrap(function(){ renderYearly(); }, function(){ renderYearly(); }); }
-  if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
+  if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); setTimeout(renderCustDir,300); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
   if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); }, function(){ renderStaff(); }); }
   if(tab==='salon'){ document.getElementById('sx-month').value=new Date().toISOString().slice(0,7); supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); }); }
   if(tab==='offers'){ renderMgrOffers(); }
@@ -7823,6 +7860,265 @@ function createOfferGated(){
   openModal('addOfferModal');
 }
 // ─────────────────────────────────────────────────────────────
+
+
+// ════════════════════════════════════════════════════════════════
+//  HIRE STYLIST PORTAL INTEGRATION
+// ════════════════════════════════════════════════════════════════
+var HIRE_PORTAL_URL = 'https://bbstaff.abudgetbarber.workers.dev/';
+
+// Fill credentials into the hire section when staff tab opens
+function _populateHireCredentials(){
+  var nameEl  = document.getElementById('hire-salon-name');
+  var phoneEl = document.getElementById('hire-phone');
+  if(nameEl)  nameEl.textContent  = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
+  if(phoneEl) phoneEl.textContent = SESSION_PHONE || localStorage.getItem('ms_phone') || '—';
+}
+
+// Open the hire portal directly
+function openHirePortal(){
+  window.open(HIRE_PORTAL_URL, '_blank');
+  _populateHireCredentials();
+}
+
+// Auto-register salon on hire portal using MySalon credentials
+// then open the portal (pre-filled login)
+function autoRegisterHire(){
+  var salonName = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
+  var phone     = SESSION_PHONE || localStorage.getItem('ms_phone') || '';
+  var tenantId  = MS_TENANT_ID  || localStorage.getItem('ms_tenant_id') || '';
+  var city      = '';
+  var salons    = LS.get('salons') || [];
+  var salon     = salons.find(function(s){ return s.id === mySalonId; });
+  if(salon) city = salon.city || '';
+
+  if(!phone){ toast('No phone number found. Please log in again.'); return; }
+
+  var statusEl = document.getElementById('hire-status');
+  if(statusEl){ statusEl.style.display='block'; statusEl.textContent='⏳ Registering on hire portal…'; }
+
+  // POST registration to the hire portal
+  fetch(HIRE_PORTAL_URL + 'api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      salon_name:  salonName,
+      phone:       phone,
+      tenant_id:   tenantId,
+      city:        city,
+      plan:        localStorage.getItem('ms_plan') || 'free',
+      source:      'mysalon'
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(statusEl) statusEl.textContent = '✅ Registered! Opening portal…';
+    // Build auto-login URL with pre-filled credentials
+    var loginUrl = HIRE_PORTAL_URL + '?phone=' + encodeURIComponent(phone) +
+                   '&salon=' + encodeURIComponent(salonName) +
+                   '&tenant=' + encodeURIComponent(tenantId) +
+                   '&auto=1';
+    setTimeout(function(){ window.open(loginUrl, '_blank'); }, 800);
+  })
+  .catch(function(err){
+    // If registration API not available, open portal directly with pre-fill
+    console.warn('[MySalon] Hire portal registration:', err);
+    if(statusEl) statusEl.textContent = '↗ Opening hire portal with your details…';
+    var loginUrl = HIRE_PORTAL_URL + '?phone=' + encodeURIComponent(phone) +
+                   '&salon=' + encodeURIComponent(salonName) +
+                   '&auto=1';
+    setTimeout(function(){ window.open(loginUrl, '_blank'); }, 600);
+  });
+}
+
+// Copy login credentials to clipboard
+function copyHireCredentials(){
+  var salonName = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
+  var phone     = SESSION_PHONE || localStorage.getItem('ms_phone') || '';
+  var text = 'MySalon Staff Hiring Portal\n' +
+             '━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+             'URL: ' + HIRE_PORTAL_URL + '\n' +
+             'Salon: ' + salonName + '\n' +
+             'Phone: ' + phone + '\n' +
+             '(Use your MySalon owner PIN to login)';
+  navigator.clipboard.writeText(text)
+    .then(function(){ toast('✅ Credentials copied to clipboard!'); })
+    .catch(function(){
+      prompt('Copy your hire portal credentials:', HIRE_PORTAL_URL + ' | Phone: ' + phone);
+    });
+}
+
+// Populate credentials whenever staff tab is shown
+var _origShowTabStaff = null;
+(function(){
+  var _origShowTab = showTab;
+  showTab = function(tab){
+    _origShowTab(tab);
+    if(tab === 'staff'){
+      setTimeout(_populateHireCredentials, 100);
+    }
+  };
+})();
+// ════════════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════════════
+//  AUTO LOGIN PIN FOR CUSTOMERS
+// ════════════════════════════════════════════════════════════════
+
+// Generate a deterministic 6-digit PIN from phone number
+function _genPinFromPhone(phone){
+  var p = String(phone||'').replace(/\D/g,'');
+  if(p.length < 6) return String(Math.floor(100000 + Math.random()*900000));
+  // Use last 6 digits as seed for deterministic PIN
+  var seed = parseInt(p.slice(-6));
+  var pin  = ((seed * 7919 + 31337) % 900000 + 100000);
+  return String(pin);
+}
+
+// Ensure every customer has a loginPin — called after billing entry saves
+function _ensureCustomerPin(customerId, phone){
+  if(!customerId || !phone) return;
+  var custs = LS.get('customers') || [];
+  var idx = -1;
+  custs.forEach(function(c, i){ if(String(c.id)===String(customerId) || String(c.phone)===String(phone)) idx=i; });
+  if(idx < 0) return;
+  var cust = custs[idx];
+  var existing = String(cust.loginPin||cust.login_pin||'').trim();
+  if(existing && existing.length >= 4) return; // already has PIN
+  // Generate PIN
+  var pin = _genPinFromPhone(phone);
+  custs[idx].loginPin  = pin;
+  custs[idx].login_pin = pin;
+  LS.set('customers', custs);
+  // Save to Supabase
+  if(cust.id){
+    sbUpdate('customers', cust.id, { login_pin: pin, loginPin: pin })
+      .catch(function(e){ console.warn('[MySalon] PIN save failed:', e); });
+  }
+}
+
+// Generate PINs for ALL customers who don't have one
+function generateAllLoginPins(){
+  var custs = LS.get('customers') || [];
+  if(!custs.length){ toast('No customers found. Refresh first.'); return; }
+  var updated = 0;
+  var promises = [];
+  custs.forEach(function(c, i){
+    var existing = String(c.loginPin||c.login_pin||'').trim();
+    if(existing && existing.length >= 4) return;
+    var phone = String(c.phone||'').replace(/\D/g,'');
+    if(!phone) return;
+    var pin = _genPinFromPhone(phone);
+    custs[i].loginPin  = pin;
+    custs[i].login_pin = pin;
+    updated++;
+    if(c.id){
+      promises.push(
+        sbUpdate('customers', c.id, { login_pin: pin, loginPin: pin })
+          .catch(function(){})
+      );
+    }
+  });
+  LS.set('customers', custs);
+  Promise.all(promises).then(function(){
+    toast('✅ Generated PINs for ' + updated + ' customers');
+    mgrRenderCustTable();
+    renderCustDir();
+  });
+}
+
+// Render customer directory with PIN column
+function renderCustDir(){
+  var tbody = document.getElementById('cust-tbody');
+  if(!tbody) return;
+  var custs = LS.get('customers') || [];
+  var entries = LS.get('entries') || [];
+
+  if(!custs.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted2);font-size:13px">No customers yet. Customers are auto-created from billing entries.</td></tr>';
+    return;
+  }
+
+  // Build visit counts and last visit per customer
+  var visitMap = {}, lastVisitMap = {}, styleMap = {};
+  entries.forEach(function(e){
+    var p = String(e.customerPhone||e.customer_phone||'').replace(/\D/g,'').slice(-10);
+    if(!p) return;
+    visitMap[p]     = (visitMap[p]||0) + 1;
+    var d = _normDate(e.date);
+    if(!lastVisitMap[p] || d > lastVisitMap[p]) lastVisitMap[p] = d;
+    if(e.services) styleMap[p] = e.services.split(',')[0].trim();
+  });
+
+  // Auto-assign missing PINs
+  var needsSave = false;
+  custs.forEach(function(c, i){
+    var existing = String(c.loginPin||c.login_pin||'').trim();
+    if((!existing || existing.length < 4) && c.phone){
+      var pin = _genPinFromPhone(c.phone);
+      custs[i].loginPin  = pin;
+      custs[i].login_pin = pin;
+      needsSave = true;
+    }
+  });
+  if(needsSave){
+    LS.set('customers', custs);
+    // Batch save to Supabase
+    custs.forEach(function(c){
+      if(c.id && c.loginPin){
+        sbUpdate('customers', c.id, { login_pin: c.loginPin, loginPin: c.loginPin }).catch(function(){});
+      }
+    });
+  }
+
+  tbody.innerHTML = custs.filter(function(c){
+    return String(c.salonId||c.salon_id||c.salonId||'') === String(mySalonId) ||
+           !c.salonId; // include if no salonId set
+  }).map(function(c){
+    var p = String(c.phone||'').replace(/\D/g,'').slice(-10);
+    var visits    = visitMap[p] || 0;
+    var lastVisit = lastVisitMap[p] || '—';
+    var favStyle  = styleMap[p] || '—';
+    var pin       = String(c.loginPin||c.login_pin||'').trim() || '—';
+    return '<tr style="border-bottom:1px solid rgba(0,0,0,.04)">' +
+      '<td style="padding:9px 12px;font-size:12px;font-weight:600">' + escH(c.name||'Customer') + '</td>' +
+      '<td style="padding:9px 12px;font-size:12px;color:var(--muted)">' + (c.phone||'—') + '</td>' +
+      '<td style="padding:9px 12px;font-family:var(--HF);font-size:15px;color:var(--accent)">' + visits + '</td>' +
+      '<td style="padding:9px 12px;font-size:11px;color:var(--muted)">' + lastVisit + '</td>' +
+      '<td style="padding:9px 12px;font-size:11px;color:var(--muted)">' + escH(favStyle) + '</td>' +
+      '<td style="padding:9px 12px">' +
+        '<span style="font-family:monospace;font-size:14px;font-weight:700;color:var(--accent);background:rgba(0,196,140,.08);padding:3px 10px;border-radius:6px;border:1px solid rgba(0,196,140,.2)">' + pin + '</span>' +
+        '<button onclick="copyCustPin('' + escH(c.name||'Customer') + '','' + pin + '')" ' +
+          'style="margin-left:6px;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px" title="Copy PIN">📋</button>' +
+      '</td>' +
+      '<td style="padding:9px 12px;text-align:center">' +
+        '<button class="btn-edit" onclick="openEditCustomer('' + String(c.id) + '')" title="Edit">✏️</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('') || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted2)">No customers for this salon yet.</td></tr>';
+}
+
+function copyCustPin(name, pin){
+  navigator.clipboard.writeText(pin)
+    .then(function(){ toast('📋 PIN ' + pin + ' copied for ' + name); })
+    .catch(function(){ toast('PIN: ' + pin); });
+}
+
+// Hook into billing entry save to auto-create PIN
+var _origOnMgrSavedOk_pin = null;
+(function(){
+  // Patch _onMgrSavedOk equivalent — run after any customer save
+  var origInsertCustomerSafe = insertCustomerSafe;
+  insertCustomerSafe = function(phone, name, salonId){
+    return origInsertCustomerSafe(phone, name, salonId).then(function(saved){
+      if(saved && saved.id) _ensureCustomerPin(saved.id, phone);
+      return saved;
+    });
+  };
+})();
+
+// ════════════════════════════════════════════════════════════════
 
 </script>
 
