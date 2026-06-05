@@ -266,28 +266,56 @@ function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(functio
 
 (function init(){
   if(!_slug){
-    document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;padding:40px 20px;text-align:center">NO SALON ID IN URL<br><br><a href="index.html" style="color:rgba(200,168,0,.6);font-size:14px;letter-spacing:1px">← Back to MySalon</a></div>';
+    showError('NO SALON ID IN URL');
     return;
   }
   sessionStorage.setItem('ms_slug', _slug);
   localStorage.setItem('ms_slug', _slug);
 
-  _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,slug,city,state,plan,logo_url,owner_phone')
-    .then(function(rows){
-      if(!rows||!rows.length){
-        document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;padding:40px 20px;text-align:center">SALON NOT FOUND<br><br><a href="index.html" style="color:rgba(200,168,0,.6);font-size:14px;letter-spacing:1px">← Back to MySalon</a></div>';
-        return;
-      }
-      _tenant = rows[0];
-      applyBranding(_tenant);
-      buildLinks(_tenant);
-      document.getElementById('pageLoader').style.display='none';
-      document.getElementById('mainContent').style.display='block';
-    })
-    .catch(function(e){
-      document.getElementById('pageLoader').innerHTML='<div style="color:#C8A800;font-size:14px;padding:40px;text-align:center">Failed to load: '+e.message+'</div>';
-    });
+  // Direct fetch with full error logging
+  fetch(MS_URL+'/rest/v1/tenants?slug=eq.'+encodeURIComponent(_slug)+'&select=id,name,slug,city,state,plan,logo_url,is_active,owner_phone', {
+    method: 'GET',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':        MS_KEY,
+      'Authorization': 'Bearer ' + MS_KEY
+    }
+  })
+  .then(function(r){
+    console.log('[MySalon] Tenant fetch status:', r.status);
+    return r.json();
+  })
+  .then(function(rows){
+    console.log('[MySalon] Tenant rows:', JSON.stringify(rows));
+    if(!rows || rows.code){
+      showError('DB ERROR: '+(rows && rows.message ? rows.message : 'unknown'));
+      return;
+    }
+    // Accept active OR inactive so owner can still see their portal
+    var row = rows.find(function(r){ return r.slug === _slug; }) || rows[0];
+    if(!row){
+      showError('SALON NOT FOUND: '+_slug);
+      return;
+    }
+    _tenant = row;
+    applyBranding(_tenant);
+    buildLinks(_tenant);
+    document.getElementById('pageLoader').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  })
+  .catch(function(e){
+    console.error('[MySalon] Tenant fetch error:', e);
+    showError('LOAD FAILED: '+e.message);
+  });
 })();
+
+function showError(msg){
+  document.getElementById('pageLoader').innerHTML =
+    '<div style="color:#C8A800;font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;padding:40px 20px;text-align:center;line-height:1.5">'
+    + msg
+    + '<br><br><a href="index.html" style="color:rgba(200,168,0,.5);font-size:13px;letter-spacing:1px;text-decoration:none">← BACK TO MYSALON</a>'
+    + '</div>';
+}
 
 function applyBranding(t){
   // Logo — show salon logo if uploaded, else show MY/SALON fallback
