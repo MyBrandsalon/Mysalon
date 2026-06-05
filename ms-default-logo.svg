@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Background -->
+  <rect width="120" height="120" rx="20" fill="#003D2B"/>
+  <!-- Gold top band -->
+  <rect x="0" y="0" width="120" height="58" rx="20" fill="#C8A800"/>
+  <rect x="0" y="38" width="120" height="20" fill="#C8A800"/>
+  <!-- Bottom band -->
+  <rect x="0" y="58" width="120" height="62" rx="0" fill="#003D2B"/>
+  <rect x="0" y="98" width="120" height="22" rx="20" fill="#003D2B"/>
+  <!-- MY text -->
+  <text x="60" y="50" font-family="Arial Black, sans-serif" font-size="38" font-weight="900" fill="#003D2B" text-anchor="middle" letter-spacing="4">MY</text>
+  <!-- SALON text -->
+  <text x="60" y="90" font-family="Arial Black, sans-serif" font-size="22" font-weight="900" fill="#C8A800" text-anchor="middle" letter-spacing="5">SALON</text>
+</svg>

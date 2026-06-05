@@ -12,7 +12,7 @@ body{font-family:'Barlow',sans-serif;background:#F0F0EA;min-height:100vh;display
 
 /* ── Logo floats above card ── */
 .logo-section{text-align:center;margin-bottom:20px}
-.salon-logo-img{width:100px;height:100px;border-radius:18px;object-fit:contain;display:none;box-shadow:0 4px 20px rgba(0,0,0,.18);margin:0 auto 10px}
+.salon-logo-img{width:100px;height:100px;border-radius:18px;object-fit:contain;display:block;box-shadow:0 4px 20px rgba(0,0,0,.18);margin:0 auto 10px}
 .ms-logo-badge{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;margin-bottom:8px}
 .ms-logo-badge-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
 .ms-logo-badge-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
@@ -46,11 +46,11 @@ input::placeholder{color:#AAAAAA}
 
   <!-- Logo area — floats above the white card, no box around it -->
   <div class="logo-section">
-    <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo">
-    <div id="msBadge" class="ms-logo-badge">
-      <span class="ms-logo-badge-top">MY</span>
-      <span class="ms-logo-badge-bot">SALON</span>
-    </div>
+    <!-- Single logo img — shows default MySalon logo, replaced by tenant logo on load -->
+    <img id="salonLogoImg" class="salon-logo-img"
+         src="ms-default-logo.svg"
+         alt="MySalon"
+         onerror="this.src='ms-default-logo.svg'">
     <span id="platformTag" class="platform-tag">Digital Salon Platform</span>
     <span class="salon-name-tag ms-salon-name">Loading…</span>
   </div>
@@ -99,25 +99,22 @@ function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function
         }
       }
       document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
-  // ── Apply salon logo ──────────────────────────────────────
-  var _logoImg  = document.getElementById('salonLogoImg');
-  var _logoBadge = document.getElementById('msBadge');
-  var _logoTag  = document.getElementById('platformTag');
-  var _logoUrl  = (_tenant.logo_url || '').trim();
+  // ── Apply tenant logo (replaces default MySalon logo) ──────
+  var _logoImg = document.getElementById('salonLogoImg');
+  var _logoTag = document.getElementById('platformTag');
+  var _logoUrl = (_tenant.logo_url || '').trim();
   if(_logoUrl && _logoImg){
     _logoImg.onload = function(){
-      _logoImg.style.display = 'block';
-      if(_logoBadge) _logoBadge.style.display = 'none';
-      if(_logoTag)   _logoTag.style.display   = 'none';
+      _logoImg.src = _logoUrl;
+      if(_logoTag) _logoTag.style.display = 'none';
     };
     _logoImg.onerror = function(){
-      _logoImg.style.display = 'none';
-      if(_logoBadge) _logoBadge.style.display = '';
-      if(_logoTag)   _logoTag.style.display   = '';
+      _logoImg.src = 'ms-default-logo.svg';
+      if(_logoTag) _logoTag.style.display = 'block';
     };
     _logoImg.src = _logoUrl;
   }
-  // ─────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
       document.title=_tenant.name+' – Stylist Login';
       // Apply salon logo if uploaded
       if(_tenant.logo_url){

@@ -22,7 +22,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 
 /* Logo area */
 .salon-logo-wrap{width:100px;height:100px;border-radius:20px;background:transparent;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;position:relative;z-index:1}
-.salon-logo-img{width:96px;height:96px;object-fit:contain;display:none;border-radius:16px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.salon-logo-img{width:96px;height:96px;object-fit:contain;display:block;border-radius:16px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .logo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%}
 .logo-fallback-top{display:block;background:#C8A800;font-family:var(--HF);font-size:22px;color:#003D2B;letter-spacing:2px;line-height:1;padding:4px 14px 2px;width:100%;text-align:center}
 .logo-fallback-bot{display:block;background:#003D2B;font-family:var(--HF);font-size:13px;color:#C8A800;letter-spacing:2px;line-height:1;padding:2px 14px 4px;width:100%;text-align:center}
@@ -117,11 +117,11 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
   <!-- HERO -->
   <div class="hero">
     <div class="salon-logo-wrap" id="logoWrap">
-      <img id="salonLogoImg" class="salon-logo-img" alt="Salon Logo" style="display:none">
-      <div class="logo-fallback" id="logoFallback">
-        <span class="logo-fallback-top">MY</span>
-        <span class="logo-fallback-bot">SALON</span>
-      </div>
+      <!-- Single logo img — default MySalon, replaced by tenant logo -->
+      <img id="salonLogoImg" class="salon-logo-img"
+           src="ms-default-logo.svg"
+           alt="MySalon"
+           onerror="this.src='ms-default-logo.svg'">
     </div>
     <div class="salon-name" id="salonName">Loading…</div>
     <div class="salon-city" id="salonCity"></div>
@@ -320,33 +320,19 @@ function showError(msg){
 function applyBranding(t){
   // Logo — show salon logo if uploaded, else show MY/SALON fallback
   var img = document.getElementById('salonLogoImg');
-  var fb  = document.getElementById('logoFallback');
   var wrap = document.getElementById('logoWrap');
   var logoUrl = (t.logo_url || '').trim();
-  console.log('[MySalon] logo_url from DB:', logoUrl);
+  console.log('[MySalon] logo_url:', logoUrl);
   if(logoUrl){
     img.onload = function(){
-      img.style.display = 'block';
-      if(fb)   fb.style.display   = 'none';
-      // Remove dark background + border from wrap when real logo loads
-      if(wrap){ wrap.style.background='transparent'; wrap.style.border='none'; wrap.style.borderRadius='20px'; }
+      if(wrap){ wrap.style.background='transparent'; wrap.style.border='none'; }
     };
     img.onerror = function(){
-      img.style.display = 'none';
-      if(fb) fb.style.display = '';
-      console.warn('[MySalon] Logo failed to load:', logoUrl);
+      img.src = 'ms-default-logo.svg';
     };
     img.src = logoUrl;
-    if(img.complete && img.naturalWidth > 0){
-      img.style.display = 'block';
-      if(fb) fb.style.display = 'none';
-      if(wrap){ wrap.style.background='transparent'; wrap.style.border='none'; }
-    }
-  } else {
-    img.style.display = 'none';
-    if(fb) fb.style.display = '';
-    console.log('[MySalon] No logo_url — showing fallback');
   }
+  // No logo = keep default ms-default-logo.svg already set in src
   // Name + city
   document.getElementById('salonName').textContent = t.name;
   document.title = t.name + ' — Portal';
