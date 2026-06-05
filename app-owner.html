@@ -893,34 +893,15 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <span style="text-align:left">Offers Used</span>
       <span>Last Visit</span>
       <span>Referrals</span>
+      <span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--accent)">LOGIN PIN</span>
       <span title="WhatsApp Reminder — Pro Only" onclick="mgrWaGated('reminder')" style="cursor:pointer;opacity:.7">📲</span>
       <span title="WhatsApp Feedback — Pro Only" onclick="mgrWaGated('feedback')" style="cursor:pointer;opacity:.7">⭐</span>
-      <span title="Send welcome message with login + cashback details">💬</span>
+      <span title="Send welcome message with login + cashback details" onclick="mgrWaGated('welcome_all')" style="cursor:pointer">💬</span>
     </div>
     <div class="tbl-body" id="mgr-cust-tbody"></div>
   </div>
 
-  <!-- Customer Directory — with Login PIN column -->
-  <div class="sec-hdr">
-    <div class="sec-title">Customer Directory</div>
-    <button class="btn-sm" onclick="generateAllLoginPins()" style="background:rgba(0,196,140,.1);border-color:var(--accent);color:var(--accent)">⚡ Generate All PINs</button>
-  </div>
-  <div class="tbl-wrap">
-    <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px">
-      <thead>
-        <tr style="background:rgba(0,196,140,.15);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent)">
-          <th style="padding:9px 12px;text-align:left">Name</th>
-          <th style="padding:9px 12px;text-align:left">Phone</th>
-          <th style="padding:9px 12px;text-align:left">Visits</th>
-          <th style="padding:9px 12px;text-align:left">Last Visit</th>
-          <th style="padding:9px 12px;text-align:left">Fav Style</th>
-          <th style="padding:9px 12px;text-align:left">Login PIN <span style="color:var(--muted2);font-size:9px;text-transform:none">(auto-generated)</span></th>
-          <th style="padding:9px 12px;text-align:center">Edit</th>
-        </tr>
-      </thead>
-      <tbody id="cust-tbody"></tbody>
-    </table>
-  </div>
+
 </div>
 
 <!-- ════ STAFF ════ -->
@@ -2495,7 +2476,7 @@ function showTab(tab){
   })(); sdInit(); }, function(){ sdInit(); }); }
   if(tab==='yearly')   { supaBootstrap(function(){ renderYearly(); }, function(){ renderYearly(); }); }
   if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); setTimeout(renderCustDir,300); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
-  if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); }, function(){ renderStaff(); }); }
+  if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }, function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }); }
   if(tab==='salon'){ document.getElementById('sx-month').value=new Date().toISOString().slice(0,7); supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); }); }
   if(tab==='offers'){ renderMgrOffers(); }
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
@@ -3391,9 +3372,17 @@ function addMgrBill(){
       };
       var _ensured = insertCustomerSafe(custPhone, custName, mySalonId);
       if(_ensured && typeof _ensured.then === 'function'){
-        _ensured.then(_hookFn, _hookFn);
+        _ensured.then(function(savedCust){
+          // Auto-assign login PIN to new/existing customer
+          if(savedCust && savedCust.id){
+            _ensureCustomerPin(savedCust.id, custPhone);
+          }
+          _hookFn();
+        }, _hookFn);
       } else {
         _hookFn();
+        // Try to ensure PIN even without promise
+        _autoCreateCustomer(custPhone, custName, mySalonId);
       }
     }
     renderDashboard();
@@ -4614,7 +4603,7 @@ function mgrWhatsAppReminder(phone, name, lastVisit, daysSince, status){
     discount_pct: tier.pct, min_billing: 299
   };
 
-  _waOfferOptions = [savingsCard].concat(_mgrCustData.offers||[]);
+  _waOfferOptions = (_mgrCustData.offers||[]); // savings card removed
 
   // Default selection logic: pre-tick savings card; pre-tick first regular offer if overdue/due-soon
   var listEl = document.getElementById('wa-rem-offers-list');
@@ -7871,14 +7860,23 @@ var HIRE_PORTAL_URL = 'https://bbstaff.abudgetbarber.workers.dev/';
 function _populateHireCredentials(){
   var nameEl  = document.getElementById('hire-salon-name');
   var phoneEl = document.getElementById('hire-phone');
-  if(nameEl)  nameEl.textContent  = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
-  if(phoneEl) phoneEl.textContent = SESSION_PHONE || localStorage.getItem('ms_phone') || '—';
+  var name  = mySalonName || localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
+  var phone = SESSION_PHONE || localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || '—';
+  if(nameEl)  nameEl.textContent  = name;
+  if(phoneEl) phoneEl.textContent = phone;
 }
 
 // Open the hire portal directly
 function openHirePortal(){
-  window.open(HIRE_PORTAL_URL, '_blank');
   _populateHireCredentials();
+  // Use anchor click to avoid popup blocker
+  var a = document.createElement('a');
+  a.href = HIRE_PORTAL_URL;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // Auto-register salon on hire portal using MySalon credentials
@@ -7918,7 +7916,10 @@ function autoRegisterHire(){
                    '&salon=' + encodeURIComponent(salonName) +
                    '&tenant=' + encodeURIComponent(tenantId) +
                    '&auto=1';
-    setTimeout(function(){ window.open(loginUrl, '_blank'); }, 800);
+    setTimeout(function(){
+      var a=document.createElement('a'); a.href=loginUrl; a.target='_blank'; a.rel='noopener';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }, 800);
   })
   .catch(function(err){
     // If registration API not available, open portal directly with pre-fill
@@ -7927,7 +7928,10 @@ function autoRegisterHire(){
     var loginUrl = HIRE_PORTAL_URL + '?phone=' + encodeURIComponent(phone) +
                    '&salon=' + encodeURIComponent(salonName) +
                    '&auto=1';
-    setTimeout(function(){ window.open(loginUrl, '_blank'); }, 600);
+    setTimeout(function(){
+      var a=document.createElement('a'); a.href=loginUrl; a.target='_blank'; a.rel='noopener';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }, 600);
   });
 }
 
@@ -8119,6 +8123,105 @@ var _origOnMgrSavedOk_pin = null;
 })();
 
 // ════════════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════════
+//  AUTO LOGIN PIN — CUSTOMER MANAGEMENT
+// ════════════════════════════════════════════════════════════
+
+function _genPinFromPhone(phone){
+  var p = String(phone||'').replace(/\D/g,'');
+  if(p.length < 6) return String(Math.floor(100000 + Math.random()*900000));
+  var seed = parseInt(p.slice(-6));
+  var pin  = ((seed * 7919 + 31337) % 900000 + 100000);
+  return String(pin);
+}
+
+function _getCustPin(cust){
+  if(!cust) return '——';
+  var existing = String(cust.loginPin||cust.login_pin||'').trim();
+  if(existing && existing.length >= 4) return existing;
+  // Auto-generate from phone
+  var phone = String(cust.phone||'').replace(/\D/g,'');
+  if(!phone) return '——';
+  return _genPinFromPhone(phone);
+}
+
+function copyCustPin(name, pin){
+  if(!pin || pin === '——') return;
+  navigator.clipboard.writeText(pin)
+    .then(function(){ toast('📋 PIN ' + pin + ' copied for ' + name); })
+    .catch(function(){ toast('PIN: ' + pin); });
+}
+
+// Ensure customer has a PIN — called on every billing save
+function _ensureCustomerPin(customerId, phone){
+  if(!phone) return;
+  var custs = LS.get('customers') || [];
+  var idx = custs.findIndex(function(c){
+    return (customerId && String(c.id)===String(customerId)) ||
+           (String(c.phone||'').replace(/\D/g,'').slice(-10) === String(phone||'').replace(/\D/g,'').slice(-10));
+  });
+  if(idx < 0) return;
+  var existing = String(custs[idx].loginPin||custs[idx].login_pin||'').trim();
+  if(existing && existing.length >= 4) return;
+  var pin = _genPinFromPhone(phone);
+  custs[idx].loginPin  = pin;
+  custs[idx].login_pin = pin;
+  LS.set('customers', custs);
+  if(custs[idx].id){
+    var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+    fetch(SUPA_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(custs[idx].id),{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+      body:JSON.stringify({login_pin:pin,loginPin:pin})
+    }).catch(function(){});
+  }
+}
+
+// Auto-create customer from billing entry phone if not exists
+function _autoCreateCustomer(phone, name, salonId){
+  if(!phone || String(phone).replace(/\D/g,'').length < 10) return Promise.resolve(null);
+  var normPhone = String(phone).replace(/\D/g,'').slice(-10);
+  var custs = LS.get('customers') || [];
+  var existing = custs.find(function(c){
+    return String(c.phone||'').replace(/\D/g,'').slice(-10) === normPhone;
+  });
+  if(existing){
+    _ensureCustomerPin(existing.id, normPhone);
+    return Promise.resolve(existing);
+  }
+  // Create new customer
+  var pin  = _genPinFromPhone(normPhone);
+  var tid  = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  var newC = {
+    tenant_id:  tid,
+    phone:      normPhone,
+    name:       name && name !== 'Walk-in' ? name : ('Customer '+normPhone.slice(-4)),
+    salon_id:   salonId || mySalonId || null,
+    salonId:    salonId || mySalonId || null,
+    login_pin:  pin,
+    loginPin:   pin,
+    active:     true
+  };
+  return fetch(SUPA_URL+'/rest/v1/customers',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+    body:JSON.stringify(newC)
+  }).then(function(r){ return r.json(); })
+  .then(function(saved){
+    var s = Array.isArray(saved) ? saved[0] : saved;
+    if(s && s.id){
+      custs.push(Object.assign(newC, s));
+      LS.set('customers', custs);
+    }
+    return s;
+  }).catch(function(e){
+    console.warn('[MySalon] Auto-create customer failed:', e);
+    return null;
+  });
+}
+// ════════════════════════════════════════════════════════════
 
 </script>
 
