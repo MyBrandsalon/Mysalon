@@ -6655,7 +6655,7 @@ function renderTenantsList(list){
       '<div style="display:flex;gap:4px;flex-wrap:wrap">'+
         '<a href="salon-portal.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(0,122,86,.1);color:var(--accent);border:1px solid rgba(0,122,86,.2);border-radius:5px;text-decoration:none">Portal</a>'+
         '<a href="login-owner.html?salon='+encodeURIComponent(t.slug||'')+'" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;text-decoration:none">Owner</a>'+
-        '<button onclick="toggleTenant(''+t.id+'','+t.is_active+')" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(t.is_active?'Disable':'Enable')+'</button>'+
+        '<button onclick="toggleTenant(\"'+t.id+'\",'+t.is_active+')" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(t.is_active?'Disable':'Enable')+'</button>'+
       '</div></div>';
   }).join('');
 }
