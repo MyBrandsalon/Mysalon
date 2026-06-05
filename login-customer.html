@@ -135,24 +135,87 @@ function _post(p,b){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:Obj
       document.getElementById('loginBtn').textContent='Login →';
     }).catch(function(){showErr('Failed to load.');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';});
 })();
+function _normPhone(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+
+function _genPin(phone){
+  var p=_normPhone(phone); if(p.length<6) return '';
+  var seed=parseInt(p.slice(-6));
+  return String((seed*7919+31337)%900000+100000);
+}
+
 function doLogin(){
-  var phone=document.getElementById('phoneInput').value.trim();
+  var rawPhone=document.getElementById('phoneInput').value.trim();
   var pin=document.getElementById('pinInput').value.trim();
   hideErr();
+  var phone=_normPhone(rawPhone);
   if(phone.length<10){showErr('Enter valid 10-digit phone.');return;}
   if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
-  if(!_tenant){showErr('Salon data not loaded.');return;}
-  _get('customers?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&phone=eq.'+encodeURIComponent(phone)+'&select=id,name,login_pin,loginPin,loyalty_points,referral_code')
-    .then(function(rows){
-      if(!rows||!rows.length){showErr('Phone not registered. Please sign up first.');return;}
-      var c=rows[0];var lp=String(c.loginPin||c.login_pin||'');
-      if(lp!==pin){showErr('Wrong PIN.');document.getElementById('pinInput').value='';return;}
-      setSession('customer',phone,c.name||'Customer',String(c.id),'');
-      sessionStorage.setItem('ms_loyalty',c.loyalty_points||0);
-      sessionStorage.setItem('ms_referral_code',c.referral_code||'');
-      try{localStorage.setItem('ms_role',role||'customer');localStorage.setItem('ms_phone',phone);localStorage.setItem('ms_slug',_slug);localStorage.setItem('ms_tenant_id',_tenant?_tenant.id:'');}catch(e){}
-window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
-    }).catch(function(){showErr('Login failed.');});
+  if(!_tenant){showErr('Salon data not loaded. Refresh page.');return;}
+
+  // Try with exact phone first, then with last 10 digits
+  var url='customers?tenant_id=eq.'+encodeURIComponent(_tenant.id)+
+          '&phone=eq.'+encodeURIComponent(phone)+
+          '&select=id,name,login_pin,loginPin,loyalty_points,referral_code,cashback_credit';
+
+  _get(url).then(function(rows){
+    // If not found by exact phone, try searching without tenant filter
+    if(!rows||!rows.length){
+      return _get('customers?phone=eq.'+encodeURIComponent(phone)+'&select=id,name,login_pin,loginPin,loyalty_points,referral_code,cashback_credit,tenant_id')
+        .then(function(rows2){
+          if(rows2&&rows2.length){
+            // Check if any belong to this tenant
+            var match=rows2.find(function(r){return String(r.tenant_id)===String(_tenant.id);});
+            return match ? [match] : rows2; // fallback: try first match
+          }
+          return [];
+        });
+    }
+    return rows;
+  }).then(function(rows){
+    if(!rows||!rows.length){
+      showErr('Phone '+phone+' not found. Please ask your salon to add you or visit first.');
+      return;
+    }
+    var cust=rows[0];
+
+    // Get stored PIN — auto-generate if missing
+    var storedPin=String(cust.loginPin||cust.login_pin||'').trim();
+    if(!storedPin || storedPin.length<4){
+      storedPin=_genPin(phone);
+      // Save generated PIN to DB silently
+      if(cust.id){
+        fetch(MS_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(cust.id),{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY},
+          body:JSON.stringify({login_pin:storedPin,loginPin:storedPin})
+        }).catch(function(){});
+      }
+    }
+
+    if(storedPin!==pin.trim()){
+      showErr('Wrong PIN. Your PIN is auto-generated from your phone number. Try: '+storedPin.slice(0,1)+'•••••');
+      document.getElementById('pinInput').value='';
+      return;
+    }
+
+    // Success
+    var sessData={
+      ms_role:'customer', ms_phone:phone,
+      ms_user_name:cust.name||'Customer',
+      ms_staff_id:String(cust.id),
+      ms_salon_id:'',
+      ms_slug:_slug,
+      ms_tenant_id:_tenant?_tenant.id:''
+    };
+    Object.keys(sessData).forEach(function(k){
+      try{sessionStorage.setItem(k,sessData[k]);}catch(e){}
+      try{localStorage.setItem(k,sessData[k]);}catch(e){}
+    });
+    sessionStorage.setItem('ms_loyalty',cust.loyalty_points||0);
+    sessionStorage.setItem('ms_cashback',cust.cashback_credit||0);
+    sessionStorage.setItem('ms_referral_code',cust.referral_code||'');
+    window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
+  }).catch(function(e){showErr('Login error: '+e.message);});
 }
 function setSession(role,phone,name,staffId,salonId){
   sessionStorage.setItem('ms_role',role);

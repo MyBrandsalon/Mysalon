@@ -5120,6 +5120,8 @@ function mgrRenderCustTable(){
         subs.join(' · ')+
       '</div>');
     });
+    // Remove Savings Card from display
+    offerCellParts = offerCellParts.filter(function(html){ return html.indexOf('Savings Card')===-1; });
     if(r.totalCashbackUsed>0) offerCellParts.push('<div style="font-size:11px;color:#C8A800;font-weight:600;line-height:1.4">💰 Cashback used: ₹'+r.totalCashbackUsed+'</div>');
     if(r.totalReferralUsed>0) offerCellParts.push('<div style="font-size:11px;color:#C8A800;font-weight:600;line-height:1.4">🎁 Referral used: ₹'+r.totalReferralUsed+'</div>');
     var offerCell=offerCellParts.length?offerCellParts.join(''):'<span style="font-size:11px;color:var(--muted2)">—</span>';
