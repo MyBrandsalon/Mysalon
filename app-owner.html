@@ -3117,7 +3117,7 @@ function mgrShowOfferSelector(phone){
   var visitCount = getEntries().filter(function(e){ return e.customerPhone===phone; }).length;
   var TIERS = [{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
   var tier = visitCount < TIERS.length ? TIERS[visitCount] : TIERS[TIERS.length-1];
-  sel.innerHTML = '<option value="savings" data-pct="'+tier.pct+'" data-minbill="299">💳 Savings Card — Visit '+(visitCount+1)+' → '+tier.pct+'% OFF (Min ₹299)</option>';
+  sel.innerHTML = '<option value="">— No offer —</option>'; // Savings Card removed
   var qs = 'active=eq.true&or=(salon_id.eq.'+encodeURIComponent(mySalonId)+',is_global.eq.true)&order=created_at.desc';
   sbSelect('offers', qs).then(function(offers){
     var now = new Date();
@@ -4597,12 +4597,6 @@ function mgrWhatsAppReminder(phone, name, lastVisit, daysSince, status){
   }).length;
   var TIERS = [{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
   var tier = visitCount < TIERS.length ? TIERS[visitCount] : TIERS[TIERS.length-1];
-  var savingsCard = {
-    __savings:true, emoji:'💳',
-    title:'Savings Card — Visit '+(visitCount+1),
-    discount_pct: tier.pct, min_billing: 299
-  };
-
   _waOfferOptions = (_mgrCustData.offers||[]); // savings card removed
 
   // Default selection logic: pre-tick savings card; pre-tick first regular offer if overdue/due-soon
@@ -4612,9 +4606,7 @@ function mgrWhatsAppReminder(phone, name, lastVisit, daysSince, status){
   }
   listEl.innerHTML = _waOfferOptions.map(function(o,idx){
     var preCheck = idx===0 || (idx===1 && (status==='overdue'||status==='due_soon'));
-    var label = o.__savings
-      ? '<span style="font-weight:700">💳 '+o.title+'</span> · <span style="color:var(--accent);font-weight:700">'+o.discount_pct+'% OFF</span> <span style="color:var(--muted2);font-size:10px">(min ₹'+o.min_billing+')</span>'
-      : '<span style="font-weight:700">'+(o.emoji||'🎁')+' '+(o.title||'Offer')+'</span> · <span style="color:var(--accent);font-weight:700">'+o.discount_pct+'% OFF</span>'+
+    var label = '<span style="font-weight:700">'+(o.emoji||'🎁')+' '+(o.title||'Offer')+'</span> · <span style="color:var(--accent);font-weight:700">'+o.discount_pct+'% OFF</span>'+
         (o.min_billing?' <span style="color:var(--muted2);font-size:10px">(min ₹'+o.min_billing+')</span>':'')+
         (o.subtitle?'<div style="font-size:10px;color:var(--muted);margin-top:2px">'+o.subtitle+'</div>':'');
     return '<label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;padding:8px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);font-size:12px">'+
@@ -5176,7 +5168,34 @@ function mgrRenderCustTable(){
       refCell=refLine+creditLine;
     }
 
-    return '<div class="tbl-row" style="display:grid;grid-template-columns:1fr 50px 65px 80px 1fr 88px 70px 42px 42px 42px;text-align:center;align-items:center;gap:3px">'+
+    // Generate / retrieve login PIN and auto-save if missing
+    var custPin = (function(){
+      var existing = String(r.c.loginPin||r.c.login_pin||'').trim();
+      if(existing && existing.length >= 4) return existing;
+      var ph = String(r.c.phone||'').replace(/\D/g,'');
+      if(!ph) return '——';
+      var seed = parseInt(ph.slice(-6));
+      var newPin = String((seed * 7919 + 31337) % 900000 + 100000);
+      // Save to local cache
+      r.c.loginPin  = newPin;
+      r.c.login_pin = newPin;
+      var custs = LS.get('customers')||[];
+      var idx = custs.findIndex(function(x){ return String(x.id)===String(r.c.id); });
+      if(idx>=0){ custs[idx].loginPin=newPin; custs[idx].login_pin=newPin; LS.set('customers',custs); }
+      // Save to Supabase silently
+      if(r.c.id){
+        fetch(SUPA_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(r.c.id),{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+          body:JSON.stringify({login_pin:newPin,loginPin:newPin})
+        }).catch(function(){});
+      }
+      return newPin;
+    })();
+    var pinCell = '<span title="Click to copy PIN" onclick="(function(){navigator.clipboard.writeText(\'' + custPin + '\').then(function(){toast(\'📋 PIN ' + custPin + ' copied\');})})()" '+
+      'style="font-family:monospace;font-size:12px;font-weight:700;cursor:pointer;color:var(--accent);background:rgba(0,196,140,.08);padding:3px 7px;border-radius:6px;border:1px solid rgba(0,196,140,.2);white-space:nowrap">' + custPin + '</span>';
+
+    return '<div class="tbl-row" style="display:grid;grid-template-columns:1fr 50px 65px 80px 1fr 88px 70px 70px 42px 42px 42px;text-align:center;align-items:center;gap:3px">'+
       '<span style="text-align:left"><div style="font-weight:600;font-size:12px">'+(r.c.name||'Walk-in')+badge+'</div><div style="font-size:10px;color:var(--muted)">'+(r.c.phone||'—')+'</div>'+dueChip+'</span>'+
       '<span style="font-family:var(--HF);font-size:17px;color:'+visitCol+'">'+r.visits+'</span>'+
       '<span style="font-size:11px;font-weight:700;color:var(--accent)">'+(r.spent?fmtINR(r.spent):'—')+'</span>'+
@@ -5184,6 +5203,7 @@ function mgrRenderCustTable(){
       '<span style="text-align:left">'+offerCell+'</span>'+
       '<span>'+lastVisitCell+'</span>'+
       '<span>'+refCell+'</span>'+
+      '<span>'+pinCell+'</span>'+
       '<span>'+waBtn+'</span>'+
       '<span>'+fbBtn+'</span>'+
       '<span>'+wcBtn+'</span>'+
