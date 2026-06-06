@@ -121,10 +121,21 @@ function doLogin(){
   var btn=document.getElementById('loginBtn');
   btn.disabled=true; btn.textContent='Checking…';
 
-  // Search using LIKE to catch +91 prefix or other formats
-  var _likePhone = '%25'+phone.slice(-10); // %9886553052
-  _get('customers?phone=like.'+encodeURIComponent(_likePhone)+'&select=id,name,phone,login_pin,loginPin,tenant_id,loyalty_points,cashback_credit,referral_code&limit=10')
+  // Direct fetch with exact phone + tenant_id
+  var _directUrl = MS_URL+'/rest/v1/customers?tenant_id=eq.'+encodeURIComponent(_tenant.id)+'&phone=eq.'+encodeURIComponent(phone)+'&select=id,name,phone,login_pin,loginPin,tenant_id,loyalty_points,cashback_credit,referral_code&limit=5';
+  console.log('[MySalon] Customer fetch URL:', _directUrl);
+  fetch(_directUrl, {headers:_h()})
+  .then(function(r){return r.json();})
   .then(function(rows){
+    console.log('[MySalon] Customer rows:', JSON.stringify(rows));
+    // If RLS blocked it (empty array), try without tenant filter
+    if(!rows || !Array.isArray(rows) || rows.length === 0){
+      return fetch(MS_URL+'/rest/v1/customers?phone=eq.'+encodeURIComponent(phone)+'&select=id,name,phone,login_pin,loginPin,tenant_id,loyalty_points,cashback_credit,referral_code&limit=5',
+        {headers:_h()}).then(function(r){return r.json();});
+    }
+    return rows;
+  }).then(function(rows){
+    console.log('[MySalon] Customer rows (after fallback):', JSON.stringify(rows));
     console.log('[MySalon] Customer rows by phone:', JSON.stringify(rows));
 
     if(!rows||rows.code){
