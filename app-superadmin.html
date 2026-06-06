@@ -6780,7 +6780,7 @@ function renderVendorList(){
       '<div style="color:var(--muted)">'+esc(v.region||'—')+'</div>'+
       (function(){ var bg=v.is_active?'rgba(22,163,74,.1)':'rgba(220,53,69,.1)'; var col=v.is_active?'#16A34A':'#DA3633'; return '<div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:'+bg+';color:'+col+'">'})()+
         (v.is_active?'Active':'Inactive')+'</span></div>'+
-      '<div style="font-family:monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px;cursor:pointer;padding:2px 8px;background:rgba(0,122,86,.08);border:1px solid rgba(0,122,86,.2);border-radius:6px" title="Click to copy PIN" onclick="navigator.clipboard.writeText(\''+v.login_pin+'\').then(function(){toast(\'📋 PIN copied\');})" >'+escH(v.login_pin||'—')+'</div>'+
+      '<div data-pin="'+(v.login_pin||'')+'" style="font-family:monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px;cursor:pointer;padding:2px 8px;background:rgba(0,122,86,.08);border:1px solid rgba(0,122,86,.2);border-radius:6px" title="Click to copy PIN" onclick="copyVendorPin(this)">'+esc(v.login_pin||'—')+'</div>'+
       '<div style="display:flex;gap:4px">'+
         '<a href="login-vendor.html" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(200,168,0,.1);color:#C8A800;border:1px solid rgba(200,168,0,.2);border-radius:5px;text-decoration:none">Login</a>'+
         '<button data-vid="'+v.id+'" onclick="openEditVendor(this.getAttribute(\"data-vid\"))" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;cursor:pointer">Edit</button>'+
