@@ -1058,17 +1058,22 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 // (those keys were written to sessionStorage by login-customer.html). If we
 // find them there, we promote them to localStorage on this load so they
 // persist from now on.
-var SESSION_PHONE = sessionStorage.getItem('bb_phone') || localStorage.getItem('bb_phone');
-var SESSION_ROLE  = sessionStorage.getItem('bb_role')  || localStorage.getItem('bb_role');
+var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || localStorage.getItem('bb_phone') || '';
+var SESSION_ROLE  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || localStorage.getItem('bb_role') || '';
+var MS_TENANT_ID = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+var MS_SLUG = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
+if(MS_SLUG) sessionStorage.setItem('ms_slug',MS_SLUG);
+if(MS_TENANT_ID) sessionStorage.setItem('ms_tenant_id',MS_TENANT_ID);
 if (!SESSION_PHONE || SESSION_ROLE !== 'customer') {
-  window.location.href = 'login-customer.html';
+  var _sl=MS_SLUG||new URLSearchParams(location.search).get('salon')||'';
+  window.location.href='login-customer.html'+(_sl?'?salon='+encodeURIComponent(_sl):'');
 }
 // Mirror to localStorage every load. login-customer.html may still write to
 // sessionStorage only (we don't control that file from here); this line is
 // what makes subsequent loads persistent without needing to edit login.
 try {
-  localStorage.setItem('bb_phone', SESSION_PHONE);
-  localStorage.setItem('bb_role',  SESSION_ROLE);
+  localStorage.setItem('ms_phone', SESSION_PHONE);
+  localStorage.setItem('ms_role',  SESSION_ROLE);
 } catch(e){ /* private-mode quota or disabled storage — ignore */ }
 
 // ── PWA: install on home screen ───────────────────────────────────────
@@ -1081,7 +1086,7 @@ try {
   //    the app still loads on browsers that don't support SW.
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('/Mysalon/service-worker.js')
         .catch(function(err){ console.warn('[BB] SW registration failed:', err); });
     });
   }
