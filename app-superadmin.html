@@ -367,6 +367,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <div class="nav-tabs">
   <button class="nt on" id="nt-tenants"   onclick="showTab('tenants')">🏪 All Salons</button>
+  <button class="nt"    id="nt-vendors"   onclick="showTab('vendors')">🧴 Vendors</button>
   <button class="nt"    id="nt-overview"  onclick="showTab('overview')">🏢 Overview</button>
   <button class="nt"    id="nt-allsales"  onclick="showTab('allsales')">📋 All Sales</button>
   <button class="nt"    id="nt-reports"   onclick="showTab('reports')">📈 Reports</button>
@@ -381,6 +382,44 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- OVERVIEW -->
 <!-- ════ ALL SALONS ════ -->
+<!-- ════ VENDORS ════ -->
+<div class="panel" id="pn-vendors">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div style="font-family:var(--HF);font-size:22px;letter-spacing:1px">COSMETICS VENDORS</div>
+    <button onclick="openAddVendorModal()" class="btn-sm on" style="background:#C8A800;color:#003D2B;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px">+ Add Vendor</button>
+  </div>
+  <div class="sg" style="margin-bottom:16px">
+    <div class="sc accent"><div class="sc-lbl">Total Vendors</div><div class="sc-val" id="v-kpi-total">—</div></div>
+    <div class="sc"><div class="sc-lbl">Active</div><div class="sc-val" id="v-kpi-active">—</div></div>
+  </div>
+  <div style="background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 100px 80px 80px 120px;padding:10px 14px;background:rgba(0,122,86,.1);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);gap:8px">
+      <span>Vendor</span><span>Phone</span><span>Region</span><span>Status</span><span>Actions</span>
+    </div>
+    <div id="vendors-list"><div style="padding:40px;text-align:center;color:var(--muted2)">Loading vendors…</div></div>
+  </div>
+</div>
+
+<!-- Add Vendor Modal -->
+<div class="modal-bg" id="addVendorModal" onclick="if(event.target===this)closeModal('addVendorModal')">
+  <div class="modal-content" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div class="modal-hdr"><h3 id="vendor-modal-title" style="font-family:var(--HF);font-size:20px;color:var(--white);letter-spacing:1px">ADD VENDOR</h3><button class="btn-close" onclick="closeModal('addVendorModal')">✕</button></div>
+    <input type="hidden" id="vendor-edit-id">
+    <div class="ifield"><label>Vendor Name *</label><input type="text" class="fi" id="v-name" placeholder="Contact person name"></div>
+    <div class="ifield"><label>Company Name</label><input type="text" class="fi" id="v-company" placeholder="Company/brand name"></div>
+    <div class="ifield"><label>Mobile Number *</label><input type="tel" class="fi" id="v-phone" placeholder="10-digit number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="ifield"><label>Login PIN *</label><input type="password" class="fi" id="v-pin" placeholder="6-digit PIN" maxlength="6"></div>
+    <div class="ifield"><label>Region</label><input type="text" class="fi" id="v-region" placeholder="e.g. Andhra Pradesh, South India"></div>
+    <div class="ifield"><label>City</label><input type="text" class="fi" id="v-city" placeholder="City"></div>
+    <div class="ifield"><label>Email</label><input type="text" class="fi" id="v-email" placeholder="email@example.com"></div>
+    <div style="font-family:var(--HF);font-size:14px;color:var(--accent);letter-spacing:1px;margin:14px 0 8px">ASSIGN SALONS</div>
+    <div id="v-salon-checkboxes" style="max-height:200px;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button onclick="closeModal('addVendorModal')" class="btn-cancel">Cancel</button>
+      <button onclick="saveVendor()" style="padding:10px 20px;background:#C8A800;color:#003D2B;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">Save Vendor</button>
+    </div>
+  </div>
+</div>
 <div class="panel on" id="pn-tenants">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <div style="font-family:var(--HF);font-size:22px;letter-spacing:1px">ALL SALONS</div>
@@ -2013,6 +2052,13 @@ function renderSalonPNL(){
 }
 
 function showTab(tab){
+  if(tab==='vendors'){ 
+    document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+    var nb=document.getElementById('nt-vendors'),pb=document.getElementById('pn-vendors');
+    if(nb)nb.classList.add('on'); if(pb)pb.classList.add('on');
+    loadVendors(); return; 
+  }
   if(tab==='tenants'){ 
     document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
     document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
@@ -6688,6 +6734,123 @@ function toggleTenant(id,active){
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 // ════ END TENANT MANAGEMENT ════
+
+
+// ════ VENDOR MANAGEMENT ════
+var _vendors = [];
+var _allTenants2 = [];
+
+function loadVendors(){
+  fetch(SUPA_URL+'/rest/v1/vendors?order=created_at.desc&limit=200',{headers:_supaHeaders()})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      _vendors = Array.isArray(rows) ? rows : [];
+      renderVendorList();
+    }).catch(function(){renderVendorList();});
+}
+
+function renderVendorList(){
+  var el=document.getElementById('vendors-list'); if(!el) return;
+  document.getElementById('v-kpi-total').textContent=_vendors.length;
+  document.getElementById('v-kpi-active').textContent=_vendors.filter(function(v){return v.is_active;}).length;
+  if(!_vendors.length){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted2)">No vendors yet. Add your first vendor.</div>';return;}
+  el.innerHTML=_vendors.map(function(v){
+    return '<div style="display:grid;grid-template-columns:1fr 100px 80px 80px 120px;padding:12px 14px;border-bottom:1px solid var(--border);align-items:center;gap:8px;font-size:12px">'+
+      '<div><div style="font-weight:700;font-size:13px">'+esc(v.name||'—')+'</div><div style="color:var(--muted);font-size:10px">'+esc(v.company_name||'')+'</div></div>'+
+      '<div>'+esc(v.phone||'—')+'</div>'+
+      '<div style="color:var(--muted)">'+esc(v.region||'—')+'</div>'+
+      (function(){ var bg=v.is_active?'rgba(22,163,74,.1)':'rgba(220,53,69,.1)'; var col=v.is_active?'#16A34A':'#DA3633'; return '<div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:'+bg+';color:'+col+'">'})()+
+        (v.is_active?'Active':'Inactive')+'</span></div>'+
+      '<div style="display:flex;gap:4px">'+
+        '<a href="login-vendor.html" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(200,168,0,.1);color:#C8A800;border:1px solid rgba(200,168,0,.2);border-radius:5px;text-decoration:none">Login</a>'+
+        '<button onclick="openEditVendor(\"'+v.id+'\")" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;cursor:pointer">Edit</button>'+
+        '<button onclick="toggleVendor(\"'+v.id+'\",'+v.is_active+')" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(v.is_active?'Disable':'Enable')+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openAddVendorModal(){
+  document.getElementById('vendor-edit-id').value='';
+  document.getElementById('vendor-modal-title').textContent='ADD VENDOR';
+  ['v-name','v-company','v-phone','v-pin','v-region','v-city','v-email'].forEach(function(id){document.getElementById(id).value='';});
+  loadSalonCheckboxes('');
+  openModal('addVendorModal');
+}
+
+function openEditVendor(id){
+  var v=_vendors.find(function(x){return x.id===id;}); if(!v) return;
+  document.getElementById('vendor-edit-id').value=v.id;
+  document.getElementById('vendor-modal-title').textContent='EDIT VENDOR';
+  document.getElementById('v-name').value=v.name||'';
+  document.getElementById('v-company').value=v.company_name||'';
+  document.getElementById('v-phone').value=v.phone||'';
+  document.getElementById('v-pin').value=v.login_pin||'';
+  document.getElementById('v-region').value=v.region||'';
+  document.getElementById('v-city').value=v.city||'';
+  document.getElementById('v-email').value=v.email||'';
+  loadSalonCheckboxes(v.id);
+  openModal('addVendorModal');
+}
+
+function loadSalonCheckboxes(vendorId){
+  var el=document.getElementById('v-salon-checkboxes');
+  el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px">Loading salons…</div>';
+  Promise.all([
+    fetch(SUPA_URL+'/rest/v1/tenants?select=id,name,city&order=name&limit=200',{headers:_supaHeaders()}).then(function(r){return r.json();}),
+    vendorId ? fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?vendor_id=eq.'+vendorId+'&select=tenant_id',{headers:_supaHeaders()}).then(function(r){return r.json();}) : Promise.resolve([])
+  ]).then(function(res){
+    var tenants=Array.isArray(res[0])?res[0]:[];
+    var assigned=(Array.isArray(res[1])?res[1]:[]).map(function(a){return a.tenant_id;});
+    _allTenants2=tenants;
+    el.innerHTML=tenants.map(function(t){
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px">'+
+        '<input type="checkbox" value="'+t.id+'" '+(assigned.indexOf(t.id)>-1?'checked':'')+'>'+
+        esc(t.name||'')+(t.city?' <span style="color:var(--muted);font-size:11px">· '+esc(t.city)+'</span>':'')+
+      '</label>';
+    }).join('') || '<div style="color:var(--muted);font-size:12px;padding:8px">No salons found</div>';
+  }).catch(function(){el.innerHTML='<div style="color:var(--muted);font-size:12px">Failed to load</div>';});
+}
+
+function saveVendor(){
+  var name=document.getElementById('v-name').value.trim();
+  var phone=document.getElementById('v-phone').value.trim();
+  var pin=document.getElementById('v-pin').value.trim();
+  if(!name){toast('Enter vendor name');return;}
+  if(phone.length<10){toast('Enter valid phone');return;}
+  if(pin.length<4){toast('Enter at least 4-digit PIN');return;}
+  var row={name:name,company_name:document.getElementById('v-company').value.trim(),phone:phone,login_pin:pin,region:document.getElementById('v-region').value.trim(),city:document.getElementById('v-city').value.trim(),email:document.getElementById('v-email').value.trim(),is_active:true};
+  var editId=document.getElementById('vendor-edit-id').value;
+  var promise=editId
+    ? fetch(SUPA_URL+'/rest/v1/vendors?id=eq.'+editId,{method:'PATCH',headers:_supaHeaders(),body:JSON.stringify(row)}).then(function(r){return r.json();})
+    : fetch(SUPA_URL+'/rest/v1/vendors',{method:'POST',headers:_supaHeaders(),body:JSON.stringify(row)}).then(function(r){return r.json();}).then(function(r){return Array.isArray(r)?r[0]:r;});
+  promise.then(function(saved){
+    var vid=editId||(Array.isArray(saved)?saved[0]:saved)||{};
+    vid=typeof vid==='object'?vid.id:editId;
+    // Save salon assignments
+    var checked=Array.from(document.querySelectorAll('#v-salon-checkboxes input[type=checkbox]:checked')).map(function(cb){return cb.value;});
+    var vendorIdFinal=editId||vid;
+    if(vendorIdFinal){
+      // Delete existing assignments then re-insert
+      fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?vendor_id=eq.'+vendorIdFinal,{method:'DELETE',headers:_supaHeaders()})
+        .then(function(){
+          var assignments=checked.map(function(tid){return{vendor_id:vendorIdFinal,tenant_id:tid,active:true};});
+          if(!assignments.length) return Promise.resolve();
+          return fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments',{method:'POST',headers:_supaHeaders(),body:JSON.stringify(assignments)});
+        }).catch(function(){});
+    }
+    closeModal('addVendorModal');
+    loadVendors();
+    toast('✅ Vendor saved');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+
+function toggleVendor(id,active){
+  if(!confirm((active?'Disable':'Enable')+' this vendor?')) return;
+  fetch(SUPA_URL+'/rest/v1/vendors?id=eq.'+id,{method:'PATCH',headers:_supaHeaders(),body:JSON.stringify({is_active:!active})})
+    .then(function(){var v=_vendors.find(function(x){return x.id===id;});if(v)v.is_active=!active;renderVendorList();toast('Done');});
+}
+// ════ END VENDOR MANAGEMENT ════
 
 </script>
 

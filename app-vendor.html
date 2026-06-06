@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MySalon – Vendor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1117;--surface:#161B22;--surface2:#1C2128;--border:#30363D;
+  --accent:#C8A800;--accent2:#F5E030;--green:#238636;--green2:#2ea043;
+  --red:#DA3633;--blue:#1F6FEB;--purple:#8B949E;
+  --white:#E6EDF3;--muted:#8B949E;--muted2:#484F58;
+  --BF:'Barlow',sans-serif;--HF:'Bebas Neue',sans-serif;
+  --r:12px;--rs:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--BF);background:var(--bg);color:var(--white);min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid var(--border)}
+.tb-name{font-family:var(--HF);font-size:16px;color:var(--accent);letter-spacing:1px;line-height:1}
+.tb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(200,168,0,.15);color:var(--accent);border:1px solid rgba(200,168,0,.3)}
+.btn-logout{padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);font-family:var(--BF);font-size:12px;font-weight:700;cursor:pointer}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── NAV TABS ── */
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nt{padding:12px 16px;font-family:var(--BF);font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nt:hover{color:var(--white)}
+.nt.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── PANELS ── */
+.panel{display:none;padding:16px;max-width:960px;margin:0 auto}
+.panel.on{display:block}
+
+/* ── CARDS / STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.stat-val{font-family:var(--HF);font-size:28px;letter-spacing:1px;color:var(--white);display:block}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.stat-card.accent .stat-val{color:var(--accent)}
+.stat-card.green  .stat-val{color:var(--green2)}
+.stat-card.red    .stat-val{color:var(--red)}
+.stat-card.blue   .stat-val{color:var(--blue)}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.sec-title{font-family:var(--HF);font-size:18px;letter-spacing:1px;color:var(--white)}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 16px;border-radius:var(--rs);font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#003D2B}
+.btn-primary:hover{background:var(--accent2)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-green{background:var(--green);color:white}
+.btn-green:hover{background:var(--green2)}
+.btn-red{background:rgba(218,54,51,.15);color:var(--red);border:1px solid rgba(218,54,51,.3)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.tbl-head{display:grid;padding:9px 14px;background:rgba(200,168,0,.06);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);gap:8px;border-bottom:1px solid var(--border)}
+.tbl-row{display:grid;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);gap:8px;align-items:center;transition:background .15s;font-size:12px}
+.tbl-row:hover{background:rgba(255,255,255,.02)}
+.tbl-row:last-child{border-bottom:none}
+.tbl-empty{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.b-pending{background:rgba(200,168,0,.15);color:var(--accent)}
+.b-confirmed{background:rgba(31,111,235,.15);color:var(--blue)}
+.b-shipped{background:rgba(139,73,197,.15);color:#9B59B6}
+.b-delivered{background:rgba(35,134,54,.15);color:var(--green2)}
+.b-cancelled{background:rgba(218,54,51,.15);color:var(--red)}
+.b-paid{background:rgba(35,134,54,.15);color:var(--green2)}
+.b-unpaid{background:rgba(218,54,51,.15);color:var(--red)}
+.b-partial{background:rgba(200,168,0,.15);color:var(--accent)}
+
+/* ── FORMS / MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-family:var(--HF);font-size:20px;color:var(--white);letter-spacing:1px}
+.btn-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
+.fg{margin-bottom:14px}
+label{display:block;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+input[type=text],input[type=number],input[type=tel],input[type=date],textarea,select{
+  width:100%;padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--rs);font-family:var(--BF);font-size:14px;color:var(--white);
+  outline:none;transition:border-color .2s;-webkit-appearance:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--muted2)}
+select option{background:var(--surface2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── ORDER CARD ── */
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.order-card:hover{border-color:var(--accent);background:var(--surface2)}
+.oc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.oc-num{font-family:var(--HF);font-size:16px;color:var(--accent);letter-spacing:1px}
+.oc-salon{font-size:13px;font-weight:700;color:var(--white);margin-bottom:2px}
+.oc-date{font-size:11px;color:var(--muted)}
+.oc-items{font-size:11px;color:var(--muted);margin-top:6px}
+.oc-total{font-family:var(--HF);font-size:20px;color:var(--white)}
+
+/* ── PRODUCT CARD ── */
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start;margin-bottom:8px;transition:all .2s}
+.prod-card:hover{border-color:var(--accent)}
+.prod-img{width:48px;height:48px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);object-fit:contain;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px}
+.prod-name{font-weight:700;font-size:13px;color:var(--white);margin-bottom:3px}
+.prod-brand{font-size:11px;color:var(--muted)}
+.prod-price{font-family:var(--HF);font-size:18px;color:var(--accent)}
+.prod-mrp{font-size:11px;color:var(--muted);text-decoration:line-through}
+.prod-stock{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.stock-ok{background:rgba(35,134,54,.15);color:var(--green2)}
+.stock-low{background:rgba(200,168,0,.15);color:var(--accent)}
+.stock-out{background:rgba(218,54,51,.15);color:var(--red)}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{flex:1;min-width:140px;max-width:220px;padding:8px 12px;font-size:13px}
+
+/* ── CART ── */
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--white);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.qty-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);color:var(--white);padding:10px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;transition:transform .3s;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <img id="vendorLogo" class="tb-logo" src="ms-default-logo.svg" alt="logo">
+    <div>
+      <div class="tb-name" id="vendorName">Vendor</div>
+      <div class="tb-sub" id="vendorRegion">Loading…</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <span class="tb-badge">🧴 VENDOR</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="nt on" id="nt-dashboard" onclick="showTab('dashboard')">📊 Dashboard</button>
+  <button class="nt"    id="nt-orders"    onclick="showTab('orders')">📦 Orders</button>
+  <button class="nt"    id="nt-products"  onclick="showTab('products')">🧴 Products</button>
+  <button class="nt"    id="nt-salons"    onclick="showTab('salons')">🏪 My Salons</button>
+  <button class="nt"    id="nt-payments"  onclick="showTab('payments')">💰 Payments</button>
+  <button class="nt"    id="nt-neworder"  onclick="showTab('neworder')">➕ New Order</button>
+</div>
+
+<!-- ════ DASHBOARD ════ -->
+<div class="panel on" id="pn-dashboard">
+  <div class="stats-grid" style="margin-top:14px">
+    <div class="stat-card accent"><span class="stat-val" id="d-total-orders">—</span><div class="stat-lbl">Total Orders</div></div>
+    <div class="stat-card green"><span class="stat-val" id="d-pending">—</span><div class="stat-lbl">Pending</div></div>
+    <div class="stat-card blue"><span class="stat-val" id="d-revenue">—</span><div class="stat-lbl">Total Revenue</div></div>
+    <div class="stat-card"><span class="stat-val" id="d-outstanding">—</span><div class="stat-lbl">Outstanding</div></div>
+    <div class="stat-card"><span class="stat-val" id="d-salons">—</span><div class="stat-lbl">Assigned Salons</div></div>
+    <div class="stat-card"><span class="stat-val" id="d-products">—</span><div class="stat-lbl">Products</div></div>
+  </div>
+
+  <!-- Recent orders -->
+  <div class="sec-hdr">
+    <div class="sec-title">RECENT ORDERS</div>
+    <button class="btn btn-outline btn-sm" onclick="showTab('orders')">View All</button>
+  </div>
+  <div id="d-recent-orders"><div class="tbl-empty">Loading…</div></div>
+
+  <!-- Low stock alert -->
+  <div class="sec-hdr" style="margin-top:16px">
+    <div class="sec-title">⚠️ LOW STOCK</div>
+  </div>
+  <div id="d-low-stock"><div class="tbl-empty">Loading…</div></div>
+</div>
+
+<!-- ════ ORDERS ════ -->
+<div class="panel" id="pn-orders">
+  <div class="sec-hdr" style="margin-top:14px">
+    <div class="sec-title">ALL ORDERS</div>
+    <button class="btn btn-primary btn-sm" onclick="showTab('neworder')">+ New Order</button>
+  </div>
+  <div class="filter-bar">
+    <input type="search" id="order-search" placeholder="Salon, order no…" oninput="renderOrders()">
+    <select id="order-status-filter" onchange="renderOrders()">
+      <option value="">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+    <select id="order-payment-filter" onchange="renderOrders()">
+      <option value="">All Payments</option>
+      <option value="unpaid">Unpaid</option>
+      <option value="partial">Partial</option>
+      <option value="paid">Paid</option>
+    </select>
+  </div>
+  <div id="orders-list"><div class="tbl-empty">Loading orders…</div></div>
+</div>
+
+<!-- ════ PRODUCTS ════ -->
+<div class="panel" id="pn-products">
+  <div class="sec-hdr" style="margin-top:14px">
+    <div class="sec-title">MY PRODUCTS</div>
+    <button class="btn btn-primary btn-sm" onclick="openAddProduct()">+ Add Product</button>
+  </div>
+  <div class="filter-bar">
+    <input type="search" id="prod-search" placeholder="Product name, brand…" oninput="renderProducts()">
+    <select id="prod-cat-filter" onchange="renderProducts()">
+      <option value="">All Categories</option>
+      <option value="shampoo">Shampoo</option>
+      <option value="colour">Colour</option>
+      <option value="treatment">Treatment</option>
+      <option value="styling">Styling</option>
+      <option value="tools">Tools</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+  <div id="products-list"><div class="tbl-empty">Loading products…</div></div>
+</div>
+
+<!-- ════ MY SALONS ════ -->
+<div class="panel" id="pn-salons">
+  <div class="sec-hdr" style="margin-top:14px">
+    <div class="sec-title">ASSIGNED SALONS</div>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head" style="grid-template-columns:1fr 120px 80px 80px 100px">
+      <span>Salon</span><span>Owner</span><span>City</span><span>Orders</span><span>Outstanding</span>
+    </div>
+    <div id="salons-list"><div class="tbl-empty">Loading salons…</div></div>
+  </div>
+</div>
+
+<!-- ════ PAYMENTS ════ -->
+<div class="panel" id="pn-payments">
+  <div class="sec-hdr" style="margin-top:14px">
+    <div class="sec-title">PAYMENT COLLECTIONS</div>
+    <button class="btn btn-green btn-sm" onclick="openAddPayment()">+ Record Payment</button>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head" style="grid-template-columns:100px 1fr 80px 80px 80px 80px">
+      <span>Date</span><span>Salon</span><span>Amount</span><span>Mode</span><span>Order</span><span>Ref</span>
+    </div>
+    <div id="payments-list"><div class="tbl-empty">Loading payments…</div></div>
+  </div>
+</div>
+
+<!-- ════ NEW ORDER ════ -->
+<div class="panel" id="pn-neworder">
+  <div class="sec-hdr" style="margin-top:14px">
+    <div class="sec-title">CREATE ORDER</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:16px" id="order-builder">
+    <!-- Product selector -->
+    <div>
+      <div class="fg">
+        <label>Select Salon</label>
+        <select id="no-salon" onchange="loadSalonProducts()">
+          <option value="">— Choose a salon —</option>
+        </select>
+      </div>
+      <input type="search" id="no-prod-search" placeholder="Search products…" oninput="filterOrderProducts()" style="margin-bottom:12px">
+      <div id="no-products-grid" style="display:grid;gap:8px;max-height:60vh;overflow-y:auto"></div>
+    </div>
+    <!-- Cart -->
+    <div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:sticky;top:72px">
+        <div style="font-family:var(--HF);font-size:18px;color:var(--white);letter-spacing:1px;margin-bottom:14px">🛒 ORDER CART</div>
+        <div id="no-cart-items"><div style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0">Add products from the left</div></div>
+        <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
+          <div class="fg">
+            <label>Discount (₹)</label>
+            <input type="number" id="no-discount" value="0" min="0" oninput="updateCartTotal()">
+          </div>
+          <div class="fg">
+            <label>Delivery Date</label>
+            <input type="date" id="no-delivery-date">
+          </div>
+          <div class="fg">
+            <label>Notes</label>
+            <textarea id="no-notes" rows="2" placeholder="Any notes…"></textarea>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <span style="font-size:13px;color:var(--muted)">Total</span>
+            <span style="font-family:var(--HF);font-size:24px;color:var(--accent)" id="no-total">₹0</span>
+          </div>
+          <button class="btn btn-primary" style="width:100%;font-size:15px;padding:13px" onclick="placeOrder()">Place Order →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADD PRODUCT MODAL ════ -->
+<div class="modal-bg" id="addProductModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="prod-modal-title">ADD PRODUCT</div>
+      <button class="btn-close" onclick="closeModal('addProductModal')">✕</button>
+    </div>
+    <input type="hidden" id="prod-edit-id">
+    <div class="row2">
+      <div class="fg"><label>Product Name *</label><input type="text" id="prod-name" placeholder="e.g. Loreal Argan Shampoo"></div>
+      <div class="fg"><label>Brand</label><input type="text" id="prod-brand" placeholder="Brand name"></div>
+    </div>
+    <div class="row2">
+      <div class="fg">
+        <label>Category</label>
+        <select id="prod-cat">
+          <option value="shampoo">Shampoo</option><option value="colour">Colour</option>
+          <option value="treatment">Treatment</option><option value="styling">Styling</option>
+          <option value="tools">Tools</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>SKU / Code</label><input type="text" id="prod-sku" placeholder="SKU001"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Unit</label>
+        <select id="prod-unit"><option value="piece">Piece</option><option value="ml">ml</option><option value="gm">gm</option><option value="kg">kg</option><option value="litre">Litre</option><option value="pack">Pack</option></select>
+      </div>
+      <div class="fg"><label>Min Order Qty</label><input type="number" id="prod-moq" value="1" min="1"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Selling Price (₹) *</label><input type="number" id="prod-price" placeholder="0" min="0"></div>
+      <div class="fg"><label>MRP (₹)</label><input type="number" id="prod-mrp" placeholder="0" min="0"></div>
+    </div>
+    <div class="fg"><label>Stock Qty</label><input type="number" id="prod-stock" placeholder="0" min="0"></div>
+    <div class="fg"><label>Description</label><textarea id="prod-desc" rows="2" placeholder="Product details…"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('addProductModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ORDER DETAIL MODAL ════ -->
+<div class="modal-bg" id="orderDetailModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-hdr">
+      <div class="modal-title" id="od-title">ORDER DETAIL</div>
+      <button class="btn-close" onclick="closeModal('orderDetailModal')">✕</button>
+    </div>
+    <div id="od-content"></div>
+  </div>
+</div>
+
+<!-- ════ ADD PAYMENT MODAL ════ -->
+<div class="modal-bg" id="addPaymentModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">RECORD PAYMENT</div>
+      <button class="btn-close" onclick="closeModal('addPaymentModal')">✕</button>
+    </div>
+    <div class="fg"><label>Salon *</label><select id="pay-salon"></select></div>
+    <div class="row2">
+      <div class="fg"><label>Amount (₹) *</label><input type="number" id="pay-amount" placeholder="0" min="0"></div>
+      <div class="fg"><label>Mode</label>
+        <select id="pay-mode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank Transfer</option><option value="cheque">Cheque</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Reference / UTR</label><input type="text" id="pay-ref" placeholder="Transaction reference"></div>
+    <div class="fg"><label>Note</label><input type="text" id="pay-note" placeholder="Optional note"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('addPaymentModal')">Cancel</button>
+      <button class="btn btn-green" onclick="savePayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════ CONFIG ════════════════════════════════════════════════════
+var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
+
+// ════ AUTH ══════════════════════════════════════════════════════
+var VENDOR_ID   = localStorage.getItem('ms_vendor_id') || sessionStorage.getItem('ms_vendor_id') || '';
+var VENDOR_NAME = localStorage.getItem('ms_vendor_name') || sessionStorage.getItem('ms_vendor_name') || 'Vendor';
+var VENDOR_PHONE= localStorage.getItem('ms_phone') || '';
+var SESSION_ROLE= localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || '';
+
+if(!VENDOR_ID || SESSION_ROLE !== 'vendor'){
+  window.location.href = 'login-vendor.html';
+}
+
+// Apply branding
+document.getElementById('vendorName').textContent = VENDOR_NAME;
+document.getElementById('vendorRegion').textContent = localStorage.getItem('ms_vendor_region') || '';
+var _logo = localStorage.getItem('ms_logo') || '';
+if(_logo){ var li=document.getElementById('vendorLogo'); li.src=_logo; li.onerror=function(){this.src='ms-default-logo.svg';}; }
+
+// ════ DATA ══════════════════════════════════════════════════════
+var _products = [];
+var _orders   = [];
+var _salons   = [];  // assigned salons (full tenant+salon info)
+var _payments = [];
+var _cart     = [];  // {product, qty}
+
+function _h(){ return {'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY,'Prefer':'return=representation'}; }
+function _get(path){ return fetch(MS_URL+'/rest/v1/'+path,{headers:_h()}).then(function(r){return r.json();}); }
+function _post(path,body){ return fetch(MS_URL+'/rest/v1/'+path,{method:'POST',headers:_h(),body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(r){return Array.isArray(r)?r[0]:r;}); }
+function _patch(path,body){ return fetch(MS_URL+'/rest/v1/'+path,{method:'PATCH',headers:_h(),body:JSON.stringify(body)}).then(function(r){return r.json();}); }
+function fmtINR(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); }
+function fmtDate(d){ return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—'; }
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ════ BOOT ══════════════════════════════════════════════════════
+(function boot(){
+  if(!VENDOR_ID) return;
+  Promise.all([
+    _get('vendor_products?vendor_id=eq.'+VENDOR_ID+'&is_active=eq.true&order=name'),
+    _get('vendor_orders?vendor_id=eq.'+VENDOR_ID+'&order=created_at.desc&limit=200'),
+    _get('vendor_salon_assignments?vendor_id=eq.'+VENDOR_ID+'&active=eq.true&select=*,tenants:tenant_id(id,name,owner_phone,city,slug,logo_url)'),
+    _get('vendor_payments?vendor_id=eq.'+VENDOR_ID+'&order=created_at.desc&limit=200')
+  ]).then(function(res){
+    _products = Array.isArray(res[0]) ? res[0] : [];
+    _orders   = Array.isArray(res[1]) ? res[1] : [];
+    var assignments = Array.isArray(res[2]) ? res[2] : [];
+    _payments = Array.isArray(res[3]) ? res[3] : [];
+    // Build salons list from assignments
+    _salons = assignments.map(function(a){ return a.tenants || {}; }).filter(function(t){ return t.id; });
+    renderDashboard();
+    renderOrders();
+    renderProducts();
+    renderSalons();
+    renderPayments();
+    populateSalonSelects();
+    renderNewOrderProducts();
+  }).catch(function(e){ console.error('[Vendor] boot error:', e); toast('⚠ Failed to load data'); });
+})();
+
+// ════ TAB ═══════════════════════════════════════════════════════
+function showTab(tab){
+  document.querySelectorAll('.nt').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  var nb=document.getElementById('nt-'+tab), pb=document.getElementById('pn-'+tab);
+  if(nb) nb.classList.add('on');
+  if(pb) pb.classList.add('on');
+}
+
+// ════ DASHBOARD ═════════════════════════════════════════════════
+function renderDashboard(){
+  var pending   = _orders.filter(function(o){return o.status==='pending'||o.status==='confirmed';}).length;
+  var revenue   = _orders.filter(function(o){return o.status!=='cancelled';}).reduce(function(s,o){return s+Number(o.total||0);},0);
+  var collected = _payments.reduce(function(s,p){return s+Number(p.amount||0);},0);
+  var outstanding = revenue - collected;
+  document.getElementById('d-total-orders').textContent = _orders.length;
+  document.getElementById('d-pending').textContent      = pending;
+  document.getElementById('d-revenue').textContent      = fmtINR(revenue);
+  document.getElementById('d-outstanding').textContent  = fmtINR(Math.max(0,outstanding));
+  document.getElementById('d-salons').textContent       = _salons.length;
+  document.getElementById('d-products').textContent     = _products.length;
+  // Recent orders
+  var recent = _orders.slice(0,5);
+  document.getElementById('d-recent-orders').innerHTML = recent.length
+    ? recent.map(function(o){ return orderCardHTML(o); }).join('')
+    : '<div class="tbl-empty">No orders yet</div>';
+  // Low stock
+  var low = _products.filter(function(p){return Number(p.stock||0)<=5;});
+  document.getElementById('d-low-stock').innerHTML = low.length
+    ? low.map(function(p){
+        return '<div class="prod-card" style="padding:10px 14px">'+
+          '<div class="prod-img">'+(p.image_url?'<img src="'+escH(p.image_url)+'" style="width:100%;height:100%;object-fit:contain">':'🧴')+'</div>'+
+          '<div style="flex:1"><div class="prod-name">'+escH(p.name)+'</div><div class="prod-brand">'+escH(p.brand||'')+'</div></div>'+
+          '<span class="prod-stock '+(p.stock<=0?'stock-out':'stock-low')+'">'+(p.stock<=0?'Out of stock':p.stock+' left')+'</span>'+
+        '</div>';
+      }).join('')
+    : '<div class="tbl-empty">All products well stocked ✓</div>';
+}
+
+// ════ ORDERS ════════════════════════════════════════════════════
+function orderCardHTML(o){
+  var salonName = getSalonName(o.tenant_id);
+  var items = Array.isArray(o.items) ? o.items : (typeof o.items==='string' ? JSON.parse(o.items||'[]') : []);
+  var itemSummary = items.slice(0,2).map(function(i){return escH(i.name||'');}).join(', ')+(items.length>2?' +'+( items.length-2)+' more':'');
+  return '<div class="order-card" onclick="openOrderDetail(\''+o.id+'\')">'+
+    '<div class="oc-top">'+
+      '<span class="oc-num">'+(o.order_number||o.id.slice(0,8))+'</span>'+
+      '<div style="display:flex;gap:6px">'+
+        '<span class="badge b-'+o.status+'">'+o.status+'</span>'+
+        '<span class="badge b-'+(o.payment_status||'unpaid')+'">'+( o.payment_status||'unpaid')+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="oc-salon">'+escH(salonName)+'</div>'+
+    '<div class="oc-date">'+fmtDate(o.created_at)+(o.delivery_date?' · Deliver: '+fmtDate(o.delivery_date):'')+'</div>'+
+    '<div class="oc-items">'+itemSummary+'</div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">'+
+      '<span class="oc-total">'+fmtINR(o.total)+'</span>'+
+    '</div>'+
+  '</div>';
+}
+function renderOrders(){
+  var q=(document.getElementById('order-search')||{value:''}).value.toLowerCase();
+  var st=(document.getElementById('order-status-filter')||{value:''}).value;
+  var pt=(document.getElementById('order-payment-filter')||{value:''}).value;
+  var filtered=_orders.filter(function(o){
+    var sName=getSalonName(o.tenant_id).toLowerCase();
+    var mq=!q||(o.order_number||'').toLowerCase().indexOf(q)>-1||sName.indexOf(q)>-1;
+    var ms=!st||o.status===st;
+    var mp=!pt||(o.payment_status||'unpaid')===pt;
+    return mq&&ms&&mp;
+  });
+  var el=document.getElementById('orders-list');
+  el.innerHTML=filtered.length?filtered.map(orderCardHTML).join(''):'<div class="tbl-empty">No orders found</div>';
+}
+function openOrderDetail(orderId){
+  var o=_orders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  var items=Array.isArray(o.items)?o.items:(typeof o.items==='string'?JSON.parse(o.items||'[]'):[]);
+  document.getElementById('od-title').textContent=(o.order_number||'ORDER');
+  document.getElementById('od-content').innerHTML=
+    '<div style="margin-bottom:14px">'+
+      '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+        '<span class="badge b-'+o.status+'">'+o.status+'</span>'+
+        '<span class="badge b-'+(o.payment_status||'unpaid')+'">'+(o.payment_status||'unpaid')+'</span>'+
+      '</div>'+
+      '<div style="font-size:13px;color:var(--muted)">Salon: <strong style="color:var(--white)">'+escH(getSalonName(o.tenant_id))+'</strong></div>'+
+      '<div style="font-size:13px;color:var(--muted)">Date: '+fmtDate(o.created_at)+(o.delivery_date?'  ·  Deliver by: '+fmtDate(o.delivery_date):'')+'</div>'+
+      (o.notes?'<div style="font-size:12px;color:var(--muted);margin-top:4px">Notes: '+escH(o.notes)+'</div>':'')+
+    '</div>'+
+    '<div style="background:var(--surface2);border-radius:var(--rs);padding:12px;margin-bottom:14px">'+
+      '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Items</div>'+
+      items.map(function(i){
+        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px">'+
+          '<span>'+escH(i.name||'')+'</span>'+
+          '<span style="color:var(--muted)">×'+i.qty+' @ '+fmtINR(i.price)+'</span>'+
+          '<span style="color:var(--accent)">'+fmtINR(i.total)+'</span>'+
+        '</div>';
+      }).join('')+
+      '<div style="display:flex;justify-content:space-between;padding-top:8px;font-family:var(--HF);font-size:16px">'+
+        '<span>TOTAL</span><span style="color:var(--accent)">'+fmtINR(o.total)+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      (o.status==='pending'?'<button class="btn btn-green btn-sm" onclick="updateOrderStatus(\''+o.id+'\',\'confirmed\')">✓ Confirm</button>':'')+
+      (o.status==='confirmed'?'<button class="btn btn-outline btn-sm" onclick="updateOrderStatus(\''+o.id+'\',\'shipped\')">🚚 Mark Shipped</button>':'')+
+      (o.status==='shipped'?'<button class="btn btn-primary btn-sm" onclick="updateOrderStatus(\''+o.id+'\',\'delivered\')">✅ Mark Delivered</button>':'')+
+      (o.payment_status!=='paid'?'<button class="btn btn-green btn-sm" onclick="closeModal(\'orderDetailModal\');openAddPaymentFor(\''+o.tenant_id+'\',\''+o.id+'\')">💰 Record Payment</button>':'')+
+      (o.status==='pending'?'<button class="btn btn-red btn-sm" onclick="updateOrderStatus(\''+o.id+'\',\'cancelled\')">✕ Cancel</button>':'')+
+    '</div>';
+  openModal('orderDetailModal');
+}
+function updateOrderStatus(orderId, newStatus){
+  _patch('vendor_orders?id=eq.'+orderId,{status:newStatus,updated_at:new Date().toISOString()})
+    .then(function(){
+      var o=_orders.find(function(x){return x.id===orderId;});
+      if(o) o.status=newStatus;
+      closeModal('orderDetailModal');
+      renderOrders();
+      renderDashboard();
+      toast('✅ Order '+newStatus);
+    });
+}
+
+// ════ PRODUCTS ══════════════════════════════════════════════════
+function renderProducts(){
+  var q=(document.getElementById('prod-search')||{value:''}).value.toLowerCase();
+  var cat=(document.getElementById('prod-cat-filter')||{value:''}).value;
+  var filtered=_products.filter(function(p){
+    var mq=!q||p.name.toLowerCase().indexOf(q)>-1||(p.brand||'').toLowerCase().indexOf(q)>-1;
+    var mc=!cat||p.category===cat;
+    return mq&&mc;
+  });
+  var el=document.getElementById('products-list');
+  el.innerHTML=filtered.length?filtered.map(function(p){
+    var stock=Number(p.stock||0);
+    var sc=stock<=0?'stock-out':stock<=5?'stock-low':'stock-ok';
+    var sl=stock<=0?'Out of stock':stock<=5?stock+' left':stock+' in stock';
+    return '<div class="prod-card">'+
+      '<div class="prod-img" style="align-items:center;justify-content:center;display:flex;width:52px;height:52px">'+(p.image_url?'<img src="'+escH(p.image_url)+'" style="width:100%;height:100%;object-fit:contain;border-radius:6px">':'🧴')+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="prod-name">'+escH(p.name)+'</div>'+
+        '<div class="prod-brand">'+escH(p.brand||'—')+' · '+escH(p.category||'')+(p.sku?' · '+escH(p.sku):'')+'</div>'+
+        '<div style="display:flex;gap:10px;align-items:center;margin-top:6px">'+
+          '<span class="prod-price">'+fmtINR(p.price)+'</span>'+
+          (p.mrp&&Number(p.mrp)>Number(p.price)?'<span class="prod-mrp">'+fmtINR(p.mrp)+'</span>':'')+
+          '<span class="prod-stock '+sc+'">'+sl+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">'+
+        '<button class="btn btn-outline btn-sm" onclick="editProduct(\''+p.id+'\')">✏️ Edit</button>'+
+        '<button class="btn btn-red btn-sm" onclick="deleteProduct(\''+p.id+'\')">Delete</button>'+
+      '</div>'+
+    '</div>';
+  }).join(''):'<div class="tbl-empty">No products yet. Add your first product!</div>';
+}
+function openAddProduct(){
+  document.getElementById('prod-edit-id').value='';
+  document.getElementById('prod-modal-title').textContent='ADD PRODUCT';
+  ['prod-name','prod-brand','prod-sku','prod-desc'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('prod-price').value='';
+  document.getElementById('prod-mrp').value='';
+  document.getElementById('prod-stock').value='0';
+  document.getElementById('prod-moq').value='1';
+  openModal('addProductModal');
+}
+function editProduct(id){
+  var p=_products.find(function(x){return x.id===id;});
+  if(!p) return;
+  document.getElementById('prod-edit-id').value=p.id;
+  document.getElementById('prod-modal-title').textContent='EDIT PRODUCT';
+  document.getElementById('prod-name').value=p.name||'';
+  document.getElementById('prod-brand').value=p.brand||'';
+  document.getElementById('prod-cat').value=p.category||'other';
+  document.getElementById('prod-sku').value=p.sku||'';
+  document.getElementById('prod-unit').value=p.unit||'piece';
+  document.getElementById('prod-price').value=p.price||'';
+  document.getElementById('prod-mrp').value=p.mrp||'';
+  document.getElementById('prod-stock').value=p.stock||'0';
+  document.getElementById('prod-moq').value=p.min_order_qty||'1';
+  document.getElementById('prod-desc').value=p.description||'';
+  openModal('addProductModal');
+}
+function saveProduct(){
+  var name=document.getElementById('prod-name').value.trim();
+  var price=parseFloat(document.getElementById('prod-price').value)||0;
+  if(!name){toast('Enter product name');return;}
+  if(!price){toast('Enter selling price');return;}
+  var row={
+    vendor_id:VENDOR_ID, name:name,
+    brand:document.getElementById('prod-brand').value.trim(),
+    category:document.getElementById('prod-cat').value,
+    sku:document.getElementById('prod-sku').value.trim(),
+    unit:document.getElementById('prod-unit').value,
+    price:price,
+    mrp:parseFloat(document.getElementById('prod-mrp').value)||0,
+    stock:parseInt(document.getElementById('prod-stock').value)||0,
+    min_order_qty:parseInt(document.getElementById('prod-moq').value)||1,
+    description:document.getElementById('prod-desc').value.trim(),
+    is_active:true
+  };
+  var editId=document.getElementById('prod-edit-id').value;
+  var promise=editId
+    ? _patch('vendor_products?id=eq.'+editId, row)
+    : _post('vendor_products', row);
+  promise.then(function(saved){
+    if(editId){
+      var idx=_products.findIndex(function(p){return p.id===editId;});
+      if(idx>=0) _products[idx]=Object.assign({id:editId},row);
+    } else {
+      var s=Array.isArray(saved)?saved[0]:saved;
+      if(s&&s.id) _products.unshift(s);
+    }
+    closeModal('addProductModal');
+    renderProducts();
+    renderNewOrderProducts();
+    toast('✅ Product saved');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+function deleteProduct(id){
+  if(!confirm('Delete this product?')) return;
+  _patch('vendor_products?id=eq.'+id,{is_active:false})
+    .then(function(){
+      _products=_products.filter(function(p){return p.id!==id;});
+      renderProducts();
+      toast('Product removed');
+    });
+}
+
+// ════ SALONS ════════════════════════════════════════════════════
+function renderSalons(){
+  var el=document.getElementById('salons-list');
+  if(!_salons.length){el.innerHTML='<div class="tbl-empty">No salons assigned yet. Contact your admin.</div>';return;}
+  el.innerHTML=_salons.map(function(s){
+    var sOrders=_orders.filter(function(o){return o.tenant_id===s.id;});
+    var sTotal=sOrders.filter(function(o){return o.status!=='cancelled';}).reduce(function(t,o){return t+Number(o.total||0);},0);
+    var sPaid=_payments.filter(function(p){return p.tenant_id===s.id;}).reduce(function(t,p){return t+Number(p.amount||0);},0);
+    var outstanding=Math.max(0,sTotal-sPaid);
+    return '<div class="tbl-row" style="grid-template-columns:1fr 120px 80px 80px 100px">'+
+      '<div style="font-weight:700">'+escH(s.name||'—')+'<div style="font-size:10px;color:var(--muted)">@'+escH(s.slug||'')+'</div></div>'+
+      '<div style="font-size:12px">'+escH(s.owner_phone||'—')+'</div>'+
+      '<div style="font-size:12px;color:var(--muted)">'+escH(s.city||'—')+'</div>'+
+      '<div style="font-family:var(--HF);font-size:18px;color:var(--accent)">'+sOrders.length+'</div>'+
+      '<div style="font-size:12px;font-weight:700;color:'+(outstanding>0?'var(--red)':'var(--green2)')+'">'+(outstanding>0?fmtINR(outstanding):'Cleared')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ════ PAYMENTS ══════════════════════════════════════════════════
+function renderPayments(){
+  var el=document.getElementById('payments-list');
+  if(!_payments.length){el.innerHTML='<div class="tbl-empty">No payments recorded yet</div>';return;}
+  el.innerHTML=_payments.map(function(p){
+    return '<div class="tbl-row" style="grid-template-columns:100px 1fr 80px 80px 80px 80px">'+
+      '<div style="font-size:11px;color:var(--muted)">'+fmtDate(p.paid_at||p.created_at)+'</div>'+
+      '<div style="font-weight:700">'+escH(getSalonName(p.tenant_id))+'</div>'+
+      '<div style="font-family:var(--HF);font-size:16px;color:var(--green2)">'+fmtINR(p.amount)+'</div>'+
+      '<div><span class="badge b-paid">'+escH(p.mode||'cash')+'</span></div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+escH(p.order_id?p.order_id.slice(0,8):'—')+'</div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+escH(p.reference||'—')+'</div>'+
+    '</div>';
+  }).join('');
+}
+function openAddPayment(){
+  populateSalonSelects();
+  openModal('addPaymentModal');
+}
+function openAddPaymentFor(tenantId, orderId){
+  populateSalonSelects();
+  var sel=document.getElementById('pay-salon');
+  if(sel) sel.value=tenantId;
+  openModal('addPaymentModal');
+}
+function savePayment(){
+  var tenantId=document.getElementById('pay-salon').value;
+  var amount=parseFloat(document.getElementById('pay-amount').value)||0;
+  if(!tenantId){toast('Select a salon');return;}
+  if(!amount){toast('Enter amount');return;}
+  var row={
+    vendor_id:VENDOR_ID, tenant_id:tenantId,
+    amount:amount,
+    mode:document.getElementById('pay-mode').value,
+    reference:document.getElementById('pay-ref').value.trim(),
+    note:document.getElementById('pay-note').value.trim(),
+    paid_at:new Date().toISOString()
+  };
+  _post('vendor_payments',row).then(function(saved){
+    var s=Array.isArray(saved)?saved[0]:saved;
+    if(s&&s.id) _payments.unshift(s);
+    closeModal('addPaymentModal');
+    renderPayments();
+    renderDashboard();
+    renderSalons();
+    toast('✅ Payment of '+fmtINR(amount)+' recorded');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+
+// ════ NEW ORDER ══════════════════════════════════════════════════
+function populateSalonSelects(){
+  ['no-salon','pay-salon'].forEach(function(id){
+    var sel=document.getElementById(id);
+    if(!sel) return;
+    var cur=sel.value;
+    var opts=_salons.map(function(s){return '<option value="'+s.id+'">'+escH(s.name||'')+'</option>';}).join('');
+    sel.innerHTML='<option value="">— Select salon —</option>'+opts;
+    if(cur) sel.value=cur;
+  });
+}
+function loadSalonProducts(){ renderNewOrderProducts(); }
+function renderNewOrderProducts(){
+  var el=document.getElementById('no-products-grid');
+  if(!el) return;
+  var q=(document.getElementById('no-prod-search')||{value:''}).value.toLowerCase();
+  var filtered=_products.filter(function(p){
+    return !q||p.name.toLowerCase().indexOf(q)>-1||(p.brand||'').toLowerCase().indexOf(q)>-1;
+  });
+  el.innerHTML=filtered.length?filtered.map(function(p){
+    var inCart=_cart.find(function(c){return c.product.id===p.id;});
+    return '<div style="background:var(--surface);border:1px solid '+(inCart?'var(--accent)':'var(--border)')+';border-radius:var(--rs);padding:12px;cursor:pointer;transition:all .2s" onclick="addToCart(\''+p.id+'\')" >'+
+      '<div style="font-weight:700;font-size:13px">'+escH(p.name)+'</div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+escH(p.brand||'')+'</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">'+
+        '<span style="font-family:var(--HF);font-size:16px;color:var(--accent)">'+fmtINR(p.price)+'</span>'+
+        (inCart?'<span style="font-size:11px;font-weight:700;color:var(--accent)">× '+inCart.qty+' in cart</span>':'<span style="font-size:11px;color:var(--muted);border:1px solid var(--border);padding:2px 8px;border-radius:20px">+ Add</span>')+
+      '</div>'+
+    '</div>';
+  }).join(''):'<div class="tbl-empty">No products. Add products first.</div>';
+}
+function filterOrderProducts(){ renderNewOrderProducts(); }
+function addToCart(productId){
+  var p=_products.find(function(x){return x.id===productId;});
+  if(!p) return;
+  var existing=_cart.find(function(c){return c.product.id===productId;});
+  if(existing){ existing.qty++; } else { _cart.push({product:p,qty:1}); }
+  renderCart();
+  renderNewOrderProducts();
+}
+function changeCartQty(productId, delta){
+  var idx=_cart.findIndex(function(c){return c.product.id===productId;});
+  if(idx<0) return;
+  _cart[idx].qty=Math.max(0,_cart[idx].qty+delta);
+  if(_cart[idx].qty===0) _cart.splice(idx,1);
+  renderCart();
+  renderNewOrderProducts();
+}
+function renderCart(){
+  var el=document.getElementById('no-cart-items');
+  if(!_cart.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0">Add products from the left</div>';
+    updateCartTotal();
+    return;
+  }
+  el.innerHTML=_cart.map(function(c){
+    return '<div class="cart-item">'+
+      '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">'+escH(c.product.name)+'</div>'+
+      '<div style="font-size:12px;color:var(--muted)">'+fmtINR(c.product.price)+' each</div></div>'+
+      '<div class="qty-ctrl">'+
+        '<button class="qty-btn" onclick="changeCartQty(\''+c.product.id+'\',-1)">−</button>'+
+        '<span style="font-size:14px;font-weight:700;min-width:24px;text-align:center">'+c.qty+'</span>'+
+        '<button class="qty-btn" onclick="changeCartQty(\''+c.product.id+'\',1)">+</button>'+
+      '</div>'+
+      '<div style="font-family:var(--HF);font-size:16px;color:var(--accent);min-width:60px;text-align:right">'+fmtINR(c.product.price*c.qty)+'</div>'+
+    '</div>';
+  }).join('');
+  updateCartTotal();
+}
+function updateCartTotal(){
+  var sub=_cart.reduce(function(s,c){return s+c.product.price*c.qty;},0);
+  var disc=parseFloat((document.getElementById('no-discount')||{value:0}).value)||0;
+  document.getElementById('no-total').textContent=fmtINR(Math.max(0,sub-disc));
+}
+function placeOrder(){
+  var tenantId=(document.getElementById('no-salon')||{value:''}).value;
+  if(!tenantId){toast('Select a salon first');return;}
+  if(!_cart.length){toast('Add at least one product');return;}
+  var sub=_cart.reduce(function(s,c){return s+c.product.price*c.qty;},0);
+  var disc=parseFloat(document.getElementById('no-discount').value)||0;
+  var total=Math.max(0,sub-disc);
+  var orderNum='VND-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  var items=_cart.map(function(c){return{product_id:c.product.id,name:c.product.name,qty:c.qty,price:c.product.price,total:c.product.price*c.qty};});
+  var row={
+    vendor_id:VENDOR_ID, tenant_id:tenantId,
+    order_number:orderNum, status:'pending', payment_status:'unpaid',
+    items:items, subtotal:sub, discount:disc, total:total,
+    delivery_date:document.getElementById('no-delivery-date').value||null,
+    notes:document.getElementById('no-notes').value.trim()
+  };
+  _post('vendor_orders',row).then(function(saved){
+    var s=Array.isArray(saved)?saved[0]:saved;
+    if(s&&s.id) _orders.unshift(s);
+    _cart=[];
+    renderCart();
+    renderOrders();
+    renderDashboard();
+    renderNewOrderProducts();
+    document.getElementById('no-discount').value='0';
+    document.getElementById('no-notes').value='';
+    toast('✅ Order '+orderNum+' placed!');
+    showTab('orders');
+  }).catch(function(e){toast('Error placing order: '+e.message);});
+}
+
+// ════ HELPERS ════════════════════════════════════════════════════
+function getSalonName(tenantId){
+  var s=_salons.find(function(x){return x.id===tenantId;});
+  return s?s.name:'Unknown Salon';
+}
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+var _toastTimer;
+function toast(msg){
+  var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(function(){el.classList.remove('show');},3000);
+}
+function logout(){
+  try{sessionStorage.clear();}catch(e){}
+  try{['ms_role','ms_phone','ms_vendor_id','ms_vendor_name','ms_vendor_region'].forEach(function(k){localStorage.removeItem(k);});}catch(e){}
+  window.location.href='login-vendor.html';
+}
+</script>
+</body>
+</html>

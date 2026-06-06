@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MySalon – Vendor Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:#0D1117;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px}
+.card{background:#161B22;border:1px solid #30363D;border-radius:16px;padding:36px 28px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.logo-wrap{text-align:center;margin-bottom:28px}
+.brand-badge{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px}
+.brand-mark{background:#003D2B;border-radius:8px;overflow:hidden;border:2px solid #C8A800;line-height:0}
+.brand-mark-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#003D2B;letter-spacing:2px;padding:3px 10px 1px;text-align:center}
+.brand-mark-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:10px;color:#C8A800;letter-spacing:2px;padding:1px 10px 3px;text-align:center}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:20px;color:white;letter-spacing:2px}
+.role-banner{background:linear-gradient(135deg,#1a3a2a,#0d2518);border:1px solid rgba(200,168,0,.3);border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.role-icon{font-size:32px}
+.role-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:1px;display:block}
+.role-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;display:block}
+h2{font-size:20px;font-weight:800;color:white;margin-bottom:4px}
+.sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:22px}
+label{display:block;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:7px}
+input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;padding:14px 15px;font-family:'Barlow',sans-serif;font-size:17px;color:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus{border-color:#C8A800}
+input::placeholder{color:rgba(255,255,255,.2)}
+.fg{margin-bottom:16px}
+.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center}
+.btn-primary{background:#C8A800;color:#003D2B}
+.btn-primary:hover{background:#F5E030}
+.btn-primary:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed}
+.btn-back{background:transparent;border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);margin-top:10px;text-decoration:none;font-size:13px}
+.btn-back:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.6)}
+.err{color:#FF6B6B;font-size:13px;font-weight:600;padding:10px 14px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.25);border-radius:8px;display:none;margin-bottom:14px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap">
+    <div class="brand-badge">
+      <div class="brand-mark">
+        <span class="brand-mark-top">MY</span>
+        <span class="brand-mark-bot">SALON</span>
+      </div>
+      <span class="brand-name">MYSALON</span>
+    </div>
+  </div>
+  <div class="role-banner">
+    <span class="role-icon">🧴</span>
+    <div>
+      <span class="role-title">Cosmetics Vendor</span>
+      <span class="role-sub">Manage orders & products for assigned salons</span>
+    </div>
+  </div>
+  <h2>Vendor Login</h2>
+  <p class="sub">Enter your registered mobile and PIN</p>
+  <div id="errMsg" class="err"></div>
+  <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+  <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+  <a href="index.html" class="btn btn-back">← Back to MySalon</a>
+</div>
+<script>
+var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
+function _h(){return{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY};}
+function doLogin(){
+  var phone=document.getElementById('phoneInput').value.trim();
+  var pin=document.getElementById('pinInput').value.trim();
+  document.getElementById('errMsg').style.display='none';
+  if(phone.length<10){showErr('Enter valid 10-digit phone.');return;}
+  if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
+  var btn=document.getElementById('loginBtn');
+  btn.disabled=true;btn.textContent='Checking…';
+  fetch(MS_URL+'/rest/v1/vendors?phone=eq.'+encodeURIComponent(phone)+'&is_active=eq.true&select=id,name,company_name,phone,login_pin,region,city,logo_url',{headers:_h()})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      btn.disabled=false;btn.textContent='Login →';
+      if(!rows||rows.code||!rows.length){showErr('Phone not registered as a vendor.');return;}
+      var v=rows[0];
+      if(String(v.login_pin||'').trim()!==pin.trim()){showErr('Wrong PIN.');document.getElementById('pinInput').value='';return;}
+      var sess={
+        ms_role:'vendor',ms_phone:phone,
+        ms_vendor_id:v.id,ms_user_name:v.name,
+        ms_vendor_name:v.company_name||v.name,
+        ms_vendor_region:v.region||'',
+        ms_logo:v.logo_url||''
+      };
+      Object.keys(sess).forEach(function(k){
+        try{sessionStorage.setItem(k,sess[k]);}catch(e){}
+        try{localStorage.setItem(k,sess[k]);}catch(e){}
+      });
+      window.location.href='app-vendor.html';
+    })
+    .catch(function(e){btn.disabled=false;btn.textContent='Login →';showErr('Login failed: '+e.message);});
+}
+function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
+document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
