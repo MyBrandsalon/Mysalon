@@ -408,6 +408,12 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 .bb-logo-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
 .bb-logo-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
 .bb-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#003D2B;margin-top:7px;display:block}
+
+.cos-sub-tab{padding:9px 16px;font-family:var(--BF);font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.cos-sub-tab:hover{color:var(--white)}
+.cos-sub-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.cos-prod-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.cos-prod-card:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -463,6 +469,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-yearly"    onclick="showTab('yearly')">📅 Yearly</button>
   <button class="nt"    id="nt-customers" onclick="showTab('customers')">👤 Customers</button>
   <button class="nt"    id="nt-staff"     onclick="showTab('staff')">👥 Staff</button>
+  <button class="nt" id="nt-cosmetics" onclick="showTab('cosmetics')">🧴 Cosmetics</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
   <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
@@ -1258,6 +1265,105 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 
 <!-- ════ SALON EXPENSES TAB ════ -->
+
+<!-- ════════════════════════════════════════════════════════════
+     COSMETICS VENDOR ORDERING
+════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="pn-cosmetics">
+
+  <!-- KPI strip -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="font-family:var(--HF);font-size:24px;color:var(--accent)" id="cos-kpi-pending">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Pending Orders</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="font-family:var(--HF);font-size:24px;color:var(--green)" id="cos-kpi-delivered">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Delivered</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="font-family:var(--HF);font-size:24px;color:var(--white)" id="cos-kpi-spent">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Total Spent</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px">
+      <div style="font-family:var(--HF);font-size:24px;color:var(--danger)" id="cos-kpi-due">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Payment Due</div>
+    </div>
+  </div>
+
+  <!-- Tabs within cosmetics -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px">
+    <button class="cos-sub-tab on" id="cst-catalogue" onclick="cosSubTab('catalogue')">🛍 Product Catalogue</button>
+    <button class="cos-sub-tab" id="cst-cart"      onclick="cosSubTab('cart')">🛒 My Cart <span id="cos-cart-badge" style="display:none;background:var(--accent);color:#003D2B;border-radius:20px;font-size:10px;padding:1px 7px;margin-left:4px">0</span></button>
+    <button class="cos-sub-tab" id="cst-orders"    onclick="cosSubTab('orders')">📦 My Orders</button>
+  </div>
+
+  <!-- CATALOGUE -->
+  <div id="cos-pn-catalogue">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="search" id="cos-search" placeholder="Search products…" oninput="cosRenderCatalogue()"
+        style="flex:1;min-width:160px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:var(--BF);font-size:13px;outline:none">
+      <select id="cos-cat-filter" onchange="cosRenderCatalogue()"
+        style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:var(--BF);font-size:13px;outline:none">
+        <option value="">All Categories</option>
+        <option value="shampoo">Shampoo</option>
+        <option value="colour">Colour</option>
+        <option value="treatment">Treatment</option>
+        <option value="styling">Styling</option>
+        <option value="tools">Tools</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div id="cos-vendor-info" style="display:none;background:rgba(0,122,86,.08);border:1px solid rgba(0,122,86,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;font-size:13px"></div>
+    <div id="cos-catalogue-grid" style="display:grid;gap:8px"></div>
+  </div>
+
+  <!-- CART -->
+  <div id="cos-pn-cart" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:var(--HF);font-size:18px;color:var(--white);letter-spacing:1px">ORDER CART</div>
+      <button onclick="cosClearCart()" style="font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline">Clear cart</button>
+    </div>
+    <div id="cos-cart-items"></div>
+    <div id="cos-cart-summary" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-top:12px">
+      <div class="ifield" style="margin-bottom:10px">
+        <label>Delivery Date (optional)</label>
+        <input type="date" class="fi" id="cos-delivery-date">
+      </div>
+      <div class="ifield" style="margin-bottom:10px">
+        <label>Notes to vendor</label>
+        <textarea class="fi" id="cos-order-notes" rows="2" placeholder="Any special instructions…" style="resize:none"></textarea>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-size:13px;color:var(--muted)">Order Total</span>
+        <span style="font-family:var(--HF);font-size:26px;color:var(--accent)" id="cos-cart-total">₹0</span>
+      </div>
+      <button onclick="cosPlaceOrder()" style="width:100%;padding:14px;background:var(--accent);color:#003D2B;border:none;border-radius:var(--rs);font-family:var(--HF);font-size:18px;letter-spacing:1px;cursor:pointer">PLACE ORDER →</button>
+    </div>
+    <div id="cos-cart-empty" style="text-align:center;padding:40px;color:var(--muted)">
+      Cart is empty. Browse the catalogue to add products.
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="cos-pn-orders" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select id="cos-order-filter" onchange="cosRenderOrders()"
+        style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:var(--BF);font-size:13px;outline:none">
+        <option value="">All Orders</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div id="cos-orders-list"></div>
+  </div>
+
+</div>
+<!-- ═══ END COSMETICS ═══ -->
+
 <div class="panel" id="pn-salon">
   <div style="font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px">Salon Expense Tracker</div>
 
@@ -1761,14 +1867,20 @@ function insertCustomerSafe(phone, name, salonId){
   // Uses merge-duplicates so existing customers come back in `rows`. Otherwise
   // the LS cache would never get the existing row's referred_by / referral_credit,
   // breaking the referral and cashback decrement flows.
-  return _supaFetch('customers?on_conflict=phone', {
+  var _tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  var _pin = (function(){ var seed=parseInt(nphone.slice(-6)); return String((seed*7919+31337)%900000+100000); })();
+  return _supaFetch('customers?on_conflict=tenant_id,phone', {
     method:  'POST',
     headers: Object.assign(_supaHeaders(), {'Prefer':'resolution=merge-duplicates,return=representation'}),
     body: JSON.stringify({
-      phone:       nphone,
-      name:        finalName,
-      salonId:     salonId,
-      role:        'customer'
+      phone:      nphone,
+      name:       finalName,
+      salonId:    salonId,
+      salon_id:   salonId || mySalonId || null,
+      role:       'customer',
+      tenant_id:  _tid,
+      login_pin:  _pin,
+      loginPin:   _pin
     })
   }).then(function(rows){
     var saved = Array.isArray(rows) ? rows[0] : rows;
@@ -1813,15 +1925,35 @@ function _ensureCustomerPin(saved){
   if(existing !== null && existing !== undefined && String(existing).trim().length >= 6){
     return saved; // already has a usable PIN — leave it alone
   }
-  var pin = String(Math.floor(100000 + Math.random()*900000));
-  // Fire-and-forget PATCH; reflect the PIN locally regardless of network result.
-  sbUpdate('customers', saved.id, { loginPin: pin }).catch(function(e){
-    console.warn('[BB] _ensureCustomerPin patch failed:', e);
-  });
-  saved.loginPin = pin;
+  // Use deterministic PIN from phone so it's always recoverable
+  var _ph = String(saved.phone||'').replace(/\D/g,'');
+  var pin = _ph.length >= 6
+    ? String((parseInt(_ph.slice(-6)) * 7919 + 31337) % 900000 + 100000)
+    : String(Math.floor(100000 + Math.random()*900000));
+
+  // Save BOTH column names to Supabase
+  sbUpdate('customers', saved.id, { login_pin: pin, loginPin: pin })
+    .then(function(){
+      console.log('[MySalon] PIN saved to Supabase for', saved.phone, ':', pin);
+    })
+    .catch(function(e){
+      console.warn('[MySalon] _ensureCustomerPin patch failed:', e);
+      // Retry with just snake_case
+      fetch(SUPA_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(saved.id),{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+        body:JSON.stringify({login_pin:pin})
+      }).catch(function(){});
+    });
+  saved.loginPin  = pin;
+  saved.login_pin = pin;
   var custs = LS.get('customers')||[];
   for(var i=0;i<custs.length;i++){
-    if(String(custs[i].id) === String(saved.id)){ custs[i].loginPin = pin; break; }
+    if(String(custs[i].id)===String(saved.id)){
+      custs[i].loginPin  = pin;
+      custs[i].login_pin = pin;
+      break;
+    }
   }
   LS.set('customers', custs);
   return saved;
@@ -2484,6 +2616,7 @@ function showTab(tab){
   if(tab==='yearly')   { supaBootstrap(function(){ renderYearly(); }, function(){ renderYearly(); }); }
   if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); setTimeout(renderCustDir,300); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
   if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }, function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }); }
+  if(tab==='cosmetics'){ cosLoadTab(); return; }
   if(tab==='salon'){ document.getElementById('sx-month').value=new Date().toISOString().slice(0,7); supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); }); }
   if(tab==='offers'){ renderMgrOffers(); }
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
@@ -8149,11 +8282,11 @@ function renderCustDir(){
       '<td style="padding:9px 12px;font-size:11px;color:var(--muted)">' + escH(favStyle) + '</td>' +
       '<td style="padding:9px 12px">' +
         '<span style="font-family:monospace;font-size:14px;font-weight:700;color:var(--accent);background:rgba(0,196,140,.08);padding:3px 10px;border-radius:6px;border:1px solid rgba(0,196,140,.2)">' + pin + '</span>' +
-        '<button onclick="copyCustPin('' + escH(c.name||'Customer') + '','' + pin + '')" ' +
+        '<button onclick="copyCustPin(\"' + escH(c.name||'Customer') + '\",\"' + pin + '\")" ' +
           'style="margin-left:6px;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px" title="Copy PIN">📋</button>' +
       '</td>' +
       '<td style="padding:9px 12px;text-align:center">' +
-        '<button class="btn-edit" onclick="openEditCustomer('' + String(c.id) + '')" title="Edit">✏️</button>' +
+        '<button class="btn-edit" onclick="openEditCustomer(\"' + String(c.id) + '\")" title="Edit">✏️</button>' +
       '</td>' +
     '</tr>';
   }).join('') || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted2)">No customers for this salon yet.</td></tr>';
@@ -8278,6 +8411,359 @@ function _autoCreateCustomer(phone, name, salonId){
   });
 }
 // ════════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════════════
+//  COSMETICS VENDOR ORDERING — OWNER APP
+// ════════════════════════════════════════════════════════════════
+var _cosVendor    = null;   // assigned vendor object
+var _cosProducts  = [];     // vendor's product catalogue
+var _cosOrders    = [];     // orders placed by this salon
+var _cosCart      = [];     // [{product, qty}]
+var _cosLoaded    = false;
+
+function cosLoadTab(){
+  if(_cosLoaded){ cosRenderKPIs(); return; }
+  var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  if(!tid){ toast('No salon data. Please re-login.'); return; }
+
+  // 1. Find assigned vendor for this tenant
+  fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?tenant_id=eq.'+encodeURIComponent(tid)+'&active=eq.true&select=vendor_id,vendors:vendor_id(id,name,company_name,phone,region)', {
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();})
+  .then(function(rows){
+    if(!rows||!Array.isArray(rows)||!rows.length||rows.code){
+      document.getElementById('cos-catalogue-grid').innerHTML =
+        '<div style="text-align:center;padding:40px;color:var(--muted)">' +
+        '<div style="font-size:40px;margin-bottom:12px">🧴</div>' +
+        '<div style="font-family:var(--HF);font-size:18px;color:var(--white);margin-bottom:8px">NO VENDOR ASSIGNED</div>' +
+        '<div style="font-size:13px">No cosmetics vendor has been assigned to your salon yet.<br>Contact MySalon admin to get a vendor assigned.</div>' +
+        '</div>';
+      return Promise.reject('no_vendor');
+    }
+    _cosVendor = rows[0].vendors || {};
+    _cosVendor.id = rows[0].vendor_id;
+
+    // Show vendor info
+    var vi = document.getElementById('cos-vendor-info');
+    if(vi){
+      vi.style.display = 'block';
+      vi.innerHTML = '🧴 <strong>Your Vendor:</strong> '+escH(_cosVendor.company_name||_cosVendor.name||'Vendor')+
+        ' &nbsp;·&nbsp; 📞 '+escH(_cosVendor.phone||'—')+
+        ((_cosVendor.region)?' &nbsp;·&nbsp; 📍 '+escH(_cosVendor.region):'');
+    }
+
+    // 2. Load vendor products + salon orders in parallel
+    return Promise.all([
+      fetch(SUPA_URL+'/rest/v1/vendor_products?vendor_id=eq.'+encodeURIComponent(_cosVendor.id)+'&is_active=eq.true&order=category,name', {
+        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      }).then(function(r){return r.json();}),
+      fetch(SUPA_URL+'/rest/v1/vendor_orders?vendor_id=eq.'+encodeURIComponent(_cosVendor.id)+'&tenant_id=eq.'+encodeURIComponent(tid)+'&order=created_at.desc&limit=100', {
+        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      }).then(function(r){return r.json();})
+    ]);
+  })
+  .then(function(res){
+    if(!res) return;
+    _cosProducts = Array.isArray(res[0]) ? res[0].filter(function(p){return !p.code;}) : [];
+    _cosOrders   = Array.isArray(res[1]) ? res[1].filter(function(o){return !o.code;}) : [];
+    _cosLoaded   = true;
+    cosRenderCatalogue();
+    cosRenderOrders();
+    cosRenderKPIs();
+  })
+  .catch(function(e){
+    if(e!=='no_vendor') console.warn('[MySalon] cosLoadTab error:', e);
+  });
+}
+
+// ── Sub-tab switch ────────────────────────────────────────────
+function cosSubTab(tab){
+  ['catalogue','cart','orders'].forEach(function(t){
+    document.getElementById('cos-pn-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('cst-'+t).classList.toggle('on', t===tab);
+  });
+  if(tab==='cart') cosRenderCart();
+  if(tab==='orders') cosRenderOrders();
+}
+
+// ── KPIs ──────────────────────────────────────────────────────
+function cosRenderKPIs(){
+  var pending   = _cosOrders.filter(function(o){return o.status==='pending'||o.status==='confirmed';}).length;
+  var delivered = _cosOrders.filter(function(o){return o.status==='delivered';}).length;
+  var spent     = _cosOrders.filter(function(o){return o.status!=='cancelled';}).reduce(function(s,o){return s+Number(o.total||0);},0);
+  var paid      = 0; // payments fetched separately if needed
+  _sv('cos-kpi-pending',  pending);
+  _sv('cos-kpi-delivered',delivered);
+  _sv('cos-kpi-spent',    fmtCosINR(spent));
+  _sv('cos-kpi-due',      fmtCosINR(Math.max(0, spent - paid)));
+}
+function _sv(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+function fmtCosINR(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); }
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Catalogue ─────────────────────────────────────────────────
+function cosRenderCatalogue(){
+  var q    = (document.getElementById('cos-search')||{value:''}).value.toLowerCase();
+  var cat  = (document.getElementById('cos-cat-filter')||{value:''}).value;
+  var list = _cosProducts.filter(function(p){
+    var mq = !q || p.name.toLowerCase().indexOf(q)>-1 || (p.brand||'').toLowerCase().indexOf(q)>-1;
+    var mc = !cat || p.category===cat;
+    return mq && mc;
+  });
+  var el = document.getElementById('cos-catalogue-grid');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML='<div style="text-align:center;padding:32px;color:var(--muted)">'+(_cosProducts.length?'No products match your search':'No products in catalogue')+'</div>';
+    return;
+  }
+  // Group by category
+  var cats = {};
+  list.forEach(function(p){
+    var c = p.category||'other';
+    if(!cats[c]) cats[c]=[];
+    cats[c].push(p);
+  });
+  var catLabels = {shampoo:'🧴 Shampoo',colour:'🎨 Colour',treatment:'💊 Treatment',styling:'✨ Styling',tools:'🔧 Tools',other:'📦 Other'};
+  el.innerHTML = Object.keys(cats).map(function(cat){
+    return '<div style="font-family:var(--HF);font-size:14px;color:var(--accent);letter-spacing:1px;margin:12px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">'+(catLabels[cat]||cat.toUpperCase())+'</div>'+
+    cats[cat].map(function(p){
+      var inCart = _cosCart.find(function(ci){return ci.product.id===p.id;});
+      var stock  = Number(p.stock||0);
+      var stockLabel = stock<=0?'<span style="font-size:10px;font-weight:700;color:var(--danger);background:rgba(218,53,51,.1);padding:2px 8px;border-radius:20px">Out of stock</span>':
+                       stock<=5?'<span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(200,168,0,.1);padding:2px 8px;border-radius:20px">Low: '+stock+' left</span>':'';
+      return '<div class="cos-prod-card">'+
+        '<div style="width:48px;height:48px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+(p.image_url?'<img src="'+escH(p.image_url)+'" style="width:42px;height:42px;object-fit:contain">':'🧴')+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:700;font-size:13px;color:var(--white)">'+escH(p.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+escH(p.brand||'—')+(p.sku?' · '+escH(p.sku):'')+(p.unit?' · per '+escH(p.unit):'')+'</div>'+
+          (p.description?'<div style="font-size:11px;color:var(--muted2);margin-top:3px">'+escH(p.description.slice(0,80))+'</div>':'')+
+          '<div style="display:flex;gap:10px;align-items:center;margin-top:7px">'+
+            '<span style="font-family:var(--HF);font-size:20px;color:var(--accent)">'+fmtCosINR(p.price)+'</span>'+
+            (p.mrp&&Number(p.mrp)>Number(p.price)?'<span style="font-size:11px;color:var(--muted2);text-decoration:line-through">'+fmtCosINR(p.mrp)+'</span>':'')+''+
+            stockLabel+
+          '</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:3px">Min order: '+(p.min_order_qty||1)+' '+escH(p.unit||'piece')+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">'+
+          (inCart
+            ? '<div style="display:flex;align-items:center;gap:8px">'+
+                '<button onclick="cosChangeQty(\"p.id\",-1)" style="width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--white);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">−</button>'+
+                '<span style="font-size:14px;font-weight:700;min-width:24px;text-align:center;color:var(--accent)">'+inCart.qty+'</span>'+
+                '<button onclick="cosChangeQty(\"p.id\",1)" style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;color:#003D2B;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">+</button>'+
+              '</div>'+
+              '<span style="font-size:11px;color:var(--accent);font-weight:700">'+fmtCosINR(p.price*inCart.qty)+' in cart</span>'
+            : (stock>0
+                ? '<button onclick="cosAddToCart(\"p.id\")" style="padding:8px 16px;background:var(--accent);color:#003D2B;border:none;border-radius:var(--rs);font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">+ Add</button>'
+                : '<button disabled style="padding:8px 16px;background:rgba(255,255,255,.08);color:var(--muted);border:none;border-radius:var(--rs);font-size:12px;cursor:not-allowed">Unavailable</button>'
+              )
+          )+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }).join('');
+}
+
+// ── Cart ──────────────────────────────────────────────────────
+function cosAddToCart(productId){
+  var p = _cosProducts.find(function(x){return x.id===productId;});
+  if(!p) return;
+  var ex = _cosCart.find(function(c){return c.product.id===productId;});
+  if(ex){ ex.qty++; } else { _cosCart.push({product:p, qty: p.min_order_qty||1}); }
+  cosUpdateCartBadge();
+  cosRenderCatalogue(); // refresh +/- controls
+  toast('Added to cart: '+p.name);
+}
+function cosChangeQty(productId, delta){
+  var idx = _cosCart.findIndex(function(c){return c.product.id===productId;});
+  if(idx<0) return;
+  var moq = _cosCart[idx].product.min_order_qty||1;
+  _cosCart[idx].qty = Math.max(0, _cosCart[idx].qty+delta);
+  if(_cosCart[idx].qty===0) _cosCart.splice(idx,1);
+  cosUpdateCartBadge();
+  cosRenderCatalogue();
+  cosRenderCart();
+}
+function cosUpdateCartBadge(){
+  var total = _cosCart.reduce(function(s,c){return s+c.qty;},0);
+  var badge = document.getElementById('cos-cart-badge');
+  if(badge){ badge.textContent=total; badge.style.display=total?'inline-block':'none'; }
+}
+function cosClearCart(){
+  if(!_cosCart.length) return;
+  if(!confirm('Clear all items from cart?')) return;
+  _cosCart=[];
+  cosUpdateCartBadge();
+  cosRenderCatalogue();
+  cosRenderCart();
+}
+function cosRenderCart(){
+  var itemsEl   = document.getElementById('cos-cart-items');
+  var summaryEl = document.getElementById('cos-cart-summary');
+  var emptyEl   = document.getElementById('cos-cart-empty');
+  var totalEl   = document.getElementById('cos-cart-total');
+  if(!_cosCart.length){
+    if(itemsEl)   itemsEl.innerHTML='';
+    if(summaryEl) summaryEl.style.display='none';
+    if(emptyEl)   emptyEl.style.display='block';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display='none';
+  if(summaryEl) summaryEl.style.display='block';
+  var total = _cosCart.reduce(function(s,c){return s+c.product.price*c.qty;},0);
+  if(totalEl) totalEl.textContent=fmtCosINR(total);
+  if(itemsEl) itemsEl.innerHTML = _cosCart.map(function(ci){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-weight:700;font-size:13px">'+escH(ci.product.name)+'</div>'+
+        '<div style="font-size:11px;color:var(--muted)">'+fmtCosINR(ci.product.price)+' each</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<button onclick="cosChangeQty(\"ci.product.id\",-1)" style="width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--white);font-size:16px;cursor:pointer">−</button>'+
+        '<span style="font-weight:700;min-width:24px;text-align:center">'+ci.qty+'</span>'+
+        '<button onclick="cosChangeQty(\"ci.product.id\",1)" style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;color:#003D2B;font-size:16px;cursor:pointer">+</button>'+
+      '</div>'+
+      '<div style="font-family:var(--HF);font-size:16px;color:var(--accent);min-width:64px;text-align:right">'+fmtCosINR(ci.product.price*ci.qty)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── Place Order ───────────────────────────────────────────────
+function cosPlaceOrder(){
+  if(!_cosCart.length){ toast('Cart is empty'); return; }
+  if(!_cosVendor||!_cosVendor.id){ toast('No vendor assigned'); return; }
+  var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  if(!tid){ toast('No salon data'); return; }
+  var total    = _cosCart.reduce(function(s,c){return s+c.product.price*c.qty;},0);
+  var items    = _cosCart.map(function(c){return{product_id:c.product.id,name:c.product.name,qty:c.qty,price:c.product.price,total:c.product.price*c.qty};});
+  var orderNum = 'ORD-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  var row = {
+    vendor_id:     _cosVendor.id,
+    tenant_id:     tid,
+    salon_id:      mySalonId||null,
+    order_number:  orderNum,
+    status:        'pending',
+    payment_status:'unpaid',
+    items:         items,
+    subtotal:      total,
+    discount:      0,
+    total:         total,
+    delivery_date: document.getElementById('cos-delivery-date').value||null,
+    notes:         document.getElementById('cos-order-notes').value.trim()
+  };
+  var btn = document.querySelector('#cos-cart-summary button');
+  if(btn){ btn.disabled=true; btn.textContent='Placing order…'; }
+  fetch(SUPA_URL+'/rest/v1/vendor_orders',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+    body:JSON.stringify(row)
+  }).then(function(r){return r.json();})
+  .then(function(saved){
+    var s = Array.isArray(saved)?saved[0]:saved;
+    if(s&&s.id) _cosOrders.unshift(s);
+    _cosCart=[];
+    cosUpdateCartBadge();
+    cosRenderKPIs();
+    cosRenderCart();
+    cosRenderCatalogue();
+    if(btn){ btn.disabled=false; btn.textContent='PLACE ORDER →'; }
+    document.getElementById('cos-delivery-date').value='';
+    document.getElementById('cos-order-notes').value='';
+    toast('✅ Order '+orderNum+' placed! Vendor will confirm soon.');
+    cosSubTab('orders');
+  }).catch(function(e){
+    if(btn){ btn.disabled=false; btn.textContent='PLACE ORDER →'; }
+    toast('Error: '+e.message);
+  });
+}
+
+// ── Orders list ───────────────────────────────────────────────
+function cosRenderOrders(){
+  var el     = document.getElementById('cos-orders-list');
+  var filter = (document.getElementById('cos-order-filter')||{value:''}).value;
+  var list   = filter ? _cosOrders.filter(function(o){return o.status===filter;}) : _cosOrders;
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">'+
+      (_cosOrders.length?'No orders match filter':'No orders yet. Browse the catalogue to place your first order!')+'</div>';
+    return;
+  }
+  var statusColors={pending:'rgba(200,168,0,.15)',confirmed:'rgba(29,109,181,.15)',shipped:'rgba(139,73,197,.15)',delivered:'rgba(35,134,54,.15)',cancelled:'rgba(218,54,51,.15)'};
+  var statusText={pending:'#C8A800',confirmed:'#1D6DB5',shipped:'#9B59B6',delivered:'#2ea043',cancelled:'#DA3633'};
+  el.innerHTML = list.map(function(o){
+    var items = [];
+    try{ items = typeof o.items==='string'?JSON.parse(o.items):o.items||[]; }catch(e){}
+    var itemSummary = items.slice(0,2).map(function(i){return escH(i.name||'');}).join(', ')+(items.length>2?' +'+( items.length-2)+' more':'');
+    var payBg = o.payment_status==='paid'?'rgba(35,134,54,.15)':'rgba(218,54,51,.15)';
+    var payCol= o.payment_status==='paid'?'#2ea043':'#DA3633';
+    return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+        '<span style="font-family:var(--HF);font-size:16px;color:var(--accent);letter-spacing:1px">'+(o.order_number||o.id.slice(0,8))+'</span>'+
+        '<div style="display:flex;gap:6px">'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:'+statusColors[o.status||'pending']+';color:'+statusText[o.status||'pending']+'">'+(o.status||'pending')+'</span>'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:'+payBg+';color:'+payCol+'">'+(o.payment_status||'unpaid')+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">'+itemSummary+'</div>'+
+      (o.notes?'<div style="font-size:11px;color:var(--muted2);margin-bottom:4px">Note: '+escH(o.notes)+'</div>':'')+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">'+
+        '<span style="font-size:11px;color:var(--muted)">'+
+          (o.created_at?new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—')+
+          (o.delivery_date?' · Deliver: '+new Date(o.delivery_date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'')+'</span>'+
+        '<span style="font-family:var(--HF);font-size:20px;color:var(--white)">'+fmtCosINR(o.total)+'</span>'+
+      '</div>'+
+      // Action buttons
+      (o.status==='pending'?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px">'+
+        '<button onclick="cosCancelOrder(\"o.id\")" style="padding:6px 14px;background:rgba(218,54,51,.1);color:var(--danger);border:1px solid rgba(218,54,51,.2);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer">✕ Cancel Order</button>'+
+        '<button onclick="cosReorder(\"o.id\")" style="padding:6px 14px;background:rgba(200,168,0,.1);color:var(--accent);border:1px solid rgba(200,168,0,.2);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer">🔄 Reorder</button>'+
+      '</div>':'')+ 
+      (o.status==='delivered'&&o.payment_status!=='paid'?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'+
+        '<button onclick="cosMarkPaid(\"o.id\")" style="padding:6px 14px;background:rgba(35,134,54,.1);color:var(--green2);border:1px solid rgba(35,134,54,.2);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer">💰 Mark as Paid</button>'+
+      '</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function cosCancelOrder(orderId){
+  if(!confirm('Cancel this order?')) return;
+  fetch(SUPA_URL+'/rest/v1/vendor_orders?id=eq.'+orderId,{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+    body:JSON.stringify({status:'cancelled'})
+  }).then(function(){
+    var o=_cosOrders.find(function(x){return x.id===orderId;});
+    if(o) o.status='cancelled';
+    cosRenderOrders(); cosRenderKPIs();
+    toast('Order cancelled');
+  });
+}
+function cosMarkPaid(orderId){
+  fetch(SUPA_URL+'/rest/v1/vendor_orders?id=eq.'+orderId,{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+    body:JSON.stringify({payment_status:'paid'})
+  }).then(function(){
+    var o=_cosOrders.find(function(x){return x.id===orderId;});
+    if(o) o.payment_status='paid';
+    cosRenderOrders(); cosRenderKPIs();
+    toast('✅ Marked as paid');
+  });
+}
+function cosReorder(orderId){
+  var o=_cosOrders.find(function(x){return x.id===orderId;}); if(!o) return;
+  var items=[]; try{items=typeof o.items==='string'?JSON.parse(o.items):o.items||[];}catch(e){}
+  items.forEach(function(i){
+    var p=_cosProducts.find(function(x){return x.id===i.product_id;});
+    if(!p) return;
+    var ex=_cosCart.find(function(c){return c.product.id===p.id;});
+    if(ex) ex.qty+=i.qty; else _cosCart.push({product:p,qty:i.qty});
+  });
+  cosUpdateCartBadge();
+  cosRenderCatalogue();
+  cosSubTab('cart');
+  toast('Items added to cart');
+}
+// ════ END COSMETICS ════════════════════════════════════════════
 
 </script>
 
