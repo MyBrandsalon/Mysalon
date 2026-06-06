@@ -61,7 +61,15 @@ input::placeholder{color:#AAAAAA}
 <script>
 var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
 var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
-var _slug = new URLSearchParams(location.search).get('salon') || localStorage.getItem('ms_slug') || '';
+var _slug = new URLSearchParams(location.search).get('salon') 
+          || sessionStorage.getItem('ms_slug')
+          || localStorage.getItem('ms_slug') 
+          || '';
+// If no slug in URL, redirect to index
+if(!_slug){
+  var _stored = localStorage.getItem('ms_slug') || '';
+  if(_stored) window.location.href = 'login-customer.html?salon='+encodeURIComponent(_stored);
+}
 var _tenant = null;
 
 function _h(){ return {'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}; }
@@ -81,7 +89,11 @@ function _genPin(phone){
 
 // Load tenant on init
 (function init(){
-  if(!_slug){ showErr('No salon ID. Use your salon link.'); return; }
+  if(!_slug){ 
+    showErr('No salon ID. Please use your salon portal link: salon-portal.html?salon=YOUR-SALON'); 
+    document.getElementById('loginBtn').disabled=true;
+    return; 
+  }
   sessionStorage.setItem('ms_slug',_slug);
   localStorage.setItem('ms_slug',_slug);
   document.getElementById('loginBtn').disabled=true;
