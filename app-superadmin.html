@@ -402,7 +402,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- Add Vendor Modal -->
 <div class="modal-bg" id="addVendorModal" onclick="if(event.target===this)closeModal('addVendorModal')">
-  <div class="modal-content" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
     <div class="modal-hdr"><h3 id="vendor-modal-title" style="font-family:var(--HF);font-size:20px;color:var(--white);letter-spacing:1px">ADD VENDOR</h3><button class="btn-close" onclick="closeModal('addVendorModal')">✕</button></div>
     <input type="hidden" id="vendor-edit-id">
     <div class="ifield"><label>Vendor Name *</label><input type="text" class="fi" id="v-name" placeholder="Contact person name"></div>
@@ -6845,24 +6845,45 @@ function saveVendor(){
     ? fetch(SUPA_URL+'/rest/v1/vendors?id=eq.'+editId,{method:'PATCH',headers:_supaHeaders(),body:JSON.stringify(row)}).then(function(r){return r.json();})
     : fetch(SUPA_URL+'/rest/v1/vendors',{method:'POST',headers:_supaHeaders(),body:JSON.stringify(row)}).then(function(r){return r.json();}).then(function(r){return Array.isArray(r)?r[0]:r;});
   promise.then(function(saved){
-    var vid=editId||(Array.isArray(saved)?saved[0]:saved)||{};
-    vid=typeof vid==='object'?vid.id:editId;
-    // Save salon assignments
-    var checked=Array.from(document.querySelectorAll('#v-salon-checkboxes input[type=checkbox]:checked')).map(function(cb){return cb.value;});
-    var vendorIdFinal=editId||vid;
-    if(vendorIdFinal){
-      // Delete existing assignments then re-insert
-      fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?vendor_id=eq.'+vendorIdFinal,{method:'DELETE',headers:_supaHeaders()})
-        .then(function(){
-          var assignments=checked.map(function(tid){return{vendor_id:vendorIdFinal,tenant_id:tid,active:true};});
-          if(!assignments.length) return Promise.resolve();
-          return fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments',{method:'POST',headers:_supaHeaders(),body:JSON.stringify(assignments)});
-        }).catch(function(){});
+    console.log('[SA] saveVendor response:', JSON.stringify(saved));
+    // Extract vendor ID from response
+    var savedObj = Array.isArray(saved) ? saved[0] : saved;
+    var vendorIdFinal = editId || (savedObj && savedObj.id ? savedObj.id : null);
+    console.log('[SA] vendorIdFinal:', vendorIdFinal);
+
+    if(!vendorIdFinal){
+      toast('⚠ Vendor saved but could not get ID for assignment. Check Supabase.');
+      closeModal('addVendorModal');
+      loadVendors();
+      return;
     }
+
+    // Save salon assignments
+    var checked = Array.from(document.querySelectorAll('#v-salon-checkboxes input[type=checkbox]:checked'))
+                      .map(function(cb){ return cb.value; });
+    console.log('[SA] assigning salons:', checked);
+
+    // Delete existing assignments then re-insert
+    fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?vendor_id=eq.'+encodeURIComponent(vendorIdFinal), {
+      method:'DELETE', headers:_supaHeaders()
+    }).then(function(){
+      if(!checked.length) return Promise.resolve();
+      var assignments = checked.map(function(tid){
+        return {vendor_id:vendorIdFinal, tenant_id:tid, active:true};
+      });
+      return fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments', {
+        method:'POST', headers:_supaHeaders(), body:JSON.stringify(assignments)
+      }).then(function(r){ return r.json(); })
+      .then(function(res){ console.log('[SA] assignments saved:', JSON.stringify(res)); });
+    }).catch(function(e){ console.warn('[SA] assignment error:', e); });
+
     closeModal('addVendorModal');
     loadVendors();
     toast('✅ Vendor saved');
-  }).catch(function(e){toast('Error: '+e.message);});
+  }).catch(function(e){
+    console.error('[SA] saveVendor error:', e);
+    toast('Error: '+e.message);
+  });
 }
 
 function toggleVendor(id,active){
