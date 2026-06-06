@@ -1808,16 +1808,17 @@ function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function toast(msg)     { var t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2500); }
 function logout() {
-  // Clear BOTH session and local storage on logout so the customer's auth
-  // keys (bb_phone, bb_role) and any cached state (bb_cq_token, etc.) are
-  // fully wiped. Wrapped in try/catch in case storage is unavailable.
+  var _slug = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || '';
   try { sessionStorage.clear(); } catch(e){}
   try {
+    localStorage.removeItem('ms_phone');
+    localStorage.removeItem('ms_role');
+    localStorage.removeItem('ms_customer_id');
     localStorage.removeItem('bb_phone');
     localStorage.removeItem('bb_role');
     localStorage.removeItem('bb_cq_token');
   } catch(e){}
-  window.location.href = 'index.html';
+  window.location.href = 'salon-portal.html' + (_slug ? '?salon='+encodeURIComponent(_slug) : '');
 }
 
 // ════ QUEUE SYSTEM — CUSTOMER APP ════
