@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BB-VERSION: 2.2 — DO NOT REMOVE THIS LINE -->
+<!-- MYSALON-SUPERADMIN v3.0 - 20260606 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6763,8 +6763,8 @@ function renderVendorList(){
         (v.is_active?'Active':'Inactive')+'</span></div>'+
       '<div style="display:flex;gap:4px">'+
         '<a href="login-vendor.html" target="_blank" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(200,168,0,.1);color:#C8A800;border:1px solid rgba(200,168,0,.2);border-radius:5px;text-decoration:none">Login</a>'+
-        '<button onclick="openEditVendor(\"'+v.id+'\")" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;cursor:pointer">Edit</button>'+
-        '<button onclick="toggleVendor(\"'+v.id+'\",'+v.is_active+')" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(v.is_active?'Disable':'Enable')+'</button>'+
+        '<button data-vid="'+v.id+'" onclick="openEditVendor(this.getAttribute(\"data-vid\"))" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:5px;cursor:pointer">Edit</button>'+
+        '<button data-vid="'+v.id+'" data-act="'+v.is_active+'" onclick="toggleVendor(this.getAttribute(\"data-vid\"),this.getAttribute(\"data-act\")===\"true\")" style="font-size:10px;font-weight:700;padding:3px 7px;background:rgba(220,53,69,.08);color:var(--danger);border:1px solid rgba(220,53,69,.2);border-radius:5px;cursor:pointer">'+(v.is_active?'Disable':'Enable')+'</button>'+
       '</div>'+
     '</div>';
   }).join('');
