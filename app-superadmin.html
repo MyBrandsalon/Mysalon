@@ -6741,12 +6741,31 @@ var _vendors = [];
 var _allTenants2 = [];
 
 function loadVendors(){
-  fetch(SUPA_URL+'/rest/v1/vendors?order=created_at.desc&limit=200',{headers:_supaHeaders()})
-    .then(function(r){return r.json();})
-    .then(function(rows){
-      _vendors = Array.isArray(rows) ? rows : [];
-      renderVendorList();
-    }).catch(function(){renderVendorList();});
+  var el = document.getElementById('vendors-list');
+  fetch(SUPA_URL+'/rest/v1/vendors?order=created_at.desc&limit=200',{
+    headers:{
+      'Content-Type':'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer '+SUPA_KEY
+    }
+  })
+  .then(function(r){
+    console.log('[SA] vendors status:', r.status);
+    return r.json();
+  })
+  .then(function(rows){
+    console.log('[SA] vendors response:', JSON.stringify(rows).slice(0,200));
+    if(rows && rows.code){
+      if(el) el.innerHTML='<div style="padding:20px;color:var(--danger)">DB Error: '+rows.message+'</div>';
+      return;
+    }
+    _vendors = Array.isArray(rows) ? rows : [];
+    renderVendorList();
+  })
+  .catch(function(e){
+    console.error('[SA] vendors fetch error:', e);
+    if(el) el.innerHTML='<div style="padding:20px;color:var(--danger)">Load failed: '+e.message+'</div>';
+  });
 }
 
 function renderVendorList(){
