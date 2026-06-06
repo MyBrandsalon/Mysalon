@@ -3272,5 +3272,35 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 </script>
+
+<script>
+// Apply tenant logo after DOM ready
+document.addEventListener('DOMContentLoaded', function(){
+  var el = document.getElementById('topbarLogo');
+  if(!el) return;
+  var logo = localStorage.getItem('ms_logo') || sessionStorage.getItem('ms_logo') || '';
+  if(logo && logo !== 'undefined' && logo !== 'null' && logo !== ''){
+    el.onerror = function(){ this.src='ms-default-logo.svg'; };
+    el.src = logo;
+    return;
+  }
+  // Fallback: fetch from Supabase
+  var tid = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+  if(!tid) return;
+  fetch('https://sgliztuggyksdemzkaxr.supabase.co/rest/v1/tenants?id=eq.'+encodeURIComponent(tid)+'&select=logo_url',{
+    headers:{
+      'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk',
+      'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk'
+    }
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows && rows[0] && rows[0].logo_url){
+      var url = rows[0].logo_url;
+      localStorage.setItem('ms_logo', url);
+      el.onerror = function(){ this.src='ms-default-logo.svg'; };
+      el.src = url;
+    }
+  }).catch(function(){});
+});
+</script>
 </body>
 </html>
