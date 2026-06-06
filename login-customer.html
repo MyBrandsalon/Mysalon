@@ -9,17 +9,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Barlow',sans-serif;background:#F0F0EA;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
 .wrap{width:100%;max-width:380px}
-
-/* ── Logo floats above card ── */
 .logo-section{text-align:center;margin-bottom:20px}
 .salon-logo-img{width:100px;height:100px;border-radius:18px;object-fit:contain;display:block;box-shadow:0 4px 20px rgba(0,0,0,.18);margin:0 auto 10px}
-.ms-logo-badge{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;margin-bottom:8px}
-.ms-logo-badge-top{display:block;background:#C8A800;font-family:'Bebas Neue',sans-serif;font-size:32px;color:#003D2B;letter-spacing:2px;line-height:1;padding:6px 22px 2px;text-align:center}
-.ms-logo-badge-bot{display:block;background:#003D2B;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#C8A800;letter-spacing:3px;line-height:1;padding:2px 22px 6px;text-align:center}
 .platform-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:4px;display:block}
 .salon-name-tag{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
-
-/* ── Card ── */
 .card{background:white;border-radius:16px;padding:28px 22px;box-shadow:0 4px 24px rgba(0,0,0,.10);border:1px solid #E0E0D8}
 .role-banner{background:#003D2B;color:#F5E030;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:22px}
 .role-icon{font-size:24px}
@@ -32,203 +25,194 @@ input[type=tel],input[type=password]{width:100%;background:#F8F8F4;border:2px so
 input:focus{border-color:#003D2B}
 input::placeholder{color:#AAAAAA}
 .fg{margin-bottom:16px}
-.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center;text-decoration:none}
+.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:#003D2B;color:#F5E030}
 .btn-primary:disabled{background:#ccc;color:#888;cursor:not-allowed}
-.btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px}
+.btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px;text-decoration:none}
 .btn-secondary:hover{border-color:#003D2B;color:#003D2B}
 .err{color:#DC2626;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none;background:rgba(220,38,38,.06);padding:10px;border-radius:8px;border:1px solid rgba(220,38,38,.2)}
+.pin-hint{font-size:12px;color:#767668;text-align:center;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
-
-  <!-- Logo area — floats above the white card, no box around it -->
   <div class="logo-section">
-    <!-- Single logo img — shows default MySalon logo, replaced by tenant logo on load -->
-    <img id="salonLogoImg" class="salon-logo-img"
-         src="ms-default-logo.svg"
-         alt="MySalon"
+    <img id="salonLogoImg" class="salon-logo-img" src="ms-default-logo.svg" alt="Salon Logo"
          onerror="this.src='ms-default-logo.svg'">
     <span id="platformTag" class="platform-tag">Digital Salon Platform</span>
     <span class="salon-name-tag ms-salon-name">Loading…</span>
   </div>
-
-  <!-- Login card -->
   <div class="card">
     <div class="role-banner">
       <span class="role-icon">👤</span>
-      <div><span class="role-title">Customer Portal</span><span class="role-sub">Style cards, loyalty & referrals</span></div>
+      <div><span class="role-title">Customer Portal</span><span class="role-sub">Style cards, loyalty &amp; referrals</span></div>
     </div>
     <h2>Customer Portal</h2>
     <p class="sub">Enter your phone number and 6-digit PIN</p>
     <div id="errMsg" class="err"></div>
-    <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-    <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'');hideErr()"></div>
+    <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'');hideErr()"></div>
+    <div id="pinHint" class="pin-hint"></div>
     <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
     <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
   </div>
-
 </div>
 <script>
-var MS_URL='https://sgliztuggyksdemzkaxr.supabase.co';
-var MS_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
-var _slug=new URLSearchParams(location.search).get('salon')||sessionStorage.getItem('ms_slug')||'';
-var _tenant=null;
-function _h(){return{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY};}
-function _get(p){return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.ok?r.json():[];});}
-function _post(p,b){return fetch(MS_URL+'/rest/v1/'+p,{method:'POST',headers:Object.assign(_h(),{'Prefer':'return=representation'}),body:JSON.stringify(b)}).then(function(r){return r.ok?r.json():r.text().then(function(t){throw new Error(t);});}).then(function(r){return Array.isArray(r)?r[0]:r;});}
-(function init(){
-  if(!_slug){showErr('No salon ID.');return;}
-  sessionStorage.setItem('ms_slug',_slug);
-  document.getElementById('loginBtn').disabled=true;
-  document.getElementById('loginBtn').textContent='⏳ Loading…';
-  _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,logo_url,plan,owner_phone,owner_pin')
-    .then(function(rows){
-      if(!rows||!rows.length){showErr('Salon not found.');return;}
-      _tenant=rows[0];
-            // ── Apply salon logo if uploaded ──────────────────────
-      if(_tenant.logo_url){
-        var _img=document.getElementById('salonLogoImg');
-        var _fb=document.getElementById('logoFallback');
-        if(_img){
-          _img.src=_tenant.logo_url;
-          _img.style.cssText='display:block;width:88px;height:88px;object-fit:contain;border-radius:12px;border:2px solid rgba(200,168,0,.3)';
-          _img.onerror=function(){_img.style.display='none';if(_fb)_fb.style.display='';};
-          if(_fb)_fb.style.display='none';
-        }
-      }
-      document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
-  // ── Apply tenant logo (replaces default MySalon logo) ──────
-  var _logoImg = document.getElementById('salonLogoImg');
-  var _logoTag = document.getElementById('platformTag');
-  var _logoUrl = (_tenant.logo_url || '').trim();
-  if(_logoUrl && _logoImg){
-    _logoImg.onload = function(){
-      _logoImg.src = _logoUrl;
-      if(_logoTag) _logoTag.style.display = 'none';
-    };
-    _logoImg.onerror = function(){
-      _logoImg.src = 'ms-default-logo.svg';
-      if(_logoTag) _logoTag.style.display = 'block';
-    };
-    _logoImg.src = _logoUrl;
-  }
-  // ────────────────────────────────────────────────────────────
-      document.title=_tenant.name+' – Customer Portal';
-      // Apply salon logo if uploaded
-      if(_tenant.logo_url){
-        var _img = document.getElementById('salonLogoImg');
-        var _fb  = document.getElementById('logoFallback');
-        if(_img){
-          _img.src = _tenant.logo_url;
-          _img.style.display = 'block';
-          _img.onerror = function(){ _img.style.display='none'; if(_fb) _fb.style.display='block'; };
-          if(_fb) _fb.style.display = 'none';
-        }
-      }
-      sessionStorage.setItem('ms_tenant_id',_tenant.id);
-      sessionStorage.setItem('ms_plan',_tenant.plan||'free');
-      sessionStorage.setItem('ms_name',_tenant.name);
-      document.getElementById('loginBtn').disabled=false;
-      document.getElementById('loginBtn').textContent='Login →';
-    }).catch(function(){showErr('Failed to load.');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';});
-})();
-function _normPhone(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
+var _slug = new URLSearchParams(location.search).get('salon') || localStorage.getItem('ms_slug') || '';
+var _tenant = null;
 
+function _h(){ return {'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}; }
+function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.json();}); }
+function _patch(p,b){ return fetch(MS_URL+'/rest/v1/'+p,{method:'PATCH',headers:_h(),body:JSON.stringify(b)}).then(function(r){return r.json();}); }
+
+// Normalize phone to last 10 digits
+function _norm(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; }
+
+// Deterministic PIN from phone
 function _genPin(phone){
-  var p=_normPhone(phone); if(p.length<6) return '';
+  var p=_norm(phone);
+  if(p.length<6) return '';
   var seed=parseInt(p.slice(-6));
   return String((seed*7919+31337)%900000+100000);
 }
+
+// Load tenant on init
+(function init(){
+  if(!_slug){ showErr('No salon ID. Use your salon link.'); return; }
+  sessionStorage.setItem('ms_slug',_slug);
+  localStorage.setItem('ms_slug',_slug);
+  document.getElementById('loginBtn').disabled=true;
+  document.getElementById('loginBtn').textContent='⏳ Loading…';
+  _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,logo_url,plan')
+    .then(function(rows){
+      if(!rows||rows.code||!rows.length){showErr('Salon not found: '+_slug);return;}
+      _tenant=rows[0];
+      // Apply branding
+      var img=document.getElementById('salonLogoImg');
+      if(_tenant.logo_url){
+        img.onload=function(){document.getElementById('platformTag').style.display='none';};
+        img.onerror=function(){img.src='ms-default-logo.svg';};
+        img.src=_tenant.logo_url;
+      }
+      document.querySelectorAll('.ms-salon-name').forEach(function(el){el.textContent=_tenant.name;});
+      document.title=_tenant.name+' – Customer Portal';
+      sessionStorage.setItem('ms_tenant_id',_tenant.id);
+      localStorage.setItem('ms_tenant_id',_tenant.id);
+      localStorage.setItem('ms_plan',_tenant.plan||'free');
+      localStorage.setItem('ms_name',_tenant.name);
+      localStorage.setItem('ms_logo',_tenant.logo_url||'');
+      document.getElementById('loginBtn').disabled=false;
+      document.getElementById('loginBtn').textContent='Login →';
+    }).catch(function(e){showErr('Load failed: '+e.message);document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Login →';});
+})();
 
 function doLogin(){
   var rawPhone=document.getElementById('phoneInput').value.trim();
   var pin=document.getElementById('pinInput').value.trim();
   hideErr();
-  var phone=_normPhone(rawPhone);
-  if(phone.length<10){showErr('Enter valid 10-digit phone.');return;}
+  var phone=_norm(rawPhone);
+  if(phone.length<10){showErr('Enter a valid 10-digit phone number.');return;}
   if(pin.length<6){showErr('Enter your 6-digit PIN.');return;}
-  if(!_tenant){showErr('Salon data not loaded. Refresh page.');return;}
+  if(!_tenant){showErr('Salon not loaded. Please refresh.');return;}
 
-  // Try with exact phone first, then with last 10 digits
-  var url='customers?tenant_id=eq.'+encodeURIComponent(_tenant.id)+
-          '&phone=eq.'+encodeURIComponent(phone)+
-          '&select=id,name,login_pin,loginPin,loyalty_points,referral_code,cashback_credit';
+  var btn=document.getElementById('loginBtn');
+  btn.disabled=true; btn.textContent='Checking…';
 
-  _get(url).then(function(rows){
-    // If not found by exact phone, try searching without tenant filter
-    if(!rows||!rows.length){
-      return _get('customers?phone=eq.'+encodeURIComponent(phone)+'&select=id,name,login_pin,loginPin,loyalty_points,referral_code,cashback_credit,tenant_id')
-        .then(function(rows2){
-          if(rows2&&rows2.length){
-            // Check if any belong to this tenant
-            var match=rows2.find(function(r){return String(r.tenant_id)===String(_tenant.id);});
-            return match ? [match] : rows2; // fallback: try first match
-          }
-          return [];
-        });
-    }
-    return rows;
-  }).then(function(rows){
-    if(!rows||!rows.length){
-      showErr('Phone '+phone+' not found. Please ask your salon to add you or visit first.');
+  // Search using LIKE to catch +91 prefix or other formats
+  var _likePhone = '%25'+phone.slice(-10); // %9886553052
+  _get('customers?phone=like.'+encodeURIComponent(_likePhone)+'&select=id,name,phone,login_pin,loginPin,tenant_id,loyalty_points,cashback_credit,referral_code&limit=10')
+  .then(function(rows){
+    console.log('[MySalon] Customer rows by phone:', JSON.stringify(rows));
+
+    if(!rows||rows.code){
+      showErr('DB error: '+(rows?rows.message:'unknown'));
+      btn.disabled=false; btn.textContent='Login →';
       return;
     }
-    var cust=rows[0];
 
-    // Get stored PIN — auto-generate if missing
-    var storedPin=String(cust.loginPin||cust.login_pin||'').trim();
+    // Filter to this tenant
+    var match=null;
+    if(Array.isArray(rows)){
+      match=rows.find(function(r){return String(r.tenant_id)===String(_tenant.id);});
+      if(!match && rows.length>0) match=rows[0]; // fallback: first match
+    }
+
+    if(!match){
+      // Customer not in DB — show their auto-PIN so they can use it
+      var autoPin=_genPin(phone);
+      showErr('Phone not registered yet. Your PIN will be: '+autoPin+' — ask your salon to add a billing entry with your number first.');
+      btn.disabled=false; btn.textContent='Login →';
+      return;
+    }
+
+    // Get stored PIN
+    var storedPin=String(match.login_pin||match.loginPin||'').trim();
+    console.log('[MySalon] Stored PIN:', storedPin, '| Entered PIN:', pin);
+
+    // If no PIN in DB, generate and save it
     if(!storedPin || storedPin.length<4){
       storedPin=_genPin(phone);
-      // Save generated PIN to DB silently
-      if(cust.id){
-        fetch(MS_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(cust.id),{
-          method:'PATCH',
-          headers:{'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY},
-          body:JSON.stringify({login_pin:storedPin,loginPin:storedPin})
-        }).catch(function(){});
-      }
+      // Save to Supabase
+      _patch('customers?id=eq.'+encodeURIComponent(match.id), {login_pin:storedPin, loginPin:storedPin})
+        .then(function(){ console.log('[MySalon] PIN saved:', storedPin); })
+        .catch(function(e){ console.warn('[MySalon] PIN save failed:', e); });
+      // Show hint
+      var hint=document.getElementById('pinHint');
+      hint.textContent='Your PIN has been set to: '+storedPin;
+      hint.style.display='block';
     }
 
-    if(storedPin!==pin.trim()){
-      showErr('Wrong PIN. Your PIN is auto-generated from your phone number. Try: '+storedPin.slice(0,1)+'•••••');
+    if(storedPin!==pin){
+      showErr('Wrong PIN. Your PIN is: '+storedPin.slice(0,1)+'•••••');
       document.getElementById('pinInput').value='';
+      btn.disabled=false; btn.textContent='Login →';
       return;
     }
 
-    // Success
+    // ── Login success ──────────────────────────────────────────
     var sessData={
-      ms_role:'customer', ms_phone:phone,
-      ms_user_name:cust.name||'Customer',
-      ms_staff_id:String(cust.id),
-      ms_salon_id:'',
+      ms_role:'customer',
+      ms_phone:phone,
+      ms_user_name:match.name||'Customer',
+      ms_customer_id:String(match.id),
+      ms_staff_id:String(match.id),
       ms_slug:_slug,
-      ms_tenant_id:_tenant?_tenant.id:''
+      ms_tenant_id:_tenant.id,
+      ms_plan:_tenant.plan||'free',
+      ms_name:_tenant.name,
+      ms_logo:_tenant.logo_url||''
     };
     Object.keys(sessData).forEach(function(k){
       try{sessionStorage.setItem(k,sessData[k]);}catch(e){}
       try{localStorage.setItem(k,sessData[k]);}catch(e){}
     });
-    sessionStorage.setItem('ms_loyalty',cust.loyalty_points||0);
-    sessionStorage.setItem('ms_cashback',cust.cashback_credit||0);
-    sessionStorage.setItem('ms_referral_code',cust.referral_code||'');
-    window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
-  }).catch(function(e){showErr('Login error: '+e.message);});
+    sessionStorage.setItem('ms_loyalty',match.loyalty_points||0);
+    sessionStorage.setItem('ms_cashback',match.cashback_credit||0);
+    sessionStorage.setItem('ms_referral_code',match.referral_code||'');
+
+    btn.textContent='✅ Logging in…';
+    // Unregister old /BB/ service workers before navigating
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(r){if(r.scope.indexOf('/BB/')!==-1){r.unregister();}});
+      });
+    }
+    setTimeout(function(){
+      window.location.href='app-customer.html?salon='+encodeURIComponent(_slug);
+    },400);
+  }).catch(function(e){
+    showErr('Login error: '+e.message);
+    btn.disabled=false; btn.textContent='Login →';
+  });
 }
-function setSession(role,phone,name,staffId,salonId){
-  sessionStorage.setItem('ms_role',role);
-  sessionStorage.setItem('ms_phone',phone);
-  sessionStorage.setItem('ms_user_name',name||role);
-  if(staffId)sessionStorage.setItem('ms_staff_id',staffId);
-  if(salonId)sessionStorage.setItem('ms_salon_id',salonId);
-}
+
 function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';}
 function hideErr(){document.getElementById('errMsg').style.display='none';}
+function goPortal(){var s=_slug||localStorage.getItem('ms_slug')||'';window.location.href='salon-portal.html'+(s?'?salon='+encodeURIComponent(s):'');}
 document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-function goPortal(){ var s=_slug||localStorage.getItem('ms_slug')||'';
-  window.location.href='salon-portal.html'+(s?'?salon='+encodeURIComponent(s):''); }
 </script>
 </body>
 </html>
