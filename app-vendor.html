@@ -7,33 +7,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0D1117;--surface:#161B22;--surface2:#1C2128;--border:#30363D;
-  --accent:#C8A800;--accent2:#F5E030;--green:#238636;--green2:#2ea043;
-  --red:#DA3633;--blue:#1F6FEB;--purple:#8B949E;
-  --white:#E6EDF3;--muted:#8B949E;--muted2:#484F58;
+  --bg:#F5F5F0;--surface:#FFFFFF;--surface2:#F0F0EA;--border:#DDDDD5;
+  --accent:#007A56;--accent2:#C8A800;--green:#16A34A;--green2:#16A34A;
+  --red:#DC2626;--blue:#1D6DB5;--purple:#6D28D9;
+  --white:#1A1A14;--muted:#666660;--muted2:#999990;
   --BF:'Barlow',sans-serif;--HF:'Bebas Neue',sans-serif;
-  --r:12px;--rs:8px;
+  --r:12px;--rs:8px;--danger:#DC2626;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--BF);background:var(--bg);color:var(--white);min-height:100vh}
 
 /* ── TOPBAR ── */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar{background:#003D2B;border-bottom:1px solid rgba(200,168,0,.3);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .tb-left{display:flex;align-items:center;gap:10px}
 .tb-logo{width:34px;height:34px;border-radius:8px;object-fit:contain;border:1px solid var(--border)}
-.tb-name{font-family:var(--HF);font-size:16px;color:var(--accent);letter-spacing:1px;line-height:1}
-.tb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tb-name{font-family:var(--HF);font-size:16px;color:#F5E030;letter-spacing:1px;line-height:1}
+.tb-sub{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
 .tb-right{display:flex;align-items:center;gap:8px}
-.tb-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(200,168,0,.15);color:var(--accent);border:1px solid rgba(200,168,0,.3)}
-.btn-logout{padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);font-family:var(--BF);font-size:12px;font-weight:700;cursor:pointer}
+.tb-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(200,168,0,.2);color:#F5E030;border:1px solid rgba(200,168,0,.4)}
+.btn-logout{padding:7px 14px;background:transparent;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);border-radius:var(--rs);font-family:var(--BF);font-size:12px;font-weight:700;cursor:pointer}
 .btn-logout:hover{border-color:var(--red);color:var(--red)}
 
 /* ── NAV TABS ── */
-.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
+.nav-tabs{background:var(--surface);border-bottom:2px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
 .nav-tabs::-webkit-scrollbar{display:none}
 .nt{padding:12px 16px;font-family:var(--BF);font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
 .nt:hover{color:var(--white)}
-.nt.on{color:var(--accent);border-bottom-color:var(--accent)}
+.nt.on{color:#003D2B;border-bottom-color:#003D2B;font-weight:800}
 
 /* ── PANELS ── */
 .panel{display:none;padding:16px;max-width:960px;margin:0 auto}
@@ -44,7 +44,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);min-height:10
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
 .stat-val{font-family:var(--HF);font-size:28px;letter-spacing:1px;color:var(--white);display:block}
 .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
-.stat-card.accent .stat-val{color:var(--accent)}
+.stat-card.accent .stat-val{color:#007A56}
 .stat-card.green  .stat-val{color:var(--green2)}
 .stat-card.red    .stat-val{color:var(--red)}
 .stat-card.blue   .stat-val{color:var(--blue)}
@@ -223,7 +223,7 @@ select option{background:var(--surface2)}
 <div class="panel" id="pn-products">
   <div class="sec-hdr" style="margin-top:14px">
     <div class="sec-title">MY PRODUCTS</div>
-    <button class="btn btn-primary btn-sm" onclick="openAddProduct()">+ Add Product</button>
+    <div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="document.getElementById('csvFileInput').click()">📄 Import CSV</button><input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importProductsCSV(this)"><button class="btn btn-outline btn-sm" onclick="addDummyProducts()">🎲 Add Samples</button><button class="btn btn-primary btn-sm" onclick="openAddProduct()">+ Add Product</button></div>
   </div>
   <div class="filter-bar">
     <input type="search" id="prod-search" placeholder="Product name, brand…" oninput="renderProducts()">
@@ -237,6 +237,7 @@ select option{background:var(--surface2)}
       <option value="other">Other</option>
     </select>
   </div>
+  <div style="margin-bottom:8px;font-size:11px;color:var(--muted)">Import format: name, brand, category, sku, unit, price, mrp, stock, min_order_qty, description. <a href="#" onclick="downloadCSVTemplate()" style="color:var(--accent);text-decoration:underline">Download template</a></div>
   <div id="products-list"><div class="tbl-empty">Loading products…</div></div>
 </div>
 
@@ -684,19 +685,64 @@ function deleteProduct(id){
 function renderSalons(){
   var el=document.getElementById('salons-list');
   if(!_salons.length){el.innerHTML='<div class="tbl-empty">No salons assigned yet. Contact your admin.</div>';return;}
-  el.innerHTML=_salons.map(function(s){
+  // Replace table with rich cards
+  var pnSalons=document.getElementById('pn-salons');
+  var existingGrid=document.getElementById('salons-card-grid');
+  if(!existingGrid){
+    var grid=document.createElement('div');
+    grid.id='salons-card-grid';
+    grid.style.cssText='display:grid;gap:12px;margin-top:4px';
+    pnSalons.appendChild(grid);
+  }
+  var gridEl=document.getElementById('salons-card-grid');
+  // Hide old table
+  var tblWrap=pnSalons.querySelector('.tbl-wrap');
+  if(tblWrap) tblWrap.style.display='none';
+
+  gridEl.innerHTML=_salons.map(function(s){
     var sOrders=_orders.filter(function(o){return o.tenant_id===s.id;});
     var sTotal=sOrders.filter(function(o){return o.status!=='cancelled';}).reduce(function(t,o){return t+Number(o.total||0);},0);
     var sPaid=_payments.filter(function(p){return p.tenant_id===s.id;}).reduce(function(t,p){return t+Number(p.amount||0);},0);
     var outstanding=Math.max(0,sTotal-sPaid);
-    return '<div class="tbl-row" style="grid-template-columns:1fr 120px 80px 80px 100px">'+
-      '<div style="font-weight:700">'+escH(s.name||'—')+'<div style="font-size:10px;color:var(--muted)">@'+escH(s.slug||'')+'</div></div>'+
-      '<div style="font-size:12px">'+escH(s.owner_phone||'—')+'</div>'+
-      '<div style="font-size:12px;color:var(--muted)">'+escH(s.city||'—')+'</div>'+
-      '<div style="font-family:var(--HF);font-size:18px;color:var(--accent)">'+sOrders.length+'</div>'+
-      '<div style="font-size:12px;font-weight:700;color:'+(outstanding>0?'var(--red)':'var(--green2)')+'">'+(outstanding>0?fmtINR(outstanding):'Cleared')+'</div>'+
+    var pending=sOrders.filter(function(o){return o.status==='pending'||o.status==='confirmed';}).length;
+    var delivered=sOrders.filter(function(o){return o.status==='delivered';}).length;
+    var logo=(function(){
+      if(!s.logo_url) return '<div style="width:44px;height:44px;border-radius:10px;background:#003D2B;border:2px solid #C8A800;display:flex;align-items:center;justify-content:center;font-size:10px;color:#C8A800;text-align:center;line-height:1.2">MY<br>SALON</div>';
+      return '<img src="'+escH(s.logo_url)+'" style="width:44px;height:44px;border-radius:10px;object-fit:contain;border:1px solid var(--border)">';
+    })();
+    return '<div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)">'+
+      '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px">'+
+        logo+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:800;font-size:15px;color:var(--white)">'+escH(s.name||'—')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">@'+escH(s.slug||'')+'</div>'+
+          '<div style="display:flex;gap:12px;margin-top:4px;font-size:12px;color:var(--muted);flex-wrap:wrap">'+
+            (s.city?'📍 '+escH(s.city+(s.state?', '+s.state:''))+'&nbsp;':'  ')+
+            (s.owner_phone?'📞 '+escH(s.owner_phone):'')+'  '+
+            (s.owner_name?'👤 '+escH(s.owner_name):'')+
+          '</div>'+
+          (s.address?'<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+escH(s.address)+'</div>':'')+
+        '</div>'+
+        (s.plan?'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,122,86,.1);color:#007A56;border:1px solid rgba(0,122,86,.2)">'+escH(s.plan)+'</span>':'')+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border-top:1px solid var(--border);padding-top:12px">'+
+        '<div style="text-align:center"><div style="font-family:var(--HF);font-size:20px;color:#007A56">'+sOrders.length+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Total Orders</div></div>'+
+        '<div style="text-align:center"><div style="font-family:var(--HF);font-size:20px;color:#F59E0B">'+pending+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Pending</div></div>'+
+        '<div style="text-align:center"><div style="font-family:var(--HF);font-size:20px;color:var(--green2)">'+delivered+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Delivered</div></div>'+
+        '<div style="text-align:center"><div style="font-family:var(--HF);font-size:20px;color:'+(outstanding>0?'var(--red)':'var(--green2)')+'">'+fmtINR(outstanding)+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Outstanding</div></div>'+
+      '</div>'+
+      (s.slug?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:8px">'+
+        '<a href="salon-portal.html?salon='+encodeURIComponent(s.slug)+'" target="_blank" style="font-size:11px;font-weight:700;padding:4px 12px;background:rgba(0,122,86,.08);color:#007A56;border:1px solid rgba(0,122,86,.2);border-radius:6px;text-decoration:none">View Portal</a>'+
+        '<button data-sid="'+s.id+'" onclick="filterOrdersBySalon(this.dataset.sid)" style="font-size:11px;font-weight:700;padding:4px 12px;background:rgba(29,109,181,.08);color:#1D6DB5;border:1px solid rgba(29,109,181,.2);border-radius:6px;cursor:pointer">View Orders</button>'+
+      '</div>':'')+ 
     '</div>';
   }).join('');
+}
+function filterOrdersBySalon(tenantId){
+  showTab('orders');
+  // Set search to salon name
+  var s=_salons.find(function(x){return x.id===tenantId;});
+  if(s){var el=document.getElementById('order-search');if(el){el.value=s.name;renderOrders();}}
 }
 
 // ════ PAYMENTS ══════════════════════════════════════════════════
@@ -870,6 +916,111 @@ function logout(){
   try{['ms_role','ms_phone','ms_vendor_id','ms_vendor_name','ms_vendor_region'].forEach(function(k){localStorage.removeItem(k);});}catch(e){}
   window.location.href='login-vendor.html';
 }
+
+// ════════════════════════════════════════════════════════════
+//  CSV IMPORT + DUMMY PRODUCTS
+// ════════════════════════════════════════════════════════════
+
+function importProductsCSV(input){
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var lines=e.target.result.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+    if(lines.length<2){toast('CSV must have header row + data');return;}
+    var headers=lines[0].split(',').map(function(h){return h.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_');});
+    var rows=lines.slice(1).map(function(line){
+      var vals=line.split(',');
+      var obj={};
+      headers.forEach(function(h,i){obj[h]=(vals[i]||'').trim().replace(/^"|"$/g,'');});
+      return obj;
+    }).filter(function(r){return r.name||r.product_name;});
+    if(!rows.length){toast('No valid rows found in CSV');return;}
+    // Import each row
+    var done=0;
+    rows.forEach(function(r){
+      var row={
+        vendor_id:VENDOR_ID,
+        name:r.name||r.product_name||'Product',
+        brand:r.brand||r.brand_name||'',
+        category:(r.category||'other').toLowerCase(),
+        sku:r.sku||r.code||'',
+        unit:r.unit||'piece',
+        price:parseFloat(r.price||r.selling_price||0)||0,
+        mrp:parseFloat(r.mrp||r.retail_price||0)||0,
+        stock:parseInt(r.stock||r.qty||r.quantity||0)||0,
+        min_order_qty:parseInt(r.min_order||r.min_qty||1)||1,
+        description:r.description||r.desc||'',
+        is_active:true
+      };
+      if(!row.price||!row.name){done++;if(done===rows.length)afterImport();return;}
+      _post('vendor_products',row).then(function(saved){
+        var s=Array.isArray(saved)?saved[0]:saved;
+        if(s&&s.id) _products.unshift(s);
+        done++;
+        if(done===rows.length) afterImport();
+      }).catch(function(){done++;if(done===rows.length)afterImport();});
+    });
+    function afterImport(){
+      renderProducts();
+      renderNewOrderProducts();
+      toast('✅ Imported '+_products.length+' products from CSV');
+    }
+  };
+  reader.readAsText(file);
+  input.value=''; // reset so same file can be reimported
+}
+
+// Sample CSV download helper
+function downloadCSVTemplate(){
+  var csv='name,brand,category,sku,unit,price,mrp,stock,min_order_qty,description\n'+
+    'Professional Shampoo 500ml,Wella,shampoo,WS001,piece,250,350,50,1,Deep cleansing shampoo\n'+
+    'Hair Colour Dark Brown,Garnier,colour,GC002,piece,180,220,30,2,Permanent hair colour\n';
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='vendor_products_template.csv';
+  a.click();
+}
+
+// Add dummy/sample products
+var DUMMY_PRODUCTS = [
+  {name:'Wella SP Hydrate Shampoo 1L',brand:'Wella',category:'shampoo',sku:'WS-001',unit:'piece',price:850,mrp:1100,stock:30,min_order_qty:1,description:'Intensive moisturising shampoo for dry hair'},
+  {name:'Wella SP Hydrate Conditioner 1L',brand:'Wella',category:'treatment',sku:'WC-001',unit:'piece',price:920,mrp:1200,stock:25,min_order_qty:1,description:'Deep conditioning treatment'},
+  {name:'Garnier Hair Colour Cream - Dark Brown',brand:'Garnier',category:'colour',sku:'GC-001',unit:'piece',price:180,mrp:220,stock:60,min_order_qty:6,description:'Permanent hair colour - shade 3'},
+  {name:'Garnier Hair Colour Cream - Black',brand:'Garnier',category:'colour',sku:'GC-002',unit:'piece',price:180,mrp:220,stock:60,min_order_qty:6,description:'Permanent hair colour - shade 1'},
+  {name:'LOreal Absolut Repair Shampoo 300ml',brand:'LOreal Professional',category:'shampoo',sku:'LR-001',unit:'piece',price:650,mrp:850,stock:20,min_order_qty:1,description:'Damage repair shampoo'},
+  {name:'Streax Hair Serum 100ml',brand:'Streax',category:'styling',sku:'ST-001',unit:'piece',price:140,mrp:180,stock:40,min_order_qty:2,description:'Frizz control serum with walnut oil'},
+  {name:'Biotique Bio Kelp Shampoo 340ml',brand:'Biotique',category:'shampoo',sku:'BT-001',unit:'piece',price:180,mrp:250,stock:35,min_order_qty:2,description:'Fresh growth stimulating shampoo'},
+  {name:'Mamaearth Onion Hair Oil 250ml',brand:'Mamaearth',category:'treatment',sku:'ME-001',unit:'ml',price:350,mrp:449,stock:50,min_order_qty:1,description:'Onion hair oil for hair fall control'},
+  {name:'Schwarzkopf Keratin Treatment 200ml',brand:'Schwarzkopf',category:'treatment',sku:'SK-001',unit:'piece',price:1200,mrp:1599,stock:15,min_order_qty:1,description:'Keratin smoothing treatment'},
+  {name:'Toni and Guy Texturising Spray 200ml',brand:'Toni and Guy',category:'styling',sku:'TG-001',unit:'piece',price:450,mrp:599,stock:20,min_order_qty:1,description:'Volume & texture spray'},
+  {name:'Professional Hair Dryer 2000W',brand:'Generic',category:'tools',sku:'HD-001',unit:'piece',price:1800,mrp:2500,stock:10,min_order_qty:1,description:'Professional salon hair dryer'},
+  {name:'Tail Comb Set (Pack of 6)',brand:'Generic',category:'tools',sku:'TC-001',unit:'pack',price:120,mrp:180,stock:100,min_order_qty:5,description:'Rat tail combs for sectioning'},
+  {name:'Head & Shoulders Shampoo 675ml',brand:'Head & Shoulders',category:'shampoo',sku:'HS-001',unit:'piece',price:280,mrp:360,stock:45,min_order_qty:3,description:'Anti-dandruff shampoo'},
+  {name:'Parachute Coconut Oil 500ml',brand:'Parachute',category:'treatment',sku:'PC-001',unit:'ml',price:95,mrp:130,stock:80,min_order_qty:6,description:'Pure coconut oil for hair care'},
+  {name:'Revlon Colorstay Hair Colour',brand:'Revlon',category:'colour',sku:'RV-001',unit:'piece',price:250,mrp:320,stock:40,min_order_qty:4,description:'Long-lasting hair colour'}
+];
+
+function addDummyProducts(){
+  if(!confirm('Add 15 sample products to your catalogue? You can delete them later.')) return;
+  var done=0;
+  DUMMY_PRODUCTS.forEach(function(p){
+    var row=Object.assign({vendor_id:VENDOR_ID,is_active:true},p);
+    _post('vendor_products',row).then(function(saved){
+      var s=Array.isArray(saved)?saved[0]:saved;
+      if(s&&s.id) _products.push(s);
+      done++;
+      if(done===DUMMY_PRODUCTS.length){
+        renderProducts();
+        renderNewOrderProducts();
+        renderDashboard();
+        toast('✅ '+DUMMY_PRODUCTS.length+' sample products added!');
+      }
+    }).catch(function(){done++;});
+  });
+}
+// ════════════════════════════════════════════════════════════
+
 </script>
 </body>
 </html>
