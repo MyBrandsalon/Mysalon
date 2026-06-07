@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MySalon – Manager Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Barlow',sans-serif;background:#F0F0EA;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+.wrap{width:100%;max-width:380px}
+.logo-section{text-align:center;margin-bottom:20px}
+.salon-logo-img{width:100px;height:100px;border-radius:18px;object-fit:contain;display:block;box-shadow:0 4px 20px rgba(0,0,0,.18);margin:0 auto 10px}
+.platform-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:4px;display:block}
+.salon-name-tag{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#003D2B;letter-spacing:1px;text-transform:uppercase;margin-top:6px;display:block}
+.card{background:white;border-radius:16px;padding:28px 22px;box-shadow:0 4px 24px rgba(0,0,0,.10);border:1px solid #E0E0D8}
+.role-banner{background:#1e3a5f;color:#F5E030;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.role-icon{font-size:24px}
+.role-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;display:block}
+.role-sub{font-size:11px;color:rgba(245,224,48,.65);margin-top:2px;display:block}
+h2{font-size:22px;font-weight:800;color:#1A1A14;margin-bottom:4px}
+.sub{font-size:13px;color:#767668;margin-bottom:20px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#767668;margin-bottom:7px}
+input[type=tel],input[type=password]{width:100%;background:#F8F8F4;border:2px solid #E0E0D8;border-radius:8px;padding:14px 15px;font-family:'Barlow',sans-serif;font-size:17px;font-weight:500;color:#1A1A14;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus{border-color:#1e3a5f}
+input::placeholder{color:#AAAAAA}
+.fg{margin-bottom:16px}
+.btn{width:100%;padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Barlow',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;display:block;text-align:center;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#1e3a5f;color:#F5E030}
+.btn-primary:disabled{background:#ccc;color:#888;cursor:not-allowed}
+.btn-secondary{background:transparent;border:2px solid #E0E0D8;color:#767668;margin-top:10px}
+.btn-secondary:hover{border-color:#1e3a5f;color:#1e3a5f}
+.err{color:#DC2626;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:none;background:rgba(220,38,38,.06);padding:10px;border-radius:8px;border:1px solid rgba(220,38,38,.2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-section">
+    <img id="salonLogoImg" class="salon-logo-img" src="ms-default-logo.svg" alt="MySalon"
+         onerror="this.src='ms-default-logo.svg'">
+    <span id="platformTag" class="platform-tag">Digital Salon Platform</span>
+    <span class="salon-name-tag ms-salon-name">Loading…</span>
+  </div>
+  <div class="card">
+    <div class="role-banner">
+      <span class="role-icon">👔</span>
+      <div><span class="role-title">Manager Login</span><span class="role-sub">Salon management &amp; reporting</span></div>
+    </div>
+    <h2>Manager Login</h2>
+    <p class="sub">Enter your phone number and 6-digit PIN</p>
+    <div id="errMsg" class="err"></div>
+    <div class="fg"><label>Mobile Number</label><input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div class="fg"><label>PIN</label><input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Login →</button>
+    <a href="#" onclick="goPortal()" class="btn btn-secondary">← Back to Portals</a>
+  </div>
+</div>
+<script>
+var MS_URL = 'https://sgliztuggyksdemzkaxr.supabase.co';
+var MS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGl6dHVnZ3lrc2RlbXprYXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODc5MjMsImV4cCI6MjA5Mzg2MzkyM30.RE6j94oiI2ycLO0qj9WpYdn9Vg_5bF5jG6PQoP3huQk';
+var _slug   = new URLSearchParams(location.search).get('salon') || localStorage.getItem('ms_slug') || '';
+var _tenant = null;
+
+function _h(){ return {'Content-Type':'application/json','apikey':MS_KEY,'Authorization':'Bearer '+MS_KEY}; }
+function _get(p){ return fetch(MS_URL+'/rest/v1/'+p,{headers:_h()}).then(function(r){return r.json();}); }
+
+// Load tenant
+(function init(){
+  if(!_slug){ return; }
+  sessionStorage.setItem('ms_slug',_slug); localStorage.setItem('ms_slug',_slug);
+  document.getElementById('loginBtn').disabled=true;
+  document.getElementById('loginBtn').textContent='⏳ Loading…';
+  _get('tenants?slug=eq.'+encodeURIComponent(_slug)+'&is_active=eq.true&select=id,name,logo_url,plan,owner_phone')
+    .then(function(rows){
+      if(!rows||rows.code||!rows.length){ showErr('Salon not found.'); return; }
+      _tenant = rows[0];
+      var img = document.getElementById('salonLogoImg');
+      if(_tenant.logo_url){
+        img.onload  = function(){ document.getElementById('platformTag').style.display='none'; };
+        img.onerror = function(){ img.src='ms-default-logo.svg'; };
+        img.src = _tenant.logo_url;
+      }
+      document.querySelectorAll('.ms-salon-name').forEach(function(el){ el.textContent=_tenant.name; });
+      document.title = _tenant.name+' – Manager Login';
+      sessionStorage.setItem('ms_tenant_id',_tenant.id); localStorage.setItem('ms_tenant_id',_tenant.id);
+      localStorage.setItem('ms_plan',_tenant.plan||'free');
+      localStorage.setItem('ms_name',_tenant.name);
+      var lu=(_tenant.logo_url||'').trim(); if(lu){ localStorage.setItem('ms_logo',lu); }
+      document.getElementById('loginBtn').disabled=false;
+      document.getElementById('loginBtn').textContent='Login →';
+    });
+})();
+
+function doLogin(){
+  var phone = (document.getElementById('phoneInput').value||'').trim().replace(/\D/g,'');
+  var pin   = (document.getElementById('pinInput').value||'').trim();
+  hideErr();
+  if(phone.length<10){ showErr('Enter valid 10-digit phone.'); return; }
+  if(pin.length<6){ showErr('Enter your 6-digit PIN.'); return; }
+  if(!_tenant){ showErr('Salon not loaded. Refresh page.'); return; }
+  var btn=document.getElementById('loginBtn');
+  btn.disabled=true; btn.textContent='Checking…';
+
+  // Look up in staff table — role manager OR owner
+  _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+
+       '&phone=eq.'+encodeURIComponent(phone)+
+       '&role=in.(manager,owner)'+
+       '&select=id,name,phone,role,pin,salon_id,salonId,active')
+  .then(function(rows){
+    btn.disabled=false; btn.textContent='Login →';
+    if(!rows||rows.code||!rows.length){
+      showErr('Manager account not found for this salon.');
+      return;
+    }
+    var u = rows.find(function(r){ return r.active!==false; }) || rows[0];
+    var storedPin = String(u.pin||'').trim();
+    if(!storedPin || storedPin!==pin){
+      showErr('Wrong PIN.'); document.getElementById('pinInput').value=''; return;
+    }
+    // Save session
+    var sess = {
+      ms_role:'manager', ms_phone:phone,
+      ms_user_name:u.name||'Manager',
+      ms_staff_id:String(u.id),
+      ms_salon_id:String(u.salonId||u.salon_id||''),
+      ms_slug:_slug,
+      ms_tenant_id:_tenant.id,
+      ms_plan:_tenant.plan||'free',
+      ms_name:_tenant.name,
+      ms_logo:_tenant.logo_url||''
+    };
+    Object.keys(sess).forEach(function(k){
+      try{sessionStorage.setItem(k,sess[k]);}catch(e){}
+      try{localStorage.setItem(k,sess[k]);}catch(e){}
+    });
+    btn.textContent='✅ Logging in…';
+    setTimeout(function(){ window.location.href='app-manager.html?salon='+encodeURIComponent(_slug); },300);
+  }).catch(function(e){ btn.disabled=false; btn.textContent='Login →'; showErr('Error: '+e.message); });
+}
+
+function showErr(m){ var e=document.getElementById('errMsg'); e.textContent=m; e.style.display='block'; }
+function hideErr(){ document.getElementById('errMsg').style.display='none'; }
+function goPortal(){
+  var s=_slug||localStorage.getItem('ms_slug')||'';
+  window.location.href='salon-portal.html'+(s?'?salon='+encodeURIComponent(s):'');
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>

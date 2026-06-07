@@ -119,6 +119,8 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 .badge-all{background:rgba(0,122,86,.1);color:#007A56;border:1px solid rgba(0,122,86,.2)}
 .badge-pro{background:rgba(29,109,181,.1);color:#1D6DB5;border:1px solid rgba(29,109,181,.2)}
 .badge-biz{background:rgba(109,40,217,.1);color:#6D28D9;border:1px solid rgba(109,40,217,.2)}
+.pc-manager   .pt-accent{background:#1e3a5f}
+.pc-manager:hover{border-color:#1e3a5f}
 </style>
 </head>
 <body>
@@ -151,14 +153,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
 
     <div class="portal-grid-layout">
 
-      <a href="#" id="ownerLink" class="portal-tile pc-owner">
-        <div class="pt-accent"></div>
-        <span class="pt-icon">🏪</span>
-        <span class="pt-title">OWNER</span>
-        <div class="pt-desc">Dashboard, billing, staff &amp; payroll</div>
-        <span class="pt-badge badge-all">All Plans</span>
-      </a>
-
+      <!-- Row 1: Stylist | Manager -->
       <a href="#" id="stylistLink" class="portal-tile pc-stylist">
         <div class="pt-accent"></div>
         <span class="pt-icon">✂️</span>
@@ -167,6 +162,15 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
         <span class="pt-badge badge-all">All Plans</span>
       </a>
 
+      <a href="#" id="managerLink" class="portal-tile pc-manager">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">👔</span>
+        <span class="pt-title">MANAGER</span>
+        <div class="pt-desc">Reports, staff, billing &amp; operations</div>
+        <span class="pt-badge badge-all">All Plans</span>
+      </a>
+
+      <!-- Row 2: Customer | Owner -->
       <a href="#" id="customerLink" class="portal-tile pc-customer">
         <div class="pt-accent"></div>
         <span class="pt-icon">👤</span>
@@ -175,7 +179,16 @@ body{font-family:var(--BF);background:var(--bg);color:var(--ink);min-height:100v
         <span class="pt-badge badge-all">All Plans</span>
       </a>
 
-      <a href="#" id="franchiseLink" class="portal-tile pc-franchise" style="display:none">
+      <a href="#" id="ownerLink" class="portal-tile pc-owner">
+        <div class="pt-accent"></div>
+        <span class="pt-icon">🏪</span>
+        <span class="pt-title">OWNER</span>
+        <div class="pt-desc">Full control — payroll, P&amp;L &amp; analytics</div>
+        <span class="pt-badge badge-all">All Plans</span>
+      </a>
+
+      <!-- Franchise (business only, full width) -->
+      <a href="#" id="franchiseLink" class="portal-tile pc-franchise" style="display:none;grid-column:1/-1">
         <div class="pt-accent"></div>
         <span class="pt-icon">🏢</span>
         <span class="pt-title">FRANCHISE</span>
@@ -323,11 +336,11 @@ function buildLinks(t){
 
   // All portals use ?salon=SLUG
   document.getElementById('ownerLink').href    = 'login-owner.html?salon='+slug;
+  document.getElementById('managerLink').href  = 'login-manager.html?salon='+slug;
   document.getElementById('stylistLink').href  = 'login-stylist.html?salon='+slug;
   document.getElementById('customerLink').href = 'login-customer.html?salon='+slug;
   document.getElementById('franchiseLink').href = 'login-franchise.html?salon='+slug;
 
-  // Customer is free for all plans — no lock
   // Show franchise only for business
   if(rank >= 2){
     document.getElementById('franchiseLink').style.display = 'block';
