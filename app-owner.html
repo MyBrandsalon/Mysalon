@@ -928,20 +928,19 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     </div>
 
     <div style="background:linear-gradient(135deg,#003D2B,#005F42);border-radius:var(--r);padding:20px;position:relative;overflow:hidden">
-      <!-- Background decoration -->
       <div style="position:absolute;right:-20px;top:-20px;font-size:80px;opacity:.08;pointer-events:none">✂️</div>
-
       <div style="position:relative;z-index:1">
         <div style="font-family:var(--HF);font-size:22px;color:#F5E030;letter-spacing:1px;margin-bottom:6px">FIND HAIRSTYLISTS</div>
         <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:16px">
-          Post job openings and connect with skilled stylists looking for opportunities.
-          Use your salon credentials to login — no separate registration needed.
+          Register on the staff hiring portal to post jobs and browse stylist profiles. Your salon details are pre-filled — just confirm and create your account.
         </div>
 
-        <!-- Salon credentials card -->
+        <!-- Credentials card — full details -->
         <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:14px;margin-bottom:16px">
-          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:10px">Your Login Credentials for Staff Hiring Portal</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:12px">
+            📋 Your Registration Credentials
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Salon Name</div>
               <div style="font-size:13px;font-weight:700;color:white" id="hire-salon-name">Loading…</div>
@@ -950,29 +949,40 @@ select option { background: var(--surface) !important; color: var(--white) !impo
               <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Phone (Username)</div>
               <div style="font-size:13px;font-weight:700;color:#F5E030" id="hire-phone">Loading…</div>
             </div>
-          </div>
-          <div style="margin-top:10px">
-            <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Portal URL</div>
-            <div style="font-size:11px;color:#86efac;word-break:break-all">https://bbstaff.abudgetbarber.workers.dev/</div>
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">City / Location</div>
+              <div style="font-size:13px;font-weight:700;color:white" id="hire-city">Loading…</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">6-Digit PIN (set this on register)</div>
+              <div style="font-size:18px;font-weight:900;color:#F5E030;font-family:monospace;letter-spacing:4px" id="hire-pin">——</div>
+            </div>
+            <div style="grid-column:1/-1">
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Full Salon Address</div>
+              <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.8)" id="hire-address">Loading…</div>
+            </div>
+            <div style="grid-column:1/-1">
+              <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:3px">Portal URL</div>
+              <div style="font-size:11px;color:#86efac">https://bbstaff.abudgetbarber.workers.dev/recruiter</div>
+            </div>
           </div>
         </div>
 
         <!-- Action buttons -->
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="openHirePortal()"
-            style="padding:11px 20px;background:#C8A800;color:#003D2B;border:none;border-radius:8px;font-family:var(--HF);font-size:16px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:8px">
-            🔍 Browse &amp; Post Jobs
+          <button onclick="openBrowseProfiles()"
+            style="padding:11px 20px;background:#C8A800;color:#003D2B;border:none;border-radius:8px;font-family:var(--HF);font-size:16px;letter-spacing:.5px;cursor:pointer">
+            🔍 Browse Profiles
           </button>
           <button onclick="autoRegisterHire()"
-            style="padding:11px 20px;background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
-            ⚡ Auto-Register &amp; Login
+            style="padding:11px 20px;background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.3);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
+            ⚡ Register &amp; Post Jobs
           </button>
           <button onclick="copyHireCredentials()"
-            style="padding:11px 20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
-            📋 Copy Credentials
+            style="padding:11px 20px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:var(--BF);font-size:13px;font-weight:700;cursor:pointer">
+            📋 Copy All Credentials
           </button>
         </div>
-
         <div id="hire-status" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.6);display:none"></div>
       </div>
     </div>
@@ -8043,102 +8053,120 @@ function createOfferGated(){
 // ════════════════════════════════════════════════════════════════
 //  HIRE STYLIST PORTAL INTEGRATION
 // ════════════════════════════════════════════════════════════════
-var HIRE_PORTAL_URL = 'https://bbstaff.abudgetbarber.workers.dev/';
+var HIRE_PORTAL_URL  = 'https://bbstaff.abudgetbarber.workers.dev/';
+var HIRE_PORTAL_REG  = 'https://bbstaff.abudgetbarber.workers.dev/recruiter';
+var HIRE_PORTAL_PROF = 'https://bbstaff.abudgetbarber.workers.dev/';
 
-// Fill credentials into the hire section when staff tab opens
-function _populateHireCredentials(){
-  var nameEl  = document.getElementById('hire-salon-name');
-  var phoneEl = document.getElementById('hire-phone');
-  var name  = mySalonName || localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
-  var phone = SESSION_PHONE || localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || '—';
-  if(nameEl)  nameEl.textContent  = name;
-  if(phoneEl) phoneEl.textContent = phone;
-}
-
-// Open the hire portal directly
-function openHirePortal(){
-  _populateHireCredentials();
-  // Use anchor click to avoid popup blocker
-  var a = document.createElement('a');
-  a.href = HIRE_PORTAL_URL;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-// Auto-register salon on hire portal using MySalon credentials
-// then open the portal (pre-filled login)
-function autoRegisterHire(){
-  var salonName = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
-  var phone     = SESSION_PHONE || localStorage.getItem('ms_phone') || '';
-  var tenantId  = MS_TENANT_ID  || localStorage.getItem('ms_tenant_id') || '';
-  var city      = '';
+// ── Get all credentials ───────────────────────────────────────
+function _getHireCreds(){
+  var salonName = mySalonName || localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
+  var phone     = SESSION_PHONE || localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || '';
   var salons    = LS.get('salons') || [];
-  var salon     = salons.find(function(s){ return s.id === mySalonId; });
-  if(salon) city = salon.city || '';
+  var salon     = salons.find(function(s){ return s.id === mySalonId; }) || {};
+  var city      = salon.city || localStorage.getItem('ms_city') || '';
+  var state     = salon.state || '';
+  var cityState = [city, state].filter(Boolean).join(', ');
+  var address   = salon.address || salon.full_address || cityState || '';
+  // Deterministic 6-digit PIN from phone
+  var pin = '';
+  if(phone){
+    var ph = phone.replace(/\D/g,'').slice(-6);
+    if(ph.length===6) pin = String((parseInt(ph)*7919+31337)%900000+100000);
+  }
+  return {salonName:salonName, phone:phone, city:cityState, address:address, pin:pin};
+}
 
-  if(!phone){ toast('No phone number found. Please log in again.'); return; }
+// ── Populate credentials card ─────────────────────────────────
+function _populateHireCredentials(){
+  var cr = _getHireCreds();
+  var el = function(id){ return document.getElementById(id); };
+  if(el('hire-salon-name')) el('hire-salon-name').textContent = cr.salonName;
+  if(el('hire-phone'))      el('hire-phone').textContent      = cr.phone || '—';
+  if(el('hire-city'))       el('hire-city').textContent       = cr.city  || 'Not set';
+  if(el('hire-address'))    el('hire-address').textContent    = cr.address || 'Update in Salon tab';
+  if(el('hire-pin'))        el('hire-pin').textContent        = cr.pin   || '——';
+}
+
+// ── Open register page with URL params pre-filled ─────────────
+function autoRegisterHire(){
+  var cr = _getHireCreds();
+  if(!cr.phone){ toast('No phone number found. Please re-login.'); return; }
 
   var statusEl = document.getElementById('hire-status');
-  if(statusEl){ statusEl.style.display='block'; statusEl.textContent='⏳ Registering on hire portal…'; }
+  if(statusEl){ statusEl.style.display='block'; statusEl.textContent='⏳ Opening registration page…'; }
 
-  // POST registration to the hire portal
-  fetch(HIRE_PORTAL_URL + 'api/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      salon_name:  salonName,
-      phone:       phone,
-      tenant_id:   tenantId,
-      city:        city,
-      plan:        localStorage.getItem('ms_plan') || 'free',
-      source:      'mysalon'
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(res){
-    if(statusEl) statusEl.textContent = '✅ Registered! Opening portal…';
-    // Build auto-login URL with pre-filled credentials
-    var loginUrl = HIRE_PORTAL_URL + '?phone=' + encodeURIComponent(phone) +
-                   '&salon=' + encodeURIComponent(salonName) +
-                   '&tenant=' + encodeURIComponent(tenantId) +
-                   '&auto=1';
-    setTimeout(function(){
-      var a=document.createElement('a'); a.href=loginUrl; a.target='_blank'; a.rel='noopener';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }, 800);
-  })
-  .catch(function(err){
-    // If registration API not available, open portal directly with pre-fill
-    console.warn('[MySalon] Hire portal registration:', err);
-    if(statusEl) statusEl.textContent = '↗ Opening hire portal with your details…';
-    var loginUrl = HIRE_PORTAL_URL + '?phone=' + encodeURIComponent(phone) +
-                   '&salon=' + encodeURIComponent(salonName) +
-                   '&auto=1';
-    setTimeout(function(){
-      var a=document.createElement('a'); a.href=loginUrl; a.target='_blank'; a.rel='noopener';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }, 600);
+  // Build URL with all form fields as query params
+  // The bbstaff register page reads these to pre-fill the form
+  var params = new URLSearchParams({
+    salon_name: cr.salonName,
+    phone:      cr.phone,
+    city:       cr.city,
+    address:    cr.address,
+    pin:        cr.pin,
+    franchise:  'no',
+    source:     'mysalon',
+    auto:       '1'
   });
+  var regUrl = HIRE_PORTAL_REG + '?' + params.toString();
+
+  if(statusEl){
+    statusEl.textContent = '✅ Opening registration — your PIN is: ' + cr.pin +
+      ' · Fill the form with your details and use PIN: ' + cr.pin;
+  }
+
+  setTimeout(function(){
+    var a = document.createElement('a');
+    a.href = regUrl; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }, 400);
+
+  // Show credentials in a prominent modal/alert so owner can copy them
+  setTimeout(function(){
+    var msg = '📋 BBSTAFF REGISTRATION CREDENTIALS\n\n' +
+              '🏪 Salon Name : ' + cr.salonName + '\n' +
+              '📞 Phone      : ' + cr.phone + '\n' +
+              '📍 City       : ' + cr.city + '\n' +
+              '📬 Address    : ' + cr.address + '\n' +
+              '🔑 PIN        : ' + cr.pin + '\n\n' +
+              'Use these details to fill the registration form.\n' +
+              'Remember your PIN — you will need it to login.';
+    if(confirm(msg + '\n\n[OK to copy PIN to clipboard, Cancel to skip]')){
+      navigator.clipboard.writeText(cr.pin).catch(function(){});
+    }
+  }, 600);
 }
 
-// Copy login credentials to clipboard
+// ── Browse actual stylist profiles ────────────────────────────
+function openBrowseProfiles(){
+  _populateHireCredentials();
+  var cr = _getHireCreds();
+  // Open the main portal — stylists listed there
+  var params = new URLSearchParams({ phone: cr.phone, source: 'mysalon' });
+  var url = HIRE_PORTAL_PROF + '?' + params.toString();
+  var a = document.createElement('a');
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── Copy ALL credentials to clipboard ────────────────────────
 function copyHireCredentials(){
-  var salonName = mySalonName || localStorage.getItem('ms_name') || 'My Salon';
-  var phone     = SESSION_PHONE || localStorage.getItem('ms_phone') || '';
-  var text = 'MySalon Staff Hiring Portal\n' +
-             '━━━━━━━━━━━━━━━━━━━━━━━━\n' +
-             'URL: ' + HIRE_PORTAL_URL + '\n' +
-             'Salon: ' + salonName + '\n' +
-             'Phone: ' + phone + '\n' +
-             '(Use your MySalon owner PIN to login)';
+  var cr = _getHireCreds();
+  var text = [
+    'BBSTAFF Hiring Portal Credentials',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    'URL       : ' + HIRE_PORTAL_REG,
+    'Salon Name: ' + cr.salonName,
+    'Phone     : ' + cr.phone,
+    'City      : ' + cr.city,
+    'Address   : ' + cr.address,
+    'PIN       : ' + cr.pin,
+    '',
+    'Use these details to fill the registration form.',
+    'Your PIN is auto-generated from your phone number.'
+  ].join('\n');
   navigator.clipboard.writeText(text)
-    .then(function(){ toast('✅ Credentials copied to clipboard!'); })
-    .catch(function(){
-      prompt('Copy your hire portal credentials:', HIRE_PORTAL_URL + ' | Phone: ' + phone);
-    });
+    .then(function(){ toast('✅ All credentials copied to clipboard!'); })
+    .catch(function(){ prompt('Copy credentials:', text); });
 }
 
 // Populate credentials whenever staff tab is shown
@@ -8427,22 +8455,54 @@ function cosLoadTab(){
   var tid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
   if(!tid){ toast('No salon data. Please re-login.'); return; }
 
-  // 1. Find assigned vendor for this tenant
-  fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?tenant_id=eq.'+encodeURIComponent(tid)+'&active=eq.true&select=vendor_id,vendors:vendor_id(id,name,company_name,phone,region)', {
+  // Step 1: Find assignment for this tenant
+  fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?tenant_id=eq.'+encodeURIComponent(tid)+'&select=vendor_id,active', {
     headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();})
-  .then(function(rows){
-    if(!rows||!Array.isArray(rows)||!rows.length||rows.code){
-      document.getElementById('cos-catalogue-grid').innerHTML =
-        '<div style="text-align:center;padding:40px;color:var(--muted)">' +
-        '<div style="font-size:40px;margin-bottom:12px">🧴</div>' +
-        '<div style="font-family:var(--HF);font-size:18px;color:var(--white);margin-bottom:8px">NO VENDOR ASSIGNED</div>' +
-        '<div style="font-size:13px">No cosmetics vendor has been assigned to your salon yet.<br>Contact MySalon admin to get a vendor assigned.</div>' +
-        '</div>';
-      return Promise.reject('no_vendor');
+  }).then(function(r){ return r.json(); })
+  .then(function(assignments){
+    console.log('[Cos] assignments:', JSON.stringify(assignments));
+    // Accept active or any assignment
+    var asgn = Array.isArray(assignments) ? assignments.find(function(a){ return a.vendor_id; }) : null;
+    if(!asgn || !asgn.vendor_id){
+      // Try without active filter — maybe active column not set
+      return fetch(SUPA_URL+'/rest/v1/vendor_salon_assignments?tenant_id=eq.'+encodeURIComponent(tid)+'&select=vendor_id', {
+        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      }).then(function(r){ return r.json(); })
+      .then(function(rows2){
+        console.log('[Cos] fallback assignments:', JSON.stringify(rows2));
+        var a2 = Array.isArray(rows2) ? rows2.find(function(a){ return a.vendor_id; }) : null;
+        if(!a2){
+          document.getElementById('cos-catalogue-grid').innerHTML =
+            '<div style="text-align:center;padding:40px;color:var(--muted)">'+
+            '<div style="font-size:40px;margin-bottom:12px">🧴</div>'+
+            '<div style="font-family:var(--HF);font-size:18px;color:var(--white);margin-bottom:8px">NO VENDOR ASSIGNED</div>'+
+            '<div style="font-size:13px">No cosmetics vendor assigned to this salon yet.<br>Contact MySalon admin to assign a vendor.<br><br>'+
+            '<span style="font-size:11px;color:var(--muted2)">Tenant ID: '+tid+'</span></div></div>';
+          return Promise.reject('no_vendor');
+        }
+        return a2.vendor_id;
+      });
     }
-    _cosVendor = rows[0].vendors || {};
-    _cosVendor.id = rows[0].vendor_id;
+    return asgn.vendor_id;
+  })
+  .then(function(vendorId){
+    // Step 2: Fetch vendor details separately
+    return fetch(SUPA_URL+'/rest/v1/vendors?id=eq.'+encodeURIComponent(vendorId)+'&select=id,name,company_name,phone,region', {
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    }).then(function(r){ return r.json(); })
+    .then(function(vrows){
+      console.log('[Cos] vendor:', JSON.stringify(vrows));
+      if(!vrows||!Array.isArray(vrows)||!vrows.length){
+        document.getElementById('cos-catalogue-grid').innerHTML =
+          '<div style="text-align:center;padding:40px;color:var(--muted)">Vendor data not found. Contact admin.</div>';
+        return Promise.reject('no_vendor');
+      }
+      _cosVendor = vrows[0];
+      return _cosVendor;
+    });
+  })
+  .then(function(vendor){
+    if(!vendor) return Promise.reject('no_vendor');
 
     // Show vendor info
     var vi = document.getElementById('cos-vendor-info');
