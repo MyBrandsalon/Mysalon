@@ -392,9 +392,9 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 /* ── BB Logo CSS ── */
 .bb-logo-sm{display:none!important;/*replaced by tenant logo img*/display:inline-block;background:#003D2B;border-radius:5px;overflow:hidden;border:2px solid #C8A800;flex-shrink:0;text-decoration:none;line-height:0;vertical-align:middle}
-.bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
+.bb-logo-sm-top{display:block;background:#C8A800 !important;font-family:var(--HF);font-size:11px;color:#003D2B !important;letter-spacing:1.5px;line-height:1;padding:2px 7px 1px;text-align:center}
 .bb-logo-sm-div{display:block;background:#003D2B !important;height:1.5px}
-.bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
+.bb-logo-sm-bot{display:block;background:#003D2B !important;font-family:var(--HF);font-size:11px;color:#C8A800 !important;letter-spacing:1.5px;line-height:1;padding:1px 7px 2px;text-align:center}
 /* BB Logo — force correct colours */
 .bb-logo-sm { background: #003D2B !important; border-color: #C8A800 !important; }
 .bb-logo-sm-top { background: #C8A800 !important; color: #003D2B !important; }
@@ -405,8 +405,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 .bb-logo-bot { background: #003D2B !important; color: #C8A800 !important; }
 
 .bb-logo{display:inline-block;background:#003D2B;border-radius:10px;overflow:hidden;border:3px solid #C8A800;text-decoration:none}
-.bb-logo-top{display:block;background:#C8A800 !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
-.bb-logo-bot{display:block;background:#003D2B !important;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
+.bb-logo-top{display:block;background:#C8A800 !important;font-family:var(--HF);font-size:36px;color:#003D2B !important;letter-spacing:3px;line-height:1;padding:7px 28px 3px;text-align:center}
+.bb-logo-bot{display:block;background:#003D2B !important;font-family:var(--HF);font-size:36px;color:#C8A800 !important;letter-spacing:3px;line-height:1;padding:3px 28px 7px;text-align:center}
 .bb-logo-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#003D2B;margin-top:7px;display:block}
 
 .cos-sub-tab{padding:9px 16px;font-family:var(--BF);font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
@@ -530,7 +530,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div style="font-size:22px">💰</div>
         <div style="flex:1;min-width:140px">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:#003D2B;letter-spacing:.5px;line-height:1" id="mgr-ref-credit-amt">₹0 wallet</div>
+          <div style="font-family:var(--HF);font-size:15px;color:#003D2B;letter-spacing:.5px;line-height:1" id="mgr-ref-credit-amt">₹0 wallet</div>
           <div style="font-size:10px;color:rgba(0,61,43,.7);margin-top:2px" id="mgr-ref-credit-sub">Tap input below to apply on this bill</div>
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.4);border-radius:6px;padding:3px 6px">
@@ -7964,11 +7964,11 @@ function sdBuildTbl(entries, limit){
 <div id="wa-upgrade-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:99999;display:none;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.4);transform:translateY(100%);transition:transform .3s ease">
   <div style="font-size:28px;flex-shrink:0">🔒</div>
   <div style="flex:1">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>
+    <div style="font-family:var(--HF);font-size:17px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>
     <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro plan (₹299/mo)</strong></div>
   </div>
   <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
-     style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0">UPGRADE →</a>
+     style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:var(--HF);font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0">UPGRADE →</a>
   <button onclick="hideUpgradeBanner()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1">✕</button>
 </div>
 <script>
@@ -8087,54 +8087,148 @@ function _populateHireCredentials(){
   if(el('hire-pin'))        el('hire-pin').textContent        = cr.pin   || '——';
 }
 
-// ── Open register page with URL params pre-filled ─────────────
+// ── Register & Post Jobs — opens bbstaff with auto-fill helper ──
 function autoRegisterHire(){
   var cr = _getHireCreds();
   if(!cr.phone){ toast('No phone number found. Please re-login.'); return; }
 
   var statusEl = document.getElementById('hire-status');
-  if(statusEl){ statusEl.style.display='block'; statusEl.textContent='⏳ Opening registration page…'; }
 
-  // Build URL with all form fields as query params
-  // The bbstaff register page reads these to pre-fill the form
-  var params = new URLSearchParams({
-    salon_name: cr.salonName,
-    phone:      cr.phone,
-    city:       cr.city,
-    address:    cr.address,
-    pin:        cr.pin,
-    franchise:  'no',
-    source:     'mysalon',
-    auto:       '1'
-  });
-  var regUrl = HIRE_PORTAL_REG + '?' + params.toString();
+  // Build the bookmarklet JS that will auto-fill the form on the bbstaff page
+  var bm = '(function(){' +
+    'var f=function(sel,val){var el=document.querySelector(sel);if(el){el.value=val;el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}}; ' +
+    'f("input[placeholder=\'Your Salon Name\']","' + cr.salonName.replace(/'/g,"\'") + '");' +
+    'f("input[placeholder=\'10-digit mobile\']","' + cr.phone + '");' +
+    'f("input[placeholder=\'City, State\']","' + cr.city.replace(/'/g,"\'") + '");' +
+    'f("textarea[placeholder=\'Complete salon address\']","' + (cr.address||cr.city).replace(/'/g,"\'") + '");' +
+    'f("input[type=\'password\'],input[placeholder*=PIN]","' + cr.pin + '");' +
+    'var sel=document.querySelector("select");if(sel)sel.value="no";' +
+    'alert("✅ Form filled! PIN is ' + cr.pin + ' — click Create Account to register.");' +
+    '})();';
 
-  if(statusEl){
-    statusEl.textContent = '✅ Opening registration — your PIN is: ' + cr.pin +
-      ' · Fill the form with your details and use PIN: ' + cr.pin;
+  var bookmarkletUrl = 'javascript:' + encodeURIComponent(bm);
+
+  // Show a helper modal with step-by-step instructions
+  _showHireHelper(cr, bookmarkletUrl);
+}
+
+function _showHireHelper(cr, bookmarkletUrl){
+  var ex = document.getElementById('hire-helper-modal');
+  if(ex) ex.remove();
+
+  // Build modal using DOM to avoid all quote escaping issues
+  var overlay = document.createElement('div');
+  overlay.id = 'hire-helper-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:white;border-radius:16px;padding:24px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:16px';
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:var(--HF);font-size:22px;color:#003D2B;letter-spacing:1px';
+  title.textContent = 'REGISTER ON BBSTAFF';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1';
+  closeBtn.onclick = function(){ overlay.remove(); };
+  hdr.appendChild(title); hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  // Step 1 - Bookmarklet
+  var s1 = document.createElement('div');
+  s1.style.cssText = 'background:#f0faf5;border:1px solid #c3e6d4;border-radius:10px;padding:14px;margin-bottom:12px';
+  s1.innerHTML = '<div style="font-weight:800;font-size:12px;color:#003D2B;margin-bottom:8px">STEP 1 — SAVE AUTO-FILL BOOKMARKLET</div>' +
+    '<div style="font-size:12px;color:#555;margin-bottom:10px">Drag this button to your bookmark bar. On the bbstaff page, click it to auto-fill all fields.</div>';
+  var bmLink = document.createElement('a');
+  bmLink.href = bookmarkletUrl;
+  bmLink.textContent = '⚡ Auto-Fill bbstaff Form';
+  bmLink.style.cssText = 'display:inline-block;padding:10px 18px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:16px;letter-spacing:1px;text-decoration:none;cursor:move';
+  bmLink.setAttribute('draggable','true');
+  s1.appendChild(bmLink);
+  var dragHint = document.createElement('div');
+  dragHint.style.cssText = 'font-size:10px;color:#888;margin-top:6px';
+  dragHint.textContent = '👆 Drag this to your bookmarks bar';
+  s1.appendChild(dragHint);
+  box.appendChild(s1);
+
+  // Step 2 - Credentials
+  var s2 = document.createElement('div');
+  s2.style.cssText = 'background:#fff8e6;border:1px solid #f5d87a;border-radius:10px;padding:14px;margin-bottom:12px';
+  var s2title = document.createElement('div');
+  s2title.style.cssText = 'font-weight:800;font-size:12px;color:#92400e;margin-bottom:10px';
+  s2title.textContent = 'STEP 2 — YOUR CREDENTIALS';
+  s2.appendChild(s2title);
+
+  function makeCredRow(label, value){
+    var row = document.createElement('div');
+    row.style.cssText = 'background:white;border:1px solid #e5e5e5;border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px';
+    var info = document.createElement('div');
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:10px;color:#888';
+    lbl.textContent = label;
+    var val = document.createElement('div');
+    val.style.cssText = 'font-weight:700;font-size:13px;color:#1a1a1a';
+    val.textContent = value || '—';
+    info.appendChild(lbl); info.appendChild(val);
+    var cpBtn = document.createElement('button');
+    cpBtn.textContent = '📋 Copy';
+    cpBtn.style.cssText = 'background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:#555;flex-shrink:0';
+    cpBtn.onclick = function(){ navigator.clipboard.writeText(value||'').then(function(){ toast('Copied: '+label); }); };
+    row.appendChild(info); row.appendChild(cpBtn);
+    return row;
   }
 
-  setTimeout(function(){
-    var a = document.createElement('a');
-    a.href = regUrl; a.target = '_blank'; a.rel = 'noopener';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }, 400);
+  s2.appendChild(makeCredRow('Salon Name', cr.salonName));
+  s2.appendChild(makeCredRow('Phone (Username)', cr.phone));
+  s2.appendChild(makeCredRow('City / Location', cr.city));
+  s2.appendChild(makeCredRow('Full Address', cr.address || cr.city));
 
-  // Show credentials in a prominent modal/alert so owner can copy them
-  setTimeout(function(){
-    var msg = '📋 BBSTAFF REGISTRATION CREDENTIALS\n\n' +
-              '🏪 Salon Name : ' + cr.salonName + '\n' +
-              '📞 Phone      : ' + cr.phone + '\n' +
-              '📍 City       : ' + cr.city + '\n' +
-              '📬 Address    : ' + cr.address + '\n' +
-              '🔑 PIN        : ' + cr.pin + '\n\n' +
-              'Use these details to fill the registration form.\n' +
-              'Remember your PIN — you will need it to login.';
-    if(confirm(msg + '\n\n[OK to copy PIN to clipboard, Cancel to skip]')){
-      navigator.clipboard.writeText(cr.pin).catch(function(){});
-    }
-  }, 600);
+  // PIN box
+  var pinBox = document.createElement('div');
+  pinBox.style.cssText = 'background:#003D2B;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-top:4px';
+  var pinInfo = document.createElement('div');
+  var pinLbl = document.createElement('div');
+  pinLbl.style.cssText = 'font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px';
+  pinLbl.textContent = '6-DIGIT PIN (enter this in the form)';
+  var pinVal = document.createElement('div');
+  pinVal.style.cssText = 'font-family:monospace;font-size:28px;font-weight:900;color:#F5E030;letter-spacing:8px';
+  pinVal.textContent = cr.pin;
+  pinInfo.appendChild(pinLbl); pinInfo.appendChild(pinVal);
+  var pinCopy = document.createElement('button');
+  pinCopy.textContent = '📋 Copy PIN';
+  pinCopy.style.cssText = 'padding:10px 16px;background:#C8A800;color:#003D2B;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;flex-shrink:0';
+  pinCopy.onclick = function(){
+    navigator.clipboard.writeText(cr.pin).then(function(){ pinCopy.textContent='✅ Copied!'; setTimeout(function(){ pinCopy.textContent='📋 Copy PIN'; },2000); });
+  };
+  pinBox.appendChild(pinInfo); pinBox.appendChild(pinCopy);
+  s2.appendChild(pinBox);
+  box.appendChild(s2);
+
+  // Step 3 - Open page
+  var openBtn = document.createElement('button');
+  openBtn.style.cssText = 'width:100%;padding:14px;background:#003D2B;color:#F5E030;border:none;border-radius:10px;font-family:var(--HF);font-size:18px;letter-spacing:1px;cursor:pointer;margin-bottom:8px';
+  openBtn.textContent = '🚀 STEP 3 — OPEN BBSTAFF REGISTER PAGE';
+  openBtn.onclick = function(){
+    var a = document.createElement('a');
+    a.href = 'https://bbstaff.abudgetbarber.workers.dev/recruiter';
+    a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+  box.appendChild(openBtn);
+
+  var hint = document.createElement('div');
+  hint.style.cssText = 'font-size:11px;color:#888;text-align:center';
+  hint.textContent = 'After opening the page, click the bookmarklet to auto-fill all fields, then click Create Account.';
+  box.appendChild(hint);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 }
+
 
 // ── Browse actual stylist profiles ────────────────────────────
 function openBrowseProfiles(){
