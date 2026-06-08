@@ -281,15 +281,15 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
 /* ── PNL TAB ── */
-.pnl-section{background:var(--card,#003828);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.pnl-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
 .pnl-sec-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.06)}
-.pnl-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;gap:8px}
+.pnl-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;gap:8px}
 .pnl-row:last-child{border-bottom:none}
-.pnl-row span:first-child{color:rgba(255,255,255,.75);flex:1}
-.pnl-val-pos{color:#00C48C;font-weight:700}
-.pnl-val-neg{color:#FF6B5B;font-weight:700}
-.pnl-auto{background:rgba(255,255,255,.02)}
-.pnl-total-row{background:rgba(255,255,255,.04);font-weight:700}
+.pnl-row span:first-child{color:var(--muted);flex:1}
+.pnl-val-pos{color:var(--accent);font-weight:700}
+.pnl-val-neg{color:var(--danger);font-weight:700}
+.pnl-auto{background:rgba(0,0,0,.02)}
+.pnl-total-row{background:var(--surface2);font-weight:700}
 .pnl-muted-row{opacity:.7;font-size:12px}
 .pnl-input{background:var(--surface2,var(--darker,#001A12));border:1px solid rgba(0,0,0,.10);border-radius:6px;color:var(--white);font-family:var(--BF);font-size:13px;padding:5px 9px;width:110px;text-align:right;outline:none}
 .pnl-input:focus{border-color:var(--accent,#00C48C)}
@@ -353,7 +353,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 /* PNL section in light mode */
 .pnl-input { background: var(--surface2) !important; color: var(--white) !important; border-color: var(--border) !important; }
-.pnl-row span:first-child { color: var(--muted) !important; }
 .pnl-row.pnl-total-row { background: var(--surface2) !important; }
 .pnl-row.pnl-auto { background: rgba(0,0,0,.02) !important; }
 
@@ -457,7 +456,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
-    <div class="tb-mgr-name" id="tbName">Owner</div>
+    <div class="tb-mgr-name" id="tbName">My Salon</div>
     <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
@@ -2283,14 +2282,15 @@ var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('m
 
 // ── Pre-fill topbar from session immediately (before bootstrap) ──
 (function preInitTopbar(){
-  var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
-  var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
+  var _oName   = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
+  var _address = '';
+  try{ var _s=JSON.parse(localStorage.getItem('ms_salons')||'[]'); if(_s&&_s[0]) _address=_s[0].address||_s[0].full_address||''; }catch(e){}
   var _role  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
   var _tbN   = document.getElementById('tbName');
   var _tbO   = document.getElementById('tbOutlet');
   var _tbB   = document.getElementById('tb-role-badge');
-  if(_tbN) _tbN.textContent = _sName;
-  if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
+  if(_tbN) _tbN.textContent = _oName;
+  if(_tbO) _tbO.textContent = _address ? '📍 '+_address : '📍 —';
   if(_tbB){
     if(_role === 'manager')  _tbB.textContent = '👔 Manager';
     else                     _tbB.textContent = '👑 Owner';
@@ -2484,8 +2484,9 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
   mySalonName = salon ? salon.name : (_sessionName || 'My Salon');
 
-  document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
-  document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
+  document.getElementById('tbName').textContent   = mySalonName;
+  var _salonAddr = (salon && (salon.address || salon.full_address)) || '';
+  document.getElementById('tbOutlet').textContent = _salonAddr ? '📍 ' + _salonAddr : '📍 —';
   document.getElementById('staff-salon-name').textContent = mySalonName;
   var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
@@ -9247,7 +9248,8 @@ function saveSalonInfo(){
     mySalonName=row.name;
     localStorage.setItem('ms_name',row.name);
     sessionStorage.setItem('ms_name',row.name);
-    document.getElementById('tbOutlet').textContent='📍 '+row.name;
+    document.getElementById('tbName').textContent=''+row.name;
+    document.getElementById('tbOutlet').textContent='📍 '+(row.address||'—');
     toast('✅ Salon info saved');
   }).catch(function(e){ toast('Error: '+e.message); });
 }
