@@ -952,14 +952,13 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Sub tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
-    <button class="manage-sub on" id="mst-staff"     onclick="manageSubTab('staff')">👥 Staff</button>
-    <button class="manage-sub"   id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
+    <button class="manage-sub on" id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
     <button class="manage-sub"   id="mst-saloninfo" onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
     <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">📊 Expenses</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
-  <div id="msp-staff">
+  <div id="msp-staff" style="display:none">
     <div class="sec-hdr">
       <div class="sec-title">HAIRSTYLISTS &amp; MANAGERS</div>
       <button onclick="openManageAddStaff()" class="btn-sm on" style="background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px">+ Add Staff</button>
@@ -1013,7 +1012,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">📍 Salon Info</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="ifield"><label>Salon Name</label><input type="text" class="fi" id="sal-name" placeholder="Salon name"></div>
-        <div class="ifield"><label>Phone</label><input type="tel" class="fi" id="sal-phone" placeholder="Contact number"></div>
+        <div class="ifield"><label>Phone</label><input type="tel" class="fi" id="sal-phone" placeholder="Contact number" readonly style="background:var(--surface2);color:var(--muted);cursor:not-allowed;opacity:.7" title="Phone cannot be changed"></div>
         <div class="ifield"><label>City</label><input type="text" class="fi" id="sal-city" placeholder="City"></div>
         <div class="ifield"><label>State</label><input type="text" class="fi" id="sal-state" placeholder="State"></div>
       </div>
@@ -1038,16 +1037,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
           <input type="number" class="fi" id="rent-staffroom" placeholder="0" min="0" oninput="updateRentTotal()">
           <div style="font-size:10px;color:var(--muted2);margin-top:4px">Staff accommodation rent</div>
         </div>
-        <div class="ifield">
-          <label>⚡ Electricity (₹/mo)</label>
-          <input type="number" class="fi" id="rent-electricity" placeholder="0" min="0" oninput="updateRentTotal()">
-          <div style="font-size:10px;color:var(--muted2);margin-top:4px">Average monthly bill</div>
-        </div>
-        <div class="ifield">
-          <label>📦 Other Fixed Costs (₹/mo)</label>
-          <input type="number" class="fi" id="rent-other" placeholder="0" min="0" oninput="updateRentTotal()">
-          <div style="font-size:10px;color:var(--muted2);margin-top:4px">WiFi, maintenance, etc.</div>
-        </div>
+        <input type="hidden" id="rent-electricity" value="0">
+        <input type="hidden" id="rent-other" value="0">
       </div>
       <!-- Total band -->
       <div style="background:rgba(0,196,140,.06);border:1px solid rgba(0,196,140,.2);border-radius:var(--rs);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -2728,10 +2719,9 @@ function showTab(tab){
   }
   if(tab==='manage'){
     supaBootstrap(function(){
-      renderManageStaff();
-      setTimeout(function(){ manageSubTab('fullstaff'); }, 200);
+      setTimeout(function(){ manageSubTab('fullstaff'); }, 150);
     }, function(){
-      renderManageStaff();
+      setTimeout(function(){ manageSubTab('fullstaff'); }, 150);
     });
     return;
   }
@@ -9023,13 +9013,12 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['staff','fullstaff','saloninfo','salon'].forEach(function(t){
+  ['fullstaff','saloninfo','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
-  if(tab==='staff')     renderManageStaff();
   if(tab==='saloninfo') loadSalonInfoForm();
   if(tab==='fullstaff') _loadFullStaffPanel();
   if(tab==='salon')     _loadSalonExpensesPanel();
