@@ -461,7 +461,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
-    <span class="tb-badge">🏪 Mgr</span>
+    <span class="tb-badge" id="tb-role-badge">👑 Owner</span>
     <span id="lastSyncTime" style="font-size:9px;color:var(--muted2);letter-spacing:.3px;white-space:nowrap;margin-right:4px"></span><button class="tb-out" onclick="logout()">Logout</button>
   </div>
 </div>
@@ -2285,10 +2285,16 @@ var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('m
 (function preInitTopbar(){
   var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
   var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
-  var _tbN = document.getElementById('tbName');
-  var _tbO = document.getElementById('tbOutlet');
+  var _role  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
+  var _tbN   = document.getElementById('tbName');
+  var _tbO   = document.getElementById('tbOutlet');
+  var _tbB   = document.getElementById('tb-role-badge');
   if(_tbN) _tbN.textContent = _sName;
   if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
+  if(_tbB){
+    if(_role === 'manager')  _tbB.textContent = '👔 Manager';
+    else                     _tbB.textContent = '👑 Owner';
+  }
 })();
 // ─────────────────────────────────────────────────────────────────
 
@@ -2709,12 +2715,26 @@ function showTab(tab){
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
   if(tab==='kpi'){   supaBootstrap(function(){ initKPI(); }, function(){ initKPI(); }); }
   if(tab==='pnl'){
+    // Ensure month picker has a value before rendering
+    var _pm = document.getElementById('pnl-month');
+    if(_pm && !_pm.value) _pm.value = new Date().toISOString().slice(0,7);
     supaBootstrap(function(){
-      try{ initPNL(); renderPNL(); }
-      catch(e){ console.error('[PNL] error:',e); document.getElementById('pn-pnl').innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>'; }
+      try{
+        if(typeof initPNL === 'function') initPNL();
+        var pm2 = document.getElementById('pnl-month');
+        if(pm2 && !pm2.value) pm2.value = new Date().toISOString().slice(0,7);
+        if(typeof renderPNL === 'function') renderPNL();
+      }
+      catch(e){
+        console.error('[PNL] error:',e);
+        var pe=document.getElementById('pn-pnl');
+        if(pe) pe.innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>';
+      }
     }, function(){
-      try{ initPNL(); renderPNL(); }
-      catch(e){ console.error('[PNL] error:',e); }
+      try{
+        if(typeof initPNL === 'function') initPNL();
+        if(typeof renderPNL === 'function') renderPNL();
+      } catch(e){ console.error('[PNL]',e); }
     });
   }
   if(tab==='manage'){
@@ -6615,7 +6635,9 @@ function loadFranchiseInputs(month, cb){
 }
 
 function renderPNL(){
-  var month = document.getElementById('pnl-month').value;
+  var _pmEl = document.getElementById('pnl-month');
+  if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
+  var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
   if(!month){ return; }
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
