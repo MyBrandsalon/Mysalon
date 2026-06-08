@@ -952,9 +952,10 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Sub tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
-    <button class="manage-sub on" id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
-    <button class="manage-sub"   id="mst-saloninfo" onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
-    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">📊 Expenses</button>
+    <button class="manage-sub on" id="mst-fullstaff"  onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
+    <button class="manage-sub"   id="mst-mgrprofile" onclick="manageSubTab('mgrprofile')">👤 Manager Profile</button>
+    <button class="manage-sub"   id="mst-saloninfo"  onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
+    <button class="manage-sub"   id="mst-salon"      onclick="manageSubTab('salon')">📊 Expenses</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -1057,6 +1058,93 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- ── SALON EXPENSES SUB-TAB (moved from main Salon tab) ── -->
   <div id="msp-salon" style="display:none">
     <div id="pn-salon-inner"></div>
+  </div>
+
+  <!-- ── MANAGER PROFILE SUB-TAB ── -->
+  <div id="msp-mgrprofile" style="display:none">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:14px">👤 Manager / Staff Profile</div>
+
+      <!-- Role select matching the screenshot -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="ifield">
+          <label>Full Name</label>
+          <input type="text" class="fi" id="mgp-name" placeholder="Full name">
+        </div>
+        <div class="ifield">
+          <label>Phone</label>
+          <input type="tel" class="fi" id="mgp-phone" placeholder="10-digit phone" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <div class="ifield">
+          <label>Role</label>
+          <select class="fi" id="mgp-role">
+            <option value="manager" selected>Manager</option>
+          </select>
+        </div>
+        <div class="ifield">
+          <label>Salon</label>
+          <input type="text" class="fi" id="mgp-salon" readonly style="background:var(--surface2);color:var(--muted);cursor:not-allowed" placeholder="Auto-filled">
+        </div>
+      </div>
+
+      <!-- Login PIN section matching screenshot -->
+      <div style="background:rgba(245,224,48,.06);border:1px solid rgba(245,224,48,.2);border-radius:var(--r);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#9A7E00;margin-bottom:10px">🔐 Login PIN</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <input type="text" class="fi" id="mgp-pin" placeholder="Set 6-digit PIN" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')" style="font-size:22px;font-family:var(--HF);letter-spacing:6px;text-align:center;flex:1;background:var(--surface2)">
+          <button onclick="mgpGeneratePin()" style="padding:10px 16px;background:rgba(0,196,140,.12);border:1px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;font-family:var(--BF)">🎲 Generate</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">Staff uses this PIN to log in. Share it with them.</div>
+      </div>
+
+      <!-- Salary fields matching screenshot -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="ifield">
+          <label>Fixed Salary (₹)</label>
+          <input type="number" class="fi" id="mgp-salary" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Food Money (₹)</label>
+          <input type="number" class="fi" id="mgp-food" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Cleaning Money (₹)</label>
+          <input type="number" class="fi" id="mgp-clean" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- Targets -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="ifield">
+          <label>Weekday Target (₹) <span style="font-size:10px;color:var(--muted2)">MON-FRI</span></label>
+          <input type="number" class="fi" id="mgp-wdtarget" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Weekend Target (₹) <span style="font-size:10px;color:var(--muted2)">SAT-SUN</span></label>
+          <input type="number" class="fi" id="mgp-wetarget" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- Permissions toggle -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Permissions</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--white)">
+          <input type="checkbox" id="mgp-backdate" style="width:16px;height:16px;accent-color:var(--accent)">
+          Allow backdated billing
+        </label>
+      </div>
+
+      <!-- Save / Cancel -->
+      <div style="display:flex;gap:8px">
+        <button onclick="cancelMgrProfile()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Cancel</button>
+        <button onclick="saveMgrProfile()" style="flex:2;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Add Staff + Generate OTP</button>
+      </div>
+    </div>
+
+    <!-- Existing managers list -->
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Existing Managers & Staff</div>
+    <div id="mgp-staff-list" style="display:grid;gap:10px"></div>
   </div>
 
 </div>
@@ -6641,9 +6729,9 @@ function _renderSalonList(all, yr, m){
 
 function getSalonExpenseTotals(yr, m){
   var all = LS.get('salonExpenses')||[];
-  var _sxPrefix=yr+'-'+(m<10?'0':'')+m;
   var entries = all.filter(function(r){
-    return _normDate(r["date"]||'').slice(0,7)===_sxPrefix;
+    var p=(r["date"]||'').split('/');
+    return parseInt(p[1])===m && parseInt(p[2])===yr;
   });
   var totals={cosmetics:0,eb_store:0,eb_staff:0,maid:0,wifi:0,marketing:0,other:0};
   entries.forEach(function(r){
@@ -6688,18 +6776,11 @@ function renderPNL(){
   if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
   var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
   if(!month){ return; }
-  // Guard: resolve mySalonId from every possible source before rendering
+  // Guard: if mySalonId is still empty, try to resolve it before rendering
   if(!mySalonId){
-    mySalonId = sessionStorage.getItem('ms_salon_id')
-      || localStorage.getItem('ms_salon_id')
-      || (typeof MS_TENANT_ID !== 'undefined' ? localStorage.getItem('ms_salon_id_'+MS_TENANT_ID) : '')
-      || '';
+    mySalonId = sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
     var _sl = LS.get('salons')||[];
-    if(!mySalonId && _sl.length){ mySalonId = String(_sl[0].id); }
-    if(mySalonId){
-      sessionStorage.setItem('ms_salon_id', mySalonId);
-      localStorage.setItem('ms_salon_id', mySalonId);
-    }
+    if(!mySalonId && _sl.length){ mySalonId=_sl[0].id; }
   }
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
@@ -6768,12 +6849,8 @@ function _doRenderPNL(month){
       _half    = Number(_savedAtt.half||0);
     } else {
       for(var _di=1; _di<=_pnlDays; _di++){
-        var _dsIndian=_di+'/'+mo+'/'+yr;
-        var _dsISO=yr+'-'+(mo<10?'0':'')+mo+'-'+(_di<10?'0':'')+_di;
-        var _recs=_pnlAttLog.filter(function(r){
-          return (r.date===_dsIndian||r.date===_dsISO||_normDate(r.date||'')===_dsISO)
-                  &&String(r.barberId)===String(u.id);
-        });
+        var _ds=_di+'/'+mo+'/'+yr;
+        var _recs=_pnlAttLog.filter(function(r){return r.date===_ds&&String(r.barberId)===String(u.id);});
         if(_recs.some(function(r){return r.type==='in';})&&_recs.some(function(r){return r.type==='out';})) _present++;
         else if(_recs.some(function(r){return r.type==='in';})) _half++;
       }
@@ -6792,7 +6869,7 @@ function _doRenderPNL(month){
 
   // Barber incentives = auto-calculated: max(0, (monthly sales - fixed salary) * 10%)
   var barberIncentives = 0;
-  myStaff.filter(function(u){ return u.role==='stylist'||u.role==='barber'; }).forEach(function(u){
+  myStaff.filter(function(u){ return u.role==='stylist'||role==='barber'; }).forEach(function(u){
     var fs2 = Number(u.fixedSalary||0);
     var barberSales = entries.filter(function(e){ return String(e.barberId)===String(u.id); })
       .reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); }, 0);
@@ -6830,10 +6907,10 @@ function _doRenderPNL(month){
     if(isWeekend) monthWeekends++; else monthWeekdays++;
     // Elapsed counts + revenues (for avg calculation)
     if(di<=todayDay){
-      // _normDate handles both ISO "YYYY-MM-DD" and Indian "D/M/YYYY"
-      var _diStr=yr+'-'+(mo<10?'0':'')+mo+'-'+(di<10?'0':'')+di;
+      // Use parseInt comparison to handle both padded (03/03/2026) and unpadded (3/3/2026) date formats
       var dayRev=entries.filter(function(e){
-        return _normDate(e.date||'')===_diStr;
+        var p=(e.date||'').split('/');
+        return parseInt(p[0])===di && parseInt(p[1])===mo && parseInt(p[2])===yr;
       }).reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
       if(isWeekend){ weekendRevs.push(dayRev); elapsedWeekends++; }
       else         { weekdayRevs.push(dayRev); elapsedWeekdays++; }
@@ -7153,7 +7230,7 @@ function salonDailyTarget(salonId, dateStr){
   var staff = LS.get('staff')||[];
   return staff.filter(function(u){
     return String(u.salonId)===String(salonId) &&
-           u.role==='stylist'||u.role==='barber' &&
+           u.role==='stylist'||role==='barber' &&
            (u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);
   }).reduce(function(a,u){
     return a + Number(isWeekend ? (u.weekendTarget||u.weekdayTarget||0) : (u.weekdayTarget||0));
@@ -7866,9 +7943,9 @@ function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var
 window.sdSetPeriod=function(p){_sdPeriod=p;['today','month','year'].forEach(function(x){var b=document.getElementById('sd-pt-'+x);if(b)b.classList.toggle('on',x===p);var f=document.getElementById('sd-f-'+x);if(f)f.classList.toggle('sd-hidden',x!==p);});var tgt=document.getElementById('sd-tgt-block');if(tgt)tgt.classList.toggle('sd-hidden',p!=='today');var ch=document.getElementById('sd-chart-block');if(ch)ch.classList.toggle('sd-hidden',p==='year');var yr=document.getElementById('sd-yr-block');if(yr)yr.classList.toggle('sd-hidden',p!=='year');var tbl=document.getElementById('sd-tbl-block');if(tbl)tbl.classList.toggle('sd-hidden',p==='year');sdRender();};
 window.sdRender=function(){if(!document.getElementById('sd-kpi-custs'))return;var entries=_sdGetFiltered();var totPh=entries.reduce(function(a,e){return a+Number(e.phPay||0);},0);var totCash=entries.reduce(function(a,e){return a+Number(e.cash||0);},0);var totTips=entries.reduce(function(a,e){return a+Number(e.phTip||0)+Number(e.cashTip||0)+Number(e.tip||0);},0);var totSales=totPh+totCash;var custs=entries.length;var avg=custs?Math.round(totSales/custs):0;document.getElementById('sd-kpi-custs').textContent=custs;document.getElementById('sd-kpi-rev').textContent=fmtINR(totSales);document.getElementById('sd-kpi-avg').textContent=fmtINR(avg);document.getElementById('sd-kpi-tips').textContent=fmtINR(totTips);document.getElementById('sd-ph-val').textContent=fmtINR(totPh);document.getElementById('sd-cash-val').textContent=fmtINR(totCash);var phPct=totSales?Math.round(totPh/totSales*100):50;document.getElementById('sd-ph-bar').style.width=phPct+'%';document.getElementById('sd-cash-bar').style.width=(100-phPct)+'%';if(_sdPeriod==='today'){var target=(typeof salonDailyTarget!=='undefined'&&typeof mySalonId!=='undefined')?(salonDailyTarget(mySalonId,today())||8000):8000;var pct=Math.min(100,Math.round(totSales/target*100));document.getElementById('sd-tgt-pct').textContent=pct+'%';document.getElementById('sd-tgt-fill').style.width=pct+'%';document.getElementById('sd-tgt-ach').textContent=fmtINR(totSales)+' achieved';document.getElementById('sd-tgt-goal').textContent='Target: '+fmtINR(target);_sdDrawHourly(entries);}else if(_sdPeriod==='month'){_sdDrawDaily(entries);}else{_sdDrawYear(entries);}_sdRenderStylists(entries,totSales);if(_sdPeriod!=='year')_sdRenderTable(entries);};
 function _sdDrawHourly(e){var h=[9,10,11,12,13,14,15,16,17,18,19,20,21];var lb=h.map(function(x){return x>12?(x-12)+'pm':x===12?'12pm':x+'am';});var dt=h.map(function(x){return e.filter(function(r){return parseInt((r.time||'0').split(':')[0])===x;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0);});var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Hourly Sales — Today';_sdDrawChart(lb,dt);}
-function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var _dsISO=yr+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;dt.push(e.filter(function(r){return _normDate(r.date||'')===_dsISO;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
+function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var ds=d+'/'+m+'/'+yr;dt.push(e.filter(function(r){return r.date===ds;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
 function _sdDrawChart(lb,dt){if(typeof Chart==='undefined')return;var ctx=document.getElementById('sdBarChart');if(!ctx)return;if(_sdChart){_sdChart.destroy();_sdChart=null;}_sdChart=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:lb,datasets:[{label:'Sales',data:dt,backgroundColor:'rgba(0,122,86,0.75)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtINR(c.raw);}}}},scales:{x:{ticks:{font:{size:9},color:'#888',autoSkip:true,maxTicksLimit:12},grid:{display:false}},y:{ticks:{font:{size:9},color:'#888',callback:function(v){return v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v;}},grid:{color:'rgba(0,0,0,0.05)'}}}}});}
-function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var _moStr=yr+'-'+((i+1)<10?'0':'')+(i+1);var me=e.filter(function(r){return _normDate(r.date||'').slice(0,7)===_moStr;});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
+function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var me=e.filter(function(r){var p=(r.date||'').split('/');return parseInt(p[1])===(i+1);});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
 function _sdRenderStylists(e,totS){var map={};e.forEach(function(r){var k=r.barberId||r.barberName||'?';if(!map[k])map[k]={name:r.barberName||k,total:0,custs:0};map[k].total+=Number(r.phPay||0)+Number(r.cash||0);map[k].custs++;});var sorted=Object.values(map).sort(function(a,b){return b.total-a.total;});var maxT=sorted.length?sorted[0].total:1;var el=document.getElementById('sd-sty-list');if(!el)return;el.innerHTML=sorted.length===0?'<div class="sd-tbl-empty">No data</div>':sorted.map(function(s){var ini=(s.name||'?').split(/[\s\-]+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();var pct=Math.max(3,Math.round(s.total/maxT*100));var share=totS?Math.round(s.total/totS*100):0;return '<div class="sd-sty-row"><div class="sd-sty-ava">'+ini+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;justify-content:space-between"><span class="sd-sty-name">'+s.name+'</span><span style="font-size:10px;color:var(--muted2)">'+share+'%</span></div><div class="sd-sty-bar-wrap"><div class="sd-sty-bar-fill" style="width:'+pct+'%"></div></div><div class="sd-sty-custs">'+s.custs+' customer'+(s.custs!==1?'s':'')+'</div></div><div class="sd-sty-amt">'+fmtINR(s.total)+'</div></div>';}).join('');}
 function _sdRenderTable(e){var shown=e.slice().reverse().slice(0,50);var cntEl=document.getElementById('sd-tbl-cnt');if(cntEl)cntEl.textContent=e.length+' entries';var el=document.getElementById('sd-tbl-body');if(!el)return;el.innerHTML=shown.length===0?'<div class="sd-tbl-empty">No transactions found</div>':shown.map(function(r,i){var sales=Number(r.phPay||0)+Number(r.cash||0);var tip=Number(r.phTip||0)+Number(r.cashTip||0)+Number(r.tip||0);var payTag=Number(r.phPay||0)>0?'<span class="sd-tag-ph">PhPe '+fmtINR(r.phPay)+'</span>':'<span class="sd-tag-cash">Cash '+fmtINR(r.cash)+'</span>';var editBtns=r.date===today()?'<div style="margin-top:3px"><button class="btn-edit" onclick="openEdit(\''+r.id+'\')" title="Edit">✏️</button><button class="btn-del" onclick="delEntry(\''+r.id+'\')" style="margin-left:3px" title="Delete">✕</button></div>':'';return '<div class="sd-tbl-row"><span style="color:var(--muted2);font-size:10px">'+(i+1)+'</span><div><div style="font-size:12px;font-weight:700;color:var(--white)">'+r.barberName+'</div><div style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</div><div style="font-size:10px;color:var(--muted2)">'+(r.customerName||'Walk-in')+' · '+r.services+'</div>'+editBtns+'</div><div>'+payTag+(tip>0?'<div style="font-size:9px;color:#9333EA;margin-top:1px">Tip '+fmtINR(tip)+'</div>':'')+'</div><div class="sd-tag-tot">'+fmtINR(sales)+'</div></div>';}).join('')+(e.length>50?'<div class="sd-tbl-empty" style="padding:9px">Showing latest 50 of '+e.length+'</div>':'');}
 window.sdInit=function(){var yrSel=document.getElementById('sd-fy-year');if(yrSel&&!yrSel.options.length){var cy=new Date().getFullYear();for(var y=cy;y>=cy-4;y--){var o=document.createElement('option');o.value=y;o.textContent=y;yrSel.appendChild(o);}}var mEl=document.getElementById('sd-fm-month');if(mEl&&!mEl.value)mEl.value=new Date().toISOString().slice(0,7);var barbers=(typeof mySalonId!=='undefined'&&mySalonId)?(LS.get('staff')||[]).filter(function(u){return String(u.salonId)===String(mySalonId)&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);}):(LS.get('staff')||[]).filter(function(u){return u.role==='stylist'||role==='barber';});['sd-ft-stylist','sd-fm-stylist','sd-fy-stylist'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;while(sel.options.length>1)sel.remove(1);barbers.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});});
@@ -7878,7 +7955,7 @@ if(mySalonId){sbSelect('entries','"salonId"=eq.'+encodeURIComponent(mySalonId)+'
 })();
 
 // ── MySalon multi-tenant patch ──────────────────────────────
-var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || localStorage.getItem('ms_tenant_id') || '';
+var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || '';
 var _origSbInsert = sbInsert;
 sbInsert = function(table, row) {
   if (_MS_TENANT_ID && typeof row === 'object' && !Array.isArray(row) && !row.tenant_id) {
@@ -7888,21 +7965,9 @@ sbInsert = function(table, row) {
 };
 var _origSupaBootstrap = supaBootstrap;
 supaBootstrap = function(onDone, onError) {
-  // Re-read tenant ID live in case it was set after script parse
-  var _tid = _MS_TENANT_ID
-    || sessionStorage.getItem('ms_tenant_id')
-    || localStorage.getItem('ms_tenant_id')
-    || (typeof MS_TENANT_ID !== 'undefined' ? MS_TENANT_ID : '')
-    || '';
-  if (!_tid) {
-    // No tenant at all — still try _origSupaBootstrap (uses anonymous/public key)
-    // so PNL at least renders with cached data rather than a blank screen
-    console.warn('[MySalon] supaBootstrap: no tenant_id, using fallback');
-    _origSupaBootstrap(onDone, onError);
-    return;
-  }
+  if (!_MS_TENANT_ID) { if(onError) onError('No tenant'); return; }
   if (typeof msBootstrap === 'function') {
-    msBootstrap(_tid, onDone, onError);
+    msBootstrap(_MS_TENANT_ID, onDone, onError);
   } else {
     _origSupaBootstrap(onDone, onError);
   }
@@ -9119,15 +9184,16 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['fullstaff','saloninfo','salon'].forEach(function(t){
+  ['fullstaff','mgrprofile','saloninfo','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
-  if(tab==='saloninfo') loadSalonInfoForm();
-  if(tab==='fullstaff') _loadFullStaffPanel();
-  if(tab==='salon')     _loadSalonExpensesPanel();
+  if(tab==='saloninfo')   loadSalonInfoForm();
+  if(tab==='fullstaff')   _loadFullStaffPanel();
+  if(tab==='salon')       _loadSalonExpensesPanel();
+  if(tab==='mgrprofile')  loadMgrProfileTab();
 }
 
 function _loadSalonExpensesPanel(){
@@ -9284,6 +9350,198 @@ function saveManageStaff(){
     if(typeof populateMgrBillBarbers==='function') populateMgrBillBarbers();
     toast('✅ Staff saved');
   }).catch(function(e){ toast('Error: '+e.message); });
+}
+
+// ── Manager Profile Tab ─────────────────────────────────────────
+
+function loadMgrProfileTab(){
+  // Pre-fill salon name (read-only)
+  var salEl = document.getElementById('mgp-salon');
+  if(salEl) salEl.value = mySalonName || '';
+
+  // If editing current logged-in user, pre-fill their data
+  if(ME){
+    var n=document.getElementById('mgp-name');   if(n&&!n.value) n.value=ME.name||'';
+    var ph=document.getElementById('mgp-phone'); if(ph&&!ph.value) ph.value=ME.phone||'';
+    var ro=document.getElementById('mgp-role');  if(ro&&!ro.value) ro.value='manager';
+    var pi=document.getElementById('mgp-pin');   if(pi&&!pi.value) pi.value=ME.loginPin||ME.pin||'';
+    var sl=document.getElementById('mgp-salary');if(sl&&!sl.value) sl.value=ME.fixedSalary||ME.salary||0;
+    var fo=document.getElementById('mgp-food');  if(fo&&!fo.value) fo.value=ME.foodMoney||ME.food||0;
+    var cl=document.getElementById('mgp-clean'); if(cl&&!cl.value) cl.value=ME.cleaningMoney||ME.cleaning||0;
+    var bd=document.getElementById('mgp-backdate'); if(bd) bd.checked=!!(ME.allowBackdate===true||ME.allowBackdate===1||ME.allowBackdate==='1');
+  }
+  _renderMgrProfileList();
+}
+
+function mgpGeneratePin(){
+  var pin = String(Math.floor(100000+Math.random()*900000));
+  var el  = document.getElementById('mgp-pin');
+  if(el){ el.value=pin; el.focus(); }
+}
+
+function cancelMgrProfile(){
+  ['mgp-name','mgp-phone','mgp-pin','mgp-salary','mgp-food','mgp-clean','mgp-wdtarget','mgp-wetarget'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var bd=document.getElementById('mgp-backdate'); if(bd) bd.checked=false;
+  var hidId=document.getElementById('mgp-edit-id'); if(hidId) hidId.value='';
+  // Update save button label back to Add
+  var btn=document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
+  if(btn) btn.textContent='Add Staff + Generate OTP';
+}
+
+function saveMgrProfile(){
+  var name    = (document.getElementById('mgp-name').value||'').trim();
+  var phone   = (document.getElementById('mgp-phone').value||'').replace(/\D/g,'');
+  var role    = document.getElementById('mgp-role').value||'manager';
+  var pin     = (document.getElementById('mgp-pin').value||'').trim();
+  var salary  = parseInt(document.getElementById('mgp-salary').value)||0;
+  var food    = parseInt(document.getElementById('mgp-food').value)||0;
+  var clean   = parseInt(document.getElementById('mgp-clean').value)||0;
+  var wdt     = parseInt(document.getElementById('mgp-wdtarget').value)||0;
+  var wet     = parseInt(document.getElementById('mgp-wetarget').value)||0;
+  var backdate= document.getElementById('mgp-backdate').checked;
+
+  if(!name){ toast('Enter staff name'); return; }
+  if(phone.length<10){ toast('Enter valid 10-digit phone'); return; }
+  if(!pin || pin.length<4){
+    pin = String(Math.floor(100000+Math.random()*900000));
+    var pinEl=document.getElementById('mgp-pin'); if(pinEl) pinEl.value=pin;
+  }
+
+  var tid  = MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  var hidId= document.getElementById('mgp-edit-id');
+  var editId = hidId ? hidId.value : '';
+
+  var row = {
+    name:name, phone:phone, role:role,
+    loginPin:pin, pin:pin,
+    fixedSalary:salary, salary:salary,
+    foodMoney:food, food:food,
+    cleaningMoney:clean, cleaning:clean,
+    weekdayTarget:wdt, weekendTarget:wet,
+    allowBackdate:backdate, active:true,
+    salonId:mySalonId, salon_id:mySalonId,
+    tenantId:tid, tenant_id:tid
+  };
+
+  var saveBtn = document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
+  if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving…'; }
+
+  var url    = SUPA_URL+'/rest/v1/staff';
+  var method = editId ? 'PATCH' : 'POST';
+  if(editId) url += '?id=eq.'+encodeURIComponent(editId);
+
+  fetch(url,{
+    method:method,
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+    body:JSON.stringify(row)
+  }).then(function(r){ return r.json(); })
+  .then(function(saved){
+    var s = Array.isArray(saved)?saved[0]:saved;
+    var staff = LS.get('staff')||[];
+    if(editId){
+      var idx=staff.findIndex(function(x){return String(x.id)===editId;});
+      if(idx>=0) staff[idx]=Object.assign({id:editId},row,s||{});
+      else staff.push(Object.assign({},row,s||{}));
+    } else {
+      if(s&&s.id) staff.push(Object.assign({},row,s));
+    }
+    LS.set('staff',staff);
+    if(typeof renderStaff==='function') renderStaff();
+    if(typeof populateMgrBillBarbers==='function') populateMgrBillBarbers();
+    if(typeof renderManageStaff==='function') renderManageStaff();
+    _renderMgrProfileList();
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Add Staff + Generate OTP'; }
+    // Show OTP toast with the PIN
+    toast('✅ '+name+' added! PIN: '+pin);
+    // Clear form for next entry
+    cancelMgrProfile();
+  }).catch(function(e){
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Add Staff + Generate OTP'; }
+    toast('Error: '+e.message);
+  });
+}
+
+function _renderMgrProfileList(){
+  var el = document.getElementById('mgp-staff-list');
+  if(!el) return;
+  var tid   = MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  var staff = (LS.get('staff')||[]).filter(function(s){
+    return String(s.salonId||s.salon_id||'')===String(mySalonId)||
+           String(s.tenantId||s.tenant_id||'')===String(tid);
+  });
+  if(!staff.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No staff added yet</div>';
+    return;
+  }
+
+  var roleLabels = {stylist:'Barber / Hairstylist',manager:'Manager',franchise_owner:'Franchise Owner',sales_head:'Sales Head'};
+  var roleColors = {stylist:'#003D2B',manager:'#1e3a5f',franchise_owner:'#5B28A0',sales_head:'#C2410C'};
+
+  el.innerHTML = staff.map(function(s){
+    var rl  = roleLabels[s.role]||s.role||'Stylist';
+    var rc  = roleColors[s.role]||'#003D2B';
+    var pin = s.loginPin||s.pin||'—';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:700;font-size:14px;color:var(--white);margin-bottom:2px">'+escH(s.name||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">📱 '+escH(s.phone||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">🔑 PIN: <span style="font-family:var(--HF);color:var(--accent);letter-spacing:2px">'+escH(String(pin))+'</span></div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+
+            '💰 ₹'+(s.fixedSalary||s.salary||0)+' · 🍱 ₹'+(s.foodMoney||s.food||0)+' · 🧹 ₹'+(s.cleaningMoney||s.cleaning||0)+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;background:'+rc+'20;color:'+rc+';border:1px solid '+rc+'40">'+escH(rl)+'</span>'+
+          '<div style="display:flex;gap:6px">'+
+            '<button onclick="mgpEditStaff(''+escH(String(s.id||''))+'' )" style="padding:5px 10px;background:rgba(0,196,140,.08);border:1px solid rgba(0,196,140,.2);color:var(--accent);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Edit</button>'+
+            '<button onclick="mgpSharePin(''+escH(String(pin))+'',''+escH(s.name||'')+'' )" style="padding:5px 10px;background:rgba(91,200,255,.08);border:1px solid rgba(91,200,255,.2);color:var(--blue);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Share PIN</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function mgpEditStaff(staffId){
+  var s=(LS.get('staff')||[]).find(function(x){return String(x.id)===String(staffId);});
+  if(!s) return;
+  // Add hidden edit-id field if not present
+  var panel=document.getElementById('msp-mgrprofile');
+  if(!document.getElementById('mgp-edit-id')){
+    var hid=document.createElement('input');
+    hid.type='hidden'; hid.id='mgp-edit-id';
+    if(panel) panel.prepend(hid);
+  }
+  document.getElementById('mgp-edit-id').value=s.id;
+  document.getElementById('mgp-name').value=s.name||'';
+  document.getElementById('mgp-phone').value=s.phone||'';
+  document.getElementById('mgp-role').value='manager';
+  document.getElementById('mgp-pin').value=s.loginPin||s.pin||'';
+  document.getElementById('mgp-salary').value=s.fixedSalary||s.salary||0;
+  document.getElementById('mgp-food').value=s.foodMoney||s.food||0;
+  document.getElementById('mgp-clean').value=s.cleaningMoney||s.cleaning||0;
+  document.getElementById('mgp-wdtarget').value=s.weekdayTarget||0;
+  document.getElementById('mgp-wetarget').value=s.weekendTarget||0;
+  var bd=document.getElementById('mgp-backdate');
+  if(bd) bd.checked=!!(s.allowBackdate===true||s.allowBackdate===1||s.allowBackdate==='1');
+  var btn=document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
+  if(btn) btn.textContent='Save Changes';
+  document.getElementById('mgp-name').focus();
+  panel.scrollTop=0;
+}
+
+function mgpSharePin(pin, name){
+  var text='Hi '+name+'! Your Budget Barber login PIN is: '+pin+'. Use your phone number + this PIN to log in.';
+  if(navigator.share){
+    navigator.share({text:text}).catch(function(){});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){ toast('📋 PIN copied'); }).catch(function(){ toast(pin); });
+  } else {
+    toast('PIN: '+pin);
+  }
 }
 
 // ── Salon Info ────────────────────────────────────────────────
