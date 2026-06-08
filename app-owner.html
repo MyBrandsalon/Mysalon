@@ -472,7 +472,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-sales"     onclick="showTab('sales')">📋 Sales</button>
   <button class="nt"    id="nt-yearly"    onclick="showTab('yearly')">📅 Yearly</button>
   <button class="nt"    id="nt-customers" onclick="showTab('customers')">👤 Customers</button>
-  <button class="nt"    id="nt-staff"     onclick="showTab('staff')">👥 Staff</button>
   <button class="nt" id="nt-cosmetics" onclick="showTab('cosmetics')">🧴 Cosmetics</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
@@ -870,7 +869,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 </div>
 
 <!-- ════ STAFF ════ -->
-<div class="panel" id="pn-staff">
+<div class="panel" id="pn-staff" style="display:none!important">
   <div class="sec-hdr">
     <div class="sec-title">Hairstylists — <span id="staff-salon-name" style="color:var(--accent)">My Salon</span></div>
     <button class="btn-sm" onclick="openModal('addStaffModal')">+ Add Hairstylist</button>
@@ -954,8 +953,9 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Sub tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
-    <button class="manage-sub on" id="mst-staff"  onclick="manageSubTab('staff')">👥 Staff</button>
-    <button class="manage-sub"   id="mst-salon"  onclick="manageSubTab('salon')">🏪 Salon</button>
+    <button class="manage-sub on" id="mst-staff"     onclick="manageSubTab('staff')">👥 Staff</button>
+    <button class="manage-sub"   id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
+    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">🏪 Salon</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -997,6 +997,11 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">Browse skilled stylists on the BB Staff Hiring Portal</div>
       <button onclick="openBrowseProfiles()" style="padding:8px 16px;background:#C8A800;color:#003D2B;border:none;border-radius:var(--rs);font-family:var(--HF);font-size:14px;cursor:pointer">🔍 Browse Profiles</button>
     </div>
+  </div>
+
+  <!-- ── FULL STAFF SUB-TAB (moved from main nav) ── -->
+  <div id="msp-fullstaff" style="display:none">
+    <div id="pn-staff-inner"></div>
   </div>
 
   <!-- ── SALON SUB-TAB ── -->
@@ -2694,7 +2699,7 @@ function showTab(tab){
   })(); sdInit(); }, function(){ sdInit(); }); }
   if(tab==='yearly')   { supaBootstrap(function(){ renderYearly(); }, function(){ renderYearly(); }); }
   if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); setTimeout(renderCustDir,300); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
-  if(tab==='staff')    { supaBootstrap(function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }, function(){ renderStaff(); setTimeout(_populateHireCredentials,200); }); }
+  // Staff moved to Manage tab
   if(tab==='cosmetics'){ cosLoadTab(); return; }
   if(tab==='salon'){ document.getElementById('sx-month').value=new Date().toISOString().slice(0,7); supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); }); }
   if(tab==='offers'){ renderMgrOffers(); }
@@ -2710,7 +2715,12 @@ function showTab(tab){
     });
   }
   if(tab==='manage'){
-    supaBootstrap(function(){ renderManageStaff(); }, function(){ renderManageStaff(); });
+    supaBootstrap(function(){
+      renderManageStaff();
+      setTimeout(function(){ manageSubTab('fullstaff'); }, 200);
+    }, function(){
+      renderManageStaff();
+    });
     return;
   }
   if(tab==='profile'){
@@ -9001,14 +9011,45 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['staff','salon'].forEach(function(t){
+  ['staff','fullstaff','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
-  if(tab==='staff') renderManageStaff();
-  if(tab==='salon') loadSalonInfoForm();
+  if(tab==='staff')     renderManageStaff();
+  if(tab==='salon')     loadSalonInfoForm();
+  if(tab==='fullstaff') _loadFullStaffPanel();
+}
+
+function _loadFullStaffPanel(){
+  // Move pn-staff content into the manage sub-tab
+  var inner = document.getElementById('pn-staff-inner');
+  var staffPanel = document.getElementById('pn-staff');
+  if(!inner || !staffPanel) return;
+  // Clone the staff panel content into our inner div
+  if(!inner.children.length){
+    // Trigger the staff tab data load
+    supaBootstrap(function(){
+      renderStaff();
+      setTimeout(_populateHireCredentials, 200);
+      // Move the rendered content
+      inner.innerHTML = staffPanel.innerHTML;
+    }, function(){
+      renderStaff();
+      setTimeout(_populateHireCredentials, 200);
+      inner.innerHTML = staffPanel.innerHTML;
+    });
+  } else {
+    // Refresh
+    supaBootstrap(function(){
+      renderStaff();
+      setTimeout(function(){ inner.innerHTML = staffPanel.innerHTML; }, 100);
+    }, function(){
+      renderStaff();
+      setTimeout(function(){ inner.innerHTML = staffPanel.innerHTML; }, 100);
+    });
+  }
 }
 
 // ── Staff Management ──────────────────────────────────────────
