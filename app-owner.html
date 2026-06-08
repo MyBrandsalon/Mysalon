@@ -264,7 +264,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 }
 
 /* ── SETUP BANNER ── */
-#setup-banner{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#setup-banner{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #setup-banner.show{display:flex}
 .sb-logo{background:var(--gold);border-radius:10px;padding:10px 24px;margin-bottom:24px;display:inline-block}
 .sb-logo-text{font-family:var(--HF);font-size:32px;color:#003D2B;line-height:1;letter-spacing:2px;display:block}
@@ -6641,9 +6641,9 @@ function _renderSalonList(all, yr, m){
 
 function getSalonExpenseTotals(yr, m){
   var all = LS.get('salonExpenses')||[];
+  var _sxPrefix=yr+'-'+(m<10?'0':'')+m;
   var entries = all.filter(function(r){
-    var p=(r["date"]||'').split('/');
-    return parseInt(p[1])===m && parseInt(p[2])===yr;
+    return _normDate(r["date"]||'').slice(0,7)===_sxPrefix;
   });
   var totals={cosmetics:0,eb_store:0,eb_staff:0,maid:0,wifi:0,marketing:0,other:0};
   entries.forEach(function(r){
@@ -6688,11 +6688,18 @@ function renderPNL(){
   if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
   var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
   if(!month){ return; }
-  // Guard: if mySalonId is still empty, try to resolve it before rendering
+  // Guard: resolve mySalonId from every possible source before rendering
   if(!mySalonId){
-    mySalonId = sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
+    mySalonId = sessionStorage.getItem('ms_salon_id')
+      || localStorage.getItem('ms_salon_id')
+      || (typeof MS_TENANT_ID !== 'undefined' ? localStorage.getItem('ms_salon_id_'+MS_TENANT_ID) : '')
+      || '';
     var _sl = LS.get('salons')||[];
-    if(!mySalonId && _sl.length){ mySalonId=_sl[0].id; }
+    if(!mySalonId && _sl.length){ mySalonId = String(_sl[0].id); }
+    if(mySalonId){
+      sessionStorage.setItem('ms_salon_id', mySalonId);
+      localStorage.setItem('ms_salon_id', mySalonId);
+    }
   }
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
@@ -6761,8 +6768,12 @@ function _doRenderPNL(month){
       _half    = Number(_savedAtt.half||0);
     } else {
       for(var _di=1; _di<=_pnlDays; _di++){
-        var _ds=_di+'/'+mo+'/'+yr;
-        var _recs=_pnlAttLog.filter(function(r){return r.date===_ds&&String(r.barberId)===String(u.id);});
+        var _dsIndian=_di+'/'+mo+'/'+yr;
+        var _dsISO=yr+'-'+(mo<10?'0':'')+mo+'-'+(_di<10?'0':'')+_di;
+        var _recs=_pnlAttLog.filter(function(r){
+          return (r.date===_dsIndian||r.date===_dsISO||_normDate(r.date||'')===_dsISO)
+                  &&String(r.barberId)===String(u.id);
+        });
         if(_recs.some(function(r){return r.type==='in';})&&_recs.some(function(r){return r.type==='out';})) _present++;
         else if(_recs.some(function(r){return r.type==='in';})) _half++;
       }
@@ -6781,7 +6792,7 @@ function _doRenderPNL(month){
 
   // Barber incentives = auto-calculated: max(0, (monthly sales - fixed salary) * 10%)
   var barberIncentives = 0;
-  myStaff.filter(function(u){ return u.role==='stylist'||role==='barber'; }).forEach(function(u){
+  myStaff.filter(function(u){ return u.role==='stylist'||u.role==='barber'; }).forEach(function(u){
     var fs2 = Number(u.fixedSalary||0);
     var barberSales = entries.filter(function(e){ return String(e.barberId)===String(u.id); })
       .reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); }, 0);
@@ -6819,10 +6830,10 @@ function _doRenderPNL(month){
     if(isWeekend) monthWeekends++; else monthWeekdays++;
     // Elapsed counts + revenues (for avg calculation)
     if(di<=todayDay){
-      // Use parseInt comparison to handle both padded (03/03/2026) and unpadded (3/3/2026) date formats
+      // _normDate handles both ISO "YYYY-MM-DD" and Indian "D/M/YYYY"
+      var _diStr=yr+'-'+(mo<10?'0':'')+mo+'-'+(di<10?'0':'')+di;
       var dayRev=entries.filter(function(e){
-        var p=(e.date||'').split('/');
-        return parseInt(p[0])===di && parseInt(p[1])===mo && parseInt(p[2])===yr;
+        return _normDate(e.date||'')===_diStr;
       }).reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
       if(isWeekend){ weekendRevs.push(dayRev); elapsedWeekends++; }
       else         { weekdayRevs.push(dayRev); elapsedWeekdays++; }
@@ -7142,7 +7153,7 @@ function salonDailyTarget(salonId, dateStr){
   var staff = LS.get('staff')||[];
   return staff.filter(function(u){
     return String(u.salonId)===String(salonId) &&
-           u.role==='stylist'||role==='barber' &&
+           u.role==='stylist'||u.role==='barber' &&
            (u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);
   }).reduce(function(a,u){
     return a + Number(isWeekend ? (u.weekendTarget||u.weekdayTarget||0) : (u.weekdayTarget||0));
@@ -7855,9 +7866,9 @@ function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var
 window.sdSetPeriod=function(p){_sdPeriod=p;['today','month','year'].forEach(function(x){var b=document.getElementById('sd-pt-'+x);if(b)b.classList.toggle('on',x===p);var f=document.getElementById('sd-f-'+x);if(f)f.classList.toggle('sd-hidden',x!==p);});var tgt=document.getElementById('sd-tgt-block');if(tgt)tgt.classList.toggle('sd-hidden',p!=='today');var ch=document.getElementById('sd-chart-block');if(ch)ch.classList.toggle('sd-hidden',p==='year');var yr=document.getElementById('sd-yr-block');if(yr)yr.classList.toggle('sd-hidden',p!=='year');var tbl=document.getElementById('sd-tbl-block');if(tbl)tbl.classList.toggle('sd-hidden',p==='year');sdRender();};
 window.sdRender=function(){if(!document.getElementById('sd-kpi-custs'))return;var entries=_sdGetFiltered();var totPh=entries.reduce(function(a,e){return a+Number(e.phPay||0);},0);var totCash=entries.reduce(function(a,e){return a+Number(e.cash||0);},0);var totTips=entries.reduce(function(a,e){return a+Number(e.phTip||0)+Number(e.cashTip||0)+Number(e.tip||0);},0);var totSales=totPh+totCash;var custs=entries.length;var avg=custs?Math.round(totSales/custs):0;document.getElementById('sd-kpi-custs').textContent=custs;document.getElementById('sd-kpi-rev').textContent=fmtINR(totSales);document.getElementById('sd-kpi-avg').textContent=fmtINR(avg);document.getElementById('sd-kpi-tips').textContent=fmtINR(totTips);document.getElementById('sd-ph-val').textContent=fmtINR(totPh);document.getElementById('sd-cash-val').textContent=fmtINR(totCash);var phPct=totSales?Math.round(totPh/totSales*100):50;document.getElementById('sd-ph-bar').style.width=phPct+'%';document.getElementById('sd-cash-bar').style.width=(100-phPct)+'%';if(_sdPeriod==='today'){var target=(typeof salonDailyTarget!=='undefined'&&typeof mySalonId!=='undefined')?(salonDailyTarget(mySalonId,today())||8000):8000;var pct=Math.min(100,Math.round(totSales/target*100));document.getElementById('sd-tgt-pct').textContent=pct+'%';document.getElementById('sd-tgt-fill').style.width=pct+'%';document.getElementById('sd-tgt-ach').textContent=fmtINR(totSales)+' achieved';document.getElementById('sd-tgt-goal').textContent='Target: '+fmtINR(target);_sdDrawHourly(entries);}else if(_sdPeriod==='month'){_sdDrawDaily(entries);}else{_sdDrawYear(entries);}_sdRenderStylists(entries,totSales);if(_sdPeriod!=='year')_sdRenderTable(entries);};
 function _sdDrawHourly(e){var h=[9,10,11,12,13,14,15,16,17,18,19,20,21];var lb=h.map(function(x){return x>12?(x-12)+'pm':x===12?'12pm':x+'am';});var dt=h.map(function(x){return e.filter(function(r){return parseInt((r.time||'0').split(':')[0])===x;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0);});var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Hourly Sales — Today';_sdDrawChart(lb,dt);}
-function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var ds=d+'/'+m+'/'+yr;dt.push(e.filter(function(r){return r.date===ds;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
+function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var _dsISO=yr+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;dt.push(e.filter(function(r){return _normDate(r.date||'')===_dsISO;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
 function _sdDrawChart(lb,dt){if(typeof Chart==='undefined')return;var ctx=document.getElementById('sdBarChart');if(!ctx)return;if(_sdChart){_sdChart.destroy();_sdChart=null;}_sdChart=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:lb,datasets:[{label:'Sales',data:dt,backgroundColor:'rgba(0,122,86,0.75)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtINR(c.raw);}}}},scales:{x:{ticks:{font:{size:9},color:'#888',autoSkip:true,maxTicksLimit:12},grid:{display:false}},y:{ticks:{font:{size:9},color:'#888',callback:function(v){return v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v;}},grid:{color:'rgba(0,0,0,0.05)'}}}}});}
-function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var me=e.filter(function(r){var p=(r.date||'').split('/');return parseInt(p[1])===(i+1);});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
+function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var _moStr=yr+'-'+((i+1)<10?'0':'')+(i+1);var me=e.filter(function(r){return _normDate(r.date||'').slice(0,7)===_moStr;});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
 function _sdRenderStylists(e,totS){var map={};e.forEach(function(r){var k=r.barberId||r.barberName||'?';if(!map[k])map[k]={name:r.barberName||k,total:0,custs:0};map[k].total+=Number(r.phPay||0)+Number(r.cash||0);map[k].custs++;});var sorted=Object.values(map).sort(function(a,b){return b.total-a.total;});var maxT=sorted.length?sorted[0].total:1;var el=document.getElementById('sd-sty-list');if(!el)return;el.innerHTML=sorted.length===0?'<div class="sd-tbl-empty">No data</div>':sorted.map(function(s){var ini=(s.name||'?').split(/[\s\-]+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();var pct=Math.max(3,Math.round(s.total/maxT*100));var share=totS?Math.round(s.total/totS*100):0;return '<div class="sd-sty-row"><div class="sd-sty-ava">'+ini+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;justify-content:space-between"><span class="sd-sty-name">'+s.name+'</span><span style="font-size:10px;color:var(--muted2)">'+share+'%</span></div><div class="sd-sty-bar-wrap"><div class="sd-sty-bar-fill" style="width:'+pct+'%"></div></div><div class="sd-sty-custs">'+s.custs+' customer'+(s.custs!==1?'s':'')+'</div></div><div class="sd-sty-amt">'+fmtINR(s.total)+'</div></div>';}).join('');}
 function _sdRenderTable(e){var shown=e.slice().reverse().slice(0,50);var cntEl=document.getElementById('sd-tbl-cnt');if(cntEl)cntEl.textContent=e.length+' entries';var el=document.getElementById('sd-tbl-body');if(!el)return;el.innerHTML=shown.length===0?'<div class="sd-tbl-empty">No transactions found</div>':shown.map(function(r,i){var sales=Number(r.phPay||0)+Number(r.cash||0);var tip=Number(r.phTip||0)+Number(r.cashTip||0)+Number(r.tip||0);var payTag=Number(r.phPay||0)>0?'<span class="sd-tag-ph">PhPe '+fmtINR(r.phPay)+'</span>':'<span class="sd-tag-cash">Cash '+fmtINR(r.cash)+'</span>';var editBtns=r.date===today()?'<div style="margin-top:3px"><button class="btn-edit" onclick="openEdit(\''+r.id+'\')" title="Edit">✏️</button><button class="btn-del" onclick="delEntry(\''+r.id+'\')" style="margin-left:3px" title="Delete">✕</button></div>':'';return '<div class="sd-tbl-row"><span style="color:var(--muted2);font-size:10px">'+(i+1)+'</span><div><div style="font-size:12px;font-weight:700;color:var(--white)">'+r.barberName+'</div><div style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</div><div style="font-size:10px;color:var(--muted2)">'+(r.customerName||'Walk-in')+' · '+r.services+'</div>'+editBtns+'</div><div>'+payTag+(tip>0?'<div style="font-size:9px;color:#9333EA;margin-top:1px">Tip '+fmtINR(tip)+'</div>':'')+'</div><div class="sd-tag-tot">'+fmtINR(sales)+'</div></div>';}).join('')+(e.length>50?'<div class="sd-tbl-empty" style="padding:9px">Showing latest 50 of '+e.length+'</div>':'');}
 window.sdInit=function(){var yrSel=document.getElementById('sd-fy-year');if(yrSel&&!yrSel.options.length){var cy=new Date().getFullYear();for(var y=cy;y>=cy-4;y--){var o=document.createElement('option');o.value=y;o.textContent=y;yrSel.appendChild(o);}}var mEl=document.getElementById('sd-fm-month');if(mEl&&!mEl.value)mEl.value=new Date().toISOString().slice(0,7);var barbers=(typeof mySalonId!=='undefined'&&mySalonId)?(LS.get('staff')||[]).filter(function(u){return String(u.salonId)===String(mySalonId)&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);}):(LS.get('staff')||[]).filter(function(u){return u.role==='stylist'||role==='barber';});['sd-ft-stylist','sd-fm-stylist','sd-fy-stylist'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;while(sel.options.length>1)sel.remove(1);barbers.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});});
@@ -7867,7 +7878,7 @@ if(mySalonId){sbSelect('entries','"salonId"=eq.'+encodeURIComponent(mySalonId)+'
 })();
 
 // ── MySalon multi-tenant patch ──────────────────────────────
-var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || '';
+var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || localStorage.getItem('ms_tenant_id') || '';
 var _origSbInsert = sbInsert;
 sbInsert = function(table, row) {
   if (_MS_TENANT_ID && typeof row === 'object' && !Array.isArray(row) && !row.tenant_id) {
@@ -7877,9 +7888,21 @@ sbInsert = function(table, row) {
 };
 var _origSupaBootstrap = supaBootstrap;
 supaBootstrap = function(onDone, onError) {
-  if (!_MS_TENANT_ID) { if(onError) onError('No tenant'); return; }
+  // Re-read tenant ID live in case it was set after script parse
+  var _tid = _MS_TENANT_ID
+    || sessionStorage.getItem('ms_tenant_id')
+    || localStorage.getItem('ms_tenant_id')
+    || (typeof MS_TENANT_ID !== 'undefined' ? MS_TENANT_ID : '')
+    || '';
+  if (!_tid) {
+    // No tenant at all — still try _origSupaBootstrap (uses anonymous/public key)
+    // so PNL at least renders with cached data rather than a blank screen
+    console.warn('[MySalon] supaBootstrap: no tenant_id, using fallback');
+    _origSupaBootstrap(onDone, onError);
+    return;
+  }
   if (typeof msBootstrap === 'function') {
-    msBootstrap(_MS_TENANT_ID, onDone, onError);
+    msBootstrap(_tid, onDone, onError);
   } else {
     _origSupaBootstrap(onDone, onError);
   }
