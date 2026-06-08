@@ -476,8 +476,9 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt" id="nt-cosmetics" onclick="showTab('cosmetics')">🧴 Cosmetics</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
-  <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
-  <button class="nt" id="nt-pnl" onclick="showTab('pnl')">📊 P&L</button>
+  <button class="nt" id="nt-queue"   onclick="showQueueGated()">🔢 Queue</button>
+  <button class="nt" id="nt-pnl"    onclick="showTab('pnl')">📊 P&amp;L</button>
+  <button class="nt" id="nt-manage" onclick="showTab('manage')">⚙️ Manage</button>
 </div>
 
 <!-- ════ DASHBOARD ════ -->
@@ -2787,6 +2788,10 @@ function showTab(tab){
       catch(e){ console.error('[PNL] error:',e); }
     });
   }
+  if(tab==='manage'){
+    supaBootstrap(function(){ renderManageStaff(); }, function(){ renderManageStaff(); });
+    return;
+  }
   if(tab==='profile'){
     supaBootstrap(function(){
       var mo=new Date().toISOString().slice(0,7);
@@ -4226,6 +4231,9 @@ function renderDashboard(){
   document.getElementById('dash-bills').innerHTML=todaySummary+renderEntriesTable(todayE,true);
   // Always refresh clock button after dashboard re-render
   renderMgrAttBtn('mgr-att-btn-wrap');
+  // Update KPI cards
+  try{ _renderDashKPIs(); }catch(e){}
+  try{ _renderDashCosmetics(); }catch(e){}
 }
 function goToBarber(uid){
   showTab('sales');
