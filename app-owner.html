@@ -414,6 +414,10 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 .cos-sub-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
 .cos-prod-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:12px;align-items:flex-start;transition:all .2s}
 .cos-prod-card:hover{border-color:var(--accent)}
+
+.manage-sub{padding:10px 18px;font-family:var(--BF);font-size:13px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.manage-sub:hover{color:var(--white)}
+.manage-sub.on{color:var(--accent);border-bottom-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -474,7 +478,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
   <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
   <button class="nt" id="nt-pnl" onclick="showTab('pnl')">📊 P&L</button>
-  <button class="nt" id="nt-profile" onclick="showTab('profile')">👤 My Profile</button>
 </div>
 
 <!-- ════ DASHBOARD ════ -->
@@ -560,7 +563,45 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     </div>
     <button onclick="addMgrBill()" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:800;cursor:pointer;font-family:var(--BF)">✓ Add Entry</button>
   </div>
-  <div class="sg" id="dash-stats"></div>
+  <!-- ══ OVERVIEW STATS (BB-style) ══ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="dash-kpi-grid">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Revenue</div>
+      <div style="font-family:var(--HF);font-size:26px;color:var(--accent)" id="ov-revenue">₹0</div>
+      <div style="font-size:11px;color:var(--muted)" id="ov-txns">0 transactions</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Avg Ticket</div>
+      <div style="font-family:var(--HF);font-size:26px;color:var(--white)" id="ov-avg">₹0</div>
+      <div style="font-size:11px;color:var(--muted)">per customer</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">PhonePe</div>
+      <div style="font-family:var(--HF);font-size:26px;color:var(--blue)" id="ov-ph">₹0</div>
+      <div style="font-size:11px;color:var(--muted)" id="ov-ph-pct">0%</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cash</div>
+      <div style="font-family:var(--HF);font-size:26px;color:var(--green)" id="ov-cash">₹0</div>
+      <div style="font-size:11px;color:var(--muted)" id="ov-cash-pct">0%</div>
+    </div>
+  </div>
+
+  <!-- Cosmetics Orders Status -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px" id="dash-cos-strip">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-family:var(--HF);font-size:14px;letter-spacing:1px;color:var(--white)">🧴 COSMETICS ORDERS</div>
+      <a href="#" onclick="showTab('cosmetics')" style="font-size:11px;color:var(--accent);text-decoration:none;font-weight:700">View All →</a>
+    </div>
+    <div id="dash-cos-status" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+      <div><div style="font-family:var(--HF);font-size:20px;color:#F59E0B" id="dc-pending">—</div><div style="font-size:10px;color:var(--muted)">Pending</div></div>
+      <div><div style="font-family:var(--HF);font-size:20px;color:var(--blue)" id="dc-confirmed">—</div><div style="font-size:10px;color:var(--muted)">Confirmed</div></div>
+      <div><div style="font-family:var(--HF);font-size:20px;color:var(--accent)" id="dc-shipped">—</div><div style="font-size:10px;color:var(--muted)">Shipped</div></div>
+      <div><div style="font-family:var(--HF);font-size:20px;color:var(--green)" id="dc-delivered">—</div><div style="font-size:10px;color:var(--muted)">Delivered</div></div>
+    </div>
+  </div>
+
+  <!-- Stylist Performance -->
   <div class="sec-hdr"><div class="sec-title">Today — Hairstylist Performance</div></div>
   <div class="bc-grid" id="dash-barbers"></div>
   <div class="sec-hdr"><div class="sec-title">Today's Customers</div></div>
@@ -989,6 +1030,112 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   </div>
   <!-- ══ END HIRE STYLIST SECTION ══════════════════════════════ -->
 </div>
+
+
+<!-- ════ MANAGE ════ -->
+<div class="panel" id="pn-manage">
+
+  <!-- Sub tabs -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
+    <button class="manage-sub on" id="mst-staff"  onclick="manageSubTab('staff')">👥 Staff</button>
+    <button class="manage-sub"   id="mst-salon"  onclick="manageSubTab('salon')">🏪 Salon</button>
+  </div>
+
+  <!-- ── STAFF SUB-TAB ── -->
+  <div id="msp-staff">
+    <div class="sec-hdr">
+      <div class="sec-title">HAIRSTYLISTS &amp; MANAGERS</div>
+      <button onclick="openManageAddStaff()" class="btn-sm on" style="background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px">+ Add Staff</button>
+    </div>
+
+    <!-- Staff list -->
+    <div id="manage-staff-list" style="display:grid;gap:10px"></div>
+
+    <!-- Add Staff form (hidden by default) -->
+    <div id="manage-add-staff-form" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-top:14px">
+      <div style="font-family:var(--HF);font-size:17px;color:var(--white);letter-spacing:1px;margin-bottom:14px" id="manage-form-title">ADD STAFF</div>
+      <input type="hidden" id="manage-staff-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="ifield"><label>Full Name *</label><input type="text" class="fi" id="ms-name" placeholder="Staff name"></div>
+        <div class="ifield"><label>Phone *</label><input type="tel" class="fi" id="ms-phone" placeholder="10-digit mobile" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        <div class="ifield"><label>Role</label>
+          <select class="fi" id="ms-role">
+            <option value="stylist">Stylist / Hairstylist</option>
+            <option value="manager">Manager</option>
+          </select>
+        </div>
+        <div class="ifield"><label>Login PIN *</label><input type="text" class="fi" id="ms-pin" placeholder="6-digit PIN" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        <div class="ifield"><label>Base Salary (₹/mo)</label><input type="number" class="fi" id="ms-salary" placeholder="0" min="0"></div>
+        <div class="ifield"><label>Food Allowance (₹/mo)</label><input type="number" class="fi" id="ms-food" placeholder="0" min="0"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="document.getElementById('manage-add-staff-form').style.display='none'" style="padding:9px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px">Cancel</button>
+        <button onclick="saveManageStaff()" style="padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px">Save Staff</button>
+      </div>
+    </div>
+
+    <!-- Hire Portal shortcut -->
+    <div style="margin-top:16px;padding:14px;background:linear-gradient(135deg,#003D2B,#005F42);border-radius:var(--r)">
+      <div style="font-family:var(--HF);font-size:15px;color:#F5E030;letter-spacing:1px;margin-bottom:4px">FIND HAIRSTYLISTS</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">Browse skilled stylists on the BB Staff Hiring Portal</div>
+      <button onclick="openBrowseProfiles()" style="padding:8px 16px;background:#C8A800;color:#003D2B;border:none;border-radius:var(--rs);font-family:var(--HF);font-size:14px;cursor:pointer">🔍 Browse Profiles</button>
+    </div>
+  </div>
+
+  <!-- ── SALON SUB-TAB ── -->
+  <div id="msp-salon" style="display:none">
+    <div class="sec-hdr">
+      <div class="sec-title">SALON DETAILS</div>
+    </div>
+
+    <!-- Salon info -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">📍 Salon Info</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="ifield"><label>Salon Name</label><input type="text" class="fi" id="sal-name" placeholder="Salon name"></div>
+        <div class="ifield"><label>Phone</label><input type="tel" class="fi" id="sal-phone" placeholder="Contact number"></div>
+        <div class="ifield"><label>City</label><input type="text" class="fi" id="sal-city" placeholder="City"></div>
+        <div class="ifield"><label>State</label><input type="text" class="fi" id="sal-state" placeholder="State"></div>
+      </div>
+      <div class="ifield" style="margin-top:10px"><label>Full Address</label><textarea class="fi" id="sal-address" rows="2" placeholder="Complete salon address…" style="resize:none"></textarea></div>
+      <div style="margin-top:10px;text-align:right">
+        <button onclick="saveSalonInfo()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-weight:700;cursor:pointer;font-size:13px">Save Info</button>
+      </div>
+    </div>
+
+    <!-- Rental / Store Expenses -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">🏠 Rentals &amp; Fixed Costs</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="ifield">
+          <label>Store Rent (₹/mo)</label>
+          <input type="number" class="fi" id="rent-store" placeholder="0" min="0" oninput="updateRentTotal()">
+        </div>
+        <div class="ifield">
+          <label>Staff Room Rent (₹/mo)</label>
+          <input type="number" class="fi" id="rent-staffroom" placeholder="0" min="0" oninput="updateRentTotal()">
+        </div>
+        <div class="ifield">
+          <label>Electricity (₹/mo)</label>
+          <input type="number" class="fi" id="rent-electricity" placeholder="0" min="0" oninput="updateRentTotal()">
+        </div>
+        <div class="ifield">
+          <label>Other Fixed Costs (₹/mo)</label>
+          <input type="number" class="fi" id="rent-other" placeholder="0" min="0" oninput="updateRentTotal()">
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,196,140,.06);border:1px solid rgba(0,196,140,.2);border-radius:var(--rs)">
+        <span style="font-size:13px;color:var(--muted)">Total Fixed Monthly Cost</span>
+        <span style="font-family:var(--HF);font-size:22px;color:var(--accent)" id="rent-total">₹0</span>
+      </div>
+      <div style="margin-top:10px;text-align:right">
+        <button onclick="saveRentInfo()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-weight:700;cursor:pointer;font-size:13px">Save Costs</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- ════ END MANAGE ════ -->
 
 <!-- ── EDIT BILL MODAL ── -->
 <div class="modal-bg" id="editModal" onclick="if(event.target===this)closeModal('editModal')">
@@ -2633,11 +2780,11 @@ function showTab(tab){
   if(tab==='kpi'){   supaBootstrap(function(){ initKPI(); }, function(){ initKPI(); }); }
   if(tab==='pnl'){
     supaBootstrap(function(){
-      initPNL();
-      renderPNL();
+      try{ initPNL(); renderPNL(); }
+      catch(e){ console.error('[PNL] error:',e); document.getElementById('pn-pnl').innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>'; }
     }, function(){
-      initPNL();
-      renderPNL();
+      try{ initPNL(); renderPNL(); }
+      catch(e){ console.error('[PNL] error:',e); }
     });
   }
   if(tab==='profile'){
@@ -8918,6 +9065,263 @@ function cosReorder(orderId){
   toast('Items added to cart');
 }
 // ════ END COSMETICS ════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════════════
+//  MANAGE TAB — STAFF + SALON + RENTALS
+// ════════════════════════════════════════════════════════════════
+
+function manageSubTab(tab){
+  ['staff','salon'].forEach(function(t){
+    var p=document.getElementById('msp-'+t);
+    var b=document.getElementById('mst-'+t);
+    if(p) p.style.display = t===tab?'block':'none';
+    if(b) b.classList.toggle('on', t===tab);
+  });
+  if(tab==='staff') renderManageStaff();
+  if(tab==='salon') loadSalonInfoForm();
+}
+
+// ── Staff Management ──────────────────────────────────────────
+function renderManageStaff(){
+  var el=document.getElementById('manage-staff-list');
+  if(!el) return;
+  var staff=(LS.get('staff')||[]).filter(function(s){
+    return String(s.salonId||s.salon_id||'')===String(mySalonId)||
+           String(s.tenantId||s.tenant_id||'')===String(MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'');
+  });
+  if(!staff.length){
+    el.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">No staff added yet</div>';
+    return;
+  }
+  el.innerHTML=staff.map(function(s){
+    var roleColor = s.role==='manager'?'#1e3a5f':'#003D2B';
+    var roleLabel = s.role==='manager'?'Manager':'Stylist';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
+        '<div>'+
+          '<div style="font-weight:700;font-size:14px;color:var(--white)">'+escH(s.name||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">📱 '+escH(s.phone||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">🔑 PIN: '+escH(String(s.pin||'—'))+'</div>'+
+          '<div style="font-size:11px;color:var(--muted)">💰 Salary: ₹'+(s.salary||0)+' · Food: ₹'+(s.food||0)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;background:'+roleColor+'20;color:'+roleColor+';border:1px solid '+roleColor+'40">'+roleLabel+'</span>'+
+          '<div style="display:flex;gap:6px">'+
+            '<button data-sid="'+s.id+'" onclick="openManageEditStaff(this.dataset.sid)" style="padding:5px 10px;background:rgba(0,196,140,.08);border:1px solid rgba(0,196,140,.2);color:var(--accent);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Edit</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openManageAddStaff(){
+  document.getElementById('manage-staff-id').value='';
+  document.getElementById('manage-form-title').textContent='ADD STAFF';
+  ['ms-name','ms-phone','ms-pin','ms-salary','ms-food'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('ms-role').value='stylist';
+  document.getElementById('manage-add-staff-form').style.display='block';
+  document.getElementById('ms-name').focus();
+}
+
+function openManageEditStaff(staffId){
+  var staff=(LS.get('staff')||[]);
+  var s=staff.find(function(x){return String(x.id)===String(staffId);});
+  if(!s) return;
+  document.getElementById('manage-staff-id').value=s.id;
+  document.getElementById('manage-form-title').textContent='EDIT STAFF';
+  document.getElementById('ms-name').value=s.name||'';
+  document.getElementById('ms-phone').value=s.phone||'';
+  document.getElementById('ms-role').value=s.role||'stylist';
+  document.getElementById('ms-pin').value=s.pin||'';
+  document.getElementById('ms-salary').value=s.salary||'';
+  document.getElementById('ms-food').value=s.food||'';
+  document.getElementById('manage-add-staff-form').style.display='block';
+  document.getElementById('ms-name').focus();
+}
+
+function saveManageStaff(){
+  var name   = (document.getElementById('ms-name').value||'').trim();
+  var phone  = (document.getElementById('ms-phone').value||'').trim().replace(/\D/g,'');
+  var role   = document.getElementById('ms-role').value||'stylist';
+  var pin    = (document.getElementById('ms-pin').value||'').trim();
+  var salary = parseInt(document.getElementById('ms-salary').value)||0;
+  var food   = parseInt(document.getElementById('ms-food').value)||0;
+  if(!name){ toast('Enter staff name'); return; }
+  if(phone.length<10){ toast('Enter valid 10-digit phone'); return; }
+  if(pin.length<4){ toast('Enter at least 4-digit PIN'); return; }
+  var editId = document.getElementById('manage-staff-id').value;
+  var tid    = MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  var row    = {
+    name:name, phone:phone, role:role, pin:pin,
+    salary:salary, food:food, active:true,
+    salonId:mySalonId, salon_id:mySalonId,
+    tenantId:tid, tenant_id:tid,
+    allowBackdate:false
+  };
+  var url    = SUPA_URL+'/rest/v1/staff';
+  var method = editId ? 'PATCH' : 'POST';
+  if(editId) url += '?id=eq.'+encodeURIComponent(editId);
+  fetch(url,{
+    method:method,
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+    body:JSON.stringify(row)
+  }).then(function(r){return r.json();})
+  .then(function(saved){
+    var s=Array.isArray(saved)?saved[0]:saved;
+    // Update LS
+    var staff=LS.get('staff')||[];
+    if(editId){
+      var idx=staff.findIndex(function(x){return String(x.id)===editId;});
+      if(idx>=0) staff[idx]=Object.assign({id:editId},row,s||{});
+    } else {
+      if(s&&s.id) staff.push(Object.assign({},row,s));
+    }
+    LS.set('staff',staff);
+    document.getElementById('manage-add-staff-form').style.display='none';
+    renderManageStaff();
+    // Refresh main staff tab too
+    if(typeof renderStaff==='function') renderStaff();
+    if(typeof populateMgrBillBarbers==='function') populateMgrBillBarbers();
+    toast('✅ Staff saved');
+  }).catch(function(e){ toast('Error: '+e.message); });
+}
+
+// ── Salon Info ────────────────────────────────────────────────
+function loadSalonInfoForm(){
+  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  if(!tid) return;
+  // Load from Supabase
+  fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(tid)+'&select=name,city,state,owner_phone,address',{
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();})
+  .then(function(rows){
+    var t=rows&&rows[0]?rows[0]:{};
+    var sv=function(id,v){var el=document.getElementById(id);if(el)el.value=v||'';};
+    sv('sal-name',t.name||mySalonName);
+    sv('sal-phone',t.owner_phone||SESSION_PHONE);
+    sv('sal-city',t.city||'');
+    sv('sal-state',t.state||'');
+    sv('sal-address',t.address||'');
+  }).catch(function(){});
+  // Load rent info from localStorage
+  var rent=JSON.parse(localStorage.getItem('ms_rent_info')||'{}');
+  var rv=function(id,v){var el=document.getElementById(id);if(el)el.value=v||'';};
+  rv('rent-store',rent.store||'');
+  rv('rent-staffroom',rent.staffroom||'');
+  rv('rent-electricity',rent.electricity||'');
+  rv('rent-other',rent.other||'');
+  updateRentTotal();
+}
+
+function saveSalonInfo(){
+  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  if(!tid){ toast('No salon data'); return; }
+  var row={
+    name:     (document.getElementById('sal-name').value||'').trim(),
+    city:     (document.getElementById('sal-city').value||'').trim(),
+    state:    (document.getElementById('sal-state').value||'').trim(),
+    address:  (document.getElementById('sal-address').value||'').trim()
+  };
+  if(!row.name){ toast('Enter salon name'); return; }
+  fetch(SUPA_URL+'/rest/v1/tenants?id=eq.'+encodeURIComponent(tid),{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+    body:JSON.stringify(row)
+  }).then(function(){
+    mySalonName=row.name;
+    localStorage.setItem('ms_name',row.name);
+    sessionStorage.setItem('ms_name',row.name);
+    document.getElementById('tbOutlet').textContent='📍 '+row.name;
+    toast('✅ Salon info saved');
+  }).catch(function(e){ toast('Error: '+e.message); });
+}
+
+function updateRentTotal(){
+  var total=['rent-store','rent-staffroom','rent-electricity','rent-other'].reduce(function(s,id){
+    var el=document.getElementById(id); return s+(parseFloat(el&&el.value||0)||0);
+  },0);
+  var el=document.getElementById('rent-total');
+  if(el) el.textContent='₹'+total.toLocaleString('en-IN');
+}
+
+function saveRentInfo(){
+  var rent={
+    store:       parseFloat(document.getElementById('rent-store').value)||0,
+    staffroom:   parseFloat(document.getElementById('rent-staffroom').value)||0,
+    electricity: parseFloat(document.getElementById('rent-electricity').value)||0,
+    other:       parseFloat(document.getElementById('rent-other').value)||0
+  };
+  localStorage.setItem('ms_rent_info',JSON.stringify(rent));
+  // Also save as expense type to Supabase for P&L
+  toast('✅ Monthly costs saved (₹'+( rent.store+rent.staffroom+rent.electricity+rent.other).toLocaleString('en-IN')+'  /mo)');
+}
+
+// ── showTab hook for manage ───────────────────────────────────
+(function(){
+  var _origShowTab=showTab;
+  showTab=function(tab){
+    _origShowTab(tab);
+    if(tab==='manage'){
+      renderManageStaff();
+    }
+  };
+})();
+
+// ════════════════════════════════════════════════════════════════
+//  DASHBOARD KPI + COSMETICS STATUS
+// ════════════════════════════════════════════════════════════════
+
+var _dashKPIPatched = false;
+function _patchDashboard(){
+  if(_dashKPIPatched) return;
+  _dashKPIPatched = true;
+  var _origRenderDash = renderDashboard;
+  renderDashboard = function(){
+    _origRenderDash.apply(this, arguments);
+    _renderDashKPIs();
+    _renderDashCosmetics();
+  };
+}
+
+function _renderDashKPIs(){
+  var entries  = getEntries();
+  var today    = entries.filter(function(e){ return _isTodayEntry(e); });
+  var revenue  = today.reduce(function(s,e){ return s+Number(e.total||0); },0);
+  var ph       = today.reduce(function(s,e){ return s+Number(e.phPay||e.ph_pay||0); },0);
+  var cash     = today.reduce(function(s,e){ return s+Number(e.cash||0); },0);
+  var txns     = today.length;
+  var avg      = txns ? Math.round(revenue/txns) : 0;
+  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  sv('ov-revenue', '₹'+revenue.toLocaleString('en-IN'));
+  sv('ov-txns',    txns+' transactions');
+  sv('ov-avg',     '₹'+avg.toLocaleString('en-IN'));
+  sv('ov-ph',      '₹'+ph.toLocaleString('en-IN'));
+  sv('ov-cash',    '₹'+cash.toLocaleString('en-IN'));
+  sv('ov-ph-pct',  revenue?(Math.round(ph/revenue*100)+'%'):'0%');
+  sv('ov-cash-pct',revenue?(Math.round(cash/revenue*100)+'%'):'0%');
+}
+
+function _renderDashCosmetics(){
+  if(!_cosOrders||!_cosOrders.length){
+    // Fetch if not loaded
+    var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+    if(!tid||!_cosVendor||!_cosVendor.id) return;
+    return;
+  }
+  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  sv('dc-pending',   _cosOrders.filter(function(o){return o.status==='pending';}).length);
+  sv('dc-confirmed', _cosOrders.filter(function(o){return o.status==='confirmed';}).length);
+  sv('dc-shipped',   _cosOrders.filter(function(o){return o.status==='shipped';}).length);
+  sv('dc-delivered', _cosOrders.filter(function(o){return o.status==='delivered';}).length);
+}
+
+// Patch after boot
+setTimeout(function(){ _patchDashboard(); _renderDashKPIs(); }, 500);
+// ════════════════════════════════════════════════════════════════
 
 </script>
 
