@@ -473,7 +473,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-yearly"    onclick="showTab('yearly')">📅 Yearly</button>
   <button class="nt"    id="nt-customers" onclick="showTab('customers')">👤 Customers</button>
   <button class="nt" id="nt-cosmetics" onclick="showTab('cosmetics')">🧴 Cosmetics</button>
-  <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
   <button class="nt" id="nt-queue"   onclick="showQueueGated()">🔢 Queue</button>
   <button class="nt" id="nt-pnl"    onclick="showTab('pnl')">📊 P&amp;L</button>
@@ -955,7 +954,8 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
     <button class="manage-sub on" id="mst-staff"     onclick="manageSubTab('staff')">👥 Staff</button>
     <button class="manage-sub"   id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
-    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">🏪 Salon</button>
+    <button class="manage-sub"   id="mst-saloninfo" onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
+    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">📊 Expenses</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -1004,13 +1004,11 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div id="pn-staff-inner"></div>
   </div>
 
-  <!-- ── SALON SUB-TAB ── -->
-  <div id="msp-salon" style="display:none">
-    <div class="sec-hdr">
-      <div class="sec-title">SALON DETAILS</div>
-    </div>
+  <!-- ── SALON INFO SUB-TAB ── -->
+  <div id="msp-saloninfo" style="display:none">
+    <div class="sec-hdr"><div class="sec-title">SALON DETAILS</div></div>
 
-    <!-- Salon info -->
+    <!-- Basic info -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
       <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">📍 Salon Info</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -1025,35 +1023,49 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       </div>
     </div>
 
-    <!-- Rental / Store Expenses -->
+    <!-- Rentals -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">🏠 Rentals &amp; Fixed Costs</div>
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:4px">🏠 Rentals &amp; Fixed Monthly Costs</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">These are used in P&amp;L calculations</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div class="ifield">
-          <label>Store Rent (₹/mo)</label>
+          <label>🏪 Store Rent (₹/mo)</label>
           <input type="number" class="fi" id="rent-store" placeholder="0" min="0" oninput="updateRentTotal()">
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px">Monthly salon space rent</div>
         </div>
         <div class="ifield">
-          <label>Staff Room Rent (₹/mo)</label>
+          <label>🛏 Staff Room Rent (₹/mo)</label>
           <input type="number" class="fi" id="rent-staffroom" placeholder="0" min="0" oninput="updateRentTotal()">
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px">Staff accommodation rent</div>
         </div>
         <div class="ifield">
-          <label>Electricity (₹/mo)</label>
+          <label>⚡ Electricity (₹/mo)</label>
           <input type="number" class="fi" id="rent-electricity" placeholder="0" min="0" oninput="updateRentTotal()">
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px">Average monthly bill</div>
         </div>
         <div class="ifield">
-          <label>Other Fixed Costs (₹/mo)</label>
+          <label>📦 Other Fixed Costs (₹/mo)</label>
           <input type="number" class="fi" id="rent-other" placeholder="0" min="0" oninput="updateRentTotal()">
+          <div style="font-size:10px;color:var(--muted2);margin-top:4px">WiFi, maintenance, etc.</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,196,140,.06);border:1px solid rgba(0,196,140,.2);border-radius:var(--rs)">
-        <span style="font-size:13px;color:var(--muted)">Total Fixed Monthly Cost</span>
-        <span style="font-family:var(--HF);font-size:22px;color:var(--accent)" id="rent-total">₹0</span>
+      <!-- Total band -->
+      <div style="background:rgba(0,196,140,.06);border:1px solid rgba(0,196,140,.2);border-radius:var(--rs);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--white)">Total Fixed Monthly Cost</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Used for P&amp;L projection</div>
+        </div>
+        <div style="font-family:var(--HF);font-size:26px;color:var(--accent)" id="rent-total">₹0</div>
       </div>
-      <div style="margin-top:10px;text-align:right">
-        <button onclick="saveRentInfo()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-weight:700;cursor:pointer;font-size:13px">Save Costs</button>
+      <div style="text-align:right">
+        <button onclick="saveRentInfo()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-weight:700;cursor:pointer;font-size:13px">💾 Save Costs</button>
       </div>
     </div>
+  </div>
+
+  <!-- ── SALON EXPENSES SUB-TAB (moved from main Salon tab) ── -->
+  <div id="msp-salon" style="display:none">
+    <div id="pn-salon-inner"></div>
   </div>
 
 </div>
@@ -1443,7 +1455,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 </div>
 <!-- ═══ END COSMETICS ═══ -->
 
-<div class="panel" id="pn-salon">
+<div class="panel" id="pn-salon" style="display:none!important">
   <div style="font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px">Salon Expense Tracker</div>
 
   <!-- Month picker -->
@@ -2701,7 +2713,7 @@ function showTab(tab){
   if(tab==='customers'){ supaBootstrap(function(){ mgrLoadCustDashboard(); loadComplaints(); setTimeout(renderCustDir,300); }, function(){ mgrLoadCustDashboard(); loadComplaints(); }); }
   // Staff moved to Manage tab
   if(tab==='cosmetics'){ cosLoadTab(); return; }
-  if(tab==='salon'){ document.getElementById('sx-month').value=new Date().toISOString().slice(0,7); supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); }); }
+  // Salon moved to Manage tab
   if(tab==='offers'){ renderMgrOffers(); }
   if(tab==='queue'){ supaBootstrap(function(){ loadMgrQueue(); loadAutoSchedule(); }, function(){ loadMgrQueue(); loadAutoSchedule(); }); }
   if(tab==='kpi'){   supaBootstrap(function(){ initKPI(); }, function(){ initKPI(); }); }
@@ -9011,15 +9023,34 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['staff','fullstaff','salon'].forEach(function(t){
+  ['staff','fullstaff','saloninfo','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
   if(tab==='staff')     renderManageStaff();
-  if(tab==='salon')     loadSalonInfoForm();
+  if(tab==='saloninfo') loadSalonInfoForm();
   if(tab==='fullstaff') _loadFullStaffPanel();
+  if(tab==='salon')     _loadSalonExpensesPanel();
+}
+
+function _loadSalonExpensesPanel(){
+  var inner = document.getElementById('pn-salon-inner');
+  var salonPanel = document.getElementById('pn-salon');
+  if(!inner || !salonPanel) return;
+  // Copy salon panel content and init
+  inner.innerHTML = salonPanel.innerHTML;
+  // Init month picker
+  var mp = inner.querySelector('#sx-month');
+  if(!mp){
+    // Find by any month input
+    var inputs = inner.querySelectorAll('input[type=month]');
+    if(inputs.length) mp = inputs[0];
+  }
+  if(mp && !mp.value) mp.value = new Date().toISOString().slice(0,7);
+  // Trigger render
+  supaBootstrap(function(){ renderSalonExpenses(); }, function(){ renderSalonExpenses(); });
 }
 
 function _loadFullStaffPanel(){
