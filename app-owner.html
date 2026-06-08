@@ -484,17 +484,110 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <!-- ════ DASHBOARD ════ -->
 <div class="panel on" id="pn-dashboard">
 
-  <!-- Manager Clock In/Out -->
-  <div id="mgr-att-btn-wrap" style="margin-bottom:10px"></div>
+<!-- ── Clock In/Out ── -->
+<div id="mgr-att-btn-wrap" style="margin-bottom:12px"></div>
 
-  <!-- Manager Billing Entry -->
-  <div style="background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:16px;border:1px solid var(--border)">
-    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">✂️ Add Billing Entry</div>
-    <div style="margin-bottom:8px">
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1: KPI OVERVIEW CARDS (BB-style)
+══════════════════════════════════════════════════════ -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+  <div style="font-size:13px;font-weight:700;color:var(--white)">
+    <span id="dash-period-label">This Month</span> Overview
+  </div>
+  <div style="display:flex;gap:6px">
+    <input type="month" id="dash-month-picker" 
+      style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:12px;padding:5px 9px;font-family:var(--BF);outline:none"
+      onchange="dashSetMonth(this.value)">
+    <button id="dash-btn-month" onclick="dashSetPeriod('month')" 
+      style="padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">Month</button>
+    <button id="dash-btn-today" onclick="dashSetPeriod('today')" 
+      style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">Today</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">REVENUE</div>
+    <div style="font-family:var(--HF);font-size:32px;color:var(--accent);line-height:1" id="ov-revenue">₹0</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px" id="ov-txns">— transactions</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">AVG TICKET</div>
+    <div style="font-family:var(--HF);font-size:32px;color:var(--white);line-height:1" id="ov-avg">₹0</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">per customer</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">PHONEPE</div>
+    <div style="font-family:var(--HF);font-size:32px;color:var(--blue);line-height:1" id="ov-ph">₹0</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px" id="ov-ph-pct">—%</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px">
+    <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">CASH</div>
+    <div style="font-family:var(--HF);font-size:32px;color:var(--green);line-height:1" id="ov-cash">₹0</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px" id="ov-cash-pct">—%</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2: COSMETICS ORDERS STRIP
+══════════════════════════════════════════════════════ -->
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap" id="dash-cos-strip">
+  <div style="font-family:var(--HF);font-size:14px;letter-spacing:1px;color:var(--white);white-space:nowrap">🧴 COSMETICS</div>
+  <div style="display:flex;gap:20px;flex:1;flex-wrap:wrap" id="dash-cos-status">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-family:var(--HF);font-size:22px;color:#F59E0B" id="dc-pending">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Pending</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-family:var(--HF);font-size:22px;color:var(--blue)" id="dc-confirmed">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Confirmed</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-family:var(--HF);font-size:22px;color:var(--accent)" id="dc-shipped">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Shipped</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-family:var(--HF);font-size:22px;color:var(--green)" id="dc-delivered">—</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Delivered</div>
+    </div>
+  </div>
+  <a href="#" onclick="showTab('cosmetics')" style="font-size:11px;color:var(--accent);text-decoration:none;font-weight:700;white-space:nowrap">View All →</a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 3: STYLIST PERFORMANCE BREAKDOWN
+     (Like BB "Store Breakdown" but per stylist)
+══════════════════════════════════════════════════════ -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+  <div style="font-size:13px;font-weight:700;color:var(--white)">Stylist Breakdown</div>
+  <span style="font-size:11px;color:var(--muted)" id="dash-salon-name-lbl"></span>
+</div>
+<div id="dash-stylist-breakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px">
+  <div style="padding:24px;text-align:center;color:var(--muted2);font-size:13px;grid-column:1/-1">Loading…</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 4: TODAY'S CUSTOMERS LIST
+══════════════════════════════════════════════════════ -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+  <div style="font-size:13px;font-weight:700;color:var(--white)">Today's Customers</div>
+  <div id="dash-today-summary" style="font-size:12px;color:var(--muted)"></div>
+</div>
+<div id="dash-bills" style="margin-bottom:16px"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 5: ADD BILLING ENTRY (collapsible)
+══════════════════════════════════════════════════════ -->
+<div style="background:var(--surface);border-radius:var(--r);border:1px solid var(--border);margin-bottom:12px;overflow:hidden">
+  <div onclick="toggleBillingForm()" style="padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none">
+    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">✂️ Add Billing Entry</div>
+    <span id="billing-form-arrow" style="color:var(--muted);font-size:16px;transition:transform .2s">▼</span>
+  </div>
+  <div id="billing-form-body" style="padding:0 16px 16px;border-top:1px solid var(--border)">
+    <div style="margin-bottom:8px;margin-top:12px">
       <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Hairstylist</label>
       <select id="mgr-bill-barber" class="fi" style="width:100%"><option value="">Select Stylist</option></select>
     </div>
-    <!-- Backdated date picker — only visible if manager has allowBackdate enabled -->
     <div id="mgr-bill-date-wrap" style="display:none;margin-bottom:8px">
       <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">📅 Entry Date <span style="color:var(--blue);font-size:9px;font-weight:700">(Backdated)</span></label>
       <input type="date" id="mgr-bill-date" class="fi" style="width:100%;border-color:rgba(29,109,181,.3)">
@@ -525,12 +618,11 @@ select option { background: var(--surface) !important; color: var(--white) !impo
         <input type="tel" id="mgr-bill-phone" class="fi" placeholder="Enter phone no." maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'');mgrBillAutoFill(this.value)">
       </div>
       <div>
-        <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Customer Name &nbsp;<span id="mgr-bill-name-status" style="font-size:9px;font-weight:700;color:var(--accent)"></span></label>
+        <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Customer Name <span id="mgr-bill-name-status" style="font-size:9px;font-weight:700;color:var(--accent)"></span></label>
         <input type="text" id="mgr-bill-name" class="fi" placeholder="Walk-in">
       </div>
     </div>
-    <!-- Wallet banner (cashback + referral) — shown only when customer has either -->
-    <div id="mgr-ref-credit-banner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,#F5E030,#C8A800);border-radius:var(--rs);box-shadow:0 1px 3px rgba(0,0,0,.08)">
+    <div id="mgr-ref-credit-banner" style="display:none;margin-bottom:10px;padding:10px 12px;background:linear-gradient(135deg,#F5E030,#C8A800);border-radius:var(--rs)">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div style="font-size:22px">💰</div>
         <div style="flex:1;min-width:140px">
@@ -539,21 +631,16 @@ select option { background: var(--surface) !important; color: var(--white) !impo
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.4);border-radius:6px;padding:3px 6px">
           <span style="font-size:11px;font-weight:800;color:#003D2B">₹</span>
-          <input type="number" id="mgr-ref-credit-apply" min="0" step="1" placeholder="0" oninput="mgrApplyOfferDiscount()"
-                 style="width:60px;background:transparent;border:none;outline:none;font-weight:800;font-size:14px;color:#003D2B;text-align:right">
-          <button type="button" onclick="mgrSetMaxWalletApply()" style="background:#003D2B;color:#F5E030;border:none;border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px">Max</button>
+          <input type="number" id="mgr-ref-credit-apply" min="0" step="1" placeholder="0" oninput="mgrApplyOfferDiscount()" style="width:60px;background:transparent;border:none;outline:none;font-weight:800;font-size:14px;color:#003D2B;text-align:right">
+          <button type="button" onclick="mgrSetMaxWalletApply()" style="background:#003D2B;color:#F5E030;border:none;border-radius:4px;padding:3px 7px;font-size:9px;font-weight:800;cursor:pointer">Max</button>
         </div>
       </div>
       <input type="checkbox" id="mgr-ref-credit-toggle" checked style="display:none">
       <div id="mgr-ref-credit-warn" style="display:none;margin-top:6px;font-size:10px;color:#7c2d12;font-weight:700"></div>
     </div>
-
-    <!-- Offer selector — shown only when customer phone is entered -->
     <div id="mgr-offer-selector-wrap" style="display:none;margin-bottom:10px">
       <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">🎁 Apply Offer / Discount</label>
-      <select id="mgr-inp-offer" class="fi" onchange="mgrApplyOfferDiscount()" style="width:100%">
-      </select>
-      <!-- Cashback vs instant-discount mode toggle (default = cashback for next visit) -->
+      <select id="mgr-inp-offer" class="fi" onchange="mgrApplyOfferDiscount()" style="width:100%"></select>
       <div id="mgr-offer-mode-wrap" style="display:none;margin-top:6px;padding:7px 10px;background:rgba(0,122,86,.05);border:1px dashed rgba(0,122,86,.3);border-radius:var(--rs)">
         <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;color:var(--white)">
           <input type="checkbox" id="mgr-offer-instant-toggle" onchange="mgrApplyOfferDiscount()" style="width:15px;height:15px;cursor:pointer">
@@ -564,104 +651,59 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     </div>
     <button onclick="addMgrBill()" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:800;cursor:pointer;font-family:var(--BF)">✓ Add Entry</button>
   </div>
-  <!-- ══ OVERVIEW STATS (BB-style) ══ -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="dash-kpi-grid">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Revenue</div>
-      <div style="font-family:var(--HF);font-size:26px;color:var(--accent)" id="ov-revenue">₹0</div>
-      <div style="font-size:11px;color:var(--muted)" id="ov-txns">0 transactions</div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Avg Ticket</div>
-      <div style="font-family:var(--HF);font-size:26px;color:var(--white)" id="ov-avg">₹0</div>
-      <div style="font-size:11px;color:var(--muted)">per customer</div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">PhonePe</div>
-      <div style="font-family:var(--HF);font-size:26px;color:var(--blue)" id="ov-ph">₹0</div>
-      <div style="font-size:11px;color:var(--muted)" id="ov-ph-pct">0%</div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cash</div>
-      <div style="font-family:var(--HF);font-size:26px;color:var(--green)" id="ov-cash">₹0</div>
-      <div style="font-size:11px;color:var(--muted)" id="ov-cash-pct">0%</div>
-    </div>
-  </div>
-
-  <!-- Cosmetics Orders Status -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px" id="dash-cos-strip">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-family:var(--HF);font-size:14px;letter-spacing:1px;color:var(--white)">🧴 COSMETICS ORDERS</div>
-      <a href="#" onclick="showTab('cosmetics')" style="font-size:11px;color:var(--accent);text-decoration:none;font-weight:700">View All →</a>
-    </div>
-    <div id="dash-cos-status" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
-      <div><div style="font-family:var(--HF);font-size:20px;color:#F59E0B" id="dc-pending">—</div><div style="font-size:10px;color:var(--muted)">Pending</div></div>
-      <div><div style="font-family:var(--HF);font-size:20px;color:var(--blue)" id="dc-confirmed">—</div><div style="font-size:10px;color:var(--muted)">Confirmed</div></div>
-      <div><div style="font-family:var(--HF);font-size:20px;color:var(--accent)" id="dc-shipped">—</div><div style="font-size:10px;color:var(--muted)">Shipped</div></div>
-      <div><div style="font-family:var(--HF);font-size:20px;color:var(--green)" id="dc-delivered">—</div><div style="font-size:10px;color:var(--muted)">Delivered</div></div>
-    </div>
-  </div>
-
-  <!-- Stylist Performance -->
-  <div class="sec-hdr"><div class="sec-title">Today — Hairstylist Performance</div></div>
-  <div class="bc-grid" id="dash-barbers"></div>
-  <div class="sec-hdr"><div class="sec-title">Today's Customers</div></div>
-  <div id="dash-bills"></div>
-
-  <!-- Hairstylist expenses (kept hidden for PNL calculations) -->
-  <div id="expense-log-panel" style="display:none"></div>
-
-  <!-- ══ CASH HANDLING SECTION ══ -->
-  <div class="sec-hdr" style="margin-top:16px;margin-bottom:8px"><div class="sec-title">💰 Cash Handling</div></div>
-
-  <!-- Manager Expenses -->
-  <div class="mgr-counter ex" style="border-color:rgba(224,107,91,.35);background:rgba(232,107,91,.06);margin-bottom:10px">
-    <div class="mgr-ci-title ex"><span>🧾 Expenses</span><span class="mgr-ci-total" id="mgr-exp-total">₹0</span></div>
-    <div class="mgr-ci-row">
-      <input type="text" class="mgr-ci-inp" id="mgr-exp-desc" placeholder="Description…" style="flex:1.5">
-      <input type="number" class="mgr-ci-inp" id="mgr-exp-amt" placeholder="₹" min="0" inputmode="numeric" style="flex:.8;min-width:70px">
-      <button onclick="addMgrExpense()" style="padding:8px 12px;background:rgba(224,107,91,.12);border:1.5px solid var(--danger);color:var(--danger);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
-    </div>
-    <div class="mgr-ci-log" id="mgr-exp-log"></div>
-  </div>
-
-  <!-- Cash Counter (auto-calculated) -->
-  <div class="mgr-counter ci" style="border-color:rgba(29,109,181,.35);background:rgba(91,196,240,.06);margin-bottom:10px">
-    <div class="mgr-ci-title" style="color:var(--blue)">
-      <span>💵 Cash Counter</span>
-      <span class="mgr-ci-total" id="mgr-cash-counter-total" style="color:var(--blue)">₹0</span>
-    </div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6">
-      Today Cash Sales + All Previous Cash − Cash Advances (Barbers + Manager) − Expenses − Cash Handed Over
-    </div>
-    <!-- Previous Month Cash -->
-    <div style="margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Prev Month Cash Entry</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <input type="text" class="mgr-ci-inp" id="mgr-prev-cash-desc" placeholder="Description (e.g. March closing)" style="flex:1.5;min-width:110px">
-        <input type="number" class="mgr-ci-inp" id="mgr-prev-cash-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:1;min-width:80px">
-        <button onclick="addMgrPrevMonthCash()" style="padding:8px 12px;background:rgba(29,109,181,.15);border:1.5px solid var(--blue);color:var(--blue);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
-      </div>
-      <div id="mgr-prev-cash-log" style="margin-top:6px"></div>
-    </div>
-    <div style="font-size:12px;color:var(--muted2)" id="mgr-cash-counter-log"></div>
-  </div>
-
-  <!-- Cash Handed Over -->
-  <div class="mgr-counter" style="border-color:rgba(155,127,212,.35);background:rgba(155,127,212,.06);margin-bottom:10px">
-    <div class="mgr-ci-title" style="color:var(--purple)">
-      <span>🤝 Cash Handed Over to Franchise Owner</span>
-      <span class="mgr-ci-total" id="mgr-handover-total" style="color:var(--purple)">₹0</span>
-    </div>
-    <div class="mgr-ci-row" style="flex-wrap:wrap;gap:6px">
-      <input type="text" class="mgr-ci-inp" id="mgr-handover-name" placeholder="Name (Franchise Owner)" style="flex:1.4;min-width:140px">
-      <input type="number" class="mgr-ci-inp" id="mgr-handover-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:.8;min-width:80px">
-      <button onclick="addMgrHandover()" style="padding:8px 12px;background:rgba(155,127,212,.15);border:1.5px solid rgba(155,127,212,.4);color:var(--purple);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
-    </div>
-    <div class="mgr-ci-log" id="mgr-handover-log"><span style="color:var(--muted2);font-size:11px;font-style:italic">No entries yet</span></div>
-  </div>
 </div>
 
+<!-- Hidden: needed for PNL calc -->
+<div id="expense-log-panel" style="display:none"></div>
+<div id="dash-barbers" style="display:none"></div>
+<div id="dash-stats" style="display:none"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 6: CASH HANDLING
+══════════════════════════════════════════════════════ -->
+<div class="sec-hdr" style="margin-top:4px;margin-bottom:8px"><div class="sec-title">💰 Cash Handling</div></div>
+<div class="mgr-counter ex" style="border-color:rgba(224,107,91,.35);background:rgba(232,107,91,.06);margin-bottom:10px">
+  <div class="mgr-ci-title ex"><span>🧾 Expenses</span><span class="mgr-ci-total" id="mgr-exp-total">₹0</span></div>
+  <div class="mgr-ci-row">
+    <input type="text" class="mgr-ci-inp" id="mgr-exp-desc" placeholder="Description…" style="flex:1.5">
+    <input type="number" class="mgr-ci-inp" id="mgr-exp-amt" placeholder="₹" min="0" inputmode="numeric" style="flex:.8;min-width:70px">
+    <button onclick="addMgrExpense()" style="padding:8px 12px;background:rgba(224,107,91,.12);border:1.5px solid var(--danger);color:var(--danger);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
+  </div>
+  <div class="mgr-ci-log" id="mgr-exp-log"></div>
+</div>
+<div class="mgr-counter ci" style="border-color:rgba(29,109,181,.35);background:rgba(91,196,240,.06);margin-bottom:10px">
+  <div class="mgr-ci-title" style="color:var(--blue)">
+    <span>💵 Cash Counter</span>
+    <span class="mgr-ci-total" id="mgr-cash-counter-total" style="color:var(--blue)">₹0</span>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+    Today Cash Sales + All Previous Cash − Cash Advances − Expenses − Cash Handed Over
+  </div>
+  <div style="margin-bottom:8px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Prev Month Cash Entry</div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <input type="text" class="mgr-ci-inp" id="mgr-prev-cash-desc" placeholder="Description (e.g. March closing)" style="flex:1.5;min-width:110px">
+      <input type="number" class="mgr-ci-inp" id="mgr-prev-cash-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:1;min-width:80px">
+      <button onclick="addMgrPrevMonthCash()" style="padding:8px 12px;background:rgba(29,109,181,.15);border:1.5px solid var(--blue);color:var(--blue);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
+    </div>
+    <div id="mgr-prev-cash-log" style="margin-top:6px"></div>
+  </div>
+  <div style="font-size:12px;color:var(--muted2)" id="mgr-cash-counter-log"></div>
+</div>
+<div class="mgr-counter" style="border-color:rgba(155,127,212,.35);background:rgba(155,127,212,.06);margin-bottom:10px">
+  <div class="mgr-ci-title" style="color:var(--purple)">
+    <span>🤝 Cash Handed Over</span>
+    <span class="mgr-ci-total" id="mgr-handover-total" style="color:var(--purple)">₹0</span>
+  </div>
+  <div class="mgr-ci-row" style="flex-wrap:wrap;gap:6px">
+    <input type="text" class="mgr-ci-inp" id="mgr-handover-name" placeholder="Name (Franchise Owner)" style="flex:1.4;min-width:140px">
+    <input type="number" class="mgr-ci-inp" id="mgr-handover-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:.8;min-width:80px">
+    <button onclick="addMgrHandover()" style="padding:8px 12px;background:rgba(155,127,212,.15);border:1.5px solid rgba(155,127,212,.4);color:var(--purple);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">+ Add</button>
+  </div>
+  <div class="mgr-ci-log" id="mgr-handover-log"><span style="color:var(--muted2);font-size:11px;font-style:italic">No entries yet</span></div>
+</div>
+
+</div>
 <!-- ════ SALES RECORDS ════ -->
 <div class="panel" id="pn-sales">
 <style id="sd-styles">
@@ -2579,6 +2621,11 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   }
   renderDashboard();
   renderMgrAttBtn('mgr-att-btn-wrap');
+  // Render dashboard KPI cards after data loads
+  setTimeout(function(){
+    try{ _renderDashKPIs(); }catch(e){}
+    try{ _renderDashCosmetics(); }catch(e){}
+  }, 200);
 }
 (function autoLoad(){
   // ── Fetch tenant logo immediately ─────────────────────────
@@ -9283,52 +9330,201 @@ function saveRentInfo(){
 //  DASHBOARD KPI + COSMETICS STATUS
 // ════════════════════════════════════════════════════════════════
 
-var _dashKPIPatched = false;
-function _patchDashboard(){
-  if(_dashKPIPatched) return;
-  _dashKPIPatched = true;
-  var _origRenderDash = renderDashboard;
-  renderDashboard = function(){
-    _origRenderDash.apply(this, arguments);
-    _renderDashKPIs();
-    _renderDashCosmetics();
-  };
+// ════════════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════════════
+//  DASHBOARD — REWRITTEN
+// ════════════════════════════════════════════════════════════════
+var _dashPeriod = 'month';
+var _dashMonth  = new Date().toISOString().slice(0,7);
+
+// Toggle billing form
+var _billingOpen = true;
+function toggleBillingForm(){
+  var body  = document.getElementById('billing-form-body');
+  var arrow = document.getElementById('billing-form-arrow');
+  if(!body) return;
+  _billingOpen = !_billingOpen;
+  body.style.display  = _billingOpen ? 'block' : 'none';
+  if(arrow) arrow.style.transform = _billingOpen ? '' : 'rotate(-90deg)';
 }
 
-function _renderDashKPIs(){
-  var entries  = getEntries();
-  var today    = entries.filter(function(e){ return _isTodayEntry(e); });
-  var revenue  = today.reduce(function(s,e){ return s+Number(e.total||0); },0);
-  var ph       = today.reduce(function(s,e){ return s+Number(e.phPay||e.ph_pay||0); },0);
-  var cash     = today.reduce(function(s,e){ return s+Number(e.cash||0); },0);
-  var txns     = today.length;
-  var avg      = txns ? Math.round(revenue/txns) : 0;
-  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
-  sv('ov-revenue', '₹'+revenue.toLocaleString('en-IN'));
+function dashSetPeriod(p){
+  _dashPeriod = p;
+  var mb = document.getElementById('dash-btn-month');
+  var tb = document.getElementById('dash-btn-today');
+  var lbl= document.getElementById('dash-period-label');
+  if(mb){ mb.style.background = p==='month'?'var(--accent)':'var(--surface)'; mb.style.color=p==='month'?'#fff':'var(--muted)'; mb.style.border=p==='month'?'none':'1px solid var(--border)'; }
+  if(tb){ tb.style.background = p==='today'?'var(--accent)':'var(--surface)'; tb.style.color=p==='today'?'#fff':'var(--muted)'; tb.style.border=p==='today'?'none':'1px solid var(--border)'; }
+  if(lbl) lbl.textContent = p==='today'?'Today':(_dashMonth ? _dashMonth.replace('-',' / ') : 'This Month');
+  dashRenderKPIs();
+  dashRenderStylists();
+}
+
+function dashSetMonth(val){
+  _dashMonth  = val;
+  _dashPeriod = 'month';
+  dashSetPeriod('month');
+}
+
+function dashRenderKPIs(){
+  var allE = getEntries();
+  var fmtI = function(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); };
+  var sv   = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+
+  var filtered;
+  if(_dashPeriod==='today'){
+    filtered = allE.filter(function(e){ return _isTodayEntry(e); });
+  } else {
+    var mo = _dashMonth || new Date().toISOString().slice(0,7);
+    filtered = allE.filter(function(e){ return (_normDate(e.date||'')).slice(0,7)===mo; });
+  }
+
+  var revenue = filtered.reduce(function(s,e){ return s+Number(e.total||0); }, 0);
+  var ph      = filtered.reduce(function(s,e){ return s+Number(e.phPay||e.ph_pay||0); }, 0);
+  var cash    = filtered.reduce(function(s,e){ return s+Number(e.cash||0); }, 0);
+  var txns    = filtered.length;
+  var avg     = txns ? Math.round(revenue/txns) : 0;
+
+  sv('ov-revenue', fmtI(revenue));
   sv('ov-txns',    txns+' transactions');
-  sv('ov-avg',     '₹'+avg.toLocaleString('en-IN'));
-  sv('ov-ph',      '₹'+ph.toLocaleString('en-IN'));
-  sv('ov-cash',    '₹'+cash.toLocaleString('en-IN'));
-  sv('ov-ph-pct',  revenue?(Math.round(ph/revenue*100)+'%'):'0%');
-  sv('ov-cash-pct',revenue?(Math.round(cash/revenue*100)+'%'):'0%');
+  sv('ov-avg',     fmtI(avg));
+  sv('ov-ph',      fmtI(ph));
+  sv('ov-ph-pct',  revenue ? Math.round(ph/revenue*100)+'%' : '0%');
+  sv('ov-cash',    fmtI(cash));
+  sv('ov-cash-pct',revenue ? Math.round(cash/revenue*100)+'%' : '0%');
 }
 
-function _renderDashCosmetics(){
-  if(!_cosOrders||!_cosOrders.length){
-    // Fetch if not loaded
-    var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
-    if(!tid||!_cosVendor||!_cosVendor.id) return;
+function dashRenderStylists(){
+  var el=document.getElementById('dash-stylist-breakdown');
+  if(!el) return;
+  var allE=getEntries();
+  var staff=(LS.get('staff')||[]).filter(function(s){
+    return (String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenant_id||s.tenantId||'')===String(MS_TENANT_ID||''))
+        && (s.role==='stylist'||s.role==='barber') && s.active!==false&&s.active!=='0'&&s.active!==0;
+  });
+
+  var filtered, mo=_dashMonth||new Date().toISOString().slice(0,7);
+  if(_dashPeriod==='today') filtered=allE.filter(function(e){return _isTodayEntry(e);});
+  else filtered=allE.filter(function(e){return (_normDate(e.date||'')).slice(0,7)===mo;});
+
+  // Update today bills
+  var todayE=allE.filter(function(e){return _isTodayEntry(e);});
+  var billsEl=document.getElementById('dash-bills');
+  if(billsEl){
+    var todayTot=todayE.reduce(function(s,e){return s+Number(e.total||0);},0);
+    var sumEl=document.getElementById('dash-today-summary');
+    if(sumEl) sumEl.textContent=todayE.length+' customers · ₹'+todayTot.toLocaleString('en-IN');
+    billsEl.innerHTML=todayE.length?renderEntriesTable(todayE,true):'<div style="padding:20px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">No customers yet today</div>';
+  }
+
+  if(!staff.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted2);font-size:13px;grid-column:1/-1">No stylists found. Add staff in Manage tab.</div>';return;}
+
+  var totalRev=filtered.reduce(function(s,e){return s+Number(e.total||0);},0);
+  var fI=function(n){return String.fromCharCode(8377)+Number(n||0).toLocaleString('en-IN');};
+
+  el.innerHTML='';
+  staff.forEach(function(stylist){
+    var sE=filtered.filter(function(e){return String(e.barberId||e.barber_id||'')===String(stylist.id||'')||String(e.barberName||'').toLowerCase()===String(stylist.name||'').toLowerCase();});
+    var rev=sE.reduce(function(s,e){return s+Number(e.total||0);},0);
+    var custs=sE.length, avg=custs?Math.round(rev/custs):0;
+    var ph=sE.reduce(function(s,e){return s+Number(e.phPay||e.ph_pay||0);},0);
+    var cash=sE.reduce(function(s,e){return s+Number(e.cash||0);},0);
+    var pct=totalRev?Math.round(rev/totalRev*100):0;
+    var barW=Math.min(100,pct);
+    var barCol=pct>=70?'var(--accent)':pct>=40?'#F59E0B':'var(--danger)';
+    var dot=pct>=100?'🟢':pct>=70?'🟡':pct>=40?'🟠':'🔴';
+    var todayStyE=allE.filter(function(e){return _isTodayEntry(e)&&String(e.barberId||e.barber_id||'')===String(stylist.id||'');});
+    var todayRev=todayStyE.reduce(function(s,e){return s+Number(e.total||0);},0);
+    var target=2300, todayPct=Math.min(100,Math.round(todayRev/target*100));
+
+    var card=document.createElement('div');
+    card.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;min-width:0';
+    card.innerHTML=[
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">',
+        '<div>',
+          '<div style="font-family:var(--HF);font-size:18px;color:var(--accent);letter-spacing:1px">'+escH(stylist.name||'—')+'</div>',
+          '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+escH(mySalonName||'')+'</div>',
+        '</div>',
+        '<div style="font-family:var(--HF);font-size:22px;color:var(--accent)">'+fI(rev)+'</div>',
+      '</div>',
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;text-align:center">',
+        '<div><div style="font-family:var(--HF);font-size:20px">'+custs+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Customers</div></div>',
+        '<div><div style="font-family:var(--HF);font-size:20px">'+fI(avg)+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Avg Ticket</div></div>',
+        '<div><div style="font-family:var(--HF);font-size:20px">'+pct+'%</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Share</div></div>',
+      '</div>',
+      '<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+dot+' TODAYS TARGET: '+todayPct+'% &nbsp;'+fI(todayRev)+' / '+fI(target)+'</div>',
+      '<div style="background:rgba(0,0,0,.08);border-radius:4px;height:6px;overflow:hidden;margin-bottom:10px">',
+        '<div style="height:100%;border-radius:4px;width:'+barW+'%;background:'+barCol+'"></div>',
+      '</div>',
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">',
+        '<div style="background:rgba(29,109,181,.06);border:1px solid rgba(29,109,181,.15);border-radius:var(--rs);padding:8px 10px;text-align:center">',
+          '<div style="font-family:var(--HF);font-size:15px;color:var(--blue)">'+fI(ph)+'</div>',
+          '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">PhonePe</div>',
+        '</div>',
+        '<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:var(--rs);padding:8px 10px;text-align:center">',
+          '<div style="font-family:var(--HF);font-size:15px;color:var(--green)">'+fI(cash)+'</div>',
+          '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Cash</div>',
+        '</div>',
+      '</div>'
+    ].join('');
+    el.appendChild(card);
+  });
+}
+
+function dashRenderCosmetics(){
+  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  if(_cosOrders && _cosOrders.length){
+    sv('dc-pending',   _cosOrders.filter(function(o){return o.status==='pending';}).length);
+    sv('dc-confirmed', _cosOrders.filter(function(o){return o.status==='confirmed';}).length);
+    sv('dc-shipped',   _cosOrders.filter(function(o){return o.status==='shipped';}).length);
+    sv('dc-delivered', _cosOrders.filter(function(o){return o.status==='delivered';}).length);
     return;
   }
-  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
-  sv('dc-pending',   _cosOrders.filter(function(o){return o.status==='pending';}).length);
-  sv('dc-confirmed', _cosOrders.filter(function(o){return o.status==='confirmed';}).length);
-  sv('dc-shipped',   _cosOrders.filter(function(o){return o.status==='shipped';}).length);
-  sv('dc-delivered', _cosOrders.filter(function(o){return o.status==='delivered';}).length);
+  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  if(!tid) return;
+  fetch(SUPA_URL+'/rest/v1/vendor_orders?tenant_id=eq.'+encodeURIComponent(tid)+'&select=id,status&limit=200',{
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(!rows||!Array.isArray(rows)) return;
+    sv('dc-pending',   rows.filter(function(o){return o.status==='pending';}).length);
+    sv('dc-confirmed', rows.filter(function(o){return o.status==='confirmed';}).length);
+    sv('dc-shipped',   rows.filter(function(o){return o.status==='shipped';}).length);
+    sv('dc-delivered', rows.filter(function(o){return o.status==='delivered';}).length);
+  }).catch(function(){});
 }
 
-// Patch after boot
-setTimeout(function(){ _patchDashboard(); _renderDashKPIs(); }, 500);
+// Override renderDashboard to call new functions
+var _origRenderDashboard = renderDashboard;
+renderDashboard = function(){
+  // Set initial month picker
+  var mp = document.getElementById('dash-month-picker');
+  if(mp && !mp.value) mp.value = new Date().toISOString().slice(0,7);
+  // Call originals that handle barbers/counters
+  try{ _origRenderDashboard.apply(this,arguments); }catch(e){}
+  // Our new renders
+  setTimeout(function(){
+    dashRenderKPIs();
+    dashRenderStylists();
+    dashRenderCosmetics();
+    // Hide old elements not needed
+    var db=document.getElementById('dash-barbers');
+    if(db) db.style.display='none';
+    var ds=document.getElementById('dash-stats');
+    if(ds) ds.style.display='none';
+    // Update salon name label
+    var nl=document.getElementById('dash-salon-name-lbl');
+    if(nl) nl.textContent=mySalonName||'';
+  },100);
+};
+
+// Init
+document.addEventListener('DOMContentLoaded',function(){
+  var mp=document.getElementById('dash-month-picker');
+  if(mp) mp.value=new Date().toISOString().slice(0,7);
+  dashSetPeriod('month');
+});
 // ════════════════════════════════════════════════════════════════
 
 </script>
