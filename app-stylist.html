@@ -483,10 +483,10 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <div class="nav-tabs">
   <button class="nt on" id="nt-billing"  onclick="showTab('billing')">✂️ Billing</button>
-  <button class="nt"    id="nt-queue"    onclick="showTab('queue')">🔢 Queue</button>
   <button class="nt"    id="nt-mysales"  onclick="showTab('mysales')">📋 My Sales</button>
-  <button class="nt"    id="nt-scan"     onclick="showTab('scan')">📷 Scan</button>
-  <button class="nt"    id="nt-style"    onclick="showTab('style')">💈 Style Card</button>
+  <button class="nt"    id="nt-queue"    onclick="stylistProGate('queue')">🔢 Queue <span class="pro-tag">PRO</span></button>
+  <button class="nt"    id="nt-scan"     onclick="stylistProGate('scan')">📷 Scan <span class="pro-tag">PRO</span></button>
+  <button class="nt"    id="nt-style"    onclick="stylistProGate('style')">💈 Style Card <span class="pro-tag">PRO</span></button>
   <button class="nt"    id="nt-profile"  onclick="showTab('profile')">👤 My Profile</button>
 </div>
 
@@ -1584,14 +1584,15 @@ var ME = null;
   
   
 
-  // Build service chips
+  // Build service chips — stable onclick, no re-render
   var chipsEl=document.getElementById('svc-chips');
+  chipsEl.innerHTML='';
   SERVICES_LIST.forEach(function(s){
     var btn=document.createElement('button');
     btn.className='chip';
     btn.innerHTML='<span class="chip-code">'+s.code+'</span> '+s.label;
     btn.setAttribute('data-code',s.code);
-    btn.onclick=function(){ toggleSvc(s.code); };
+    btn.addEventListener('click',function(){ toggleSvc(s.code); });
     chipsEl.appendChild(btn);
   });
 
@@ -1761,11 +1762,41 @@ function renderBilling(){
 
 function toggleSvc(code){
   var s=SERVICES_LIST.find(function(x){return x.code===code;});
+  if(!s) return;
   var idx=-1; selectedSvcs.forEach(function(x,i){if(x.code===code)idx=i;});
-  if(idx>-1)selectedSvcs.splice(idx,1); else selectedSvcs.push(s);
-  renderBilling();
+  if(idx>-1) selectedSvcs.splice(idx,1); else selectedSvcs.push(s);
+  // Update chip visual without full re-render (prevents onclick loss)
+  document.querySelectorAll('#svc-chips .chip').forEach(function(btn){
+    btn.classList.toggle('on', !!selectedSvcs.find(function(x){return x.code===btn.getAttribute('data-code');}));
+  });
+  // Update selected services display only
+  _renderSelSvcs();
+  // Update amount/price fields
+  _updateSvcAmount();
 }
-function removeSvc(code){toggleSvc(code);}
+function removeSvc(code){ toggleSvc(code); }
+
+function _renderSelSvcs(){
+  var sel=document.getElementById('sel-svcs');
+  if(!sel) return;
+  sel.innerHTML=selectedSvcs.length
+    ? selectedSvcs.map(function(s){
+        return '<span class="sel-tag"><span class="chip-code">'+s.code+'</span>'+s.label+
+               ' <span class="rm" onclick="removeSvc(\"'+s.code+'\")">✕</span></span>';
+      }).join('')
+    : '<span class="sel-empty">Tap services above…</span>';
+}
+
+function _updateSvcAmount(){
+  if(!selectedSvcs.length) return;
+  var total=selectedSvcs.reduce(function(s,x){return s+(x.price||0);},0);
+  var phEl=document.getElementById('inp-ph-pay');
+  var cashEl=document.getElementById('inp-cash');
+  if(total>0 && phEl && cashEl){
+    var curPh=Number(phEl.value)||0, curCash=Number(cashEl.value)||0;
+    if(curPh===0 && curCash===0) cashEl.value=total;
+  }
+}
 
 function billAutoFillName(phone){
   var nameEl   = document.getElementById('inp-cust-name');
@@ -3853,6 +3884,71 @@ supaBootstrap = function(onDone, onError) {
   }
 };
 // ── End MySalon patch ────────────────────────────────────────
+
+
+// ════════════════════════════════════════════════════════════
+//  STYLIST PRO GATE
+// ════════════════════════════════════════════════════════════
+function stylistProGate(tab){
+  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  if(plan === 'free'){
+    _showStylistUpgradeBanner(tab);
+    return;
+  }
+  showTab(tab);
+}
+
+function _showStylistUpgradeBanner(tab){
+  var existing = document.getElementById('stylist-upgrade-banner');
+  if(existing) existing.remove();
+
+  var tabNames = {queue:'Queue System', scan:'QR Scanner', style:'Style Cards'};
+  var tabName  = tabNames[tab] || tab;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'stylist-upgrade-banner';
+  wrap.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;' +
+    'padding:16px 20px;z-index:99999;display:flex;align-items:center;gap:14px;' +
+    'box-shadow:0 -4px 20px rgba(0,0,0,.3);font-family:var(--BF)';
+
+  var icon = document.createElement('div');
+  icon.style.cssText = 'font-size:28px;flex-shrink:0';
+  icon.textContent = '🔒';
+  wrap.appendChild(icon);
+
+  var txt = document.createElement('div');
+  txt.style.cssText = 'flex:1';
+  var h = document.createElement('div');
+  h.style.cssText = 'font-family:var(--HF);font-size:16px;color:#F5E030;letter-spacing:1px';
+  h.textContent   = 'PRO FEATURE';
+  var p = document.createElement('div');
+  p.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7);margin-top:2px';
+  p.innerHTML     = tabName + ' requires <strong>Pro plan (₹299/mo)</strong> — Contact salon owner to upgrade';
+  txt.appendChild(h); txt.appendChild(p);
+  wrap.appendChild(txt);
+
+  var cls = document.createElement('button');
+  cls.style.cssText = 'background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;padding:0 4px;flex-shrink:0;line-height:1';
+  cls.textContent   = '✕';
+  cls.onclick       = function(){ wrap.remove(); };
+  wrap.appendChild(cls);
+
+  document.body.appendChild(wrap);
+
+  // Slide up
+  wrap.style.transform = 'translateY(100%)';
+  wrap.style.transition = 'transform .3s ease';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ wrap.style.transform = 'translateY(0)'; });
+  });
+
+  // Auto dismiss after 5s
+  setTimeout(function(){
+    wrap.style.transform = 'translateY(100%)';
+    setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 350);
+  }, 5000);
+}
+// ════════════════════════════════════════════════════════════
 
 </script>
   
