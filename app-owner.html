@@ -282,7 +282,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 
 /* ── PNL TAB ── */
 .pnl-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.pnl-sec-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.06)}
+.pnl-sec-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid var(--border)}
 .pnl-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;gap:8px}
 .pnl-row:last-child{border-bottom:none}
 .pnl-row span:first-child{color:var(--muted);flex:1}
@@ -2452,11 +2452,12 @@ function filterByDate(entries,ds){
 }
 function filterByMonth(entries,mo){
   if(!mo)return entries;
-  // mo is YYYY-MM
-  var p=mo.split('-');
+  // mo is YYYY-MM — normalize both sides using _normDate so both ISO and Indian formats work
+  // ISO "2026-05-15".split('/') was returning ['2026-05-15'] making d[1]/d[2] undefined → fixed
+  var prefix=mo.slice(0,7);
   return entries.filter(function(e){
-    var d=(e.date||'').split('/');
-    return parseInt(d[1])===parseInt(p[1]) && parseInt(d[2])===parseInt(p[0]);
+    var iso=_normDate(e.date||'');
+    return iso.slice(0,7)===prefix;
   });
 }
 // ── INIT ──
@@ -2469,15 +2470,22 @@ function _initApp(){
 window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):'');
 return; }
 if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
-  mySalonId = ME.salonId;
+  mySalonId = ME.salonId
+    || sessionStorage.getItem('ms_salon_id')
+    || localStorage.getItem('ms_salon_id') || '';
   var salons = LS.get('salons') || [];
 
   // For owners: salonId may be empty — pick first salon in their tenant
   var salon = salons.find(function(s){ return s.id === mySalonId; });
   if(!salon && salons.length) {
-    salon     = salons[0];
-    mySalonId = salon.id;
+    salon      = salons[0];
+    mySalonId  = salon.id;
     ME.salonId = mySalonId;
+  }
+  // Persist resolved salonId so subsequent tab switches don't lose it
+  if(mySalonId){
+    sessionStorage.setItem('ms_salon_id', mySalonId);
+    localStorage.setItem('ms_salon_id', mySalonId);
   }
 
   // Fallback to tenant name from session if salons not loaded yet
@@ -2720,24 +2728,25 @@ function showTab(tab){
     if(_pm && !_pm.value) _pm.value = new Date().toISOString().slice(0,7);
     supaBootstrap(function(){
       try{
-        if(typeof initPNL === 'function') initPNL();
         var pm2 = document.getElementById('pnl-month');
         if(pm2 && !pm2.value) pm2.value = new Date().toISOString().slice(0,7);
-        // NOTE: Do NOT call renderPNL() here separately — initPNL() already calls it.
-        // Calling it again causes a double async Promise.all chain competing for opacity control.
-        if(_pnlInited && typeof renderPNL === 'function') renderPNL();
+        // initPNL already calls renderPNL; if already inited just call renderPNL directly
+        if(typeof initPNL === 'function' && !_pnlInited) initPNL();
+        else if(typeof renderPNL === 'function') renderPNL();
       }
       catch(e){
         console.error('[PNL] error:',e);
         var pe=document.getElementById('pn-pnl');
         if(pe) pe.innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>';
+        if(typeof renderPNL === 'function') try{ renderPNL(); }catch(e2){}
       }
     }, function(){
       try{
-        if(typeof initPNL === 'function') initPNL();
-        // Same: initPNL calls renderPNL; only call explicitly if already inited
-        if(_pnlInited && typeof renderPNL === 'function') renderPNL();
-      } catch(e){ console.error('[PNL]',e); }
+        var pm3 = document.getElementById('pnl-month');
+        if(pm3 && !pm3.value) pm3.value = new Date().toISOString().slice(0,7);
+        if(typeof initPNL === 'function' && !_pnlInited) initPNL();
+        else if(typeof renderPNL === 'function') renderPNL();
+      } catch(e){ console.error('[PNL]',e); if(typeof renderPNL==='function') try{renderPNL();}catch(e2){} }
     });
   }
   if(tab==='manage'){
@@ -4252,7 +4261,7 @@ function renderSalesTable(){
         '<span class="tag-tip">'+(cashTip>0?fmtINR(cashTip):'—')+'</span>'+
         '<span class="tag-tot">'+fmtINR(sales)+'</span>'+
         '<span>'+
-          (e.date===today()?
+          (_normDate(e.date||'')===todayISO()?
             '<button class="btn-edit" onclick="openEdit(\''+e.id+'\')" title="Edit">✏️</button>'+
             '<button class="btn-del"  onclick="delEntry(\''+e.id+'\')" title="Delete">✕</button>'
           :'<span style="font-size:10px;color:var(--muted2)">—</span>')+
@@ -4490,7 +4499,7 @@ function mgrLoadCustDashboard(){
 
 function _mgrTabEntries(tab){
   var all=_mgrCustData.entries, td=today(), now=new Date(), cm=now.getMonth()+1, cy=now.getFullYear();
-  if(tab==='today') return all.filter(function(e){return (e.date||'')===td;});
+  if(tab==='today') return all.filter(function(e){return _normDate(e.date||'')===td;});
   if(tab==='month') return all.filter(function(e){var p=(e.date||'').split('/');return parseInt(p[1])===cm&&parseInt(p[2])===cy;});
   return all;
 }
@@ -6080,7 +6089,7 @@ function openEdit(id){
   editingId=String(id);
   var e=getEntries().find(function(x){return String(x.id)===String(id);});
   if(!e){ toast('Entry not found'); return; }
-  if(e.date !== today()){ toast('Only today\'s entries can be edited'); return; }
+  if(_normDate(e.date||'') !== todayISO()){ toast('Only today\'s entries can be edited'); return; }
   populateCustDatalist(); // Fix 3: load dropdown options
   document.getElementById('edit-cust-name').value  = e.customerName  || '';
   document.getElementById('edit-cust-phone').value = e.customerPhone || '';
@@ -6179,7 +6188,7 @@ function renderEntriesTable(entries, editable){
         '<span style="color:var(--muted2);font-size:11px">'+(i+1)+'</span>'+
         '<span style="font-size:11px;color:var(--muted);line-height:1.3">'+e.date+'<br>'+e.time+'</span>'+
         '<span style="font-size:12px;font-weight:600">'+e.barberName+'</span>'+
-        '<span style="font-size:12px;color:var(--muted)'+(e.date===today()?';cursor:pointer':'')+'"'+(e.date===today()?' onclick="openEdit(\''+e.id+'\')"':'')+'>'+cust+(e.date===today()?' <span style="color:var(--accent);font-size:9px">✏</span>':'')+'</span>'+
+        '<span style="font-size:12px;color:var(--muted)'+(_normDate(e.date||'')===todayISO()?';cursor:pointer':'')+'"'+(_normDate(e.date||'')===todayISO()?' onclick="openEdit(\''+e.id+'\')"':'')+'>'+cust+(_normDate(e.date||'')===todayISO()?' <span style="color:var(--accent);font-size:9px">✏</span>':'')+'</span>'+
         '<span style="font-size:11px;color:var(--muted)">'+phone+'</span>'+
         '<span style="font-size:12px;color:var(--muted)">'+e.services+'</span>'+
         '<span style="font-size:10px;line-height:1.3">'+_offerCell+'</span>'+
@@ -6341,19 +6350,17 @@ function loadPNLInputs(month){
   var cached = LS.get(cacheKey) || {};
   _applyPNLInputs(cached);
 
-  // Fetch fresh from Supabase — apply inputs only, do NOT call renderPNL() here
-  // (calling renderPNL() here causes an infinite loop: renderPNL->loadPNLInputs->renderPNL->...)
+  // Fetch fresh from Supabase — do NOT call renderPNL() here (causes infinite loop)
   sbSelect('pnl_inputs', 'salon_id=eq.' + encodeURIComponent(mySalonId) + '&month=eq.' + encodeURIComponent(month))
     .then(function(rows){
       if(rows && rows.length){
         var d = rows[0];
         LS.set(cacheKey, d);
         _applyPNLInputs(d);
-        // Only re-render if PNL panel is currently visible (avoid triggering while on other tabs)
-        var pnlPanel = document.getElementById('pn-pnl');
-        if(pnlPanel && pnlPanel.classList.contains('on') && typeof _doRenderPNL === 'function'){
-          var _pmv = (document.getElementById('pnl-month')||{}).value || month;
-          _doRenderPNL(_pmv);
+        // Only re-render values if P&L panel is still visible
+        var _pp=document.getElementById('pn-pnl');
+        if(_pp && _pp.classList.contains('on') && typeof _doRenderPNL==='function'){
+          _doRenderPNL((document.getElementById('pnl-month')||{}).value||month);
         }
       }
     }).catch(function(err){ console.warn('[BB] PNL load error:', err); });
@@ -6648,11 +6655,16 @@ function renderPNL(){
   if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
   var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
   if(!month){ return; }
+  // Guard: if mySalonId is still empty, try to resolve it before rendering
+  if(!mySalonId){
+    mySalonId = sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
+    var _sl = LS.get('salons')||[];
+    if(!mySalonId && _sl.length){ mySalonId=_sl[0].id; }
+  }
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
   if(pnlEl) pnlEl.style.opacity='0.5';
-  // Safety: always restore opacity after 5s regardless of Promise state
-  var _opacityGuard = setTimeout(function(){ if(pnlEl) pnlEl.style.opacity='1'; }, 5000);
+  var _opGuard = setTimeout(function(){ if(pnlEl) pnlEl.style.opacity='1'; }, 5000);
   // Fetch ALL PNL-relevant data fresh from Supabase
   Promise.all([
     sbSelect('entries',        '"salonId"=eq.'+encodeURIComponent(mySalonId))
@@ -6677,11 +6689,11 @@ function renderPNL(){
       loadFranchiseInputs(month, function(){ resolve(); });
     })
   ]).then(function(){
-    clearTimeout(_opacityGuard);
+    clearTimeout(_opGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   }).catch(function(){
-    clearTimeout(_opacityGuard);
+    clearTimeout(_opGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   });
@@ -6692,10 +6704,11 @@ function _doRenderPNL(month){
   var mo = parseInt(month.split('-')[1]);
 
   // ── Revenue (from entries) — strict salon match ──
+  // Use _normDate so both ISO "YYYY-MM-DD" and Indian "D/M/YYYY" entry dates work
+  var _pnlPrefix = yr+'-'+(mo<10?'0':'')+mo;
   var entries = getEntries().filter(function(e){
     if(String(e.salonId) !== String(mySalonId)) return false;
-    var p = (e.date||'').split('/');
-    return parseInt(p[1])===mo && parseInt(p[2])===yr;
+    return _normDate(e.date||'').slice(0,7) === _pnlPrefix;
   });
   var revenue = entries.reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); },0);
 
@@ -6825,8 +6838,7 @@ function _doRenderPNL(month){
 
   // ── Auto: Expenses = sum of ALL manager expenses for this month ──
   var allMgrExp = (LS.get('mgrExpenses')||[]).filter(function(r){
-    var p=(r["date"]||r.date||'').split('/');
-    return r.salonId===mySalonId && parseInt(p[1])===mo && parseInt(p[2])===yr;
+    return String(r.salonId)===String(mySalonId) && _normDate(r["date"]||r.date||'').slice(0,7)===_pnlPrefix;
   });
   var mgrExpTotal = allMgrExp.reduce(function(a,r){return a+Number(r.amount||0);},0);
   var misc = mgrExpTotal; // misc is now total daily expenses
@@ -7806,7 +7818,7 @@ function initPNL(){
 var _sdPeriod='today';
 var _sdChart=null;
 function _sdGetAllEntries(){var all=getEntries();if(typeof mySalonId!=='undefined'&&mySalonId)all=all.filter(function(e){return String(e.salonId||e.salon_id)===String(mySalonId);});return all;}
-function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var td=today();all=all.filter(function(e){return e.date===td;});var s=document.getElementById('sd-ft-stylist');if(s&&s.value)all=all.filter(function(e){return e.barberId===s.value;});}else if(_sdPeriod==='month'){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:'';if(mo)all=filterByMonth(all,mo);var s2=document.getElementById('sd-fm-stylist');if(s2&&s2.value)all=all.filter(function(e){return e.barberId===s2.value;});}else{var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());all=all.filter(function(e){var p=(e.date||'').split('/');return parseInt(p[2])===yr;});var s3=document.getElementById('sd-fy-stylist');if(s3&&s3.value)all=all.filter(function(e){return e.barberId===s3.value;});}return all;}
+function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var td=todayISO();all=all.filter(function(e){return _normDate(e.date||'')===td;});var s=document.getElementById('sd-ft-stylist');if(s&&s.value)all=all.filter(function(e){return e.barberId===s.value;});}else if(_sdPeriod==='month'){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:'';if(mo)all=filterByMonth(all,mo);var s2=document.getElementById('sd-fm-stylist');if(s2&&s2.value)all=all.filter(function(e){return e.barberId===s2.value;});}else{var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());all=all.filter(function(e){var p=(e.date||'').split('/');return parseInt(p[2])===yr;});var s3=document.getElementById('sd-fy-stylist');if(s3&&s3.value)all=all.filter(function(e){return e.barberId===s3.value;});}return all;}
 window.sdSetPeriod=function(p){_sdPeriod=p;['today','month','year'].forEach(function(x){var b=document.getElementById('sd-pt-'+x);if(b)b.classList.toggle('on',x===p);var f=document.getElementById('sd-f-'+x);if(f)f.classList.toggle('sd-hidden',x!==p);});var tgt=document.getElementById('sd-tgt-block');if(tgt)tgt.classList.toggle('sd-hidden',p!=='today');var ch=document.getElementById('sd-chart-block');if(ch)ch.classList.toggle('sd-hidden',p==='year');var yr=document.getElementById('sd-yr-block');if(yr)yr.classList.toggle('sd-hidden',p!=='year');var tbl=document.getElementById('sd-tbl-block');if(tbl)tbl.classList.toggle('sd-hidden',p==='year');sdRender();};
 window.sdRender=function(){if(!document.getElementById('sd-kpi-custs'))return;var entries=_sdGetFiltered();var totPh=entries.reduce(function(a,e){return a+Number(e.phPay||0);},0);var totCash=entries.reduce(function(a,e){return a+Number(e.cash||0);},0);var totTips=entries.reduce(function(a,e){return a+Number(e.phTip||0)+Number(e.cashTip||0)+Number(e.tip||0);},0);var totSales=totPh+totCash;var custs=entries.length;var avg=custs?Math.round(totSales/custs):0;document.getElementById('sd-kpi-custs').textContent=custs;document.getElementById('sd-kpi-rev').textContent=fmtINR(totSales);document.getElementById('sd-kpi-avg').textContent=fmtINR(avg);document.getElementById('sd-kpi-tips').textContent=fmtINR(totTips);document.getElementById('sd-ph-val').textContent=fmtINR(totPh);document.getElementById('sd-cash-val').textContent=fmtINR(totCash);var phPct=totSales?Math.round(totPh/totSales*100):50;document.getElementById('sd-ph-bar').style.width=phPct+'%';document.getElementById('sd-cash-bar').style.width=(100-phPct)+'%';if(_sdPeriod==='today'){var target=(typeof salonDailyTarget!=='undefined'&&typeof mySalonId!=='undefined')?(salonDailyTarget(mySalonId,today())||8000):8000;var pct=Math.min(100,Math.round(totSales/target*100));document.getElementById('sd-tgt-pct').textContent=pct+'%';document.getElementById('sd-tgt-fill').style.width=pct+'%';document.getElementById('sd-tgt-ach').textContent=fmtINR(totSales)+' achieved';document.getElementById('sd-tgt-goal').textContent='Target: '+fmtINR(target);_sdDrawHourly(entries);}else if(_sdPeriod==='month'){_sdDrawDaily(entries);}else{_sdDrawYear(entries);}_sdRenderStylists(entries,totSales);if(_sdPeriod!=='year')_sdRenderTable(entries);};
 function _sdDrawHourly(e){var h=[9,10,11,12,13,14,15,16,17,18,19,20,21];var lb=h.map(function(x){return x>12?(x-12)+'pm':x===12?'12pm':x+'am';});var dt=h.map(function(x){return e.filter(function(r){return parseInt((r.time||'0').split(':')[0])===x;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0);});var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Hourly Sales — Today';_sdDrawChart(lb,dt);}
