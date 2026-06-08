@@ -353,6 +353,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 /* PNL section in light mode */
 .pnl-input { background: var(--surface2) !important; color: var(--white) !important; border-color: var(--border) !important; }
+.pnl-row span:first-child { color: var(--muted) !important; }
 .pnl-row.pnl-total-row { background: var(--surface2) !important; }
 .pnl-row.pnl-auto { background: rgba(0,0,0,.02) !important; }
 
@@ -456,7 +457,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
-    <div class="tb-mgr-name" id="tbName">My Salon</div>
+    <div class="tb-mgr-name" id="tbName">Owner</div>
     <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
@@ -1698,7 +1699,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="font-size:15px;font-weight:700;color:var(--white)">Profit &amp; Loss Statement</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input type="month" id="pnl-month" style="background:var(--surface2,var(--card,#003828));border:1px solid rgba(0,0,0,.12);border-radius:6px;color:var(--white);font-size:12px;padding:5px 9px;font-family:var(--BF);outline:none" onchange="renderPNL()">
+      <input type="month" id="pnl-month" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:12px;padding:5px 9px;font-family:var(--BF);outline:none" onchange="renderPNL()">
       <button onclick="exportPNL()" style="padding:6px 12px;background:rgba(0,196,140,.12);border:1px solid var(--accent,#00C48C);color:var(--accent,#00C48C);border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">⬇ Export</button>
     </div>
   </div>
@@ -2282,15 +2283,14 @@ var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('m
 
 // ── Pre-fill topbar from session immediately (before bootstrap) ──
 (function preInitTopbar(){
-  var _oName   = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
-  var _address = '';
-  try{ var _s=JSON.parse(localStorage.getItem('ms_salons')||'[]'); if(_s&&_s[0]) _address=_s[0].address||_s[0].full_address||''; }catch(e){}
+  var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
+  var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
   var _role  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
   var _tbN   = document.getElementById('tbName');
   var _tbO   = document.getElementById('tbOutlet');
   var _tbB   = document.getElementById('tb-role-badge');
-  if(_tbN) _tbN.textContent = _oName;
-  if(_tbO) _tbO.textContent = _address ? '📍 '+_address : '📍 —';
+  if(_tbN) _tbN.textContent = _sName;
+  if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
   if(_tbB){
     if(_role === 'manager')  _tbB.textContent = '👔 Manager';
     else                     _tbB.textContent = '👑 Owner';
@@ -2484,9 +2484,8 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
   mySalonName = salon ? salon.name : (_sessionName || 'My Salon');
 
-  document.getElementById('tbName').textContent   = mySalonName;
-  var _salonAddr = (salon && (salon.address || salon.full_address)) || '';
-  document.getElementById('tbOutlet').textContent = _salonAddr ? '📍 ' + _salonAddr : '📍 —';
+  document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
+  document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
   document.getElementById('staff-salon-name').textContent = mySalonName;
   var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
@@ -2724,7 +2723,9 @@ function showTab(tab){
         if(typeof initPNL === 'function') initPNL();
         var pm2 = document.getElementById('pnl-month');
         if(pm2 && !pm2.value) pm2.value = new Date().toISOString().slice(0,7);
-        if(typeof renderPNL === 'function') renderPNL();
+        // NOTE: Do NOT call renderPNL() here separately — initPNL() already calls it.
+        // Calling it again causes a double async Promise.all chain competing for opacity control.
+        if(_pnlInited && typeof renderPNL === 'function') renderPNL();
       }
       catch(e){
         console.error('[PNL] error:',e);
@@ -2734,7 +2735,8 @@ function showTab(tab){
     }, function(){
       try{
         if(typeof initPNL === 'function') initPNL();
-        if(typeof renderPNL === 'function') renderPNL();
+        // Same: initPNL calls renderPNL; only call explicitly if already inited
+        if(_pnlInited && typeof renderPNL === 'function') renderPNL();
       } catch(e){ console.error('[PNL]',e); }
     });
   }
@@ -6339,14 +6341,20 @@ function loadPNLInputs(month){
   var cached = LS.get(cacheKey) || {};
   _applyPNLInputs(cached);
 
-  // Fetch fresh from Supabase
+  // Fetch fresh from Supabase — apply inputs only, do NOT call renderPNL() here
+  // (calling renderPNL() here causes an infinite loop: renderPNL->loadPNLInputs->renderPNL->...)
   sbSelect('pnl_inputs', 'salon_id=eq.' + encodeURIComponent(mySalonId) + '&month=eq.' + encodeURIComponent(month))
     .then(function(rows){
       if(rows && rows.length){
         var d = rows[0];
         LS.set(cacheKey, d);
         _applyPNLInputs(d);
-        renderPNL();
+        // Only re-render if PNL panel is currently visible (avoid triggering while on other tabs)
+        var pnlPanel = document.getElementById('pn-pnl');
+        if(pnlPanel && pnlPanel.classList.contains('on') && typeof _doRenderPNL === 'function'){
+          var _pmv = (document.getElementById('pnl-month')||{}).value || month;
+          _doRenderPNL(_pmv);
+        }
       }
     }).catch(function(err){ console.warn('[BB] PNL load error:', err); });
 }
@@ -6643,6 +6651,8 @@ function renderPNL(){
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
   if(pnlEl) pnlEl.style.opacity='0.5';
+  // Safety: always restore opacity after 5s regardless of Promise state
+  var _opacityGuard = setTimeout(function(){ if(pnlEl) pnlEl.style.opacity='1'; }, 5000);
   // Fetch ALL PNL-relevant data fresh from Supabase
   Promise.all([
     sbSelect('entries',        '"salonId"=eq.'+encodeURIComponent(mySalonId))
@@ -6667,9 +6677,11 @@ function renderPNL(){
       loadFranchiseInputs(month, function(){ resolve(); });
     })
   ]).then(function(){
+    clearTimeout(_opacityGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   }).catch(function(){
+    clearTimeout(_opacityGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   });
@@ -9248,8 +9260,7 @@ function saveSalonInfo(){
     mySalonName=row.name;
     localStorage.setItem('ms_name',row.name);
     sessionStorage.setItem('ms_name',row.name);
-    document.getElementById('tbName').textContent=''+row.name;
-    document.getElementById('tbOutlet').textContent='📍 '+(row.address||'—');
+    document.getElementById('tbOutlet').textContent='📍 '+row.name;
     toast('✅ Salon info saved');
   }).catch(function(e){ toast('Error: '+e.message); });
 }
