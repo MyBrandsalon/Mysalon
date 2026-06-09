@@ -110,7 +110,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 /* ── TABLE ── */
 .tbl-wrap{background:var(--surface);border-radius:var(--r);overflow:hidden;border:1px solid rgba(0,0,0,.06);overflow-x:auto}
 .tbl-head{background:rgba(0,196,140,.15);padding:9px 12px;display:grid;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);border-bottom:1px solid rgba(0,196,140,.15);min-width:520px;text-align:center}
-.tbl-body .tbl-row{display:grid;padding:9px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;min-width:520px;text-align:center}
+.tbl-body .tbl-row{display:grid;padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);align-items:center;min-width:520px;text-align:center}
 .tbl-body .tbl-row:last-child{border-bottom:none}
 .tbl-body .tbl-row:hover{background:rgba(255,255,255,.025)}
 .tbl-empty{padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic}
@@ -141,7 +141,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 /* Expense log in dashboard */
 .exp-log-panel{background:var(--surface2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border:1px solid rgba(0,0,0,.06)}
 .exp-log-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--danger);margin-bottom:10px}
-.exp-log-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.exp-log-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .exp-log-row:last-child{border-bottom:none}
 .exp-log-desc{color:var(--white);font-weight:600}
 .exp-log-meta{font-size:11px;color:var(--muted2);margin-top:1px}
@@ -153,7 +153,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 .yr-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .yr-tbl th{background:rgba(0,196,140,.15);padding:9px 10px;text-align:right;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent)}
 .yr-tbl th:first-child{text-align:left}
-.yr-tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.yr-tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-size:12px}
 .yr-tbl td:first-child{text-align:left;font-weight:600;color:var(--white)}
 .yr-tbl tr:last-child td{border-bottom:none;background:rgba(0,196,140,.07);font-weight:700}
 .yr-tbl tr:hover td{background:rgba(255,255,255,.025)}
@@ -169,7 +169,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 .mgr-ci-inp{flex:1;min-width:80px;padding:8px 10px;background:var(--surface2);border:1.5px solid rgba(0,0,0,.08);border-radius:var(--rs);color:var(--white);font-size:13px;outline:none;font-family:var(--BF)}
 .mgr-ci-inp:focus{border-color:var(--accent)}
 .mgr-ci-log{font-size:11px;color:var(--muted2);max-height:200px;overflow-y:auto}
-.mgr-ci-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+.mgr-ci-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border);font-size:11px}
 .mgr-ci-item:last-child{border-bottom:none}
 /* Salary row in staff modal */
 .sal-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
@@ -282,7 +282,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 
 /* ── PNL TAB ── */
 .pnl-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.pnl-sec-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid var(--border)}
+.pnl-sec-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.06)}
 .pnl-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;gap:8px}
 .pnl-row:last-child{border-bottom:none}
 .pnl-row span:first-child{color:var(--muted);flex:1}
@@ -457,7 +457,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
-    <div class="tb-mgr-name" id="tbName">Owner</div>
+    <div class="tb-mgr-name" id="tbName">My Salon</div>
     <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
@@ -952,10 +952,9 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Sub tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
-    <button class="manage-sub on" id="mst-fullstaff"  onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
-    <button class="manage-sub"   id="mst-mgrprofile" onclick="manageSubTab('mgrprofile')">👤 Manager Profile</button>
-    <button class="manage-sub"   id="mst-saloninfo"  onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
-    <button class="manage-sub"   id="mst-salon"      onclick="manageSubTab('salon')">📊 Expenses</button>
+    <button class="manage-sub on" id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
+    <button class="manage-sub"   id="mst-saloninfo" onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
+    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">📊 Expenses</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -1058,93 +1057,6 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- ── SALON EXPENSES SUB-TAB (moved from main Salon tab) ── -->
   <div id="msp-salon" style="display:none">
     <div id="pn-salon-inner"></div>
-  </div>
-
-  <!-- ── MANAGER PROFILE SUB-TAB ── -->
-  <div id="msp-mgrprofile" style="display:none">
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:14px">👤 Manager / Staff Profile</div>
-
-      <!-- Role select matching the screenshot -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="ifield">
-          <label>Full Name</label>
-          <input type="text" class="fi" id="mgp-name" placeholder="Full name">
-        </div>
-        <div class="ifield">
-          <label>Phone</label>
-          <input type="tel" class="fi" id="mgp-phone" placeholder="10-digit phone" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
-        </div>
-        <div class="ifield">
-          <label>Role</label>
-          <select class="fi" id="mgp-role">
-            <option value="manager" selected>Manager</option>
-          </select>
-        </div>
-        <div class="ifield">
-          <label>Salon</label>
-          <input type="text" class="fi" id="mgp-salon" readonly style="background:var(--surface2);color:var(--muted);cursor:not-allowed" placeholder="Auto-filled">
-        </div>
-      </div>
-
-      <!-- Login PIN section matching screenshot -->
-      <div style="background:rgba(245,224,48,.06);border:1px solid rgba(245,224,48,.2);border-radius:var(--r);padding:14px;margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#9A7E00;margin-bottom:10px">🔐 Login PIN</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <input type="text" class="fi" id="mgp-pin" placeholder="Set 6-digit PIN" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')" style="font-size:22px;font-family:var(--HF);letter-spacing:6px;text-align:center;flex:1;background:var(--surface2)">
-          <button onclick="mgpGeneratePin()" style="padding:10px 16px;background:rgba(0,196,140,.12);border:1px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;font-family:var(--BF)">🎲 Generate</button>
-        </div>
-        <div style="font-size:11px;color:var(--muted)">Staff uses this PIN to log in. Share it with them.</div>
-      </div>
-
-      <!-- Salary fields matching screenshot -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="ifield">
-          <label>Fixed Salary (₹)</label>
-          <input type="number" class="fi" id="mgp-salary" placeholder="0" min="0">
-        </div>
-        <div class="ifield">
-          <label>Food Money (₹)</label>
-          <input type="number" class="fi" id="mgp-food" placeholder="0" min="0">
-        </div>
-        <div class="ifield">
-          <label>Cleaning Money (₹)</label>
-          <input type="number" class="fi" id="mgp-clean" placeholder="0" min="0">
-        </div>
-      </div>
-
-      <!-- Targets -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-        <div class="ifield">
-          <label>Weekday Target (₹) <span style="font-size:10px;color:var(--muted2)">MON-FRI</span></label>
-          <input type="number" class="fi" id="mgp-wdtarget" placeholder="0" min="0">
-        </div>
-        <div class="ifield">
-          <label>Weekend Target (₹) <span style="font-size:10px;color:var(--muted2)">SAT-SUN</span></label>
-          <input type="number" class="fi" id="mgp-wetarget" placeholder="0" min="0">
-        </div>
-      </div>
-
-      <!-- Permissions toggle -->
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Permissions</div>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--white)">
-          <input type="checkbox" id="mgp-backdate" style="width:16px;height:16px;accent-color:var(--accent)">
-          Allow backdated billing
-        </label>
-      </div>
-
-      <!-- Save / Cancel -->
-      <div style="display:flex;gap:8px">
-        <button onclick="cancelMgrProfile()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Cancel</button>
-        <button onclick="saveMgrProfile()" style="flex:2;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Add Staff + Generate OTP</button>
-      </div>
-    </div>
-
-    <!-- Existing managers list -->
-    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Existing Managers & Staff</div>
-    <div id="mgp-staff-list" style="display:grid;gap:10px"></div>
   </div>
 
 </div>
@@ -2162,18 +2074,11 @@ var SB = {
     if(!_tid){ console.warn('[MySalon] No tenant_id — data will be unscoped!'); }
     var _tq = _tid ? 'tenant_id=eq.'+encodeURIComponent(_tid) : '';
     function _ts(table){ return _tq ? table+'?'+_tq : table; }
-    // Entries: use salonId filter (same as Customers tab) so all tabs see identical data.
-    // tenant_id filter misses entries where tenant_id is NULL or was set differently.
-    // Fall back to tenant_id filter if mySalonId not yet resolved.
-    var _sid = (typeof mySalonId !== 'undefined' && mySalonId) ? mySalonId : '';
-    var _eQ  = _sid
-      ? ('"salonId"=eq.' + encodeURIComponent(_sid) + '&limit=5000')
-      : (_tq ? _tq + '&limit=5000' : 'limit=5000');
     return Promise.all([
       sbSelect('staff',        _tq),
       sbSelect('salons',       _tq),
       sbSelect('customers',    _tq),
-      sbSelect('entries',      _eQ),
+      sbSelect('entries',      _tq),
       sbSelect('cash_in',      _tq),
       sbSelect('expenses',     _tq),
       sbSelect('attendance',   _tq),
@@ -2378,14 +2283,14 @@ var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('m
 
 // ── Pre-fill topbar from session immediately (before bootstrap) ──
 (function preInitTopbar(){
-  var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
-  var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
-  var _role  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
-  var _tbN   = document.getElementById('tbName');
-  var _tbO   = document.getElementById('tbOutlet');
-  var _tbB   = document.getElementById('tb-role-badge');
-  if(_tbN) _tbN.textContent = _sName;
-  if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
+  var _oName   = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
+  var _address = localStorage.getItem('ms_address') || sessionStorage.getItem('ms_address') || '';
+  var _role    = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
+  var _tbN     = document.getElementById('tbName');
+  var _tbO     = document.getElementById('tbOutlet');
+  var _tbB     = document.getElementById('tb-role-badge');
+  if(_tbN) _tbN.textContent = _oName;
+  if(_tbO) _tbO.textContent = _address ? '📍 '+_address : '📍 —';
   if(_tbB){
     if(_role === 'manager')  _tbB.textContent = '👔 Manager';
     else                     _tbB.textContent = '👑 Owner';
@@ -2547,12 +2452,11 @@ function filterByDate(entries,ds){
 }
 function filterByMonth(entries,mo){
   if(!mo)return entries;
-  // mo is YYYY-MM — normalize both sides using _normDate so both ISO and Indian formats work
-  // ISO "2026-05-15".split('/') was returning ['2026-05-15'] making d[1]/d[2] undefined → fixed
-  var prefix=mo.slice(0,7);
+  // mo is YYYY-MM
+  var p=mo.split('-');
   return entries.filter(function(e){
-    var iso=_normDate(e.date||'');
-    return iso.slice(0,7)===prefix;
+    var d=(e.date||'').split('/');
+    return parseInt(d[1])===parseInt(p[1]) && parseInt(d[2])===parseInt(p[0]);
   });
 }
 // ── INIT ──
@@ -2573,22 +2477,23 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   // For owners: salonId may be empty — pick first salon in their tenant
   var salon = salons.find(function(s){ return s.id === mySalonId; });
   if(!salon && salons.length) {
-    salon      = salons[0];
-    mySalonId  = salon.id;
+    salon     = salons[0];
+    mySalonId = salon.id;
     ME.salonId = mySalonId;
-  }
-  // Persist resolved salonId so subsequent tab switches don't lose it
-  if(mySalonId){
-    sessionStorage.setItem('ms_salon_id', mySalonId);
-    localStorage.setItem('ms_salon_id', mySalonId);
   }
 
   // Fallback to tenant name from session if salons not loaded yet
   var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
   mySalonName = salon ? salon.name : (_sessionName || 'My Salon');
+  // Persist resolved salonId for renderPNL and other tabs
+  if(mySalonId){ sessionStorage.setItem('ms_salon_id',mySalonId); localStorage.setItem('ms_salon_id',mySalonId); }
 
-  document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
-  document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
+  // Topbar: salon name on top line, address on bottom line
+  var _salonAddr = (salon && (salon.address || salon.full_address || salon.city)) || '';
+  document.getElementById('tbName').textContent   = mySalonName || ME.name || SESSION_PHONE;
+  document.getElementById('tbOutlet').textContent = _salonAddr ? '📍 '+_salonAddr : '📍 —';
+  // Persist address for preInitTopbar on reload
+  if(_salonAddr){ localStorage.setItem('ms_address',_salonAddr); sessionStorage.setItem('ms_address',_salonAddr); }
   document.getElementById('staff-salon-name').textContent = mySalonName;
   var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
@@ -2823,25 +2728,21 @@ function showTab(tab){
     if(_pm && !_pm.value) _pm.value = new Date().toISOString().slice(0,7);
     supaBootstrap(function(){
       try{
+        if(typeof initPNL === 'function') initPNL();
         var pm2 = document.getElementById('pnl-month');
         if(pm2 && !pm2.value) pm2.value = new Date().toISOString().slice(0,7);
-        // initPNL already calls renderPNL; if already inited just call renderPNL directly
-        if(typeof initPNL === 'function' && !_pnlInited) initPNL();
-        else if(typeof renderPNL === 'function') renderPNL();
+        if(typeof renderPNL === 'function') renderPNL();
       }
       catch(e){
         console.error('[PNL] error:',e);
         var pe=document.getElementById('pn-pnl');
         if(pe) pe.innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>';
-        if(typeof renderPNL === 'function') try{ renderPNL(); }catch(e2){}
       }
     }, function(){
       try{
-        var pm3 = document.getElementById('pnl-month');
-        if(pm3 && !pm3.value) pm3.value = new Date().toISOString().slice(0,7);
-        if(typeof initPNL === 'function' && !_pnlInited) initPNL();
-        else if(typeof renderPNL === 'function') renderPNL();
-      } catch(e){ console.error('[PNL]',e); if(typeof renderPNL==='function') try{renderPNL();}catch(e2){} }
+        if(typeof initPNL === 'function') initPNL();
+        if(typeof renderPNL === 'function') renderPNL();
+      } catch(e){ console.error('[PNL]',e); }
     });
   }
   if(tab==='manage'){
@@ -3046,7 +2947,7 @@ function renderMgrAdvLog(){
   el.innerHTML=reversed.map(function(r,ri){
     // Find original index in full log (needed for edit/delete)
     var origIdx=log.length-1-ri;
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'+
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">'+
       '<span style="color:var(--muted);flex:1">'+r.date+' <span style="color:var(--white);font-weight:600">'+(r.mode==='phonePe'?'📱':'💵')+'</span></span>'+
       '<span style="color:var(--danger);font-weight:700;margin-right:8px">−'+fmtINR(r.amount)+'</span>'+
       '<button onclick="editMgrAdvance('+origIdx+')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px" title="Edit">✏️</button>'+
@@ -4214,21 +4115,8 @@ function yesterday(){
 function renderCashCounter(){ renderMgrCashCounter(); }
 
 // ════ DASHBOARD ════
-var _dashFetching = false;
 function renderDashboard(){
-  // Fetch fresh from Supabase on first call so Dashboard matches Customers/PNL.
-  // Guard flag prevents the callback from triggering another fetch endlessly.
-  if(mySalonId && !_dashFetching){
-    _dashFetching = true;
-    sbSelect('entries','"salonId"=eq.'+encodeURIComponent(mySalonId)+'&limit=5000')
-      .then(function(rows){
-        _dashFetching = false;
-        if(rows){ LS.set('entries', rows); renderDashboard(); }
-      })
-      .catch(function(){ _dashFetching = false; });
-    // Render immediately from cache while fetch is in flight
-  }
-  var allE      = getEntries().filter(function(e){return String(e.salonId||e.salon_id)===String(mySalonId);});
+  var allE      = getEntries().filter(function(e){return e.salonId===mySalonId;});
   var todayE    = allE.filter(function(e){return _isTodayEntry(e);});
   var monthE    = filterByMonth(allE, new Date().toISOString().slice(0,7));
   var myStylists = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
@@ -4369,7 +4257,7 @@ function renderSalesTable(){
         '<span class="tag-tip">'+(cashTip>0?fmtINR(cashTip):'—')+'</span>'+
         '<span class="tag-tot">'+fmtINR(sales)+'</span>'+
         '<span>'+
-          (_normDate(e.date||'')===todayISO()?
+          (e.date===today()?
             '<button class="btn-edit" onclick="openEdit(\''+e.id+'\')" title="Edit">✏️</button>'+
             '<button class="btn-del"  onclick="delEntry(\''+e.id+'\')" title="Delete">✕</button>'
           :'<span style="font-size:10px;color:var(--muted2)">—</span>')+
@@ -4607,7 +4495,7 @@ function mgrLoadCustDashboard(){
 
 function _mgrTabEntries(tab){
   var all=_mgrCustData.entries, td=today(), now=new Date(), cm=now.getMonth()+1, cy=now.getFullYear();
-  if(tab==='today') return all.filter(function(e){return _normDate(e.date||'')===td;});
+  if(tab==='today') return all.filter(function(e){return (e.date||'')===td;});
   if(tab==='month') return all.filter(function(e){var p=(e.date||'').split('/');return parseInt(p[1])===cm&&parseInt(p[2])===cy;});
   return all;
 }
@@ -5754,21 +5642,9 @@ function saveCustomerEdit(){
     toast('⚠ Save failed — check connection and try again');
   });
 }
-var _yearlyFetching = false;
 function renderYearly(){
   var yr=parseInt(document.getElementById('yr-year').value)||new Date().getFullYear();
-  // Fetch fresh from Supabase on first call so Yearly matches other tabs.
-  if(mySalonId && !_yearlyFetching){
-    _yearlyFetching = true;
-    sbSelect('entries','"salonId"=eq.'+encodeURIComponent(mySalonId)+'&limit=5000')
-      .then(function(rows){
-        _yearlyFetching = false;
-        if(rows){ LS.set('entries', rows); renderYearly(); }
-      })
-      .catch(function(){ _yearlyFetching = false; });
-    // Render immediately from cache while fetch is in flight
-  }
-  var allE=getEntries().filter(function(e){return String(e.salonId||e.salon_id)===String(mySalonId);});
+  var allE=getEntries().filter(function(e){return e.salonId===mySalonId;});
   var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var rows='';
   var totPh=0,totCash=0,totPhTip=0,totCashTip=0,totSales=0,totCusts=0;
@@ -6209,7 +6085,7 @@ function openEdit(id){
   editingId=String(id);
   var e=getEntries().find(function(x){return String(x.id)===String(id);});
   if(!e){ toast('Entry not found'); return; }
-  if(_normDate(e.date||'') !== todayISO()){ toast('Only today\'s entries can be edited'); return; }
+  if(e.date !== today()){ toast('Only today\'s entries can be edited'); return; }
   populateCustDatalist(); // Fix 3: load dropdown options
   document.getElementById('edit-cust-name').value  = e.customerName  || '';
   document.getElementById('edit-cust-phone').value = e.customerPhone || '';
@@ -6308,7 +6184,7 @@ function renderEntriesTable(entries, editable){
         '<span style="color:var(--muted2);font-size:11px">'+(i+1)+'</span>'+
         '<span style="font-size:11px;color:var(--muted);line-height:1.3">'+e.date+'<br>'+e.time+'</span>'+
         '<span style="font-size:12px;font-weight:600">'+e.barberName+'</span>'+
-        '<span style="font-size:12px;color:var(--muted)'+(_normDate(e.date||'')===todayISO()?';cursor:pointer':'')+'"'+(_normDate(e.date||'')===todayISO()?' onclick="openEdit(\''+e.id+'\')"':'')+'>'+cust+(_normDate(e.date||'')===todayISO()?' <span style="color:var(--accent);font-size:9px">✏</span>':'')+'</span>'+
+        '<span style="font-size:12px;color:var(--muted)'+(e.date===today()?';cursor:pointer':'')+'"'+(e.date===today()?' onclick="openEdit(\''+e.id+'\')"':'')+'>'+cust+(e.date===today()?' <span style="color:var(--accent);font-size:9px">✏</span>':'')+'</span>'+
         '<span style="font-size:11px;color:var(--muted)">'+phone+'</span>'+
         '<span style="font-size:12px;color:var(--muted)">'+e.services+'</span>'+
         '<span style="font-size:10px;line-height:1.3">'+_offerCell+'</span>'+
@@ -6367,7 +6243,7 @@ function renderStaffAttModal(){
     if(!recs2.length) continue;
     var inR=recs2.find(function(r){return r.type==='in';}),outR=recs2.find(function(r){return r.type==='out';});
     if(!inR&&!outR) continue;
-    timeList+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'+
+    timeList+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px">'+
       '<span style="color:var(--muted)">'+ds2+'</span>'+
       '<span>'+
         (inR?'<span style="color:var(--accent)">In '+inR.time+'</span>':'')+
@@ -6391,8 +6267,7 @@ function applyRestoredData(d){
     fields.forEach(function(f){if(rec[f]!==undefined&&rec[f]!==null&&rec[f]!=='')rec[f]=String(rec[f]);});
     return rec;
   };
-  // Always overwrite LS entries — even empty — so stale data from old sessions is never shown
-  LS.set('entries', (d.entries||[]).map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
+  if(d.entries&&d.entries.length)    LS.set('entries',    d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
   if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
   if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
@@ -6471,18 +6346,14 @@ function loadPNLInputs(month){
   var cached = LS.get(cacheKey) || {};
   _applyPNLInputs(cached);
 
-  // Fetch fresh from Supabase — do NOT call renderPNL() here (causes infinite loop)
+  // Fetch fresh from Supabase
   sbSelect('pnl_inputs', 'salon_id=eq.' + encodeURIComponent(mySalonId) + '&month=eq.' + encodeURIComponent(month))
     .then(function(rows){
       if(rows && rows.length){
         var d = rows[0];
         LS.set(cacheKey, d);
         _applyPNLInputs(d);
-        // Only re-render values if P&L panel is still visible
-        var _pp=document.getElementById('pn-pnl');
-        if(_pp && _pp.classList.contains('on') && typeof _doRenderPNL==='function'){
-          _doRenderPNL((document.getElementById('pnl-month')||{}).value||month);
-        }
+        renderPNL();
       }
     }).catch(function(err){ console.warn('[BB] PNL load error:', err); });
 }
@@ -6772,20 +6643,20 @@ function loadFranchiseInputs(month, cb){
 }
 
 function renderPNL(){
+  // Rescue mySalonId from every available source before any query runs
+  if(!mySalonId){
+    mySalonId = sessionStorage.getItem('ms_salon_id')
+      || localStorage.getItem('ms_salon_id') || '';
+    if(!mySalonId){ var _sl=LS.get('salons')||[]; if(_sl.length) mySalonId=String(_sl[0].id); }
+    if(mySalonId){ sessionStorage.setItem('ms_salon_id',mySalonId); localStorage.setItem('ms_salon_id',mySalonId); }
+  }
   var _pmEl = document.getElementById('pnl-month');
   if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
   var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
   if(!month){ return; }
-  // Guard: if mySalonId is still empty, try to resolve it before rendering
-  if(!mySalonId){
-    mySalonId = sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
-    var _sl = LS.get('salons')||[];
-    if(!mySalonId && _sl.length){ mySalonId=_sl[0].id; }
-  }
   loadPNLInputs(month);
   var pnlEl = document.getElementById('pn-pnl');
   if(pnlEl) pnlEl.style.opacity='0.5';
-  var _opGuard = setTimeout(function(){ if(pnlEl) pnlEl.style.opacity='1'; }, 5000);
   // Fetch ALL PNL-relevant data fresh from Supabase
   Promise.all([
     sbSelect('entries',        '"salonId"=eq.'+encodeURIComponent(mySalonId))
@@ -6810,11 +6681,9 @@ function renderPNL(){
       loadFranchiseInputs(month, function(){ resolve(); });
     })
   ]).then(function(){
-    clearTimeout(_opGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   }).catch(function(){
-    clearTimeout(_opGuard);
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
   });
@@ -6825,11 +6694,10 @@ function _doRenderPNL(month){
   var mo = parseInt(month.split('-')[1]);
 
   // ── Revenue (from entries) — strict salon match ──
-  // Use _normDate so both ISO "YYYY-MM-DD" and Indian "D/M/YYYY" entry dates work
-  var _pnlPrefix = yr+'-'+(mo<10?'0':'')+mo;
   var entries = getEntries().filter(function(e){
     if(String(e.salonId) !== String(mySalonId)) return false;
-    return _normDate(e.date||'').slice(0,7) === _pnlPrefix;
+    var p = (e.date||'').split('/');
+    return parseInt(p[1])===mo && parseInt(p[2])===yr;
   });
   var revenue = entries.reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); },0);
 
@@ -6959,7 +6827,8 @@ function _doRenderPNL(month){
 
   // ── Auto: Expenses = sum of ALL manager expenses for this month ──
   var allMgrExp = (LS.get('mgrExpenses')||[]).filter(function(r){
-    return String(r.salonId)===String(mySalonId) && _normDate(r["date"]||r.date||'').slice(0,7)===_pnlPrefix;
+    var p=(r["date"]||r.date||'').split('/');
+    return r.salonId===mySalonId && parseInt(p[1])===mo && parseInt(p[2])===yr;
   });
   var mgrExpTotal = allMgrExp.reduce(function(a,r){return a+Number(r.amount||0);},0);
   var misc = mgrExpTotal; // misc is now total daily expenses
@@ -7939,7 +7808,7 @@ function initPNL(){
 var _sdPeriod='today';
 var _sdChart=null;
 function _sdGetAllEntries(){var all=getEntries();if(typeof mySalonId!=='undefined'&&mySalonId)all=all.filter(function(e){return String(e.salonId||e.salon_id)===String(mySalonId);});return all;}
-function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var td=todayISO();all=all.filter(function(e){return _normDate(e.date||'')===td;});var s=document.getElementById('sd-ft-stylist');if(s&&s.value)all=all.filter(function(e){return e.barberId===s.value;});}else if(_sdPeriod==='month'){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:'';if(mo)all=filterByMonth(all,mo);var s2=document.getElementById('sd-fm-stylist');if(s2&&s2.value)all=all.filter(function(e){return e.barberId===s2.value;});}else{var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());all=all.filter(function(e){return parseInt((_normDate(e.date||'')||'').slice(0,4))===yr;});var s3=document.getElementById('sd-fy-stylist');if(s3&&s3.value)all=all.filter(function(e){return e.barberId===s3.value;});}return all;}
+function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var td=today();all=all.filter(function(e){return e.date===td;});var s=document.getElementById('sd-ft-stylist');if(s&&s.value)all=all.filter(function(e){return e.barberId===s.value;});}else if(_sdPeriod==='month'){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:'';if(mo)all=filterByMonth(all,mo);var s2=document.getElementById('sd-fm-stylist');if(s2&&s2.value)all=all.filter(function(e){return e.barberId===s2.value;});}else{var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());all=all.filter(function(e){var p=(e.date||'').split('/');return parseInt(p[2])===yr;});var s3=document.getElementById('sd-fy-stylist');if(s3&&s3.value)all=all.filter(function(e){return e.barberId===s3.value;});}return all;}
 window.sdSetPeriod=function(p){_sdPeriod=p;['today','month','year'].forEach(function(x){var b=document.getElementById('sd-pt-'+x);if(b)b.classList.toggle('on',x===p);var f=document.getElementById('sd-f-'+x);if(f)f.classList.toggle('sd-hidden',x!==p);});var tgt=document.getElementById('sd-tgt-block');if(tgt)tgt.classList.toggle('sd-hidden',p!=='today');var ch=document.getElementById('sd-chart-block');if(ch)ch.classList.toggle('sd-hidden',p==='year');var yr=document.getElementById('sd-yr-block');if(yr)yr.classList.toggle('sd-hidden',p!=='year');var tbl=document.getElementById('sd-tbl-block');if(tbl)tbl.classList.toggle('sd-hidden',p==='year');sdRender();};
 window.sdRender=function(){if(!document.getElementById('sd-kpi-custs'))return;var entries=_sdGetFiltered();var totPh=entries.reduce(function(a,e){return a+Number(e.phPay||0);},0);var totCash=entries.reduce(function(a,e){return a+Number(e.cash||0);},0);var totTips=entries.reduce(function(a,e){return a+Number(e.phTip||0)+Number(e.cashTip||0)+Number(e.tip||0);},0);var totSales=totPh+totCash;var custs=entries.length;var avg=custs?Math.round(totSales/custs):0;document.getElementById('sd-kpi-custs').textContent=custs;document.getElementById('sd-kpi-rev').textContent=fmtINR(totSales);document.getElementById('sd-kpi-avg').textContent=fmtINR(avg);document.getElementById('sd-kpi-tips').textContent=fmtINR(totTips);document.getElementById('sd-ph-val').textContent=fmtINR(totPh);document.getElementById('sd-cash-val').textContent=fmtINR(totCash);var phPct=totSales?Math.round(totPh/totSales*100):50;document.getElementById('sd-ph-bar').style.width=phPct+'%';document.getElementById('sd-cash-bar').style.width=(100-phPct)+'%';if(_sdPeriod==='today'){var target=(typeof salonDailyTarget!=='undefined'&&typeof mySalonId!=='undefined')?(salonDailyTarget(mySalonId,today())||8000):8000;var pct=Math.min(100,Math.round(totSales/target*100));document.getElementById('sd-tgt-pct').textContent=pct+'%';document.getElementById('sd-tgt-fill').style.width=pct+'%';document.getElementById('sd-tgt-ach').textContent=fmtINR(totSales)+' achieved';document.getElementById('sd-tgt-goal').textContent='Target: '+fmtINR(target);_sdDrawHourly(entries);}else if(_sdPeriod==='month'){_sdDrawDaily(entries);}else{_sdDrawYear(entries);}_sdRenderStylists(entries,totSales);if(_sdPeriod!=='year')_sdRenderTable(entries);};
 function _sdDrawHourly(e){var h=[9,10,11,12,13,14,15,16,17,18,19,20,21];var lb=h.map(function(x){return x>12?(x-12)+'pm':x===12?'12pm':x+'am';});var dt=h.map(function(x){return e.filter(function(r){return parseInt((r.time||'0').split(':')[0])===x;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0);});var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Hourly Sales — Today';_sdDrawChart(lb,dt);}
@@ -7948,14 +7817,11 @@ function _sdDrawChart(lb,dt){if(typeof Chart==='undefined')return;var ctx=docume
 function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var me=e.filter(function(r){var p=(r.date||'').split('/');return parseInt(p[1])===(i+1);});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
 function _sdRenderStylists(e,totS){var map={};e.forEach(function(r){var k=r.barberId||r.barberName||'?';if(!map[k])map[k]={name:r.barberName||k,total:0,custs:0};map[k].total+=Number(r.phPay||0)+Number(r.cash||0);map[k].custs++;});var sorted=Object.values(map).sort(function(a,b){return b.total-a.total;});var maxT=sorted.length?sorted[0].total:1;var el=document.getElementById('sd-sty-list');if(!el)return;el.innerHTML=sorted.length===0?'<div class="sd-tbl-empty">No data</div>':sorted.map(function(s){var ini=(s.name||'?').split(/[\s\-]+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();var pct=Math.max(3,Math.round(s.total/maxT*100));var share=totS?Math.round(s.total/totS*100):0;return '<div class="sd-sty-row"><div class="sd-sty-ava">'+ini+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;justify-content:space-between"><span class="sd-sty-name">'+s.name+'</span><span style="font-size:10px;color:var(--muted2)">'+share+'%</span></div><div class="sd-sty-bar-wrap"><div class="sd-sty-bar-fill" style="width:'+pct+'%"></div></div><div class="sd-sty-custs">'+s.custs+' customer'+(s.custs!==1?'s':'')+'</div></div><div class="sd-sty-amt">'+fmtINR(s.total)+'</div></div>';}).join('');}
 function _sdRenderTable(e){var shown=e.slice().reverse().slice(0,50);var cntEl=document.getElementById('sd-tbl-cnt');if(cntEl)cntEl.textContent=e.length+' entries';var el=document.getElementById('sd-tbl-body');if(!el)return;el.innerHTML=shown.length===0?'<div class="sd-tbl-empty">No transactions found</div>':shown.map(function(r,i){var sales=Number(r.phPay||0)+Number(r.cash||0);var tip=Number(r.phTip||0)+Number(r.cashTip||0)+Number(r.tip||0);var payTag=Number(r.phPay||0)>0?'<span class="sd-tag-ph">PhPe '+fmtINR(r.phPay)+'</span>':'<span class="sd-tag-cash">Cash '+fmtINR(r.cash)+'</span>';var editBtns=r.date===today()?'<div style="margin-top:3px"><button class="btn-edit" onclick="openEdit(\''+r.id+'\')" title="Edit">✏️</button><button class="btn-del" onclick="delEntry(\''+r.id+'\')" style="margin-left:3px" title="Delete">✕</button></div>':'';return '<div class="sd-tbl-row"><span style="color:var(--muted2);font-size:10px">'+(i+1)+'</span><div><div style="font-size:12px;font-weight:700;color:var(--white)">'+r.barberName+'</div><div style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</div><div style="font-size:10px;color:var(--muted2)">'+(r.customerName||'Walk-in')+' · '+r.services+'</div>'+editBtns+'</div><div>'+payTag+(tip>0?'<div style="font-size:9px;color:#9333EA;margin-top:1px">Tip '+fmtINR(tip)+'</div>':'')+'</div><div class="sd-tag-tot">'+fmtINR(sales)+'</div></div>';}).join('')+(e.length>50?'<div class="sd-tbl-empty" style="padding:9px">Showing latest 50 of '+e.length+'</div>':'');}
-window.sdInit=function(){var yrSel=document.getElementById('sd-fy-year');if(yrSel&&!yrSel.options.length){var cy=new Date().getFullYear();for(var y=cy;y>=cy-4;y--){var o=document.createElement('option');o.value=y;o.textContent=y;yrSel.appendChild(o);}}var mEl=document.getElementById('sd-fm-month');if(mEl&&!mEl.value)mEl.value=new Date().toISOString().slice(0,7);var barbers=(typeof mySalonId!=='undefined'&&mySalonId)?(LS.get('staff')||[]).filter(function(u){return String(u.salonId)===String(mySalonId)&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);}):(LS.get('staff')||[]).filter(function(u){return u.role==='stylist'||role==='barber';});['sd-ft-stylist','sd-fm-stylist','sd-fy-stylist'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;while(sel.options.length>1)sel.remove(1);barbers.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});});
-// Fetch fresh entries from Supabase before rendering so Sales matches Customers/Dashboard
-function _doSdRender(){if(typeof Chart==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';s.onload=function(){sdRender();};document.head.appendChild(s);}else{sdRender();}}
-if(mySalonId){sbSelect('entries','"salonId"=eq.'+encodeURIComponent(mySalonId)+'&limit=5000').then(function(rows){if(rows)LS.set('entries',rows);_doSdRender();}).catch(function(){_doSdRender();});}else{_doSdRender();}};
+window.sdInit=function(){var yrSel=document.getElementById('sd-fy-year');if(yrSel&&!yrSel.options.length){var cy=new Date().getFullYear();for(var y=cy;y>=cy-4;y--){var o=document.createElement('option');o.value=y;o.textContent=y;yrSel.appendChild(o);}}var mEl=document.getElementById('sd-fm-month');if(mEl&&!mEl.value)mEl.value=new Date().toISOString().slice(0,7);var barbers=(typeof mySalonId!=='undefined'&&mySalonId)?(LS.get('staff')||[]).filter(function(u){return String(u.salonId)===String(mySalonId)&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);}):(LS.get('staff')||[]).filter(function(u){return u.role==='stylist'||role==='barber';});['sd-ft-stylist','sd-fm-stylist','sd-fy-stylist'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;while(sel.options.length>1)sel.remove(1);barbers.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});});if(typeof Chart==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';s.onload=function(){sdRender();};document.head.appendChild(s);}else{sdRender();}};
 })();
 
 // ── MySalon multi-tenant patch ──────────────────────────────
-var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || '';
+var _MS_TENANT_ID = sessionStorage.getItem('ms_tenant_id') || localStorage.getItem('ms_tenant_id') || '';
 var _origSbInsert = sbInsert;
 sbInsert = function(table, row) {
   if (_MS_TENANT_ID && typeof row === 'object' && !Array.isArray(row) && !row.tenant_id) {
@@ -7965,9 +7831,19 @@ sbInsert = function(table, row) {
 };
 var _origSupaBootstrap = supaBootstrap;
 supaBootstrap = function(onDone, onError) {
-  if (!_MS_TENANT_ID) { if(onError) onError('No tenant'); return; }
+  // Re-read live so a fresh-page-load (empty sessionStorage) still works
+  var _tid = sessionStorage.getItem('ms_tenant_id')
+    || localStorage.getItem('ms_tenant_id')
+    || (typeof MS_TENANT_ID !== 'undefined' ? MS_TENANT_ID : '')
+    || '';
+  if (!_tid) {
+    // No tenant — fall through to _origSupaBootstrap so cached data still renders
+    console.warn('[MySalon] No tenant_id — using fallback');
+    _origSupaBootstrap(onDone, onError);
+    return;
+  }
   if (typeof msBootstrap === 'function') {
-    msBootstrap(_MS_TENANT_ID, onDone, onError);
+    msBootstrap(_tid, onDone, onError);
   } else {
     _origSupaBootstrap(onDone, onError);
   }
@@ -9184,16 +9060,15 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['fullstaff','mgrprofile','saloninfo','salon'].forEach(function(t){
+  ['fullstaff','saloninfo','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
-  if(tab==='saloninfo')   loadSalonInfoForm();
-  if(tab==='fullstaff')   _loadFullStaffPanel();
-  if(tab==='salon')       _loadSalonExpensesPanel();
-  if(tab==='mgrprofile')  loadMgrProfileTab();
+  if(tab==='saloninfo') loadSalonInfoForm();
+  if(tab==='fullstaff') _loadFullStaffPanel();
+  if(tab==='salon')     _loadSalonExpensesPanel();
 }
 
 function _loadSalonExpensesPanel(){
@@ -9352,198 +9227,6 @@ function saveManageStaff(){
   }).catch(function(e){ toast('Error: '+e.message); });
 }
 
-// ── Manager Profile Tab ─────────────────────────────────────────
-
-function loadMgrProfileTab(){
-  // Pre-fill salon name (read-only)
-  var salEl = document.getElementById('mgp-salon');
-  if(salEl) salEl.value = mySalonName || '';
-
-  // If editing current logged-in user, pre-fill their data
-  if(ME){
-    var n=document.getElementById('mgp-name');   if(n&&!n.value) n.value=ME.name||'';
-    var ph=document.getElementById('mgp-phone'); if(ph&&!ph.value) ph.value=ME.phone||'';
-    var ro=document.getElementById('mgp-role');  if(ro&&!ro.value) ro.value='manager';
-    var pi=document.getElementById('mgp-pin');   if(pi&&!pi.value) pi.value=ME.loginPin||ME.pin||'';
-    var sl=document.getElementById('mgp-salary');if(sl&&!sl.value) sl.value=ME.fixedSalary||ME.salary||0;
-    var fo=document.getElementById('mgp-food');  if(fo&&!fo.value) fo.value=ME.foodMoney||ME.food||0;
-    var cl=document.getElementById('mgp-clean'); if(cl&&!cl.value) cl.value=ME.cleaningMoney||ME.cleaning||0;
-    var bd=document.getElementById('mgp-backdate'); if(bd) bd.checked=!!(ME.allowBackdate===true||ME.allowBackdate===1||ME.allowBackdate==='1');
-  }
-  _renderMgrProfileList();
-}
-
-function mgpGeneratePin(){
-  var pin = String(Math.floor(100000+Math.random()*900000));
-  var el  = document.getElementById('mgp-pin');
-  if(el){ el.value=pin; el.focus(); }
-}
-
-function cancelMgrProfile(){
-  ['mgp-name','mgp-phone','mgp-pin','mgp-salary','mgp-food','mgp-clean','mgp-wdtarget','mgp-wetarget'].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.value='';
-  });
-  var bd=document.getElementById('mgp-backdate'); if(bd) bd.checked=false;
-  var hidId=document.getElementById('mgp-edit-id'); if(hidId) hidId.value='';
-  // Update save button label back to Add
-  var btn=document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
-  if(btn) btn.textContent='Add Staff + Generate OTP';
-}
-
-function saveMgrProfile(){
-  var name    = (document.getElementById('mgp-name').value||'').trim();
-  var phone   = (document.getElementById('mgp-phone').value||'').replace(/\D/g,'');
-  var role    = document.getElementById('mgp-role').value||'manager';
-  var pin     = (document.getElementById('mgp-pin').value||'').trim();
-  var salary  = parseInt(document.getElementById('mgp-salary').value)||0;
-  var food    = parseInt(document.getElementById('mgp-food').value)||0;
-  var clean   = parseInt(document.getElementById('mgp-clean').value)||0;
-  var wdt     = parseInt(document.getElementById('mgp-wdtarget').value)||0;
-  var wet     = parseInt(document.getElementById('mgp-wetarget').value)||0;
-  var backdate= document.getElementById('mgp-backdate').checked;
-
-  if(!name){ toast('Enter staff name'); return; }
-  if(phone.length<10){ toast('Enter valid 10-digit phone'); return; }
-  if(!pin || pin.length<4){
-    pin = String(Math.floor(100000+Math.random()*900000));
-    var pinEl=document.getElementById('mgp-pin'); if(pinEl) pinEl.value=pin;
-  }
-
-  var tid  = MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
-  var hidId= document.getElementById('mgp-edit-id');
-  var editId = hidId ? hidId.value : '';
-
-  var row = {
-    name:name, phone:phone, role:role,
-    loginPin:pin, pin:pin,
-    fixedSalary:salary, salary:salary,
-    foodMoney:food, food:food,
-    cleaningMoney:clean, cleaning:clean,
-    weekdayTarget:wdt, weekendTarget:wet,
-    allowBackdate:backdate, active:true,
-    salonId:mySalonId, salon_id:mySalonId,
-    tenantId:tid, tenant_id:tid
-  };
-
-  var saveBtn = document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
-  if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='Saving…'; }
-
-  var url    = SUPA_URL+'/rest/v1/staff';
-  var method = editId ? 'PATCH' : 'POST';
-  if(editId) url += '?id=eq.'+encodeURIComponent(editId);
-
-  fetch(url,{
-    method:method,
-    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
-    body:JSON.stringify(row)
-  }).then(function(r){ return r.json(); })
-  .then(function(saved){
-    var s = Array.isArray(saved)?saved[0]:saved;
-    var staff = LS.get('staff')||[];
-    if(editId){
-      var idx=staff.findIndex(function(x){return String(x.id)===editId;});
-      if(idx>=0) staff[idx]=Object.assign({id:editId},row,s||{});
-      else staff.push(Object.assign({},row,s||{}));
-    } else {
-      if(s&&s.id) staff.push(Object.assign({},row,s));
-    }
-    LS.set('staff',staff);
-    if(typeof renderStaff==='function') renderStaff();
-    if(typeof populateMgrBillBarbers==='function') populateMgrBillBarbers();
-    if(typeof renderManageStaff==='function') renderManageStaff();
-    _renderMgrProfileList();
-    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Add Staff + Generate OTP'; }
-    // Show OTP toast with the PIN
-    toast('✅ '+name+' added! PIN: '+pin);
-    // Clear form for next entry
-    cancelMgrProfile();
-  }).catch(function(e){
-    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='Add Staff + Generate OTP'; }
-    toast('Error: '+e.message);
-  });
-}
-
-function _renderMgrProfileList(){
-  var el = document.getElementById('mgp-staff-list');
-  if(!el) return;
-  var tid   = MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
-  var staff = (LS.get('staff')||[]).filter(function(s){
-    return String(s.salonId||s.salon_id||'')===String(mySalonId)||
-           String(s.tenantId||s.tenant_id||'')===String(tid);
-  });
-  if(!staff.length){
-    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No staff added yet</div>';
-    return;
-  }
-
-  var roleLabels = {stylist:'Barber / Hairstylist',manager:'Manager',franchise_owner:'Franchise Owner',sales_head:'Sales Head'};
-  var roleColors = {stylist:'#003D2B',manager:'#1e3a5f',franchise_owner:'#5B28A0',sales_head:'#C2410C'};
-
-  el.innerHTML = staff.map(function(s){
-    var rl  = roleLabels[s.role]||s.role||'Stylist';
-    var rc  = roleColors[s.role]||'#003D2B';
-    var pin = s.loginPin||s.pin||'—';
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">'+
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
-        '<div style="flex:1;min-width:0">'+
-          '<div style="font-weight:700;font-size:14px;color:var(--white);margin-bottom:2px">'+escH(s.name||'—')+'</div>'+
-          '<div style="font-size:12px;color:var(--muted)">📱 '+escH(s.phone||'—')+'</div>'+
-          '<div style="font-size:12px;color:var(--muted)">🔑 PIN: <span style="font-family:var(--HF);color:var(--accent);letter-spacing:2px">'+escH(String(pin))+'</span></div>'+
-          '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+
-            '💰 ₹'+(s.fixedSalary||s.salary||0)+' · 🍱 ₹'+(s.foodMoney||s.food||0)+' · 🧹 ₹'+(s.cleaningMoney||s.cleaning||0)+
-          '</div>'+
-        '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'+
-          '<span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;background:'+rc+'20;color:'+rc+';border:1px solid '+rc+'40">'+escH(rl)+'</span>'+
-          '<div style="display:flex;gap:6px">'+
-            '<button onclick="mgpEditStaff(''+escH(String(s.id||''))+'' )" style="padding:5px 10px;background:rgba(0,196,140,.08);border:1px solid rgba(0,196,140,.2);color:var(--accent);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Edit</button>'+
-            '<button onclick="mgpSharePin(''+escH(String(pin))+'',''+escH(s.name||'')+'' )" style="padding:5px 10px;background:rgba(91,200,255,.08);border:1px solid rgba(91,200,255,.2);color:var(--blue);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Share PIN</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-function mgpEditStaff(staffId){
-  var s=(LS.get('staff')||[]).find(function(x){return String(x.id)===String(staffId);});
-  if(!s) return;
-  // Add hidden edit-id field if not present
-  var panel=document.getElementById('msp-mgrprofile');
-  if(!document.getElementById('mgp-edit-id')){
-    var hid=document.createElement('input');
-    hid.type='hidden'; hid.id='mgp-edit-id';
-    if(panel) panel.prepend(hid);
-  }
-  document.getElementById('mgp-edit-id').value=s.id;
-  document.getElementById('mgp-name').value=s.name||'';
-  document.getElementById('mgp-phone').value=s.phone||'';
-  document.getElementById('mgp-role').value='manager';
-  document.getElementById('mgp-pin').value=s.loginPin||s.pin||'';
-  document.getElementById('mgp-salary').value=s.fixedSalary||s.salary||0;
-  document.getElementById('mgp-food').value=s.foodMoney||s.food||0;
-  document.getElementById('mgp-clean').value=s.cleaningMoney||s.cleaning||0;
-  document.getElementById('mgp-wdtarget').value=s.weekdayTarget||0;
-  document.getElementById('mgp-wetarget').value=s.weekendTarget||0;
-  var bd=document.getElementById('mgp-backdate');
-  if(bd) bd.checked=!!(s.allowBackdate===true||s.allowBackdate===1||s.allowBackdate==='1');
-  var btn=document.querySelector('#msp-mgrprofile button[onclick="saveMgrProfile()"]');
-  if(btn) btn.textContent='Save Changes';
-  document.getElementById('mgp-name').focus();
-  panel.scrollTop=0;
-}
-
-function mgpSharePin(pin, name){
-  var text='Hi '+name+'! Your Budget Barber login PIN is: '+pin+'. Use your phone number + this PIN to log in.';
-  if(navigator.share){
-    navigator.share({text:text}).catch(function(){});
-  } else if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(function(){ toast('📋 PIN copied'); }).catch(function(){ toast(pin); });
-  } else {
-    toast('PIN: '+pin);
-  }
-}
-
 // ── Salon Info ────────────────────────────────────────────────
 function loadSalonInfoForm(){
   var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
@@ -9589,7 +9272,10 @@ function saveSalonInfo(){
     mySalonName=row.name;
     localStorage.setItem('ms_name',row.name);
     sessionStorage.setItem('ms_name',row.name);
-    document.getElementById('tbOutlet').textContent='📍 '+row.name;
+    var _newAddr = row.address||'';
+    if(_newAddr){ localStorage.setItem('ms_address',_newAddr); sessionStorage.setItem('ms_address',_newAddr); }
+    document.getElementById('tbName').textContent   = row.name;
+    document.getElementById('tbOutlet').textContent = _newAddr ? '📍 '+_newAddr : '📍 —';
     toast('✅ Salon info saved');
   }).catch(function(e){ toast('Error: '+e.message); });
 }
