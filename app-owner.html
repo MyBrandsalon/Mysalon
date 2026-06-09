@@ -110,7 +110,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 /* ── TABLE ── */
 .tbl-wrap{background:var(--surface);border-radius:var(--r);overflow:hidden;border:1px solid rgba(0,0,0,.06);overflow-x:auto}
 .tbl-head{background:rgba(0,196,140,.15);padding:9px 12px;display:grid;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);border-bottom:1px solid rgba(0,196,140,.15);min-width:520px;text-align:center}
-.tbl-body .tbl-row{display:grid;padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);align-items:center;min-width:520px;text-align:center}
+.tbl-body .tbl-row{display:grid;padding:9px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;min-width:520px;text-align:center}
 .tbl-body .tbl-row:last-child{border-bottom:none}
 .tbl-body .tbl-row:hover{background:rgba(255,255,255,.025)}
 .tbl-empty{padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic}
@@ -141,7 +141,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 /* Expense log in dashboard */
 .exp-log-panel{background:var(--surface2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border:1px solid rgba(0,0,0,.06)}
 .exp-log-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--danger);margin-bottom:10px}
-.exp-log-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.exp-log-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
 .exp-log-row:last-child{border-bottom:none}
 .exp-log-desc{color:var(--white);font-weight:600}
 .exp-log-meta{font-size:11px;color:var(--muted2);margin-top:1px}
@@ -153,7 +153,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 .yr-tbl{width:100%;border-collapse:collapse;font-size:13px}
 .yr-tbl th{background:rgba(0,196,140,.15);padding:9px 10px;text-align:right;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent)}
 .yr-tbl th:first-child{text-align:left}
-.yr-tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-size:12px}
+.yr-tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
 .yr-tbl td:first-child{text-align:left;font-weight:600;color:var(--white)}
 .yr-tbl tr:last-child td{border-bottom:none;background:rgba(0,196,140,.07);font-weight:700}
 .yr-tbl tr:hover td{background:rgba(255,255,255,.025)}
@@ -169,7 +169,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 .mgr-ci-inp{flex:1;min-width:80px;padding:8px 10px;background:var(--surface2);border:1.5px solid rgba(0,0,0,.08);border-radius:var(--rs);color:var(--white);font-size:13px;outline:none;font-family:var(--BF)}
 .mgr-ci-inp:focus{border-color:var(--accent)}
 .mgr-ci-log{font-size:11px;color:var(--muted2);max-height:200px;overflow-y:auto}
-.mgr-ci-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border);font-size:11px}
+.mgr-ci-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
 .mgr-ci-item:last-child{border-bottom:none}
 /* Salary row in staff modal */
 .sal-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px}
@@ -457,7 +457,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="topbar">
   <img id="topbarLogo" src="ms-default-logo.svg" alt="MySalon" style="width:40px;height:40px;border-radius:10px;object-fit:contain;display:block;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2)">
   <div class="tb-center">
-    <div class="tb-mgr-name" id="tbName">My Salon</div>
+    <div class="tb-mgr-name" id="tbName">Owner</div>
     <div class="tb-outlet" id="tbOutlet" class="ms-salon-name">📍 Loading…</div>
   </div>
   <div class="tb-right">
@@ -1699,7 +1699,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
     <div style="font-size:15px;font-weight:700;color:var(--white)">Profit &amp; Loss Statement</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input type="month" id="pnl-month" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:12px;padding:5px 9px;font-family:var(--BF);outline:none" onchange="renderPNL()">
+      <input type="month" id="pnl-month" style="background:var(--surface2,var(--card,#003828));border:1px solid rgba(0,0,0,.12);border-radius:6px;color:var(--white);font-size:12px;padding:5px 9px;font-family:var(--BF);outline:none" onchange="renderPNL()">
       <button onclick="exportPNL()" style="padding:6px 12px;background:rgba(0,196,140,.12);border:1px solid var(--accent,#00C48C);color:var(--accent,#00C48C);border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">⬇ Export</button>
     </div>
   </div>
@@ -2074,11 +2074,17 @@ var SB = {
     if(!_tid){ console.warn('[MySalon] No tenant_id — data will be unscoped!'); }
     var _tq = _tid ? 'tenant_id=eq.'+encodeURIComponent(_tid) : '';
     function _ts(table){ return _tq ? table+'?'+_tq : table; }
+    // Entries: use salonId (same as Customers tab) so all tabs see identical data
+    // tenant_id filter misses entries where tenant_id was NULL or set differently
+    var _sid = (typeof mySalonId!=='undefined' && mySalonId) ? mySalonId : '';
+    var _eQ  = _sid
+      ? ('"salonId"=eq.'+encodeURIComponent(_sid)+'&limit=5000')
+      : (_tq ? _tq+'&limit=5000' : 'limit=5000');
     return Promise.all([
       sbSelect('staff',        _tq),
       sbSelect('salons',       _tq),
       sbSelect('customers',    _tq),
-      sbSelect('entries',      _tq),
+      sbSelect('entries',      _eQ),
       sbSelect('cash_in',      _tq),
       sbSelect('expenses',     _tq),
       sbSelect('attendance',   _tq),
@@ -2283,14 +2289,14 @@ var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('m
 
 // ── Pre-fill topbar from session immediately (before bootstrap) ──
 (function preInitTopbar(){
-  var _oName   = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || 'My Salon';
-  var _address = localStorage.getItem('ms_address') || sessionStorage.getItem('ms_address') || '';
-  var _role    = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
-  var _tbN     = document.getElementById('tbName');
-  var _tbO     = document.getElementById('tbOutlet');
-  var _tbB     = document.getElementById('tb-role-badge');
-  if(_tbN) _tbN.textContent = _oName;
-  if(_tbO) _tbO.textContent = _address ? '📍 '+_address : '📍 —';
+  var _sName = localStorage.getItem('ms_user_name') || sessionStorage.getItem('ms_user_name') || 'Owner';
+  var _oName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
+  var _role  = localStorage.getItem('ms_role') || sessionStorage.getItem('ms_role') || 'owner';
+  var _tbN   = document.getElementById('tbName');
+  var _tbO   = document.getElementById('tbOutlet');
+  var _tbB   = document.getElementById('tb-role-badge');
+  if(_tbN) _tbN.textContent = _sName;
+  if(_tbO && _oName) _tbO.textContent = '📍 '+_oName;
   if(_tbB){
     if(_role === 'manager')  _tbB.textContent = '👔 Manager';
     else                     _tbB.textContent = '👑 Owner';
@@ -2452,11 +2458,10 @@ function filterByDate(entries,ds){
 }
 function filterByMonth(entries,mo){
   if(!mo)return entries;
-  // mo is YYYY-MM
-  var p=mo.split('-');
+  // mo is YYYY-MM — use _normDate so both ISO and Indian date formats work
+  var prefix=mo.slice(0,7);
   return entries.filter(function(e){
-    var d=(e.date||'').split('/');
-    return parseInt(d[1])===parseInt(p[1]) && parseInt(d[2])===parseInt(p[0]);
+    return _normDate(e.date||'').slice(0,7)===prefix;
   });
 }
 // ── INIT ──
@@ -2469,9 +2474,7 @@ function _initApp(){
 window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):'');
 return; }
 if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
-  mySalonId = ME.salonId
-    || sessionStorage.getItem('ms_salon_id')
-    || localStorage.getItem('ms_salon_id') || '';
+  mySalonId = ME.salonId;
   var salons = LS.get('salons') || [];
 
   // For owners: salonId may be empty — pick first salon in their tenant
@@ -2485,15 +2488,9 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   // Fallback to tenant name from session if salons not loaded yet
   var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
   mySalonName = salon ? salon.name : (_sessionName || 'My Salon');
-  // Persist resolved salonId for renderPNL and other tabs
-  if(mySalonId){ sessionStorage.setItem('ms_salon_id',mySalonId); localStorage.setItem('ms_salon_id',mySalonId); }
 
-  // Topbar: salon name on top line, address on bottom line
-  var _salonAddr = (salon && (salon.address || salon.full_address || salon.city)) || '';
-  document.getElementById('tbName').textContent   = mySalonName || ME.name || SESSION_PHONE;
-  document.getElementById('tbOutlet').textContent = _salonAddr ? '📍 '+_salonAddr : '📍 —';
-  // Persist address for preInitTopbar on reload
-  if(_salonAddr){ localStorage.setItem('ms_address',_salonAddr); sessionStorage.setItem('ms_address',_salonAddr); }
+  document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
+  document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
   document.getElementById('staff-salon-name').textContent = mySalonName;
   var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
@@ -2947,7 +2944,7 @@ function renderMgrAdvLog(){
   el.innerHTML=reversed.map(function(r,ri){
     // Find original index in full log (needed for edit/delete)
     var origIdx=log.length-1-ri;
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">'+
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'+
       '<span style="color:var(--muted);flex:1">'+r.date+' <span style="color:var(--white);font-weight:600">'+(r.mode==='phonePe'?'📱':'💵')+'</span></span>'+
       '<span style="color:var(--danger);font-weight:700;margin-right:8px">−'+fmtINR(r.amount)+'</span>'+
       '<button onclick="editMgrAdvance('+origIdx+')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px" title="Edit">✏️</button>'+
@@ -4116,7 +4113,7 @@ function renderCashCounter(){ renderMgrCashCounter(); }
 
 // ════ DASHBOARD ════
 function renderDashboard(){
-  var allE      = getEntries().filter(function(e){return e.salonId===mySalonId;});
+  var allE      = getEntries().filter(function(e){return String(e.salonId||e.salon_id||'')===String(mySalonId);});
   var todayE    = allE.filter(function(e){return _isTodayEntry(e);});
   var monthE    = filterByMonth(allE, new Date().toISOString().slice(0,7));
   var myStylists = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
@@ -4203,7 +4200,7 @@ function goToBarber(uid){
 
 // ════ SALES TABLE ════
 function renderSalesTable(){
-  var allE=getEntries().filter(function(e){return e.salonId===mySalonId;});
+  var allE=getEntries().filter(function(e){return String(e.salonId||e.salon_id||'')===String(mySalonId);});
   var entries;
   var bid;
   if(salFilterMode==='month'){
@@ -5644,7 +5641,7 @@ function saveCustomerEdit(){
 }
 function renderYearly(){
   var yr=parseInt(document.getElementById('yr-year').value)||new Date().getFullYear();
-  var allE=getEntries().filter(function(e){return e.salonId===mySalonId;});
+  var allE=getEntries().filter(function(e){return String(e.salonId||e.salon_id||'')===String(mySalonId);});
   var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var rows='';
   var totPh=0,totCash=0,totPhTip=0,totCashTip=0,totSales=0,totCusts=0;
@@ -6243,7 +6240,7 @@ function renderStaffAttModal(){
     if(!recs2.length) continue;
     var inR=recs2.find(function(r){return r.type==='in';}),outR=recs2.find(function(r){return r.type==='out';});
     if(!inR&&!outR) continue;
-    timeList+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px">'+
+    timeList+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'+
       '<span style="color:var(--muted)">'+ds2+'</span>'+
       '<span>'+
         (inR?'<span style="color:var(--accent)">In '+inR.time+'</span>':'')+
@@ -6267,7 +6264,8 @@ function applyRestoredData(d){
     fields.forEach(function(f){if(rec[f]!==undefined&&rec[f]!==null&&rec[f]!=='')rec[f]=String(rec[f]);});
     return rec;
   };
-  if(d.entries&&d.entries.length)    LS.set('entries',    d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
+  // Always overwrite entries — even if empty — so stale data never persists
+  LS.set('entries', (d.entries||[]).map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
   if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
   if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
@@ -6643,13 +6641,6 @@ function loadFranchiseInputs(month, cb){
 }
 
 function renderPNL(){
-  // Rescue mySalonId from every available source before any query runs
-  if(!mySalonId){
-    mySalonId = sessionStorage.getItem('ms_salon_id')
-      || localStorage.getItem('ms_salon_id') || '';
-    if(!mySalonId){ var _sl=LS.get('salons')||[]; if(_sl.length) mySalonId=String(_sl[0].id); }
-    if(mySalonId){ sessionStorage.setItem('ms_salon_id',mySalonId); localStorage.setItem('ms_salon_id',mySalonId); }
-  }
   var _pmEl = document.getElementById('pnl-month');
   if(_pmEl && !_pmEl.value) _pmEl.value = new Date().toISOString().slice(0,7);
   var month = _pmEl ? _pmEl.value : new Date().toISOString().slice(0,7);
@@ -7812,9 +7803,9 @@ function _sdGetFiltered(){var all=_sdGetAllEntries();if(_sdPeriod==='today'){var
 window.sdSetPeriod=function(p){_sdPeriod=p;['today','month','year'].forEach(function(x){var b=document.getElementById('sd-pt-'+x);if(b)b.classList.toggle('on',x===p);var f=document.getElementById('sd-f-'+x);if(f)f.classList.toggle('sd-hidden',x!==p);});var tgt=document.getElementById('sd-tgt-block');if(tgt)tgt.classList.toggle('sd-hidden',p!=='today');var ch=document.getElementById('sd-chart-block');if(ch)ch.classList.toggle('sd-hidden',p==='year');var yr=document.getElementById('sd-yr-block');if(yr)yr.classList.toggle('sd-hidden',p!=='year');var tbl=document.getElementById('sd-tbl-block');if(tbl)tbl.classList.toggle('sd-hidden',p==='year');sdRender();};
 window.sdRender=function(){if(!document.getElementById('sd-kpi-custs'))return;var entries=_sdGetFiltered();var totPh=entries.reduce(function(a,e){return a+Number(e.phPay||0);},0);var totCash=entries.reduce(function(a,e){return a+Number(e.cash||0);},0);var totTips=entries.reduce(function(a,e){return a+Number(e.phTip||0)+Number(e.cashTip||0)+Number(e.tip||0);},0);var totSales=totPh+totCash;var custs=entries.length;var avg=custs?Math.round(totSales/custs):0;document.getElementById('sd-kpi-custs').textContent=custs;document.getElementById('sd-kpi-rev').textContent=fmtINR(totSales);document.getElementById('sd-kpi-avg').textContent=fmtINR(avg);document.getElementById('sd-kpi-tips').textContent=fmtINR(totTips);document.getElementById('sd-ph-val').textContent=fmtINR(totPh);document.getElementById('sd-cash-val').textContent=fmtINR(totCash);var phPct=totSales?Math.round(totPh/totSales*100):50;document.getElementById('sd-ph-bar').style.width=phPct+'%';document.getElementById('sd-cash-bar').style.width=(100-phPct)+'%';if(_sdPeriod==='today'){var target=(typeof salonDailyTarget!=='undefined'&&typeof mySalonId!=='undefined')?(salonDailyTarget(mySalonId,today())||8000):8000;var pct=Math.min(100,Math.round(totSales/target*100));document.getElementById('sd-tgt-pct').textContent=pct+'%';document.getElementById('sd-tgt-fill').style.width=pct+'%';document.getElementById('sd-tgt-ach').textContent=fmtINR(totSales)+' achieved';document.getElementById('sd-tgt-goal').textContent='Target: '+fmtINR(target);_sdDrawHourly(entries);}else if(_sdPeriod==='month'){_sdDrawDaily(entries);}else{_sdDrawYear(entries);}_sdRenderStylists(entries,totSales);if(_sdPeriod!=='year')_sdRenderTable(entries);};
 function _sdDrawHourly(e){var h=[9,10,11,12,13,14,15,16,17,18,19,20,21];var lb=h.map(function(x){return x>12?(x-12)+'pm':x===12?'12pm':x+'am';});var dt=h.map(function(x){return e.filter(function(r){return parseInt((r.time||'0').split(':')[0])===x;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0);});var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Hourly Sales — Today';_sdDrawChart(lb,dt);}
-function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var ds=d+'/'+m+'/'+yr;dt.push(e.filter(function(r){return r.date===ds;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
+function _sdDrawDaily(e){var moEl=document.getElementById('sd-fm-month');var mo=moEl?moEl.value:new Date().toISOString().slice(0,7);var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);var days=new Date(yr,m,0).getDate();var lb=[],dt=[];for(var d=1;d<=days;d++){lb.push(d);var _dISO=yr+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;dt.push(e.filter(function(r){return _normDate(r.date||'')===_dISO;}).reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0));}var l=document.getElementById('sd-chart-lbl');if(l)l.textContent='Daily Sales';_sdDrawChart(lb,dt);}
 function _sdDrawChart(lb,dt){if(typeof Chart==='undefined')return;var ctx=document.getElementById('sdBarChart');if(!ctx)return;if(_sdChart){_sdChart.destroy();_sdChart=null;}_sdChart=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:lb,datasets:[{label:'Sales',data:dt,backgroundColor:'rgba(0,122,86,0.75)',borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtINR(c.raw);}}}},scales:{x:{ticks:{font:{size:9},color:'#888',autoSkip:true,maxTicksLimit:12},grid:{display:false}},y:{ticks:{font:{size:9},color:'#888',callback:function(v){return v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v;}},grid:{color:'rgba(0,0,0,0.05)'}}}}});}
-function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var me=e.filter(function(r){var p=(r.date||'').split('/');return parseInt(p[1])===(i+1);});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
+function _sdDrawYear(e){var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var yrEl=document.getElementById('sd-fy-year');var yr=parseInt(yrEl?yrEl.value:new Date().getFullYear());var rows=months.map(function(m,i){var _moISO=yr+'-'+((i+1)<10?'0':'')+(i+1);var me=e.filter(function(r){return _normDate(r.date||'').slice(0,7)===_moISO;});return{m:m,total:me.reduce(function(a,r){return a+Number(r.phPay||0)+Number(r.cash||0);},0),custs:me.length};});var maxT=Math.max.apply(null,rows.map(function(r){return r.total;}))||1;var g=document.getElementById('sd-yr-grid');if(!g)return;g.innerHTML=rows.map(function(r){var w=Math.max(2,Math.round(r.total/maxT*100));return '<div class="sd-yr-row"><div class="sd-yr-m">'+r.m+'</div><div class="sd-yr-bw"><div class="sd-yr-bf" style="width:'+w+'%"></div></div><div class="sd-yr-c">'+r.custs+'c</div><div class="sd-yr-v">'+fmtINR(r.total)+'</div></div>';}).join('');}
 function _sdRenderStylists(e,totS){var map={};e.forEach(function(r){var k=r.barberId||r.barberName||'?';if(!map[k])map[k]={name:r.barberName||k,total:0,custs:0};map[k].total+=Number(r.phPay||0)+Number(r.cash||0);map[k].custs++;});var sorted=Object.values(map).sort(function(a,b){return b.total-a.total;});var maxT=sorted.length?sorted[0].total:1;var el=document.getElementById('sd-sty-list');if(!el)return;el.innerHTML=sorted.length===0?'<div class="sd-tbl-empty">No data</div>':sorted.map(function(s){var ini=(s.name||'?').split(/[\s\-]+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();var pct=Math.max(3,Math.round(s.total/maxT*100));var share=totS?Math.round(s.total/totS*100):0;return '<div class="sd-sty-row"><div class="sd-sty-ava">'+ini+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;justify-content:space-between"><span class="sd-sty-name">'+s.name+'</span><span style="font-size:10px;color:var(--muted2)">'+share+'%</span></div><div class="sd-sty-bar-wrap"><div class="sd-sty-bar-fill" style="width:'+pct+'%"></div></div><div class="sd-sty-custs">'+s.custs+' customer'+(s.custs!==1?'s':'')+'</div></div><div class="sd-sty-amt">'+fmtINR(s.total)+'</div></div>';}).join('');}
 function _sdRenderTable(e){var shown=e.slice().reverse().slice(0,50);var cntEl=document.getElementById('sd-tbl-cnt');if(cntEl)cntEl.textContent=e.length+' entries';var el=document.getElementById('sd-tbl-body');if(!el)return;el.innerHTML=shown.length===0?'<div class="sd-tbl-empty">No transactions found</div>':shown.map(function(r,i){var sales=Number(r.phPay||0)+Number(r.cash||0);var tip=Number(r.phTip||0)+Number(r.cashTip||0)+Number(r.tip||0);var payTag=Number(r.phPay||0)>0?'<span class="sd-tag-ph">PhPe '+fmtINR(r.phPay)+'</span>':'<span class="sd-tag-cash">Cash '+fmtINR(r.cash)+'</span>';var editBtns=r.date===today()?'<div style="margin-top:3px"><button class="btn-edit" onclick="openEdit(\''+r.id+'\')" title="Edit">✏️</button><button class="btn-del" onclick="delEntry(\''+r.id+'\')" style="margin-left:3px" title="Delete">✕</button></div>':'';return '<div class="sd-tbl-row"><span style="color:var(--muted2);font-size:10px">'+(i+1)+'</span><div><div style="font-size:12px;font-weight:700;color:var(--white)">'+r.barberName+'</div><div style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</div><div style="font-size:10px;color:var(--muted2)">'+(r.customerName||'Walk-in')+' · '+r.services+'</div>'+editBtns+'</div><div>'+payTag+(tip>0?'<div style="font-size:9px;color:#9333EA;margin-top:1px">Tip '+fmtINR(tip)+'</div>':'')+'</div><div class="sd-tag-tot">'+fmtINR(sales)+'</div></div>';}).join('')+(e.length>50?'<div class="sd-tbl-empty" style="padding:9px">Showing latest 50 of '+e.length+'</div>':'');}
 window.sdInit=function(){var yrSel=document.getElementById('sd-fy-year');if(yrSel&&!yrSel.options.length){var cy=new Date().getFullYear();for(var y=cy;y>=cy-4;y--){var o=document.createElement('option');o.value=y;o.textContent=y;yrSel.appendChild(o);}}var mEl=document.getElementById('sd-fm-month');if(mEl&&!mEl.value)mEl.value=new Date().toISOString().slice(0,7);var barbers=(typeof mySalonId!=='undefined'&&mySalonId)?(LS.get('staff')||[]).filter(function(u){return String(u.salonId)===String(mySalonId)&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);}):(LS.get('staff')||[]).filter(function(u){return u.role==='stylist'||role==='barber';});['sd-ft-stylist','sd-fm-stylist','sd-fy-stylist'].forEach(function(id){var sel=document.getElementById(id);if(!sel)return;while(sel.options.length>1)sel.remove(1);barbers.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});});if(typeof Chart==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';s.onload=function(){sdRender();};document.head.appendChild(s);}else{sdRender();}};
@@ -7831,14 +7822,11 @@ sbInsert = function(table, row) {
 };
 var _origSupaBootstrap = supaBootstrap;
 supaBootstrap = function(onDone, onError) {
-  // Re-read live so a fresh-page-load (empty sessionStorage) still works
   var _tid = sessionStorage.getItem('ms_tenant_id')
     || localStorage.getItem('ms_tenant_id')
-    || (typeof MS_TENANT_ID !== 'undefined' ? MS_TENANT_ID : '')
-    || '';
+    || (typeof MS_TENANT_ID!=='undefined' ? MS_TENANT_ID : '') || '';
   if (!_tid) {
-    // No tenant — fall through to _origSupaBootstrap so cached data still renders
-    console.warn('[MySalon] No tenant_id — using fallback');
+    // No tenant — fall through so cached data still renders
     _origSupaBootstrap(onDone, onError);
     return;
   }
@@ -9272,10 +9260,7 @@ function saveSalonInfo(){
     mySalonName=row.name;
     localStorage.setItem('ms_name',row.name);
     sessionStorage.setItem('ms_name',row.name);
-    var _newAddr = row.address||'';
-    if(_newAddr){ localStorage.setItem('ms_address',_newAddr); sessionStorage.setItem('ms_address',_newAddr); }
-    document.getElementById('tbName').textContent   = row.name;
-    document.getElementById('tbOutlet').textContent = _newAddr ? '📍 '+_newAddr : '📍 —';
+    document.getElementById('tbOutlet').textContent='📍 '+row.name;
     toast('✅ Salon info saved');
   }).catch(function(e){ toast('Error: '+e.message); });
 }
