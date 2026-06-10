@@ -2080,7 +2080,7 @@ function insertCustomerSafe(phone, name, salonId){
     // Ensure every customer has a login PIN. We do NOT send loginPin in the
     // upsert body above (merge-duplicates would overwrite an existing PIN on
     // every bill). Instead we set one only when the saved row has none.
-    return _ensureCustomerPin(saved);
+    return _ensureCustomerPinRow(saved);
   }).catch(function(err){
     toast('⚠ Customer not saved: '+err);
     console.error('[BB] insertCustomerSafe error:', err);
@@ -2092,7 +2092,7 @@ function insertCustomerSafe(phone, name, salonId){
 // Safe to call on any saved customer: it patches a PIN only when missing,
 // so it never clobbers a PIN the customer already has. Returns the row
 // (with the new PIN merged in locally) so callers keep getting `saved`.
-function _ensureCustomerPin(saved){
+function _ensureCustomerPinRow(saved){
   if(!saved || !saved.id) return saved;
   var existing = saved.loginPin;
   if(existing !== null && existing !== undefined && String(existing).trim().length >= 6){
@@ -8496,36 +8496,10 @@ var _origShowTabStaff = null;
 // ════════════════════════════════════════════════════════════════
 
 // Generate a deterministic 6-digit PIN from phone number
-function _genPinFromPhone(phone){
-  var p = String(phone||'').replace(/\D/g,'');
-  if(p.length < 6) return String(Math.floor(100000 + Math.random()*900000));
-  // Use last 6 digits as seed for deterministic PIN
-  var seed = parseInt(p.slice(-6));
-  var pin  = ((seed * 7919 + 31337) % 900000 + 100000);
-  return String(pin);
-}
+
 
 // Ensure every customer has a loginPin — called after billing entry saves
-function _ensureCustomerPin(customerId, phone){
-  if(!customerId || !phone) return;
-  var custs = LS.get('customers') || [];
-  var idx = -1;
-  custs.forEach(function(c, i){ if(String(c.id)===String(customerId) || String(c.phone)===String(phone)) idx=i; });
-  if(idx < 0) return;
-  var cust = custs[idx];
-  var existing = String(cust.loginPin||cust.login_pin||'').trim();
-  if(existing && existing.length >= 4) return; // already has PIN
-  // Generate PIN
-  var pin = _genPinFromPhone(phone);
-  custs[idx].loginPin  = pin;
-  custs[idx].login_pin = pin;
-  LS.set('customers', custs);
-  // Save to Supabase
-  if(cust.id){
-    sbUpdate('customers', cust.id, { login_pin: pin, loginPin: pin })
-      .catch(function(e){ console.warn('[MySalon] PIN save failed:', e); });
-  }
-}
+
 
 // Generate PINs for ALL customers who don't have one
 function generateAllLoginPins(){
@@ -8628,11 +8602,7 @@ function renderCustDir(){
   }).join('') || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted2)">No customers for this salon yet.</td></tr>';
 }
 
-function copyCustPin(name, pin){
-  navigator.clipboard.writeText(pin)
-    .then(function(){ toast('📋 PIN ' + pin + ' copied for ' + name); })
-    .catch(function(){ toast('PIN: ' + pin); });
-}
+
 
 // Hook into billing entry save to auto-create PIN
 var _origOnMgrSavedOk_pin = null;
@@ -9564,181 +9534,6 @@ function toggleBillingForm(){
   if(arrow) arrow.style.transform = _billingOpen ? '' : 'rotate(-90deg)';
 }
 
-function dashSetPeriod(p){
-  _dashPeriod = p;
-  var mb = document.getElementById('dash-btn-month');
-  var tb = document.getElementById('dash-btn-today');
-  var lbl= document.getElementById('dash-period-label');
-  if(mb){ mb.style.background = p==='month'?'var(--accent)':'var(--surface)'; mb.style.color=p==='month'?'#fff':'var(--muted)'; mb.style.border=p==='month'?'none':'1px solid var(--border)'; }
-  if(tb){ tb.style.background = p==='today'?'var(--accent)':'var(--surface)'; tb.style.color=p==='today'?'#fff':'var(--muted)'; tb.style.border=p==='today'?'none':'1px solid var(--border)'; }
-  if(lbl) lbl.textContent = p==='today'?'Today':(_dashMonth ? _dashMonth.replace('-',' / ') : 'This Month');
-  dashRenderKPIs();
-  dashRenderStylists();
-}
-
-function dashSetMonth(val){
-  _dashMonth  = val;
-  _dashPeriod = 'month';
-  dashSetPeriod('month');
-}
-
-function dashRenderKPIs(){
-  var allE = getEntries();
-  var fmtI = function(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); };
-  var sv   = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
-
-  var filtered;
-  if(_dashPeriod==='today'){
-    filtered = allE.filter(function(e){ return _isTodayEntry(e); });
-  } else {
-    var mo = _dashMonth || new Date().toISOString().slice(0,7);
-    filtered = allE.filter(function(e){ return (_normDate(e.date||'')).slice(0,7)===mo; });
-  }
-
-  var revenue = filtered.reduce(function(s,e){ return s+Number(e.total||0); }, 0);
-  var ph      = filtered.reduce(function(s,e){ return s+Number(e.phPay||e.ph_pay||0); }, 0);
-  var cash    = filtered.reduce(function(s,e){ return s+Number(e.cash||0); }, 0);
-  var txns    = filtered.length;
-  var avg     = txns ? Math.round(revenue/txns) : 0;
-
-  sv('ov-revenue', fmtI(revenue));
-  sv('ov-txns',    txns+' transactions');
-  sv('ov-avg',     fmtI(avg));
-  sv('ov-ph',      fmtI(ph));
-  sv('ov-ph-pct',  revenue ? Math.round(ph/revenue*100)+'%' : '0%');
-  sv('ov-cash',    fmtI(cash));
-  sv('ov-cash-pct',revenue ? Math.round(cash/revenue*100)+'%' : '0%');
-}
-
-function dashRenderStylists(){
-  var el=document.getElementById('dash-stylist-breakdown');
-  if(!el) return;
-  var allE=getEntries();
-  var staff=(LS.get('staff')||[]).filter(function(s){
-    return (String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenant_id||s.tenantId||'')===String(MS_TENANT_ID||''))
-        && (s.role==='stylist'||s.role==='barber') && s.active!==false&&s.active!=='0'&&s.active!==0;
-  });
-
-  var filtered, mo=_dashMonth||new Date().toISOString().slice(0,7);
-  if(_dashPeriod==='today') filtered=allE.filter(function(e){return _isTodayEntry(e);});
-  else filtered=allE.filter(function(e){return (_normDate(e.date||'')).slice(0,7)===mo;});
-
-  // Update today bills
-  var todayE=allE.filter(function(e){return _isTodayEntry(e);});
-  var billsEl=document.getElementById('dash-bills');
-  if(billsEl){
-    var todayTot=todayE.reduce(function(s,e){return s+Number(e.total||0);},0);
-    var sumEl=document.getElementById('dash-today-summary');
-    if(sumEl) sumEl.textContent=todayE.length+' customers · ₹'+todayTot.toLocaleString('en-IN');
-    billsEl.innerHTML=todayE.length?renderEntriesTable(todayE,true):'<div style="padding:20px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">No customers yet today</div>';
-  }
-
-  if(!staff.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted2);font-size:13px;grid-column:1/-1">No stylists found. Add staff in Manage tab.</div>';return;}
-
-  var totalRev=filtered.reduce(function(s,e){return s+Number(e.total||0);},0);
-  var fI=function(n){return String.fromCharCode(8377)+Number(n||0).toLocaleString('en-IN');};
-
-  el.innerHTML='';
-  staff.forEach(function(stylist){
-    var sE=filtered.filter(function(e){return String(e.barberId||e.barber_id||'')===String(stylist.id||'')||String(e.barberName||'').toLowerCase()===String(stylist.name||'').toLowerCase();});
-    var rev=sE.reduce(function(s,e){return s+Number(e.total||0);},0);
-    var custs=sE.length, avg=custs?Math.round(rev/custs):0;
-    var ph=sE.reduce(function(s,e){return s+Number(e.phPay||e.ph_pay||0);},0);
-    var cash=sE.reduce(function(s,e){return s+Number(e.cash||0);},0);
-    var pct=totalRev?Math.round(rev/totalRev*100):0;
-    var barW=Math.min(100,pct);
-    var barCol=pct>=70?'var(--accent)':pct>=40?'#F59E0B':'var(--danger)';
-    var dot=pct>=100?'🟢':pct>=70?'🟡':pct>=40?'🟠':'🔴';
-    var todayStyE=allE.filter(function(e){return _isTodayEntry(e)&&String(e.barberId||e.barber_id||'')===String(stylist.id||'');});
-    var todayRev=todayStyE.reduce(function(s,e){return s+Number(e.total||0);},0);
-    var target=2300, todayPct=Math.min(100,Math.round(todayRev/target*100));
-
-    var card=document.createElement('div');
-    card.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;min-width:0';
-    card.innerHTML=[
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">',
-        '<div>',
-          '<div style="font-family:var(--HF);font-size:18px;color:var(--accent);letter-spacing:1px">'+escH(stylist.name||'—')+'</div>',
-          '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+escH(mySalonName||'')+'</div>',
-        '</div>',
-        '<div style="font-family:var(--HF);font-size:22px;color:var(--accent)">'+fI(rev)+'</div>',
-      '</div>',
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;text-align:center">',
-        '<div><div style="font-family:var(--HF);font-size:20px">'+custs+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Customers</div></div>',
-        '<div><div style="font-family:var(--HF);font-size:20px">'+fI(avg)+'</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Avg Ticket</div></div>',
-        '<div><div style="font-family:var(--HF);font-size:20px">'+pct+'%</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Share</div></div>',
-      '</div>',
-      '<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+dot+' TODAYS TARGET: '+todayPct+'% &nbsp;'+fI(todayRev)+' / '+fI(target)+'</div>',
-      '<div style="background:rgba(0,0,0,.08);border-radius:4px;height:6px;overflow:hidden;margin-bottom:10px">',
-        '<div style="height:100%;border-radius:4px;width:'+barW+'%;background:'+barCol+'"></div>',
-      '</div>',
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">',
-        '<div style="background:rgba(29,109,181,.06);border:1px solid rgba(29,109,181,.15);border-radius:var(--rs);padding:8px 10px;text-align:center">',
-          '<div style="font-family:var(--HF);font-size:15px;color:var(--blue)">'+fI(ph)+'</div>',
-          '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">PhonePe</div>',
-        '</div>',
-        '<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:var(--rs);padding:8px 10px;text-align:center">',
-          '<div style="font-family:var(--HF);font-size:15px;color:var(--green)">'+fI(cash)+'</div>',
-          '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Cash</div>',
-        '</div>',
-      '</div>'
-    ].join('');
-    el.appendChild(card);
-  });
-}
-
-function dashRenderCosmetics(){
-  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
-  if(_cosOrders && _cosOrders.length){
-    sv('dc-pending',   _cosOrders.filter(function(o){return o.status==='pending';}).length);
-    sv('dc-confirmed', _cosOrders.filter(function(o){return o.status==='confirmed';}).length);
-    sv('dc-shipped',   _cosOrders.filter(function(o){return o.status==='shipped';}).length);
-    sv('dc-delivered', _cosOrders.filter(function(o){return o.status==='delivered';}).length);
-    return;
-  }
-  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
-  if(!tid) return;
-  fetch(SUPA_URL+'/rest/v1/vendor_orders?tenant_id=eq.'+encodeURIComponent(tid)+'&select=id,status&limit=200',{
-    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    if(!rows||!Array.isArray(rows)) return;
-    sv('dc-pending',   rows.filter(function(o){return o.status==='pending';}).length);
-    sv('dc-confirmed', rows.filter(function(o){return o.status==='confirmed';}).length);
-    sv('dc-shipped',   rows.filter(function(o){return o.status==='shipped';}).length);
-    sv('dc-delivered', rows.filter(function(o){return o.status==='delivered';}).length);
-  }).catch(function(){});
-}
-
-// Override renderDashboard to call new functions
-var _origRenderDashboard = renderDashboard;
-renderDashboard = function(){
-  // Set initial month picker
-  var mp = document.getElementById('dash-month-picker');
-  if(mp && !mp.value) mp.value = new Date().toISOString().slice(0,7);
-  // Call originals that handle barbers/counters
-  try{ _origRenderDashboard.apply(this,arguments); }catch(e){}
-  // Our new renders
-  setTimeout(function(){
-    dashRenderKPIs();
-    dashRenderStylists();
-    dashRenderCosmetics();
-    // Hide old elements not needed
-    var db=document.getElementById('dash-barbers');
-    if(db) db.style.display='none';
-    var ds=document.getElementById('dash-stats');
-    if(ds) ds.style.display='none';
-    // Update salon name label
-    var nl=document.getElementById('dash-salon-name-lbl');
-    if(nl) nl.textContent=mySalonName||'';
-  },100);
-};
-
-// Init
-document.addEventListener('DOMContentLoaded',function(){
-  var mp=document.getElementById('dash-month-picker');
-  if(mp) mp.value=new Date().toISOString().slice(0,7);
-  dashSetPeriod('month');
-});
 // ════════════════════════════════════════════════════════════════
 
 
