@@ -2505,10 +2505,8 @@ var ME=null, mySalonId=null, mySalonName='My Salon';
 function _initApp(){
   var staff=LS.get('staff')||[];
   ME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
-  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'';
-window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):'');
-return; }
-if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
+  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
+  if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
   mySalonId = ME.salonId;
   var salons = LS.get('salons') || [];
 
@@ -2549,6 +2547,8 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   }
   renderDashboard();
   renderMgrAttBtn('mgr-att-btn-wrap');
+  // Show dashboard panel
+  showTab('dashboard');
   // Render dashboard KPI cards after data loads
   setTimeout(function(){
     try{ _renderDashKPIs(); }catch(e){}
