@@ -952,9 +952,10 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
   <!-- Sub tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto">
-    <button class="manage-sub on" id="mst-fullstaff" onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
-    <button class="manage-sub"   id="mst-saloninfo" onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
-    <button class="manage-sub"   id="mst-salon"     onclick="manageSubTab('salon')">📊 Expenses</button>
+    <button class="manage-sub on" id="mst-fullstaff"  onclick="manageSubTab('fullstaff')">📋 All Stylists</button>
+    <button class="manage-sub"   id="mst-mgrprofile" onclick="manageSubTab('mgrprofile')">👤 Manager Profile</button>
+    <button class="manage-sub"   id="mst-saloninfo"  onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
+    <button class="manage-sub"   id="mst-salon"      onclick="manageSubTab('salon')">📊 Expenses</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -1057,6 +1058,96 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- ── SALON EXPENSES SUB-TAB (moved from main Salon tab) ── -->
   <div id="msp-salon" style="display:none">
     <div id="pn-salon-inner"></div>
+  </div>
+
+  <!-- ── MANAGER PROFILE SUB-TAB ── -->
+  <div id="msp-mgrprofile" style="display:none">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:14px">👤 Add Manager</div>
+
+      <input type="hidden" id="mgp-edit-id">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="ifield">
+          <label>Full Name *</label>
+          <input type="text" class="fi" id="mgp-name" placeholder="Full name">
+        </div>
+        <div class="ifield">
+          <label>Phone *</label>
+          <input type="tel" class="fi" id="mgp-phone" placeholder="10-digit phone" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <div class="ifield">
+          <label>Role</label>
+          <select class="fi" id="mgp-role">
+            <option value="manager" selected>Manager</option>
+          </select>
+        </div>
+        <div class="ifield">
+          <label>Salon</label>
+          <input type="text" class="fi" id="mgp-salon" readonly style="background:var(--surface2);color:var(--muted);cursor:not-allowed" placeholder="Auto-filled">
+        </div>
+      </div>
+
+      <!-- Login PIN -->
+      <div style="background:rgba(245,224,48,.06);border:1px solid rgba(245,224,48,.2);border-radius:var(--r);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#9A7E00;margin-bottom:10px">🔐 Login PIN</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <input type="text" class="fi" id="mgp-pin" placeholder="Set 6-digit PIN" maxlength="6"
+            oninput="this.value=this.value.replace(/\D/g,'')"
+            style="font-size:22px;font-family:var(--HF);letter-spacing:6px;text-align:center;flex:1;background:var(--surface2)">
+          <button onclick="mgpGeneratePin()" style="padding:10px 16px;background:rgba(0,196,140,.12);border:1px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;font-family:var(--BF)">🎲 Generate</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">Staff uses this PIN to log in. Share it with them.</div>
+      </div>
+
+      <!-- Salary fields -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="ifield">
+          <label>Fixed Salary (₹)</label>
+          <input type="number" class="fi" id="mgp-salary" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Food Money (₹)</label>
+          <input type="number" class="fi" id="mgp-food" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Cleaning Money (₹)</label>
+          <input type="number" class="fi" id="mgp-clean" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- Targets -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="ifield">
+          <label>Weekday Target (₹) <span style="font-size:10px;color:var(--muted2)">MON–FRI</span></label>
+          <input type="number" class="fi" id="mgp-wdtarget" placeholder="0" min="0">
+        </div>
+        <div class="ifield">
+          <label>Weekend Target (₹) <span style="font-size:10px;color:var(--muted2)">SAT–SUN</span></label>
+          <input type="number" class="fi" id="mgp-wetarget" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <!-- Permissions -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Permissions</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--white)">
+          <input type="checkbox" id="mgp-backdate" style="width:16px;height:16px;accent-color:var(--accent)">
+          Allow backdated billing
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex;gap:8px">
+        <button onclick="cancelMgrProfile()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Cancel</button>
+        <button id="mgp-save-btn" onclick="saveMgrProfile()" style="flex:2;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--BF)">Add Staff + Generate OTP</button>
+      </div>
+    </div>
+
+    <!-- Existing managers list -->
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;margin-top:4px">Existing Managers</div>
+    <div id="mgp-staff-list" style="display:grid;gap:10px"></div>
   </div>
 
 </div>
@@ -9048,15 +9139,16 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['fullstaff','saloninfo','salon'].forEach(function(t){
+  ['fullstaff','mgrprofile','saloninfo','salon'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
     if(b) b.classList.toggle('on', t===tab);
   });
-  if(tab==='saloninfo') loadSalonInfoForm();
-  if(tab==='fullstaff') _loadFullStaffPanel();
-  if(tab==='salon')     _loadSalonExpensesPanel();
+  if(tab==='saloninfo')   loadSalonInfoForm();
+  if(tab==='fullstaff')   _loadFullStaffPanel();
+  if(tab==='salon')       _loadSalonExpensesPanel();
+  if(tab==='mgrprofile')  loadMgrProfileTab();
 }
 
 function _loadSalonExpensesPanel(){
@@ -9213,6 +9305,158 @@ function saveManageStaff(){
     if(typeof populateMgrBillBarbers==='function') populateMgrBillBarbers();
     toast('✅ Staff saved');
   }).catch(function(e){ toast('Error: '+e.message); });
+}
+
+// ── Manager Profile Tab ─────────────────────────────────────────
+
+function loadMgrProfileTab(){
+  var salEl=document.getElementById('mgp-salon');
+  if(salEl) salEl.value=mySalonName||'';
+}
+
+function mgpGeneratePin(){
+  var pin=String(Math.floor(100000+Math.random()*900000));
+  var el=document.getElementById('mgp-pin');
+  if(el){ el.value=pin; el.focus(); }
+}
+
+function cancelMgrProfile(){
+  ['mgp-name','mgp-phone','mgp-pin','mgp-salary','mgp-food','mgp-clean','mgp-wdtarget','mgp-wetarget'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var bd=document.getElementById('mgp-backdate'); if(bd) bd.checked=false;
+  var hid=document.getElementById('mgp-edit-id'); if(hid) hid.value='';
+  var btn=document.getElementById('mgp-save-btn');
+  if(btn) btn.textContent='Add Staff + Generate OTP';
+}
+
+function saveMgrProfile(){
+  var name    =(document.getElementById('mgp-name').value||'').trim();
+  var phone   =(document.getElementById('mgp-phone').value||'').replace(/\D/g,'');
+  var pin     =(document.getElementById('mgp-pin').value||'').trim();
+  var salary  =parseInt(document.getElementById('mgp-salary').value)||0;
+  var food    =parseInt(document.getElementById('mgp-food').value)||0;
+  var clean   =parseInt(document.getElementById('mgp-clean').value)||0;
+  var wdt     =parseInt(document.getElementById('mgp-wdtarget').value)||0;
+  var wet     =parseInt(document.getElementById('mgp-wetarget').value)||0;
+  var backdate=document.getElementById('mgp-backdate').checked;
+  var editId  =(document.getElementById('mgp-edit-id').value||'').trim();
+
+  if(!name){ toast('Enter manager name'); return; }
+  if(phone.length<10){ toast('Enter valid 10-digit phone'); return; }
+  if(!pin||pin.length<4){
+    pin=String(Math.floor(100000+Math.random()*900000));
+    var pinEl=document.getElementById('mgp-pin'); if(pinEl) pinEl.value=pin;
+  }
+
+  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  var row={
+    name:name, phone:phone, role:'manager',
+    pin:pin, loginPin:pin,
+    salary:salary, fixedSalary:salary,
+    food:food, foodMoney:food,
+    cleaningMoney:clean,
+    weekdayTarget:wdt, weekendTarget:wet,
+    allowBackdate:backdate, active:true,
+    salonId:mySalonId, salon_id:mySalonId,
+    tenantId:tid, tenant_id:tid
+  };
+
+  var btn=document.getElementById('mgp-save-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+
+  var url=SUPA_URL+'/rest/v1/staff';
+  var method=editId?'PATCH':'POST';
+  if(editId) url+='?id=eq.'+encodeURIComponent(editId);
+
+  fetch(url,{
+    method:method,
+    headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'},
+    body:JSON.stringify(row)
+  }).then(function(r){return r.json();})
+  .then(function(saved){
+    var s=Array.isArray(saved)?saved[0]:saved;
+    var staff=LS.get('staff')||[];
+    if(editId){
+      var idx=staff.findIndex(function(x){return String(x.id)===editId;});
+      if(idx>=0) staff[idx]=Object.assign({id:editId},row,s||{});
+      else staff.push(Object.assign({},row,s||{}));
+    } else {
+      if(s&&s.id) staff.push(Object.assign({},row,s));
+    }
+    LS.set('staff',staff);
+    if(typeof renderStaff==='function') renderStaff();
+    if(typeof renderManageStaff==='function') renderManageStaff();
+    _renderMgrProfileList();
+    if(btn){ btn.disabled=false; btn.textContent='Add Staff + Generate OTP'; }
+    toast('✅ '+name+' added! PIN: '+pin);
+    cancelMgrProfile();
+  }).catch(function(e){
+    if(btn){ btn.disabled=false; btn.textContent='Add Staff + Generate OTP'; }
+    toast('Error: '+e.message);
+  });
+}
+
+function _renderMgrProfileList(){
+  var el=document.getElementById('mgp-staff-list');
+  if(!el) return;
+  var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
+  var staff=(LS.get('staff')||[]).filter(function(s){
+    return s.role==='manager' &&
+      (String(s.salonId||s.salon_id||'')===String(mySalonId)||
+       String(s.tenantId||s.tenant_id||'')===String(tid));
+  });
+  if(!staff.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No managers added yet</div>';
+    return;
+  }
+  el.innerHTML=staff.map(function(s){
+    var pin=s.pin||s.loginPin||'—';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:700;font-size:14px;color:var(--white)">'+escH(s.name||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">📱 '+escH(s.phone||'—')+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">🔑 PIN: <span style="font-family:var(--HF);color:var(--accent);letter-spacing:2px">'+escH(String(pin))+'</span></div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">💰 ₹'+(s.fixedSalary||s.salary||0)+' · 🍱 ₹'+(s.foodMoney||s.food||0)+' · 🧹 ₹'+(s.cleaningMoney||0)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">'+
+          '<span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;background:rgba(30,58,95,.25);color:#60a5fa;border:1px solid rgba(96,165,250,.3)">Manager</span>'+
+          '<div style="display:flex;gap:6px">'+
+            '<button onclick="mgpEditStaff(''+escH(String(s.id||''))+'' )" style="padding:5px 10px;background:rgba(0,196,140,.08);border:1px solid rgba(0,196,140,.2);color:var(--accent);border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Edit</button>'+
+            '<button onclick="mgpSharePin(''+escH(String(pin))+'',''+escH(s.name||'')+'' )" style="padding:5px 10px;background:rgba(91,200,255,.08);border:1px solid rgba(91,200,255,.25);color:#5bc8ff;border-radius:var(--rs);font-size:11px;font-weight:700;cursor:pointer">Share PIN</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function mgpEditStaff(staffId){
+  var s=(LS.get('staff')||[]).find(function(x){return String(x.id)===String(staffId);});
+  if(!s) return;
+  document.getElementById('mgp-edit-id').value   = s.id;
+  document.getElementById('mgp-name').value       = s.name||'';
+  document.getElementById('mgp-phone').value      = s.phone||'';
+  document.getElementById('mgp-pin').value        = s.pin||s.loginPin||'';
+  document.getElementById('mgp-salary').value     = s.fixedSalary||s.salary||0;
+  document.getElementById('mgp-food').value       = s.foodMoney||s.food||0;
+  document.getElementById('mgp-clean').value      = s.cleaningMoney||0;
+  document.getElementById('mgp-wdtarget').value   = s.weekdayTarget||0;
+  document.getElementById('mgp-wetarget').value   = s.weekendTarget||0;
+  var bd=document.getElementById('mgp-backdate');
+  if(bd) bd.checked=!!(s.allowBackdate===true||s.allowBackdate===1||s.allowBackdate==='1');
+  var btn=document.getElementById('mgp-save-btn');
+  if(btn) btn.textContent='Save Changes';
+  document.getElementById('mgp-name').focus();
+  document.getElementById('msp-mgrprofile').scrollTop=0;
+}
+
+function mgpSharePin(pin,name){
+  var text='Hi '+name+'! Your Budget Barber login PIN is: '+pin+'. Use your phone number + this PIN to log in.';
+  if(navigator.share){ navigator.share({text:text}).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){toast('📋 Copied PIN for '+name);}).catch(function(){toast('PIN: '+pin);}); }
+  else { toast('PIN: '+pin); }
 }
 
 // ── Salon Info ────────────────────────────────────────────────
