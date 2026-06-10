@@ -1929,46 +1929,6 @@ function insertCustomerSafe(phone, name, salonId){
 // Safe to call on any saved customer: it patches a PIN only when missing,
 // so it never clobbers a PIN the customer already has. Returns the row
 // (with the new PIN merged in locally) so callers keep getting `saved`.
-function _ensureCustomerPin(saved){
-  if(!saved || !saved.id) return saved;
-  var existing = saved.loginPin;
-  if(existing !== null && existing !== undefined && String(existing).trim().length >= 6){
-    return saved; // already has a usable PIN — leave it alone
-  }
-  // Use deterministic PIN from phone so it's always recoverable
-  var _ph = String(saved.phone||'').replace(/\D/g,'');
-  var pin = _ph.length >= 6
-    ? String((parseInt(_ph.slice(-6)) * 7919 + 31337) % 900000 + 100000)
-    : String(Math.floor(100000 + Math.random()*900000));
-
-  // Save BOTH column names to Supabase
-  sbUpdate('customers', saved.id, { login_pin: pin, loginPin: pin })
-    .then(function(){
-      console.log('[MySalon] PIN saved to Supabase for', saved.phone, ':', pin);
-    })
-    .catch(function(e){
-      console.warn('[MySalon] _ensureCustomerPin patch failed:', e);
-      // Retry with just snake_case
-      fetch(SUPA_URL+'/rest/v1/customers?id=eq.'+encodeURIComponent(saved.id),{
-        method:'PATCH',
-        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
-        body:JSON.stringify({login_pin:pin})
-      }).catch(function(){});
-    });
-  saved.loginPin  = pin;
-  saved.login_pin = pin;
-  var custs = LS.get('customers')||[];
-  for(var i=0;i<custs.length;i++){
-    if(String(custs[i].id)===String(saved.id)){
-      custs[i].loginPin  = pin;
-      custs[i].login_pin = pin;
-      break;
-    }
-  }
-  LS.set('customers', custs);
-  return saved;
-}
-
 // UPSERT — insert or update by id
 function sbUpsert(table, row){
   return _supaFetch(table + '?on_conflict=id', {
@@ -2002,8 +1962,14 @@ var SB = {
     if(!_tid){ console.warn('[MySalon] No tenant_id — data will be unscoped!'); }
     var _tq = _tid ? 'tenant_id=eq.'+encodeURIComponent(_tid) : '';
     function _ts(table){ return _tq ? table+'?'+_tq : table; }
+    // Staff: use salonId filter so stylists without tenant_id are still fetched
+    // tenant_id filter misses any stylist saved before tenant_id column existed
+    var _sid = (typeof mySalonId !== 'undefined' && mySalonId) ? mySalonId : '';
+    var _staffQ = _sid
+      ? ('"salonId"=eq.' + encodeURIComponent(_sid) + '&limit=500')
+      : (_tq || 'limit=500');
     return Promise.all([
-      sbSelect('staff',        _tq),
+      sbSelect('staff',        _staffQ),
       sbSelect('salons',       _tq),
       sbSelect('customers',    _tq),
       sbSelect('entries',      _tq),
@@ -2374,33 +2340,39 @@ function filterByDate(entries,ds){
 }
 function filterByMonth(entries,mo){
   if(!mo)return entries;
-  // mo is YYYY-MM
-  var p=mo.split('-');
-  return entries.filter(function(e){
-    var d=(e.date||'').split('/');
-    return parseInt(d[1])===parseInt(p[1]) && parseInt(d[2])===parseInt(p[0]);
-  });
+  // Use _normDate so both ISO "YYYY-MM-DD" and Indian "D/M/YYYY" dates work
+  var prefix=mo.slice(0,7);
+  return entries.filter(function(e){ return _normDate(e.date||'').slice(0,7)===prefix; });
 }
 // ── INIT ──
 var ME=null, mySalonId=null, mySalonName='My Salon';
 
 function _initApp(){
   var staff=LS.get('staff')||[];
-  ME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
-  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'';
-window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):'');
-return; }
-if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
-  mySalonId = ME.salonId;
+  // Normalize phones to last 10 digits so +91/0-prefix mismatches don't break lookup
+  var _normPh=function(p){var s=String(p||'').replace(/\D/g,'');return s.length>10?s.slice(-10):s;};
+  var _sp=_normPh(SESSION_PHONE);
+  ME=staff.find(function(u){return _normPh(u.phone)===_sp&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
+  if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
+  // Read from both column variants (DB has salonId TEXT and salon_id UUID)
+  mySalonId = ME.salonId || ME.salon_id || sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
   var salons = LS.get('salons') || [];
 
-  // For owners: salonId may be empty — pick first salon in their tenant
-  var salon = salons.find(function(s){ return s.id === mySalonId; });
+  // Find salon with String() comparison so UUID vs string type never mismatches
+  var salon = salons.find(function(s){ return String(s.id)===String(mySalonId) || String(s.salon_id||'')===String(mySalonId); });
+  if(!salon && ME.salon_id) salon = salons.find(function(s){ return String(s.id)===String(ME.salon_id); });
   if(!salon && salons.length) {
     salon     = salons[0];
-    mySalonId = salon.id;
+    mySalonId = String(salon.id);
     ME.salonId = mySalonId;
   }
+  if(salon && !mySalonId){ mySalonId = String(salon.id); ME.salonId = mySalonId; }
+
+  // Persist resolved IDs so tab switches stay scoped to the right salon/tenant
+  var _meTid = ME.tenant_id || ME.tenantId || MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || '';
+  if(_meTid){ localStorage.setItem('ms_tenant_id',_meTid); sessionStorage.setItem('ms_tenant_id',_meTid); }
+  if(mySalonId){ localStorage.setItem('ms_salon_id',String(mySalonId)); sessionStorage.setItem('ms_salon_id',String(mySalonId)); }
 
   // Fallback to tenant name from session if salons not loaded yet
   var _sessionName = localStorage.getItem('ms_name') || sessionStorage.getItem('ms_name') || '';
@@ -2409,7 +2381,7 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
   document.getElementById('tbName').textContent   = ME.name || SESSION_PHONE;
   document.getElementById('tbOutlet').textContent = '📍 ' + mySalonName;
   document.getElementById('staff-salon-name').textContent = mySalonName;
-  var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var myBarbers=(LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   ['sal-barber','sal-barber-mon'].forEach(function(selId){
     var sel=document.getElementById(selId); if(!sel)return;
     myBarbers.forEach(function(u){var o=document.createElement('option');o.value=u.id;o.textContent=u.name;sel.appendChild(o);});
@@ -2452,13 +2424,27 @@ if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStor
     }).catch(function(){});
   })();
   // ─────────────────────────────────────────────────────────
-  supaBootstrap(
-    function(){ _initApp(); },
-    function(err){
-      console.warn('[BB] Supabase load failed, using cache:', err);
-      _initApp();
-    }
-  );
+  // Pre-boot rescue: if tenant_id is missing, fetch it from the staff record by phone
+  var _cachedTid = MS_TENANT_ID || localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
+  function _runBoot(){
+    supaBootstrap(function(){ _initApp(); }, function(err){ console.warn('[BB] load failed:',err); _initApp(); });
+  }
+  if(!_cachedTid && SESSION_PHONE){
+    var _normPhBoot = function(p){ var s=String(p||'').replace(/\D/g,''); return s.length>10?s.slice(-10):s; };
+    fetch(SUPA_URL+'/rest/v1/staff?or=(phone.eq.'+encodeURIComponent(SESSION_PHONE)+',phone.eq.'+encodeURIComponent(_normPhBoot(SESSION_PHONE))+')&select=tenant_id,salon_id,"salonId","tenantId"&limit=1',{
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    }).then(function(r){return r.json();}).then(function(rows){
+      var row=Array.isArray(rows)&&rows[0];
+      if(row){
+        var tid=row.tenant_id||row.tenantId||'';
+        var sid=row.salon_id||row.salonId||'';
+        if(tid){ localStorage.setItem('ms_tenant_id',tid); sessionStorage.setItem('ms_tenant_id',tid); }
+        if(sid){ localStorage.setItem('ms_salon_id',String(sid)); sessionStorage.setItem('ms_salon_id',String(sid)); }
+      }
+    }).catch(function(){}).finally(function(){ _runBoot(); });
+  } else {
+    _runBoot();
+  }
 })();
 
 // ── AUTO SYNC (every 5 minutes) ──
@@ -3071,7 +3057,7 @@ function populateMgrBillBarbers(){
   initMgrChips();
   var sel = document.getElementById('mgr-bill-barber');
   if(!sel) return;
-  var myBarbers = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var myBarbers = (LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   sel.innerHTML = '<option value="">Select Stylist</option>' +
     myBarbers.map(function(u){return '<option value="'+u.id+'">'+u.name+'</option>';}).join('');
 }
@@ -4006,7 +3992,7 @@ function renderDashboard(){
   var allE      = getEntries().filter(function(e){return e.salonId===mySalonId;});
   var todayE    = allE.filter(function(e){return _isTodayEntry(e);});
   var monthE    = filterByMonth(allE, new Date().toISOString().slice(0,7));
-  var myStylists = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var myStylists = (LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
 
   // FIX 4: Tips NOT added to totals — track separately
   var totPhT   = todayE.reduce(function(a,e){return a+Number(e.phPay||0);},0);
@@ -4154,7 +4140,7 @@ function renderSalesTable(){
 function renderMonthlyInSales(){
   var month=(document.getElementById('sal-month-pick')||{}).value||new Date().toISOString().slice(0,7);
   var salonEntries = filterByMonth(getEntries().filter(function(e){return e.salonId===mySalonId;}),month);
-  var staff = (LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var staff = (LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   var yr = parseInt(month.split('-')[0]), mo = parseInt(month.split('-')[1]);
   var daysInMonth = new Date(yr,mo,0).getDate();
   var mName = new Date(yr,mo-1,1).toLocaleString('default',{month:'long',year:'numeric'});
@@ -5578,7 +5564,7 @@ function renderYearly(){
 
 // ════ STAFF ════
 function renderStaff(){
-  var myStylists=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var myStylists=(LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   document.getElementById('staff-list').innerHTML=myStylists.length?
     myStylists.map(function(b){
       return '<div class="staff-card">'+
@@ -6214,7 +6200,7 @@ function logout(){
     localStorage.removeItem('bb_role');
   } catch(e){}
   var _ls=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'';
-window.location.href='salon-portal.html'+((localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'')?'?salon='+encodeURIComponent(localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''):'');
+  window.location.href='salon-portal.html'+((localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||'')?'?salon='+encodeURIComponent(localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''):'');
 }
 
 // ════════════════════════════════════════════════════
@@ -7526,7 +7512,7 @@ function renderMgrQueueByStyleist(tokens){
     el.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted2);font-size:13px;font-style:italic">Queue is empty</div>';
     return;
   }
-  var myBarbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var myBarbers=(LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   var barberMap={};myBarbers.forEach(function(b){barberMap[b.id]=b.name;});
   var byBarber={};
   tokens.forEach(function(t){
@@ -7579,7 +7565,7 @@ function mgrAddWalkin(){
   document.getElementById('mwk-name').value='';
   document.getElementById('mwk-phone').value='';
   var sel=document.getElementById('mwk-stylist');
-  var barbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var barbers=(LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   sel.innerHTML='<option value="">Any Available</option>'+barbers.map(function(b){return '<option value="'+b.id+'">'+b.name+'</option>';}).join('');
   var grid=document.getElementById('mwk-chips');
   grid.innerHTML='';
@@ -7603,7 +7589,7 @@ function mgrSubmitWalkin(){
   var phone=(document.getElementById('mwk-phone').value||'').trim();
   var barberId=document.getElementById('mwk-stylist').value||null;
   if(!barberId){
-    var barbers=(LS.get('staff')||[]).filter(function(u){return u.salonId===mySalonId&&u.role==='stylist'||role==='barber'&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+    var barbers=(LS.get('staff')||[]).filter(function(u){return (String(u.salonId||u.salon_id||'')===String(mySalonId))&&(u.role==='stylist'||u.role==='barber')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
     if(barbers.length) barberId=barbers[0].id;
   }
   var svcLabels=mwkSelectedSvcs.map(function(c){var s=MGR_SERVICES.find(function(x){return x.code===c;});return s?s.label:c;});
@@ -7834,7 +7820,7 @@ function sdSetPeriod(p){
     // Populate stylist dropdown
     var sel = document.getElementById('sd-custom-stylist');
     if(sel && sel.options.length <= 1){
-      var stf = (LS.get('staff')||[]).filter(function(u){ return u.salonId===mySalonId&&(u.role==='stylist'||u.role==='barber')&&u.active; });
+      var stf = (LS.get('staff')||[]).filter(function(u){ return String(u.salonId||u.salon_id||'')===String(mySalonId)&&(u.role==='stylist'||u.role==='barber')&&u.active; });
       stf.forEach(function(u){ var o=document.createElement('option'); o.value=u.id; o.textContent=u.name; sel.appendChild(o); });
     }
     sdRenderCustom();
@@ -8282,37 +8268,7 @@ var _origShowTabStaff = null;
 // ════════════════════════════════════════════════════════════════
 
 // Generate a deterministic 6-digit PIN from phone number
-function _genPinFromPhone(phone){
-  var p = String(phone||'').replace(/\D/g,'');
-  if(p.length < 6) return String(Math.floor(100000 + Math.random()*900000));
-  // Use last 6 digits as seed for deterministic PIN
-  var seed = parseInt(p.slice(-6));
-  var pin  = ((seed * 7919 + 31337) % 900000 + 100000);
-  return String(pin);
-}
-
 // Ensure every customer has a loginPin — called after billing entry saves
-function _ensureCustomerPin(customerId, phone){
-  if(!customerId || !phone) return;
-  var custs = LS.get('customers') || [];
-  var idx = -1;
-  custs.forEach(function(c, i){ if(String(c.id)===String(customerId) || String(c.phone)===String(phone)) idx=i; });
-  if(idx < 0) return;
-  var cust = custs[idx];
-  var existing = String(cust.loginPin||cust.login_pin||'').trim();
-  if(existing && existing.length >= 4) return; // already has PIN
-  // Generate PIN
-  var pin = _genPinFromPhone(phone);
-  custs[idx].loginPin  = pin;
-  custs[idx].login_pin = pin;
-  LS.set('customers', custs);
-  // Save to Supabase
-  if(cust.id){
-    sbUpdate('customers', cust.id, { login_pin: pin, loginPin: pin })
-      .catch(function(e){ console.warn('[MySalon] PIN save failed:', e); });
-  }
-}
-
 // Generate PINs for ALL customers who don't have one
 function generateAllLoginPins(){
   var custs = LS.get('customers') || [];
@@ -8412,12 +8368,6 @@ function renderCustDir(){
       '</td>' +
     '</tr>';
   }).join('') || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted2)">No customers for this salon yet.</td></tr>';
-}
-
-function copyCustPin(name, pin){
-  navigator.clipboard.writeText(pin)
-    .then(function(){ toast('📋 PIN ' + pin + ' copied for ' + name); })
-    .catch(function(){ toast('PIN: ' + pin); });
 }
 
 // Hook into billing entry save to auto-create PIN
