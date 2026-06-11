@@ -2622,23 +2622,8 @@ function showTab(tab){
     });
   }
   if(tab==='profile'){
-    supaBootstrap(function(){
-      var mo=new Date().toISOString().slice(0,7);
-      if(typeof mgrFetchSalaryData === 'function'){
-        try {
-          mgrFetchSalaryData(mo, function(){
-            if(typeof renderMgrProfile === 'function') renderMgrProfile();
-          });
-        } catch(e) {
-          console.warn('[MySalon] mgrFetchSalaryData error:', e);
-          if(typeof renderMgrProfile === 'function') renderMgrProfile();
-        }
-      } else if(typeof renderMgrProfile === 'function'){
-        renderMgrProfile();
-      }
-    }, function(){
-      if(typeof renderMgrProfile === 'function') renderMgrProfile();
-    });
+    // Render immediately from cache, then refresh Supabase data in background
+    if(typeof renderMgrProfile === 'function') renderMgrProfile();
   }
   if(tab==='dashboard'){
     supaBootstrap(function(){
@@ -2906,7 +2891,25 @@ function deleteMgrAdvance(idx){
 }
 
 function renderMgrProfile(){
-  if(!ME){toast('Session error');return;}
+  // Rescue ME from storage if not yet set (e.g. tab opened before boot completes)
+  if(!ME){
+    var _staff=LS.get('staff')||[];
+    var _sp=function(p){var s=String(p||'').replace(/[^0-9]/g,'');return s.length>10?s.slice(-10):s;};
+    var _ph=_sp(SESSION_PHONE||localStorage.getItem('ms_phone')||sessionStorage.getItem('ms_phone')||'');
+    ME=_staff.find(function(u){return _sp(u.phone)===_ph&&(u.role==='manager'||u.role==='owner');});
+    if(!ME&&_staff.length){
+      // Last resort: pick first manager/owner in this salon
+      ME=_staff.find(function(u){return u.role==='manager'||u.role==='owner';});
+    }
+    if(!ME){
+      // Build a minimal ME from session storage so profile still renders
+      ME={id:sessionStorage.getItem('ms_tenant_id')||localStorage.getItem('ms_tenant_id')||'',
+          name:sessionStorage.getItem('ms_user_name')||localStorage.getItem('ms_user_name')||'Manager',
+          phone:SESSION_PHONE||'',role:'manager',
+          salonId:sessionStorage.getItem('ms_salon_id')||localStorage.getItem('ms_salon_id')||''};
+    }
+    if(ME&&ME.salonId&&!mySalonId) mySalonId=ME.salonId;
+  }
   _renderProfileHeader();
   renderMgrAttBtn('mgr-profile-att-wrap');
   _mgrAttYear=new Date().getFullYear();_mgrAttMonth=new Date().getMonth()+1;
@@ -2917,7 +2920,17 @@ function renderMgrProfile(){
   var mo=(moEl&&moEl.value)||new Date().toISOString().slice(0,7);
   var sbr=document.getElementById('mgr-salary-breakdown');
   if(sbr)sbr.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Loading salary...</div>';
-  mgrFetchSalaryData(mo,renderMgrSalary);
+  // Render from cache first (instant), then fetch fresh data from Supabase
+  renderMgrSalary();
+  if(ME&&ME.id){
+    mgrFetchSalaryData(mo, renderMgrSalary);
+  }
+  // Also refresh attendance data from Supabase in background
+  if(ME&&ME.id&&(typeof mySalonId!=='undefined')&&mySalonId){
+    sbSelect('attendance','"salonId"=eq.'+encodeURIComponent(mySalonId)+'&limit=1000')
+      .then(function(rows){ if(rows&&rows.length){ LS.set('attendance',rows); renderMgrAttCalendar(); renderMgrAttBtn('mgr-profile-att-wrap'); } })
+      .catch(function(){});
+  }
 }
 
 // ════ MANAGER OWN CASH-IN ════
