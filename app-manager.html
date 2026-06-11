@@ -2189,6 +2189,7 @@ function _sheetToTable(name){
 // ── MySalon Auth — reads from localStorage (persists across navigation) ──
 var SESSION_PHONE = localStorage.getItem('ms_phone') || sessionStorage.getItem('ms_phone') || '';
 var SESSION_ROLE  = localStorage.getItem('ms_role')  || sessionStorage.getItem('ms_role')  || '';
+var SESSION_STAFF_ID = localStorage.getItem('ms_staff_id') || sessionStorage.getItem('ms_staff_id') || '';
 var MS_TENANT_ID  = localStorage.getItem('ms_tenant_id') || sessionStorage.getItem('ms_tenant_id') || '';
 var MS_SLUG       = localStorage.getItem('ms_slug') || sessionStorage.getItem('ms_slug') || new URLSearchParams(location.search).get('salon') || '';
 
@@ -2371,7 +2372,7 @@ function _initApp(){
   var staff=LS.get('staff')||[];
   ME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
-  if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
+  if(!ME){ ME={id:SESSION_STAFF_ID||sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
   mySalonId = ME.salonId;
   var salons = LS.get('salons') || [];
 
@@ -2913,7 +2914,7 @@ function renderMgrProfile(){
     }
     if(!ME){
       // Build a minimal ME from session storage so profile still renders
-      ME={id:sessionStorage.getItem('ms_tenant_id')||localStorage.getItem('ms_tenant_id')||'',
+      ME={id:SESSION_STAFF_ID||sessionStorage.getItem('ms_tenant_id')||localStorage.getItem('ms_tenant_id')||'',
           name:sessionStorage.getItem('ms_user_name')||localStorage.getItem('ms_user_name')||'Manager',
           phone:SESSION_PHONE||'',role:'manager',
           salonId:sessionStorage.getItem('ms_salon_id')||localStorage.getItem('ms_salon_id')||''};
@@ -6475,7 +6476,15 @@ function renderPNL(){
       .catch(function(){ return LS.get('pnlOvertime')||[]; }),
     new Promise(function(resolve){
       loadFranchiseInputs(month, function(){ resolve(); });
-    })
+    }),
+    sbSelect('att_overrides', 'month=eq.'+encodeURIComponent(month))
+      .then(function(rows){
+        (rows||[]).forEach(function(r){
+          var sid=r.staff_id||r.staffId||'';
+          if(sid) LS.set('att_'+sid+'_'+month,{present:Number(r.present||0),half:Number(r.half||0),absent:Number(r.absent||0)});
+        });
+        return rows||[];
+      }).catch(function(){ return []; })
   ]).then(function(){
     if(pnlEl) pnlEl.style.opacity='1';
     _doRenderPNL(month);
@@ -6519,10 +6528,10 @@ function _doRenderPNL(month){
         else if(_recs.some(function(r){return r.type==='in';})) _half++;
       }
     }
-    var _monthSal = Math.round(fs*(_present+_half*0.5)/26);
+    var _monthSal = Math.round(fs*(_present+_half*0.5)/_pnlDays);
     totalSalary += _monthSal;
     totalFood   += fm;
-    if(fs) salaryDetail.push(u.name+': '+fmtINR(_monthSal)+' ('+_present+' full+'+_half+' half/26d)');
+    if(fs) salaryDetail.push(u.name+': '+fmtINR(_monthSal)+' ('+_present+' full+'+_half+' half/'+_pnlDays+'d)');
   });
 
   // ── Incentives + OT — from dedicated tables (entered by Franchise Owner) ──
@@ -6533,7 +6542,7 @@ function _doRenderPNL(month){
 
   // Barber incentives = auto-calculated: max(0, (monthly sales - fixed salary) * 10%)
   var barberIncentives = 0;
-  myStaff.filter(function(u){ return u.role==='stylist'||role==='barber'; }).forEach(function(u){
+  myStaff.filter(function(u){ return u.role==='stylist'||u.role==='barber'; }).forEach(function(u){
     var fs2 = Number(u.fixedSalary||0);
     var barberSales = entries.filter(function(e){ return String(e.barberId)===String(u.id); })
       .reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); }, 0);
