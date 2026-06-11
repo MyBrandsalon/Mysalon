@@ -1987,7 +1987,13 @@ var SB = {
     function _ts(table){ return _tq ? table+'?'+_tq : table; }
     return Promise.all([
       sbSelect('staff',        _tq),
-      sbSelect('salons',       _tq),
+      // salons table has NO tenant_id column — fetch the specific salon by ID from session
+      (function(){
+        var _sid = localStorage.getItem('ms_salon_id') || sessionStorage.getItem('ms_salon_id') || '';
+        if(_sid) return sbSelect('salons','id=eq.'+encodeURIComponent(_sid));
+        // Fallback: fetch all (superadmin style) — filter in applyRestoredData by staff's salonId
+        return sbSelect('salons','');
+      })(),
       sbSelect('customers',    _tq),
       sbSelect('entries',      _tq),
       sbSelect('cash_in',      _tq),
@@ -1999,7 +2005,7 @@ var SB = {
       sbSelect('mgr_cash_in',  _tq),
       sbSelect('mgr_expenses', _tq),
       sbSelect('deductions',   _tq),
-      sbSelect('att_overrides',_tq)
+      sbSelect('att_overrides',_tq || '')  // att_overrides uses staff_id, not tenant_id directly
     ]).then(function(results){
       return {
         staff:        results[0]  || [],
@@ -2374,15 +2380,27 @@ function _initApp(){
   ME=staff.find(function(u){return _normPh(u.phone)===_normPh(SESSION_PHONE)&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
   if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
   if(!ME){ ME={id:SESSION_STAFF_ID||sessionStorage.getItem('ms_staff_id')||localStorage.getItem('ms_staff_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
-  mySalonId = ME.salonId;
+  mySalonId = ME.salonId || sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
+  ME.salonId = mySalonId;
   var salons = LS.get('salons') || [];
 
-  // For owners: salonId may be empty — pick first salon in their tenant
-  var salon = salons.find(function(s){ return s.id === mySalonId; });
+  // For owners/managers: salonId may be empty — pick matching salon or first
+  var salon = salons.find(function(s){ return String(s.id) === String(mySalonId); });
   if(!salon && salons.length) {
     salon     = salons[0];
     mySalonId = salon.id;
     ME.salonId = mySalonId;
+  }
+  // If still no salon in cache, fetch directly by ID in background then re-init
+  if(!salon && mySalonId) {
+    sbSelect('salons','id=eq.'+encodeURIComponent(mySalonId)).then(function(rows){
+      if(rows&&rows.length){
+        var cur=LS.get('salons')||[];
+        if(!cur.find(function(s){return s.id===rows[0].id;})) cur.push(rows[0]);
+        LS.set('salons',cur);
+        _initApp();
+      }
+    }).catch(function(){});
   }
 
   // Fallback to tenant name from session if salons not loaded yet

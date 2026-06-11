@@ -106,7 +106,7 @@ function doLogin(){
   _get('staff?tenant_id=eq.'+encodeURIComponent(_tenant.id)+
        '&phone=eq.'+encodeURIComponent(phone)+
        '&role=in.(manager,owner)'+
-       '&select=id,name,phone,role,pin,salon_id,salonId,active')
+       '&select=id,name,phone,role,login_pin,loginPin,pin,salon_id,salonId,active')
   .then(function(rows){
     btn.disabled=false; btn.textContent='Login →';
     if(!rows||rows.code||!rows.length){
@@ -114,7 +114,7 @@ function doLogin(){
       return;
     }
     var u = rows.find(function(r){ return r.active!==false; }) || rows[0];
-    var storedPin = String(u.pin||'').trim();
+    var storedPin = String(u.login_pin||u.loginPin||u.pin||'').trim();
     if(!storedPin || storedPin!==pin){
       showErr('Wrong PIN.'); document.getElementById('pinInput').value=''; return;
     }
