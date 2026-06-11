@@ -1711,62 +1711,85 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- ════ MY PROFILE TAB ════ -->
 <div class="panel" id="pn-profile">
-  <!-- Clock In/Out -->
-  <div class="profile-section" style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">⏱ Attendance</div>
+
+  <!-- PROFILE HEADER -->
+  <div style="background:var(--accent);border-radius:var(--r);padding:16px;margin-bottom:12px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+    <div id="prof-name"  style="font-size:20px;font-weight:800;color:#fff;font-family:var(--HF);letter-spacing:1px">—</div>
+    <div id="prof-phone" style="font-size:13px;color:rgba(255,255,255,.75);margin-top:2px">—</div>
+    <span id="prof-role" style="display:inline-block;margin-top:8px;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;text-transform:uppercase;letter-spacing:1px">Manager</span>
+    <div id="prof-salon" style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px">📍 —</div>
+  </div>
+
+  <!-- CLOCK IN/OUT -->
+  <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">⏱ Today's Attendance</div>
     <div id="mgr-profile-att-wrap"></div>
   </div>
 
-  <!-- Attendance Calendar -->
+  <!-- ATTENDANCE CALENDAR -->
   <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">📅 My Attendance</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">📅 Attendance</div>
       <div style="display:flex;align-items:center;gap:6px">
-        <button onclick="shiftMgrAttMonth(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
-        <span id="mgr-att-month-label" style="font-size:12px;font-weight:700;color:var(--white);min-width:80px;text-align:center"></span>
-        <button onclick="shiftMgrAttMonth(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
+        <button onclick="shiftMgrAttMonth(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1;font-family:var(--BF)">‹</button>
+        <span id="mgr-att-month-label" style="font-size:12px;font-weight:700;color:var(--white);min-width:90px;text-align:center"></span>
+        <button onclick="shiftMgrAttMonth(1)"  style="background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:var(--rs);width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1;font-family:var(--BF)">›</button>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px">
-      <div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">S</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">M</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">T</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">W</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">T</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">F</div><div style="text-align:center;font-size:9px;font-weight:800;color:var(--muted2)">S</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;text-align:center">
+      <div style="font-size:9px;font-weight:800;color:var(--muted2)">Su</div><div style="font-size:9px;font-weight:800;color:var(--muted2)">Mo</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted2)">Tu</div><div style="font-size:9px;font-weight:800;color:var(--muted2)">We</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted2)">Th</div><div style="font-size:9px;font-weight:800;color:var(--muted2)">Fr</div>
+      <div style="font-size:9px;font-weight:800;color:var(--muted2)">Sa</div>
     </div>
     <div id="mgr-att-calendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
-    <div style="display:flex;gap:8px;margin-top:8px;font-size:10px">
-      <span style="color:var(--accent)">■ Present</span>
-      <span style="color:var(--warn)">■ Half Day</span>
-      <span style="color:var(--danger)">■ Absent</span>
+    <div style="display:flex;gap:12px;margin-top:10px">
+      <span style="font-size:10px;color:var(--accent)">■ Present</span>
+      <span style="font-size:10px;color:var(--warn)">■ Half Day</span>
+      <span style="font-size:10px;color:var(--danger)">■ Absent</span>
     </div>
-    <div style="display:flex;gap:12px;margin-top:8px">
-      <div style="text-align:center"><div id="mgr-att-present" style="font-size:18px;font-weight:800;color:var(--accent)">0</div><div style="font-size:9px;color:var(--muted2)">Present</div></div>
-      <div style="text-align:center"><div id="mgr-att-half" style="font-size:18px;font-weight:800;color:var(--warn)">0</div><div style="font-size:9px;color:var(--muted2)">Half</div></div>
-      <div style="text-align:center"><div id="mgr-att-absent" style="font-size:18px;font-weight:800;color:var(--danger)">0</div><div style="font-size:9px;color:var(--muted2)">Absent</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;text-align:center">
+      <div style="background:rgba(0,196,140,.08);border-radius:var(--rs);padding:8px">
+        <div id="mgr-att-present" style="font-size:22px;font-weight:800;color:var(--accent);font-family:var(--HF)">0</div>
+        <div style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase">Present</div>
+      </div>
+      <div style="background:rgba(194,65,12,.08);border-radius:var(--rs);padding:8px">
+        <div id="mgr-att-half"    style="font-size:22px;font-weight:800;color:var(--warn);font-family:var(--HF)">0</div>
+        <div style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase">Half</div>
+      </div>
+      <div style="background:rgba(220,53,69,.08);border-radius:var(--rs);padding:8px">
+        <div id="mgr-att-absent"  style="font-size:22px;font-weight:800;color:var(--danger);font-family:var(--HF)">0</div>
+        <div style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase">Absent</div>
+      </div>
     </div>
-    <div id="mgr-att-day-detail" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+    <div id="mgr-att-day-detail" style="margin-top:8px;font-size:12px;color:var(--muted);min-height:18px"></div>
   </div>
 
-  <!-- Advance Taken -->
+  <!-- SALARY -->
   <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px">💳 Advance Taken</div>
-    <div style="display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap">
-      <input type="date" class="fi" id="mgr-adv-date" style="flex:1.5;min-width:120px">
-      <input type="number" class="fi" id="mgr-adv-amt" placeholder="₹ Amount" min="0" inputmode="numeric" style="flex:1;min-width:80px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">💰 My Salary</div>
+      <input type="month" id="mgr-sal-month" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:12px;padding:4px 8px;outline:none;font-family:var(--BF)" onchange="mgrSalMonthChanged()">
+    </div>
+    <div id="mgr-salary-breakdown"><div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Loading salary…</div></div>
+  </div>
+
+  <!-- ADVANCES -->
+  <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:12px">💳 Advance Taken</div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:8px;margin-bottom:8px">
+      <input type="date"   id="mgr-adv-date" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:13px;padding:8px 10px;outline:none;font-family:var(--BF);width:100%;box-sizing:border-box">
+      <input type="number" id="mgr-adv-amt"  placeholder="Amount" min="0" inputmode="numeric" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--white);font-size:13px;padding:8px 10px;outline:none;font-family:var(--BF);width:100%;box-sizing:border-box">
     </div>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button id="mgr-adv-mode-cash" onclick="setMgrAdvMode('cash')" style="flex:1;padding:8px;border-radius:var(--rs);border:1.5px solid var(--accent);background:rgba(0,196,140,.15);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">💵 Cash</button>
-      <button id="mgr-adv-mode-phonePe" onclick="setMgrAdvMode('phonePe')" style="flex:1;padding:8px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">📱 PhonePe</button>
-      <button onclick="addMgrAdvance()" style="padding:8px 14px;background:rgba(109,40,217,.12);border:1.5px solid rgba(109,40,217,.3);color:var(--purple);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">+ Add</button>
+      <button id="mgr-adv-mode-cash"    onclick="setMgrAdvMode('cash')"    style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--accent);background:rgba(0,196,140,.12);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">💵 Cash</button>
+      <button id="mgr-adv-mode-phonePe" onclick="setMgrAdvMode('phonePe')" style="flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">📱 PhonePe</button>
+      <button onclick="addMgrAdvance()"  style="padding:9px 16px;background:rgba(109,40,217,.1);border:1.5px solid rgba(109,40,217,.3);color:var(--purple);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">+ Add</button>
     </div>
     <div id="mgr-adv-log"></div>
   </div>
 
-  <!-- Salary Calculator -->
-  <div style="background:var(--surface);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">💰 My Salary</div>
-      <input type="month" id="mgr-sal-month" class="fi" style="width:auto;padding:4px 8px;font-size:12px" onchange="mgrSalMonthChanged()">
-    </div>
-    <div id="mgr-salary-breakdown"></div>
-  </div>
 </div>
 
 <!-- ════ KPI PANEL — MANAGER ════ -->
@@ -2636,33 +2659,6 @@ function showTab(tab){
 }
 
 // ── MANAGER CLOCK IN/OUT ──
-function renderMgrAttBtn(wrapId){
-  var el=document.getElementById(wrapId);
-  if(!el)return;
-  var log=LS.get('attendance')||[];
-  var todayRec=log.filter(function(r){return _isTodayEntry(r)&&String(r.barberId)===String(ME.id);});
-  var lastIn=null,lastOut=null;
-  todayRec.forEach(function(r){if(r.type==='in')lastIn=r;if(r.type==='out')lastOut=r;});
-  var isIn=lastIn&&(!lastOut||lastIn.ts>lastOut.ts);
-  var html='<div style="background:var(--surface2);border-radius:var(--rs);padding:9px 12px;border:1px solid rgba(0,0,0,.06)">';
-  html+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">';
-  if(!isIn){
-    html+='<button onclick="recordMgrAtt(\'in\')" style="padding:8px 20px;background:rgba(0,196,140,.15);border:1.5px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--BF)">🟢 Clock In</button>';
-  } else {
-    html+='<button onclick="recordMgrAtt(\'out\')" style="padding:8px 20px;background:rgba(220,53,69,.1);border:1.5px solid var(--danger);color:var(--danger);border-radius:var(--rs);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--BF)">🔴 Clock Out</button>';
-  }
-  html+='</div>';
-  if(todayRec.length){
-    html+='<div style="display:flex;gap:14px;flex-wrap:wrap">';
-    var inRecs=todayRec.filter(function(r){return r.type==='in';});
-    var outRecs=todayRec.filter(function(r){return r.type==='out';});
-    if(inRecs.length) html+='<span style="font-size:11px;color:var(--accent)">🟢 In: '+inRecs.map(function(r){return r.time;}).join(', ')+'</span>';
-    if(outRecs.length) html+='<span style="font-size:11px;color:var(--danger)">🔴 Out: '+outRecs.map(function(r){return r.time;}).join(', ')+'</span>';
-    html+='</div>';
-  }
-  html+='</div>';
-  el.innerHTML=html;
-}
 function recordMgrAtt(type){
   var now=new Date();
   var rec={
@@ -2701,12 +2697,50 @@ function recordMgrAtt(type){
 
 // ── MANAGER PROFILE ──
 var _mgrAttYear=new Date().getFullYear(), _mgrAttMonth=new Date().getMonth()+1;
-function shiftMgrAttMonth(dir){
-  _mgrAttMonth+=dir;
-  if(_mgrAttMonth>12){_mgrAttMonth=1;_mgrAttYear++;}
-  if(_mgrAttMonth<1){_mgrAttMonth=12;_mgrAttYear--;}
-  renderMgrAttCalendar();
+var _mgrAdvMode = 'cash';
+var _mgrAttYear  = new Date().getFullYear();
+var _mgrAttMonth = new Date().getMonth()+1;
+
+function _renderProfileHeader(){
+  if(!ME) return;
+  var salons=LS.get('salons')||[];
+  var salon=salons.find(function(s){return String(s.id)===String(mySalonId);});
+  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  sv('prof-name',ME.name||'Manager');
+  sv('prof-phone',ME.phone||'');
+  sv('prof-role',(ME.role||'manager').charAt(0).toUpperCase()+(ME.role||'manager').slice(1));
+  sv('prof-salon',salon?'📍 '+salon.name:(mySalonName?'📍 '+mySalonName:''));
 }
+
+function renderMgrAttBtn(wrapId){
+  var el=document.getElementById(wrapId);if(!el||!ME)return;
+  var log=LS.get('attendance')||[];
+  var todayS=todayISO();
+  var todayRecs=log.filter(function(r){return _normDate(r.date||'')===todayS&&String(r.barberId)===String(ME.id);});
+  var lastIn=null,lastOut=null;
+  todayRecs.forEach(function(r){if(r.type==='in')lastIn=r;if(r.type==='out')lastOut=r;});
+  var isIn=lastIn&&(!lastOut||lastIn.ts>lastOut.ts);
+  var tStr=function(ts){return ts?new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'-';};
+  var html='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  if(!isIn){
+    html+='<button onclick="recordMgrAtt(&quot;in&quot;)" style="flex:1;padding:10px 0;background:rgba(0,196,140,.12);border:1.5px solid var(--accent);color:var(--accent);border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--BF)">🟢 Clock In</button>';
+  }else{
+    html+='<button onclick="recordMgrAtt(&quot;out&quot;)" style="flex:1;padding:10px 0;background:rgba(220,53,69,.1);border:1.5px solid var(--danger);color:var(--danger);border-radius:var(--rs);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--BF)">🔴 Clock Out</button>';
+  }
+  html+='</div>';
+  if(todayRecs.length){
+    html+='<div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap">';
+    var ins=todayRecs.filter(function(r){return r.type==='in';});
+    var outs=todayRecs.filter(function(r){return r.type==='out';});
+    if(ins.length)  html+='<span style="font-size:11px;color:var(--accent);font-weight:600">🟢 In: '+ins.map(function(r){return tStr(r.ts);}).join(', ')+'</span>';
+    if(outs.length) html+='<span style="font-size:11px;color:var(--danger);font-weight:600">🔴 Out: '+outs.map(function(r){return tStr(r.ts);}).join(', ')+'</span>';
+    html+='</div>';
+  }else{
+    html+='<div style="margin-top:6px;font-size:11px;color:var(--muted)">Not clocked in today</div>';
+  }
+  el.innerHTML=html;
+}
+
 function renderMgrAttCalendar(){
   var yr=_mgrAttYear,mo=_mgrAttMonth;
   var days=new Date(yr,mo,0).getDate();
@@ -2717,273 +2751,173 @@ function renderMgrAttCalendar(){
   var todayD=(moStr===curMoStr?now.getDate():0);
   var present=0,half=0,absent=0;
   var lbl=document.getElementById('mgr-att-month-label');
-  if(lbl) lbl.textContent=new Date(yr,mo-1,1).toLocaleString('default',{month:'short',year:'numeric'});
-  var cal=document.getElementById('mgr-att-calendar');
-  if(!cal)return;
+  if(lbl) lbl.textContent=new Date(yr,mo-1,1).toLocaleString('default',{month:'long',year:'numeric'});
+  var cal=document.getElementById('mgr-att-calendar');if(!cal)return;
   var cells='';
-  for(var b=0;b<firstDow;b++) cells+='<div style="aspect-ratio:1;min-height:26px"></div>';
+  for(var b=0;b<firstDow;b++) cells+='<div style="aspect-ratio:1;min-height:28px"></div>';
   for(var d=1;d<=days;d++){
-    var ds=d+'/'+mo+'/'+yr;
-    var _dsISO2=yr+'-'+(mo<10?'0':'')+mo+'-'+(d<10?'0':'')+d;
-    var recs=log.filter(function(r){return (r.date===ds||r.date===_dsISO2||_normDate(r.date||'')===_dsISO2)&&String(r.barberId)===String(ME.id);});
-    var hasIn=recs.some(function(r){return r.type==='in';}),hasOut=recs.some(function(r){return r.type==='out';});
-    var bg,col;
-    if(hasIn&&hasOut){bg='rgba(0,196,140,.25)';col='var(--accent)';present++;}
-    else if(hasIn){bg='rgba(232,166,66,.2)';col='var(--warn)';half++;}
-    else if(d<todayD||moStr<curMoStr){bg='rgba(224,107,91,.12)';col='var(--danger)';absent++;}
+    var iso=yr+'-'+(mo<10?'0':'')+mo+'-'+(d<10?'0':'')+d;
+    var ind=d+'/'+mo+'/'+yr;
+    var recs=log.filter(function(r){return (r.date===ind||r.date===iso||_normDate(r.date||'')===iso)&&String(r.barberId)===String(ME.id);});
+    var hi=recs.some(function(r){return r.type==='in';}),ho=recs.some(function(r){return r.type==='out';});
+    var bg,col,bdr='';
+    if(hi&&ho){bg='rgba(0,196,140,.25)';col='var(--accent)';present++;}
+    else if(hi){bg='rgba(194,65,12,.2)';col='var(--warn)';half++;}
+    else if(d<todayD||moStr<curMoStr){bg='rgba(220,53,69,.12)';col='var(--danger)';absent++;}
     else{bg='var(--surface2)';col='var(--muted2)';}
-    var border=d===todayD?'outline:1.5px solid var(--accent);outline-offset:-1px;':'';
-    cells+='<div onclick="mgrShowDayDetail(\''+ds+'\')" title="'+ds+'" style="aspect-ratio:1;min-height:26px;border-radius:4px;background:'+bg+';color:'+col+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer;'+border+'">'+d+'</div>';
+    if(d===todayD) bdr='outline:2px solid var(--accent);outline-offset:-2px;';
+    cells+='<div onclick="mgrShowDayDetail(this.dataset.iso)" data-iso="'+iso+'" style="aspect-ratio:1;min-height:28px;background:'+bg+';border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+col+';cursor:pointer;'+bdr+'">'+d+'</div>';
   }
   cal.innerHTML=cells;
-  var pe=document.getElementById('mgr-att-present'); if(pe) pe.textContent=present;
-  var he=document.getElementById('mgr-att-half');    if(he) he.textContent=half;
-  var ae=document.getElementById('mgr-att-absent');  if(ae) ae.textContent=absent;
-  // Clear day detail on month change
-  var dd=document.getElementById('mgr-att-day-detail'); if(dd) dd.innerHTML='';
-}
-function mgrShowDayDetail(ds){
-  var el=document.getElementById('mgr-att-day-detail');
-  if(!el)return;
-  var log=LS.get('attendance')||[];
-  var recs=log.filter(function(r){return r.date===ds&&String(r.barberId)===String(ME.id);});
-  if(!recs.length){el.innerHTML='<div style="padding:6px 0;color:var(--muted2);font-style:italic">No records for '+ds+'</div>';return;}
-  var inR=recs.filter(function(r){return r.type==='in';}),outR=recs.filter(function(r){return r.type==='out';});
-  el.innerHTML='<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 10px;margin-top:4px">'+
-    '<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+ds+'</div>'+
-    (inR.length?'<div style="color:var(--accent);font-size:12px">🟢 In: '+inR.map(function(r){return r.time;}).join(', ')+'</div>':'')+
-    (outR.length?'<div style="color:var(--danger);font-size:12px;margin-top:3px">🔴 Out: '+outR.map(function(r){return r.time;}).join(', ')+'</div>':'')+
-  '</div>';
+  var pe=document.getElementById('mgr-att-present');if(pe)pe.textContent=present;
+  var he=document.getElementById('mgr-att-half');if(he)he.textContent=half;
+  var ae=document.getElementById('mgr-att-absent');if(ae)ae.textContent=absent;
+  var dd=document.getElementById('mgr-att-day-detail');if(dd)dd.innerHTML='';
 }
 
-var _mgrAdvMode='cash';
+function shiftMgrAttMonth(dir){
+  _mgrAttMonth+=dir;
+  if(_mgrAttMonth>12){_mgrAttMonth=1;_mgrAttYear++;}
+  if(_mgrAttMonth<1){_mgrAttMonth=12;_mgrAttYear--;}
+  renderMgrAttCalendar();
+}
+
+function mgrShowDayDetail(iso){
+  var log=LS.get('attendance')||[];
+  var recs=log.filter(function(r){return _normDate(r.date||'')===iso&&String(r.barberId)===String(ME.id);});
+  var dd=document.getElementById('mgr-att-day-detail');if(!dd)return;
+  if(!recs.length){dd.textContent='No records for '+iso;return;}
+  var tStr=function(ts){return ts?new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):iso;};
+  dd.innerHTML=recs.map(function(r){var c=r.type==='in'?'var(--accent)':'var(--danger)';return '<span style="color:'+c+';font-weight:600;margin-right:10px">'+(r.type==='in'?'🟢 In':'🔴 Out')+' '+tStr(r.ts)+'</span>';}).join('');
+}
+
+function renderMgrSalary(){
+  var el=document.getElementById('mgr-salary-breakdown');if(!el)return;
+  var moEl=document.getElementById('mgr-sal-month');
+  var moVal=moEl?moEl.value:new Date().toISOString().slice(0,7);
+  if(!moVal)return;
+  var yr=parseInt(moVal.split('-')[0]),m=parseInt(moVal.split('-')[1]);
+  var dim=new Date(yr,m,0).getDate();
+  var mName=new Date(yr,m-1,1).toLocaleString('default',{month:'long',year:'numeric'});
+  var staff=LS.get('staff')||[];
+  var me=staff.find(function(u){return String(u.id)===String(ME.id);})||{};
+  var fs=Number(me.fixedSalary||me.fixed_salary||me.base_salary||me.salary||0);
+  var fm=Number(me.foodMoney||me.food_money||me.food||0);
+  var cm=Number(me.cleaningMoney||me.cleaning_money||0);
+  var attOvr=LS.get('att_'+ME.id+'_'+moVal);
+  var present=0,half=0;
+  if(attOvr&&(attOvr.present!=null||attOvr.half!=null)){
+    present=Number(attOvr.present||0);half=Number(attOvr.half||0);
+  }else{
+    var attLog=LS.get('attendance')||[];
+    for(var d=1;d<=dim;d++){
+      var iso=yr+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+      var ind=d+'/'+m+'/'+yr;
+      var recs=attLog.filter(function(r){return (r.date===ind||r.date===iso||_normDate(r.date||'')===iso)&&String(r.barberId)===String(ME.id);});
+      var hi=recs.some(function(r){return r.type==='in';}),ho=recs.some(function(r){return r.type==='out';});
+      if(hi&&ho)present++;else if(hi)half++;
+    }
+  }
+  var effectiveDays=present+(half*0.5);
+  var monthSal=dim>0?Math.round(fs*effectiveDays/dim):0;
+  var otRows=(LS.get('pnlOvertime')||[]).filter(function(r){return String(r.staff_id||r.staffId||'')===String(ME.id);});
+  var totalOT=otRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var incRows=(LS.get('pnlIncentives')||[]).filter(function(r){return String(r.staff_id||r.staffId||'')===String(ME.id);});
+  var incentive=incRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var supaDeds=(LS.get('deductions')||[]).filter(function(r){return String(r.staff_id||r.staffId||'')===String(ME.id)&&r.month===moVal;});
+  var regularDeds=supaDeds.filter(function(r){return r.desc!=='__OT__'&&r.desc!=='__INC__';});
+  var totalDed=regularDeds.reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var advs=(LS.get('advances')||[]).filter(function(r){return String(r.barberId)===String(ME.id)&&_normDate(r.date||'').slice(0,7)===moVal;});
+  var totalAdv=advs.reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var net=monthSal+fm+cm+incentive+totalOT-totalDed-totalAdv;
+  function row(lbl,val,col,sub){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;color:var(--white)">'+lbl+'</div>'+(sub?'<div style="font-size:10px;color:var(--muted)">'+sub+'</div>':'')+'</div><span style="font-size:14px;font-weight:700;color:'+(col||'var(--white)')+'">'+fmtINR(val)+'</span></div>';}
+  var html='<div style="background:var(--surface2);border-radius:var(--rs);padding:6px 12px;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;display:inline-block">'+mName+'</div>';
+  html+=row('Fixed Salary',fs,'var(--white)',dim+' working days in month');
+  html+=row('Prorated Salary',monthSal,'var(--white)',present+' full + '+half+' half days attended');
+  html+=row('Food Allowance',fm,'var(--accent)');
+  html+=row('Cleaning Allowance',cm,'var(--accent)');
+  if(incentive>0)  html+=row('Incentives',incentive,'var(--accent)');
+  if(totalOT>0)    html+=row('Overtime',totalOT,'var(--accent)');
+  if(totalDed>0)   html+=row('Deductions',-totalDed,'var(--danger)');
+  if(totalAdv>0)   html+=row('Advances',-totalAdv,'var(--danger)');
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;margin-top:4px"><div style="font-size:13px;font-weight:800;color:var(--white)">Net Salary</div><span style="font-size:20px;font-weight:800;color:'+(net>=0?'var(--accent)':'var(--danger)')+';font-family:var(--HF)">'+fmtINR(net)+'</span></div>';
+  el.innerHTML=html;
+}
+
+function mgrFetchSalaryData(mo,cb){
+  if(!ME||!ME.id){if(cb)cb();return;}
+  Promise.all([
+    sbSelect('incentives','staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];}),
+    sbSelect('overtime','staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];}),
+    sbSelect('deductions','staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];})
+  ]).then(function(res){
+    LS.set('pnlIncentives',res[0]||[]);
+    LS.set('pnlOvertime',res[1]||[]);
+    var deds=res[2]||[];
+    LS.set('deductions',deds);
+    if(deds.length)LS.set('ded_'+ME.id+'_'+mo,deds.map(function(r){return{desc:r.desc,amount:r.amount};}));
+    if(cb)cb();
+  }).catch(function(){if(cb)cb();});
+}
+
+function mgrSalMonthChanged(){
+  var mo=(document.getElementById('mgr-sal-month')||{}).value||new Date().toISOString().slice(0,7);
+  var sbr=document.getElementById('mgr-salary-breakdown');
+  if(sbr)sbr.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Loading...</div>';
+  mgrFetchSalaryData(mo,renderMgrSalary);
+}
+
+function renderMgrAdvLog(){
+  var el=document.getElementById('mgr-adv-log');if(!el)return;
+  var log=(LS.get('advances')||[]).filter(function(r){return String(r.barberId)===String(ME.id);});
+  if(!log.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2);font-style:italic;padding:6px 0">No advances recorded.</div>';return;}
+  var total=log.reduce(function(a,r){return a+Number(r.amount||0);},0);
+  var rev=log.slice().reverse();
+  el.innerHTML=rev.map(function(r,ri){
+    var oi=log.length-1-ri;
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:12px;color:var(--white);font-weight:600">'+r.date+'</div><div style="font-size:11px;color:var(--muted)">'+(r.mode==='phonePe'?'📱 PhonePe':'💵 Cash')+'</div></div><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--danger);font-weight:700;font-size:13px">−'+fmtINR(r.amount)+'</span><button onclick="deleteMgrAdvance('+oi+')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px">✕</button></div></div>';
+  }).join('')+'<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:800;color:var(--white);border-top:2px solid var(--border);margin-top:4px"><span>Total</span><span style="color:var(--danger)">−'+fmtINR(total)+'</span></div>';
+}
+
 function setMgrAdvMode(mode){
   _mgrAdvMode=mode;
-  document.getElementById('mgr-adv-mode-cash').style.borderColor   = mode==='cash'?'var(--accent)':'var(--border)';
-  document.getElementById('mgr-adv-mode-cash').style.background     = mode==='cash'?'rgba(0,196,140,.15)':'var(--surface2)';
-  document.getElementById('mgr-adv-mode-cash').style.color          = mode==='cash'?'var(--accent)':'var(--muted)';
-  document.getElementById('mgr-adv-mode-phonePe').style.borderColor = mode==='phonePe'?'var(--accent)':'var(--border)';
-  document.getElementById('mgr-adv-mode-phonePe').style.background  = mode==='phonePe'?'rgba(0,196,140,.15)':'var(--surface2)';
-  document.getElementById('mgr-adv-mode-phonePe').style.color       = mode==='phonePe'?'var(--accent)':'var(--muted)';
+  var c=document.getElementById('mgr-adv-mode-cash'),p=document.getElementById('mgr-adv-mode-phonePe');
+  if(c){c.style.borderColor=mode==='cash'?'var(--accent)':'var(--border)';c.style.background=mode==='cash'?'rgba(0,196,140,.12)':'var(--surface2)';c.style.color=mode==='cash'?'var(--accent)':'var(--muted)';}
+  if(p){p.style.borderColor=mode==='phonePe'?'var(--accent)':'var(--border)';p.style.background=mode==='phonePe'?'rgba(0,196,140,.12)':'var(--surface2)';p.style.color=mode==='phonePe'?'var(--accent)':'var(--muted)';}
 }
+
 function addMgrAdvance(){
   var date=document.getElementById('mgr-adv-date').value;
   var amt=parseFloat(document.getElementById('mgr-adv-amt').value)||0;
   if(!date){toast('Select date');return;}
   if(amt<=0){toast('Enter amount');return;}
   var rec={date:date,amount:amt,barberId:ME.id,mode:_mgrAdvMode,ts:Date.now()};
-  var log=LS.get('advances')||[];
-  log.push(rec);
-  LS.set('advances',log);
-  appendRowToSheet('Advances',rec,function(){});
+  var log=LS.get('advances')||[];log.push(rec);LS.set('advances',log);
+  fetch(SUPA_URL+'/rest/v1/advances',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},body:JSON.stringify({barberId:String(ME.id),date:date,amount:amt,mode:_mgrAdvMode,tenant_id:MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||''})}).catch(function(){});
   document.getElementById('mgr-adv-date').value='';
   document.getElementById('mgr-adv-amt').value='';
   renderMgrAdvLog();
-  renderMgrCashCounter();
-  toast('✓ Advance recorded');
-}
-function renderMgrAdvLog(){
-  var log=(LS.get('advances')||[]).filter(function(r){return String(r.barberId)===String(ME.id);});
-  var el=document.getElementById('mgr-adv-log');
-  if(!el)return;
-  if(!log.length){el.innerHTML='<span style="font-size:11px;color:var(--muted2);font-style:italic">No advances recorded</span>';return;}
-  var total=log.reduce(function(a,r){return a+Number(r.amount||0);},0);
-  // Use full log indices (not reversed) so edit/delete can find correct entry
-  var reversed=log.slice().reverse();
-  el.innerHTML=reversed.map(function(r,ri){
-    // Find original index in full log (needed for edit/delete)
-    var origIdx=log.length-1-ri;
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px">'+
-      '<span style="color:var(--muted);flex:1">'+r.date+' <span style="color:var(--white);font-weight:600">'+(r.mode==='phonePe'?'📱':'💵')+'</span></span>'+
-      '<span style="color:var(--danger);font-weight:700;margin-right:8px">−'+fmtINR(r.amount)+'</span>'+
-      '<button onclick="editMgrAdvance('+origIdx+')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px" title="Edit">✏️</button>'+
-      '<button onclick="deleteMgrAdvance('+origIdx+')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;padding:0 4px" title="Delete">🗑</button>'+
-    '</div>';
-  }).join('')+
-  '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;font-weight:800;border-top:1px solid rgba(255,255,255,.1);margin-top:4px"><span>Total</span><span style="color:var(--danger)">−'+fmtINR(total)+'</span></div>';
-}
-
-function editMgrAdvance(idx){
-  var log=LS.get('advances')||[];
-  var allMine=log.filter(function(r){return String(r.barberId)===String(ME.id);});
-  var r=allMine[idx];
-  if(!r)return;
-  // Load values back into the form
-  document.getElementById('mgr-adv-date').value=r.date||'';
-  document.getElementById('mgr-adv-amt').value=r.amount||'';
-  setMgrAdvMode(r.mode||'cash');
-  // Remove old entry from LS (will be re-added on save)
-  var fullIdx=log.indexOf(r);
-  if(fullIdx>-1) log.splice(fullIdx,1);
-  LS.set('advances',log);
-  // Delete from Supabase if it has an id
-  if(r.id) sbDelete('advances',r.id).catch(function(){});
-  renderMgrAdvLog();
-  renderMgrCashCounter();
-  toast('✏️ Edit the entry and click + Add to save');
+  toast('Advance recorded');
 }
 
 function deleteMgrAdvance(idx){
-  if(!confirm('Delete this advance entry?'))return;
-  var log=LS.get('advances')||[];
-  var allMine=log.filter(function(r){return String(r.barberId)===String(ME.id);});
-  var r=allMine[idx];
-  if(!r)return;
-  var fullIdx=log.indexOf(r);
-  if(fullIdx>-1) log.splice(fullIdx,1);
-  LS.set('advances',log);
-  if(r.id) sbDelete('advances',r.id).catch(function(){});
-  renderMgrAdvLog();
-  renderMgrCashCounter();
-  toast('Advance deleted');
-}
-function mgrFetchSalaryData(mo, cb){
-  // Fetch incentives, overtime and deductions for ME this month
-  Promise.all([
-    sbSelect('incentives','staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];}),
-    sbSelect('overtime',  'staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];}),
-    sbSelect('deductions','staff_id=eq.'+encodeURIComponent(ME.id)+'&month=eq.'+encodeURIComponent(mo)).catch(function(){return[];})
-  ]).then(function(res){
-    LS.set('pnlIncentives', res[0]||[]);
-    LS.set('pnlOvertime',   res[1]||[]);
-    // Write deductions to both flat key and ded_ key
-    var deds=res[2]||[];
-    LS.set('deductions', deds);
-    if(deds.length) LS.set('ded_'+ME.id+'_'+mo, deds.map(function(r){return {desc:r.desc,amount:r.amount};}));
-    if(cb) cb();
-  }).catch(function(){ if(cb) cb(); });
-}
-
-function mgrSalMonthChanged(){
-  var mo=document.getElementById('mgr-sal-month').value||new Date().toISOString().slice(0,7);
-  mgrFetchSalaryData(mo, renderMgrSalary);
-}
-function renderMgrSalary(){
-  var mo=document.getElementById('mgr-sal-month').value||new Date().toISOString().slice(0,7);
-  var yr=parseInt(mo.split('-')[0]),m=parseInt(mo.split('-')[1]);
-  var dim=new Date(yr,m,0).getDate();
-  var mName=new Date(yr,m-1,1).toLocaleString('default',{month:'long',year:'numeric'});
-
-  // ── Staff record (set by Franchise) ──
-  var staff=LS.get('staff')||[];
-  var me=staff.find(function(u){return String(u.id)===String(ME.id);})||{};
-  var fs=Number(me.fixedSalary||me.fixed_salary||me.base_salary||me.salary||0);
-  var fm=Number(me.foodMoney||me.food_money||me.food||0);
-  var cm=Number(me.cleaningMoney||me.cleaning_money||0);
-
-  // ── Attendance — from override or raw log ──
-  var attKey='att_'+ME.id+'_'+mo;
-  var attOvr=LS.get(attKey);
-  var present=0,half=0;
-  if(attOvr&&(attOvr.present!=null||attOvr.half!=null)){
-    present=Number(attOvr.present||0); half=Number(attOvr.half||0);
-  } else {
-    var attLog=LS.get('attendance')||[];
-    for(var d=1;d<=dim;d++){
-      var ds=d+'/'+m+'/'+yr;
-      var _dsISO=yr+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
-      var recs=attLog.filter(function(r){return (r.date===ds||r.date===_dsISO||_normDate(r.date||'')===_dsISO)&&String(r.barberId)===String(ME.id);});
-      var hi=recs.some(function(r){return r.type==='in';}),ho=recs.some(function(r){return r.type==='out';});
-      if(hi&&ho)present++;else if(hi)half++;
-    }
-  }
-
-  // ── Prorated Salary ──
-  var effectiveDays=present+half*0.5;
-  var monthSal=dim>0?Math.round(fs*effectiveDays/dim):0;
-
-  // ── OT — from overtime table ──
-  var allDedRaw=LS.get('ded_'+ME.id+'_'+mo)||[];
-  var supaDeds=(LS.get('deductions')||[]).filter(function(r){
-    return String(r.staff_id||r.staffId||'')===String(ME.id)&&r.month===mo;
-  });
-  // OT from dedicated overtime table
-  var overtimeRows=(LS.get('pnlOvertime')||[]).filter(function(r){
-    return String(r.staff_id||r.staffId||'')===String(ME.id);
-  });
-  var totalOT=overtimeRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
-  // Fallback to deductions __OT__ if overtime table not yet populated
-  if(!totalOT){
-    var otEntry=allDedRaw.find(function(r){return r.desc==='__OT__';});
-    if(!otEntry){var supaOT=supaDeds.find(function(r){return r.desc==='__OT__';});if(supaOT)otEntry=supaOT;}
-    totalOT=otEntry?Number(otEntry.amount||0):0;
-  }
-
-  // ── Incentive — from dedicated incentives table ──
-  var incentiveRows=(LS.get('pnlIncentives')||[]).filter(function(r){
-    return String(r.staff_id||r.staffId||'')===String(ME.id);
-  });
-  var incentive=incentiveRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
-  // Fallback to deductions __INC__ if incentives table not yet populated
-  if(!incentive){
-    var incEntry=allDedRaw.find(function(r){return r.desc==='__INC__';});
-    if(!incEntry){var supaInc=supaDeds.find(function(r){return r.desc==='__INC__';});if(supaInc)incEntry=supaInc;}
-    incentive=incEntry?Number(incEntry.amount||0):0;
-  }
-
-  // ── Regular Deductions (set by Franchise) — exclude legacy __OT__ and __INC__ ──
-  var regularDeds=supaDeds.filter(function(r){return r.desc!=='__OT__'&&r.desc!=='__INC__';});
-  if(!regularDeds.length) regularDeds=allDedRaw.filter(function(r){return r.desc!=='__OT__'&&r.desc!=='__INC__';});
-  var totalDed=regularDeds.reduce(function(a,r){return a+Number(r.amount||0);},0);
-
-  // ── Advances this month ──
-  var advances=(LS.get('advances')||[]).filter(function(r){
-    var d=r.date||'';
-    return String(r.barberId)===String(ME.id)&&(d.indexOf('-')>-1?d.slice(0,7)===mo:isCM_sal(d,m,yr));
-  });
-  var totalAdv=advances.reduce(function(a,r){return a+Number(r.amount||0);},0);
-
-  // ── Net Salary ──
-  var net=monthSal+fm+cm+incentive+totalOT-totalDed-totalAdv;
-
-  // ── Render ──
-  function row(lbl,val,col,sub){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px">'+
-      '<span style="color:var(--muted);flex:1">'+lbl+(sub?'<br><span style="font-size:10px;color:var(--muted2)">'+sub+'</span>':'')+'</span>'+
-      '<span style="font-weight:700;color:'+(col||'var(--white)')+'">'+val+'</span>'+
-    '</div>';
-  }
-
-  var el=document.getElementById('mgr-salary-breakdown');
-  if(!el)return;
-  el.innerHTML=
-    '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">'+mName+'</div>'+
-    // Prorated salary — prominent
-    '<div style="background:rgba(0,196,140,.08);border:1.5px solid rgba(0,196,140,.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px">'+
-      '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px">Prorated Salary</div>'+
-      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">'+
-        '<div style="font-family:var(--HF);font-size:30px;color:var(--accent);letter-spacing:1px;line-height:1">'+fmtINR(monthSal)+'</div>'+
-        '<div style="font-size:11px;color:var(--muted2);font-family:monospace;text-align:right">'+fmtINR(fs)+' × ('+present+'F+'+half+'H) / '+dim+'d</div>'+
-      '</div>'+
-    '</div>'+
-    // Component rows
-    row('Food Money',          fmtINR(fm),  'var(--accent)',  'Set by Franchise Owner')+
-    row('Cleaning Money',      fmtINR(cm),  'var(--accent)',  'Set by Franchise Owner')+
-    row('Incentives',    fmtINR(incentive), 'var(--blue)',   'Entered by Franchise Owner')+
-    row('Overtime (OT)', fmtINR(totalOT),   'var(--blue)',   'Entered by Franchise Owner')+
-    row('Deductions',   '−'+fmtINR(totalDed), 'var(--danger)', totalDed>0?regularDeds.map(function(r){return r.desc+': '+fmtINR(r.amount);}).join(' · '):'None this month')+
-    row('Advances',     '−'+fmtINR(totalAdv), 'var(--danger)', totalAdv>0?advances.map(function(r){return r.date+': '+fmtINR(r.amount);}).join(' · '):'None this month')+
-    // Net salary
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;margin-top:4px;border-top:1.5px solid rgba(255,255,255,.12)">'+
-      '<span style="font-size:13px;font-weight:800">Net Salary</span>'+
-      '<span style="font-family:var(--HF);font-size:24px;color:'+(net>=0?'var(--accent)':'var(--danger)')+'">'+fmtINR(net)+'</span>'+
-    '</div>'+
-    (fs===0?'<div style="margin-top:8px;font-size:11px;color:var(--warn);font-style:italic">⚠ Fixed salary not set — contact Franchise Owner.</div>':'');
-}
-
-// Helper: check if a d/m/yyyy date is in month m, year yr
-function isCM_sal(ds,m,yr){
-  var p=(ds||'').split('/');
-  return parseInt(p[1])===m&&parseInt(p[2])===yr;
+  if(!confirm('Delete this advance?'))return;
+  var log=LS.get('advances')||[];log.splice(idx,1);LS.set('advances',log);renderMgrAdvLog();
 }
 
 function renderMgrProfile(){
+  if(!ME){toast('Session error');return;}
+  _renderProfileHeader();
   renderMgrAttBtn('mgr-profile-att-wrap');
+  _mgrAttYear=new Date().getFullYear();_mgrAttMonth=new Date().getMonth()+1;
   renderMgrAttCalendar();
   renderMgrAdvLog();
-  var mo=document.getElementById('mgr-sal-month');
-  if(mo&&!mo.value) mo.value=new Date().toISOString().slice(0,7);
-  renderMgrSalary();
+  var moEl=document.getElementById('mgr-sal-month');
+  if(moEl&&!moEl.value)moEl.value=new Date().toISOString().slice(0,7);
+  var mo=(moEl&&moEl.value)||new Date().toISOString().slice(0,7);
+  var sbr=document.getElementById('mgr-salary-breakdown');
+  if(sbr)sbr.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Loading salary...</div>';
+  mgrFetchSalaryData(mo,renderMgrSalary);
 }
 
 // ════ MANAGER OWN CASH-IN ════
