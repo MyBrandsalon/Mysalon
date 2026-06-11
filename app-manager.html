@@ -2412,7 +2412,11 @@ function _initApp(){
   }
   renderDashboard();
   renderMgrAttBtn('mgr-att-btn-wrap');
-  showTab('dashboard');
+  // Only switch to dashboard on first load — if user already clicked a tab, don't override
+  var _activePanel = document.querySelector('.panel.on');
+  if(!_activePanel || _activePanel.id === 'pn-dashboard'){
+    showTab('dashboard');
+  }
 }
 (function autoLoad(){
   // ── Fetch tenant logo immediately ─────────────────────────
