@@ -66,7 +66,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 
 /* ── PANELS ── */
 .panel{display:none;padding:16px;padding-bottom:36px}
-.panel.on{display:block;animation:fi .22s ease}
+.panel.on{display:block;width:100%;min-height:1px;animation:fi .22s ease}
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* ── STAT GRID ── */
@@ -2823,6 +2823,19 @@ function deleteMgrAdvance(idx){
 }
 
 function renderMgrProfile(){
+  // ── DIAGNOSTIC: force panel visible & log its rect (helps debug blank-panel issue) ──
+  (function(){
+    var p = document.getElementById('pn-profile');
+    if(p){
+      p.style.removeProperty('display');
+      p.style.removeProperty('visibility');
+      p.style.removeProperty('opacity');
+      p.style.removeProperty('height');
+      p.style.removeProperty('width');
+      var r = p.getBoundingClientRect();
+      console.log('[MySalon] pn-profile rect at renderMgrProfile():', JSON.stringify({w:r.width,h:r.height,cls:p.className,disp:getComputedStyle(p).display}));
+    }
+  })();
   // Rescue ME from storage if not yet set (e.g. tab opened before boot completes)
   if(!ME){
     var _staff=LS.get('staff')||[];
