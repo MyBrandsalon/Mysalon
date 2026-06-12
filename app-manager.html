@@ -5376,7 +5376,9 @@ function _doRenderCustomers(){
   var visits = LS.get('visits')||[];
   var allE   = getEntries().filter(function(e){ return e.salonId===mySalonId; });
 
-  document.getElementById('cust-tbody').innerHTML=custs.map(function(c){
+  var _ctb = document.getElementById('cust-tbody');
+  if(!_ctb) return; // legacy element not present in MySalon UI — mgrRenderCustTable() handles the real list
+  _ctb.innerHTML=custs.map(function(c){
     var cv = visits.filter(function(v){return v.customerId===c.id;})
                    .sort(function(a,b){return b.date.localeCompare(a.date);});
     var billCount = allE.filter(function(e){return e.customerPhone===c.phone;}).length;
