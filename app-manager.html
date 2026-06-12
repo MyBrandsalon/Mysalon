@@ -1584,6 +1584,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     </div>
   </div>
 </div>
+</div>
 
 <!-- P&L PANEL -->
 <div class="panel" id="pn-pnl">
@@ -2824,25 +2825,7 @@ function deleteMgrAdvance(idx){
 
 function renderMgrProfile(){
   // ── DIAGNOSTIC: force panel visible & log its rect (helps debug blank-panel issue) ──
-  (function(){
-    var p = document.getElementById('pn-profile');
-    if(p){
-      p.style.removeProperty('display');
-      p.style.removeProperty('visibility');
-      p.style.removeProperty('opacity');
-      p.style.removeProperty('height');
-      p.style.removeProperty('width');
-      var r = p.getBoundingClientRect();
-      console.log('[MySalon] pn-profile rect at renderMgrProfile():', JSON.stringify({w:r.width,h:r.height,cls:p.className,disp:getComputedStyle(p).display}));
-      var el=p, depth=0;
-      while(el && depth<8){
-        var rr=el.getBoundingClientRect();
-        var cs=getComputedStyle(el);
-        console.log('[MySalon] ancestor', depth, el.id||el.className||el.tagName, JSON.stringify({w:rr.width,h:rr.height,disp:cs.display,vis:cs.visibility,pos:cs.position,ov:cs.overflow}));
-        el=el.parentElement; depth++;
-      }
-    }
-  })();
+  // (diagnostic removed)
   // Rescue ME from storage if not yet set (e.g. tab opened before boot completes)
   if(!ME){
     var _staff=LS.get('staff')||[];
