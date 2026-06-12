@@ -2378,8 +2378,24 @@ function _initApp(){
   var staff=LS.get('staff')||[];
   var _normPh=function(p){var s=String(p||'').replace(/[^0-9]/g,'');return s.length>10?s.slice(-10):s;};
   ME=staff.find(function(u){return _normPh(u.phone)===_normPh(SESSION_PHONE)&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
-  if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
-  if(!ME){ ME={id:SESSION_STAFF_ID||sessionStorage.getItem('ms_staff_id')||localStorage.getItem('ms_staff_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
+  // Try matching by SESSION_STAFF_ID too (covers cases where staff cache is from a different fetch order)
+  if(!ME && SESSION_STAFF_ID){
+    ME=staff.find(function(u){return String(u.id)===String(SESSION_STAFF_ID);});
+  }
+  if(!ME && SESSION_ROLE!=='owner' && staff.length>0){
+    // Staff list loaded but this user truly isn't in it — session is stale/invalid
+    sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return;
+  }
+  if(!ME){
+    // staff list not loaded yet (e.g. tenant_id missing on first boot) — build ME from session
+    // so the app (and Profile tab) can still render; will self-correct on next bootstrap.
+    ME={id:SESSION_STAFF_ID||sessionStorage.getItem('ms_staff_id')||localStorage.getItem('ms_staff_id')||'owner',
+        name:sessionStorage.getItem('ms_user_name')||'Owner',
+        phone:SESSION_PHONE,
+        role:(SESSION_ROLE==='manager'||SESSION_ROLE==='admin')?SESSION_ROLE:'owner',
+        salonId:sessionStorage.getItem('ms_salon_id')||localStorage.getItem('ms_salon_id')||'',
+        active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''};
+  }
   mySalonId = ME.salonId || sessionStorage.getItem('ms_salon_id') || localStorage.getItem('ms_salon_id') || '';
   ME.salonId = mySalonId;
   var salons = LS.get('salons') || [];
