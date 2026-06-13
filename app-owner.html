@@ -2343,9 +2343,11 @@ if(MS_SLUG) {
   var DISMISS_COOLDOWN_DAYS = 14;
   if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){if(r.scope.indexOf('/BB/')!==-1){r.unregister();}});});}
 if('serviceWorker' in navigator){
+    // Unregister any stale service workers to stop infinite fetch retry loops
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/Mysalon/service-worker.js')
-        .catch(function(err){ console.warn('[BB] SW registration failed:', err); });
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(r){ r.unregister(); });
+      });
     });
   }
   var isStandalone =
@@ -9112,7 +9114,7 @@ function saveMgrProfile(){
 function _renderMgrProfileList(){
   var el=document.getElementById('mgp-staff-list');if(!el)return;
   var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
-  var staff=(LS.get('staff')||[]).filter(function(s){return s.u.role==='manager'&&(String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenantId||s.tenant_id||'')===String(tid));});
+  var staff=(LS.get('staff')||[]).filter(function(s){return s.role==='manager'&&(String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenantId||s.tenant_id||'')===String(tid));});
   if(!staff.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No managers added yet</div>';return;}
   el.innerHTML=staff.map(function(s){
     var pin=s.pin||s.loginPin||'-';
@@ -9214,8 +9216,8 @@ function renderManageStaff(){
     return;
   }
   el.innerHTML=staff.map(function(s){
-    var roleColor = s.u.role==='manager'?'#1e3a5f':'#003D2B';
-    var roleLabel = s.u.role==='manager'?'Manager':'Stylist';
+    var roleColor = s.role==='manager'?'#1e3a5f':'#003D2B';
+    var roleLabel = s.role==='manager'?'Manager':'Stylist';
     return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
@@ -9448,7 +9450,7 @@ function dashRenderStylists(){
   var allE=getEntries();
   var staff=(LS.get('staff')||[]).filter(function(s){
     return (String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenant_id||s.tenantId||'')===String(MS_TENANT_ID||''))
-        && (s.u.role==='stylist'||s.u.role==='barber') && s.active!==false&&s.active!=='0'&&s.active!==0;
+        && (s.role==='stylist'||s.role==='barber') && s.active!==false&&s.active!=='0'&&s.active!==0;
   });
 
   var filtered, mo=_dashMonth||new Date().toISOString().slice(0,7);
@@ -9612,7 +9614,7 @@ function dashRenderOutletCard(entries, allE){
 
   var staff=(LS.get('staff')||[]).filter(function(s){
     return (String(s.salonId||s.salon_id||'')===String(mySalonId)||String(s.tenant_id||s.tenantId||'')===String(MS_TENANT_ID||''))
-        && (s.u.role==='stylist'||s.u.role==='barber')&&s.active!==false&&s.active!=='0'&&s.active!==0;
+        && (s.role==='stylist'||s.role==='barber')&&s.active!==false&&s.active!=='0'&&s.active!==0;
   });
 
   var rev=entries.reduce(function(s,e){return s+Number(e.total||0);},0);
