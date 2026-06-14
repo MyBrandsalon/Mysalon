@@ -6710,10 +6710,17 @@ function renderPNL(){
     })
   ]).then(function(){
     if(pnlEl) pnlEl.style.opacity='1';
-    _doRenderPNL(month);
-  }).catch(function(){
+    console.log('[PNL] Data loaded. mySalonId='+mySalonId+' month='+month);
+    try{ _doRenderPNL(month); }
+    catch(e){
+      console.error('[PNL] _doRenderPNL crashed:', e);
+      if(pnlEl) pnlEl.innerHTML='<div style="padding:32px;text-align:center;color:var(--danger)">P&L Error: '+e.message+'</div>';
+    }
+  }).catch(function(err){
     if(pnlEl) pnlEl.style.opacity='1';
-    _doRenderPNL(month);
+    console.error('[PNL] Promise.all failed:', err);
+    try{ _doRenderPNL(month); }
+    catch(e){ console.error('[PNL] _doRenderPNL crashed in catch:', e); }
   });
 }
 function _doRenderPNL(month){
