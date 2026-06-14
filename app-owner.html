@@ -2341,7 +2341,7 @@ if(MS_SLUG) {
 (function pwaSetup(){
   var DISMISS_KEY = 'ms_pwa_dismissed_at_owner';
   var DISMISS_COOLDOWN_DAYS = 14;
-  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){if(r.scope.indexOf('/BB/')!==-1){r.unregister();}});});}
+  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){if(r.scope.indexOf('/BB/')!==-1||r.scope.indexOf('/Mysalon/')===-1){r.unregister();}});});}
 if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
       navigator.serviceWorker.register('/Mysalon/service-worker.js')
@@ -6422,7 +6422,7 @@ function savePNLInputs(){
     eb_store:   val('pnl-eb-store'),
     eb_staff:   val('pnl-eb-staff'),
     maid:       val('pnl-maid'),
-    ads:        0, // auto from salon tab
+    ads:        val('pnl-ads'), // auto from salon tab
     extra_food: val('pnl-extra-food'),
     wifi:       val('pnl-wifi'),
     misc:       val('pnl-misc'),
@@ -6716,6 +6716,10 @@ function renderPNL(){
 }
 function _doRenderPNL(month){
 
+  // ── Helpers defined first so they're available throughout ──
+  function fINR(n){ return (n<0?'−₹':'₹')+Math.abs(Math.round(n)).toLocaleString('en-IN'); }
+  function colr(n){ return n>=0?'var(--accent,#00C48C)':'var(--danger,#FF6B5B)'; }
+
   var yr = parseInt(month.split('-')[0]);
   var mo = parseInt(month.split('-')[1]);
 
@@ -6880,8 +6884,6 @@ function _doRenderPNL(month){
   var projProfit = projRev - projOpex;
 
   // ── Render ──
-  function fINR(n){ return (n<0?'−₹':'₹')+Math.abs(Math.round(n)).toLocaleString('en-IN'); }
-  function colr(n){ return n>=0?'var(--accent,#00C48C)':'var(--danger,#FF6B5B)'; }
 
   // Salon header
   var hdr = document.getElementById('pnl-salon-header');
