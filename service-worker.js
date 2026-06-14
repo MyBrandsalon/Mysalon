@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────
 //  MySalon — Service Worker (minimal)
-//  Place at site root: /service-worker.js
+//  Place at: /Mysalon/service-worker.js
 //
 //  WHY THIS EXISTS
 //  Android (Chrome/Edge) won't trigger the install prompt unless the page
@@ -8,10 +8,9 @@
 //  actually need offline-first behavior here — we just need to satisfy
 //  the install criteria. So this SW does a network-only passthrough.
 //
-//  IF YOU WANT OFFLINE LATER
-//  Replace the fetch handler with a cache-first or stale-while-revalidate
-//  strategy. Keep an eye on Supabase API calls — those should NOT be cached
-//  (network-only with no-store) to avoid showing stale data.
+//  The fetch handler catches failures so Chrome doesn't log hundreds of
+//  uncaught promise rejections when requests fail (e.g. offline or
+//  when the app fires many concurrent requests).
 // ─────────────────────────────────────────────────────────────────────────
 
 const SW_VERSION = 'mysalon-v1';
@@ -27,7 +26,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-only passthrough. The handler must exist (even as a no-op-ish
-  // function) for Chrome to consider the PWA installable.
-  event.respondWith(fetch(event.request));
+  // Network-only passthrough with error handling.
+  // Without the .catch(), any failed fetch (network error, 404, offline)
+  // surfaces as an uncaught promise rejection in the console.
+  event.respondWith(
+    fetch(event.request).catch(function(err) {
+      // Let the browser handle the failure normally — don't swallow it
+      // silently, but also don't let it become an uncaught rejection.
+      return Response.error();
+    })
+  );
 });

@@ -9535,7 +9535,7 @@ renderDashboard = function(){
   setTimeout(function(){
     dashRenderKPIs();
     dashRenderStylists();
-    dashRenderCosmetics();
+    // dashRenderCosmetics called inside dashRender() — don't call here too
     // Hide old elements not needed
     var db=document.getElementById('dash-barbers');
     if(db) db.style.display='none';
