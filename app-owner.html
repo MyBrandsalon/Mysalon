@@ -5563,7 +5563,9 @@ function _doRenderCustomers(){
   var visits = LS.get('visits')||[];
   var allE   = getEntries().filter(function(e){ return e.salonId===mySalonId; });
 
-  document.getElementById('cust-tbody').innerHTML=custs.map(function(c){
+  var _custTbody = document.getElementById('cust-tbody');
+  if(!_custTbody) return;
+  _custTbody.innerHTML=custs.map(function(c){
     var cv = visits.filter(function(v){return v.customerId===c.id;})
                    .sort(function(a,b){return b.date.localeCompare(a.date);});
     var billCount = allE.filter(function(e){return e.customerPhone===c.phone;}).length;
@@ -9743,6 +9745,7 @@ function dashRenderOutletCard(entries, allE){
   });
 }
 
+var _cosLastFetch = 0;
 function dashRenderCosmetics(){
   var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
   if(_cosOrders&&_cosOrders.length){
@@ -9752,12 +9755,17 @@ function dashRenderCosmetics(){
     sv('dc-delivered',_cosOrders.filter(function(o){return o.status==='delivered';}).length);
     return;
   }
+  // Throttle: only hit the network once per 30 seconds
+  var now = Date.now();
+  if(now - _cosLastFetch < 30000) return;
+  _cosLastFetch = now;
   var tid=MS_TENANT_ID||localStorage.getItem('ms_tenant_id')||'';
   if(!tid) return;
   fetch(SUPA_URL+'/rest/v1/vendor_orders?tenant_id=eq.'+encodeURIComponent(tid)+'&select=id,status&limit=200',{
     headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
   }).then(function(r){return r.json();}).then(function(rows){
     if(!rows||!Array.isArray(rows)) return;
+    _cosOrders = rows; // cache so future renders skip the fetch
     sv('dc-pending',  rows.filter(function(o){return o.status==='pending';}).length);
     sv('dc-confirmed',rows.filter(function(o){return o.status==='confirmed';}).length);
     sv('dc-shipped',  rows.filter(function(o){return o.status==='shipped';}).length);
@@ -9765,13 +9773,15 @@ function dashRenderCosmetics(){
   }).catch(function(){});
 }
 
-// Hook into renderDashboard
+// Hook into renderDashboard — debounced to prevent rapid re-render storms
+var _dashRenderTimer = null;
 var _origRenderDashboard = renderDashboard;
 renderDashboard = function(){
   var mp=document.getElementById('dash-month-picker');
   if(mp&&!mp.value) mp.value=new Date().toISOString().slice(0,7);
   try{ _origRenderDashboard.apply(this,arguments); }catch(e){}
-  setTimeout(function(){ dashRender(); }, 150);
+  clearTimeout(_dashRenderTimer);
+  _dashRenderTimer = setTimeout(function(){ dashRender(); }, 300);
 };
 
 // Init on load
