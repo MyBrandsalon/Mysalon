@@ -7407,11 +7407,12 @@ var mgrQueueOpen=false;
 var mgrQueueRtWs=null;
 
 function _mqH(){return{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=representation'};}
-function _mqGet(p){return fetch(SUPA_URL+'/rest/v1/'+p,{headers:_mqH()}).then(function(r){return r.json();});}
+function _mqHGet(){return{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY};}
+function _mqGet(p){return fetch(SUPA_URL+'/rest/v1/'+p,{headers:_mqHGet()}).then(function(r){return r.json();});}
 function _mqPatch(p,b){return fetch(SUPA_URL+'/rest/v1/'+p,{method:'PATCH',headers:_mqH(),body:JSON.stringify(b)}).then(function(r){return r.json();});}
 function _mqPost(p,b){return fetch(SUPA_URL+'/rest/v1/'+p,{method:'POST',headers:_mqH(),body:JSON.stringify(b)}).then(function(r){return r.json();});}
 
-function todayMgrStr(){return new Date().toLocaleDateString('en-IN');}
+function todayMgrStr(){return new Date().toISOString().slice(0,10);} // ISO: 2026-06-15
 
 function loadMgrQueue(){
   if(!mySalonId) return;
