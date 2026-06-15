@@ -6730,6 +6730,19 @@ function _doRenderPNL(month){
   // ── Helpers defined first so they're available throughout ──
   function fINR(n){ return (n<0?'−₹':'₹')+Math.abs(Math.round(n)).toLocaleString('en-IN'); }
   function colr(n){ return n>=0?'var(--accent,#00C48C)':'var(--danger,#FF6B5B)'; }
+  // Parse both ISO (2026-06-05) and Indian (5/6/2026) date formats
+  function dateMatchesMo(dateStr, yr, mo){
+    var d = dateStr||'';
+    if(d.indexOf('-') !== -1){
+      // ISO format: YYYY-MM-DD
+      var p = d.split('-');
+      return parseInt(p[0])===yr && parseInt(p[1])===mo;
+    } else {
+      // Indian format: D/M/YYYY
+      var p = d.split('/');
+      return parseInt(p[1])===mo && parseInt(p[2])===yr;
+    }
+  }
 
   var yr = parseInt(month.split('-')[0]);
   var mo = parseInt(month.split('-')[1]);
@@ -6737,8 +6750,7 @@ function _doRenderPNL(month){
   // ── Revenue (from entries) — strict salon match ──
   var entries = getEntries().filter(function(e){
     if(String(e.salonId) !== String(mySalonId)) return false;
-    var p = (e.date||'').split('/');
-    return parseInt(p[1])===mo && parseInt(p[2])===yr;
+    return dateMatchesMo(e.date, yr, mo);
   });
   var revenue = entries.reduce(function(a,e){ return a+Number(e.phPay||0)+Number(e.cash||0); },0);
 
@@ -6816,10 +6828,16 @@ function _doRenderPNL(month){
     if(isWeekend) monthWeekends++; else monthWeekdays++;
     // Elapsed counts + revenues (for avg calculation)
     if(di<=todayDay){
-      // Use parseInt comparison to handle both padded (03/03/2026) and unpadded (3/3/2026) date formats
+      // Handle both ISO (2026-06-05) and Indian (5/6/2026) date formats
       var dayRev=entries.filter(function(e){
-        var p=(e.date||'').split('/');
-        return parseInt(p[0])===di && parseInt(p[1])===mo && parseInt(p[2])===yr;
+        var d=e.date||'';
+        if(d.indexOf('-')!==-1){
+          var p=d.split('-');
+          return parseInt(p[0])===yr && parseInt(p[1])===mo && parseInt(p[2])===di;
+        } else {
+          var p=d.split('/');
+          return parseInt(p[0])===di && parseInt(p[1])===mo && parseInt(p[2])===yr;
+        }
       }).reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
       if(isWeekend){ weekendRevs.push(dayRev); elapsedWeekends++; }
       else         { weekdayRevs.push(dayRev); elapsedWeekdays++; }
@@ -6868,8 +6886,11 @@ function _doRenderPNL(month){
 
   // ── Auto: Expenses = sum of ALL manager expenses for this month ──
   var allMgrExp = (LS.get('mgrExpenses')||[]).filter(function(r){
-    var p=(r["date"]||r.date||'').split('/');
-    return r.salonId===mySalonId && parseInt(p[1])===mo && parseInt(p[2])===yr;
+    var d=(r["date"]||r.date||'');
+    var match = d.indexOf('-')!==-1
+      ? (function(){ var p=d.split('-'); return parseInt(p[0])===yr && parseInt(p[1])===mo; })()
+      : (function(){ var p=d.split('/'); return parseInt(p[1])===mo && parseInt(p[2])===yr; })();
+    return r.salonId===mySalonId && match;
   });
   var mgrExpTotal = allMgrExp.reduce(function(a,r){return a+Number(r.amount||0);},0);
   var misc = mgrExpTotal; // misc is now total daily expenses
