@@ -3326,8 +3326,34 @@ function renderSalary(){
   var moSales  =moEntries.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
   var moPhTips =moEntries.reduce(function(a,e){return a+Number(e.phTip||0);},0);
 
-  // Incentives = max(0, (Sales − Fixed) × 10%)
-  var incentives=Math.max(0,Math.round((moSales-fixedSalary)*0.10));
+  // Incentives — based on manager-set incentive mode
+  var incMode = me.incentiveMode || 'sales10';
+  var incentives = 0;
+  if(incMode === 'sales10'){
+    // Option 1: Monthly Sales × 10%
+    incentives = Math.round(moSales * 0.10);
+  } else {
+    // Option 2: daily targets — each day sales ≥ target → daily incentive earned
+    var wdTarget = Number(me.weekdayTarget||0);
+    var weTarget = Number(me.weekendTarget||0);
+    var wdInc    = Number(me.weekdayIncentive||0);
+    var weInc    = Number(me.weekendIncentive||0);
+    // Group entries by date
+    var entryByDate = {};
+    moEntries.forEach(function(e){
+      var dk=e.date||'';
+      entryByDate[dk]=(entryByDate[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);
+    });
+    for(var _dd=1;_dd<=daysInMonth;_dd++){
+      var _dow=new Date(yr,m-1,_dd).getDay();
+      var _isWe=(_dow===0||_dow===6);
+      var _dk=_dd+'/'+m+'/'+yr;
+      var _dayRev=entryByDate[_dk]||0;
+      var _tgt=_isWe?weTarget:wdTarget;
+      var _dinc=_isWe?weInc:wdInc;
+      if(_tgt>0&&_dayRev>=_tgt) incentives+=_dinc;
+    }
+  }
 
   // All advances this month
   var allAdv=(LS.get('advances')||[]).filter(function(r){
@@ -3373,7 +3399,7 @@ function renderSalary(){
     '</div>'+
     '<div class="salary-row add"><span class="salary-lbl">Food Money</span><span class="salary-val">'+fmtINR(foodMoney)+'</span></div>'+
     '<div class="salary-row add"><span class="salary-lbl">Cleaning Money</span><span class="salary-val">'+fmtINR(cleaningMoney)+'</span></div>'+
-    '<div class="salary-row add"><span class="salary-lbl">Incentives (Sales−Fixed)×10%</span><span class="salary-val">'+fmtINR(incentives)+'</span></div>'+
+    '<div class="salary-row add"><span class="salary-lbl">Incentives ('+( incMode==='sales10' ? 'Sales × 10%' : 'Daily Targets' )+')</span><span class="salary-val">'+fmtINR(incentives)+'</span></div>'+
     '<div class="salary-row add"><span class="salary-lbl">PhonePe Tips</span><span class="salary-val">'+fmtINR(moPhTips)+'</span></div>'+
     (totalOT>0?'<div class="salary-row add"><span class="salary-lbl">Overtime (OT by Manager)</span><span class="salary-val">'+fmtINR(totalOT)+'</span></div>':'')+
     '<div class="salary-row deduct"><span class="salary-lbl">Advances — Cash</span><span class="salary-val">− '+fmtINR(cashAdv)+'</span></div>'+

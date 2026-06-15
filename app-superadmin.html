@@ -1857,14 +1857,28 @@ function renderSalonPNL(){
     var salonRec=(LS.get('salons')||[]).find(function(s){return s.id===sid;})||{};
     var isCompany=salonRec.companyManaged==1||salonRec.companyManaged==='1'||salonRec.companyManaged===true;
     var royalty=isCompany?0:5000;
-    // Manager incentives (from table) + Barber incentives (auto: max(0,(sales-fixedSal)*10%))
+    // Manager incentives (from table) + Barber incentives (per incentiveMode)
     var managerInc=incRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
     var barberInc=0;
     allStaff.filter(function(u){return u.role==='barber'&&_isActive(u);}).forEach(function(u){
-      var fs2=Number(u.fixedSalary||0);
-      var bSales=allE.filter(function(e){return String(e.barberId)===String(u.id);})
-        .reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
-      barberInc+=Math.max(0,Math.round((bSales-fs2)*0.10));
+      var bEntries=allE.filter(function(e){return String(e.barberId)===String(u.id);});
+      var bSales=bEntries.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
+      var uMode=u.incentiveMode||'sales10';
+      if(uMode==='sales10'){
+        barberInc+=Math.round(bSales*0.10);
+      } else {
+        var wdTgt=Number(u.weekdayTarget||0),weTgt=Number(u.weekendTarget||0);
+        var wdInc=Number(u.weekdayIncentive||0),weInc=Number(u.weekendIncentive||0);
+        var _dim=new Date(yr,mo,0).getDate();
+        var _bd={};
+        bEntries.forEach(function(e){var dk=e.date||'';_bd[dk]=(_bd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
+        for(var _di=1;_di<=_dim;_di++){
+          var _dw=new Date(yr,mo-1,_di).getDay(),_iw=(_dw===0||_dw===6);
+          var _dk=_di+'/'+mo+'/'+yr;
+          var _t=_iw?weTgt:wdTgt,_d=_iw?weInc:wdInc;
+          if(_t>0&&(_bd[_dk]||0)>=_t) barberInc+=_d;
+        }
+      }
     });
     var totalInc=managerInc+barberInc;
     var totalOT=otRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
@@ -3224,7 +3238,22 @@ function downloadCSV(type){
       var cash=ue.reduce(function(a,e){return a+Number(e.cash||0);},0);
       var tip=ue.reduce(function(a,e){return a+Number(e.tip||e.phTip||0)+Number(e.cashTip||0);},0);
       var fs=Number(u.fixedSalary||0);
-      var inc=Math.max(0,Math.round((tot-fs)*0.10));
+      var uMode=u.incentiveMode||'sales10';
+      var inc=uMode==='sales10'?Math.round(tot*0.10):0;
+      if(uMode==='targets'){
+        var wdTgt=Number(u.weekdayTarget||0),weTgt=Number(u.weekendTarget||0);
+        var wdInc=Number(u.weekdayIncentive||0),weInc=Number(u.weekendIncentive||0);
+        var _bd={};
+        ue.forEach(function(e){var dk=e.date||'';_bd[dk]=(_bd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
+        Object.keys(_bd).forEach(function(dk){
+          var parts=dk.split('/');
+          if(parts.length<3)return;
+          var _dw=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0])).getDay();
+          var _iw=(_dw===0||_dw===6);
+          var _t=_iw?weTgt:wdTgt,_d=_iw?weInc:wdInc;
+          if(_t>0&&_bd[dk]>=_t) inc+=_d;
+        });
+      }
       rows.push([u.name,(salonMap[u.salonId]||''),ue.length,tot,ph,cash,tip,ue.length?Math.round(tot/ue.length):0,fs,inc]);
     });
     return rows;
@@ -6415,14 +6444,32 @@ function renderAdminSalary(){
 
   var net, rows;
   if(isBarber){
-    // Barber — calculated incentive + PhonePe tips
+    // Barber — incentive per incentiveMode + PhonePe tips
     var moE=filterByMonth((LS.get('entries')||[]).filter(function(e){return String(e.barberId)===String(_adminSalStaffId);}),mo);
     var moSales=moE.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
     var moPhTips=moE.reduce(function(a,e){return a+Number(e.phTip||0);},0);
-    var incentives=Math.max(0,Math.round((moSales-fs)*0.10));
+    var uMode=b.incentiveMode||'sales10';
+    var incentives=0;
+    if(uMode==='sales10'){
+      incentives=Math.round(moSales*0.10);
+    } else {
+      var wdTgt=Number(b.weekdayTarget||0),weTgt=Number(b.weekendTarget||0);
+      var wdInc=Number(b.weekdayIncentive||0),weInc=Number(b.weekendIncentive||0);
+      var _sdim=new Date(parseInt(mo.split('-')[0]),parseInt(mo.split('-')[1]),0).getDate();
+      var _smo=parseInt(mo.split('-')[1]),_syr=parseInt(mo.split('-')[0]);
+      var _sbd={};
+      moE.forEach(function(e){var dk=e.date||'';_sbd[dk]=(_sbd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
+      for(var _sdi=1;_sdi<=_sdim;_sdi++){
+        var _sdw=new Date(_syr,_smo-1,_sdi).getDay(),_siw=(_sdw===0||_sdw===6);
+        var _sdk=_sdi+'/'+_smo+'/'+_syr;
+        var _st=_siw?weTgt:wdTgt,_sd=_siw?weInc:wdInc;
+        if(_st>0&&(_sbd[_sdk]||0)>=_st) incentives+=_sd;
+      }
+    }
+    var incLabel=uMode==='sales10'?'Incentives (Sales × 10%)':'Incentives (Daily Targets)';
     net=monthSal+fm+cm+incentives+moPhTips+otAmt-cashAdv-ppAdv-totalDed;
     rows=mkR('Food Money',fm,'add')+mkR('Cleaning Money',cm,'add')+
-      mkR('Incentives (Sales '+fR(moSales)+')',incentives,'add')+
+      mkR(incLabel,incentives,'add')+
       mkR('PhonePe Tips',moPhTips,'add')+
       (otAmt>0?mkR('Overtime (OT)',otAmt,'add'):'')+
       mkR('Advances — Cash',cashAdv,'ded')+mkR('Advances — PhonePe',ppAdv,'ded')+
