@@ -427,7 +427,7 @@ async function doRegister(){
     if(!tenant||!tenant.id) throw new Error('Failed to create tenant. Please try again.');
 
     // 4. Create default salon branch
-    await _post('salons', {
+    var newSalon = await _post('salons', {
       tenant_id:  tenant.id,
       name:       salonName,
       address:    address,
@@ -436,6 +436,26 @@ async function doRegister(){
       "mgrPhone": ownerPhone,
       is_active:  true
     });
+
+    // 4b. Create owner staff record — so the owner shows up in the
+    //     superadmin "All Staff" table and uses the same PIN-login flow
+    //     as other staff (stylists, managers).
+    if(newSalon && newSalon.id){
+      try{
+        await _post('staff', {
+          name:        ownerName,
+          phone:       ownerPhone,
+          role:        'owner',
+          "salonId":   newSalon.id,
+          loginPin:    ownerPin,
+          "login_pin": ownerPin,
+          active:      true
+        });
+      }catch(ownerErr){
+        // Non-fatal — registration should still succeed even if this fails
+        console.warn('Could not create owner staff record:', ownerErr);
+      }
+    }
 
     // 5. Subscription record for paid plans
     if(plan!=='free'){
