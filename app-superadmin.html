@@ -137,6 +137,7 @@ body{font-family:var(--BF);background:var(--bg);color:var(--white);font-size:15p
 .badge-gold{background:rgba(217,119,6,.1);color:#D97706;border:1px solid rgba(217,119,6,.2)}
 .badge-purple{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.3)}
 .badge-sh{background:rgba(255,140,0,.12);color:#FF8C00;border:1px solid rgba(255,140,0,.3)}
+.badge-owner{background:rgba(200,168,0,.15);color:#C8A800;border:1px solid rgba(200,168,0,.35)}
 /* SEC */
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-title{font-size:14px;font-weight:600;color:var(--white)}
@@ -966,27 +967,49 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- ADD SALON MODAL -->
 <div class="modal-bg" id="addSalonModal" onclick="if(event.target===this)closeModal('addSalonModal')">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:92vh;overflow-y:auto">
     <div class="modal-hdr"><h3>Add Salon</h3><button class="btn-close" onclick="closeModal('addSalonModal')">✕</button></div>
     <div class="ifield" style="margin-bottom:12px"><label>Salon Name</label><input type="text" id="sal-name" placeholder="Budget Barber – City Name"></div>
     <div class="ifield" style="margin-bottom:12px"><label>Location</label><input type="text" id="sal-loc" placeholder="Area, City"></div>
     <div class="ifield" style="margin-bottom:12px"><label>Manager Phone</label><input type="tel" id="sal-mgr" placeholder="10-digit phone" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-    <div class="ifield" style="margin-bottom:12px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-        <input type="checkbox" id="sal-company" onchange="toggleSalonPartners()" style="width:16px;height:16px">
-        <span>Company Managed Salon</span>
-      </label>
+
+    <!-- Rentals — always visible, used in PNL calculations -->
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Monthly Costs (Rentals)</div>
+      <div class="ifield" style="margin-bottom:8px"><label>Salon Rent (₹)</label><input type="number" id="sal-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
+      <div class="ifield" style="margin-bottom:8px"><label>Staff Room Rent (₹)</label><input type="number" id="sal-staff-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
+      <div class="ifield"><label>Extra Sunday Food (₹)</label><input type="number" id="sal-extra-food" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">These costs will be used in PNL calculations.</div>
     </div>
-    <div id="sal-partners-section" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Partners & Profit Share %</div>
-      <div id="sal-partners-list"></div>
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <input type="text" id="sal-p-name" placeholder="Partner name" style="flex:2;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:var(--BF);font-size:12px;outline:none">
-        <input type="number" id="sal-p-pct" placeholder="%" min="0" max="100" style="flex:1;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:var(--BF);font-size:12px;outline:none">
-        <button onclick="addSalonPartner()" style="padding:8px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--BF)">+</button>
+
+    <!-- Incentive Structure — applies to all barbers/stylists at this salon -->
+    <div style="background:rgba(29,109,181,.07);border:1.5px solid rgba(29,109,181,.25);border-radius:var(--rs);padding:13px 14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:10px">🏆 Incentive Structure</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;transition:border-color .2s" id="sal-inc-opt1-label">
+          <input type="radio" name="sal-inc-mode" id="sal-inc-opt1" value="sales10" checked style="margin-top:2px;accent-color:var(--blue)" onchange="salToggleIncMode()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Option 1 — Sales 10%</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Auto: <strong>Monthly Sales × 10%</strong><br>Straight 10% of total monthly sales.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;transition:border-color .2s" id="sal-inc-opt2-label">
+          <input type="radio" name="sal-inc-mode" id="sal-inc-opt2" value="targets" style="margin-top:2px;accent-color:var(--blue)" onchange="salToggleIncMode()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Option 2 — Daily Targets</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Per day: if sales ≥ Weekday/Weekend Target → fixed daily incentive earned.<br>Set amounts below.</div>
+          </div>
+        </label>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px">Company gets the remaining % after all partners</div>
+      <div id="sal-target-inc-fields" style="display:none;margin-top:4px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="ifield"><label>Weekday Incentive (₹) <span style="font-size:9px;color:var(--muted);font-weight:400">per qualifying day</span></label><input type="number" class="fi" id="sal-wd-inc" placeholder="0" min="0"></div>
+          <div class="ifield"><label>Weekend Incentive (₹) <span style="font-size:9px;color:var(--muted);font-weight:400">per qualifying day</span></label><input type="number" class="fi" id="sal-we-inc" placeholder="0" min="0"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Each day a staff member's sales ≥ target → they earn the incentive for that day.</div>
+      </div>
     </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('addSalonModal')">Cancel</button>
       <button class="btn-primary" onclick="saveSalon()">Save Salon</button>
@@ -1004,6 +1027,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <select id="stf-role" onchange="toggleStfSalesHead(this.value)">
         <option value="barber">Barber / Hairstylist</option>
         <option value="manager">Manager</option>
+        <option value="owner">🔑 Salon Owner</option>
         <option value="franchise">Franchise Owner</option>
         <option value="saleshead">📊 Sales Head</option>
       </select>
@@ -1067,7 +1091,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 
 <!-- EDIT SALON MODAL -->
 <div class="modal-bg" id="editSalonModal" onclick="if(event.target===this)closeModal('editSalonModal')">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:92vh;overflow-y:auto">
     <div class="modal-hdr"><h3>Edit Salon</h3><button class="btn-close" onclick="closeModal('editSalonModal')">✕</button></div>
     <div class="ifield" style="margin-bottom:12px"><label>Salon Name</label><input type="text" id="esl-name" placeholder="Budget Barber – City Name"></div>
     <div class="ifield" style="margin-bottom:12px"><label>Location</label><input type="text" id="esl-loc" placeholder="Area, City"></div>
@@ -1084,29 +1108,44 @@ select option { background: var(--surface) !important; color: var(--white) !impo
         <span id="esl-active-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(22px)"></span>
       </label>
     </div>
-    <div class="ifield" style="margin-bottom:12px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-        <input type="checkbox" id="esl-company" onchange="toggleEditSalonCosts()" style="width:16px;height:16px">
-        <span>Company Managed Salon</span>
-      </label>
-    </div>
-    <div id="esl-costs-section" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Monthly Costs (Company Managed)</div>
+
+    <!-- Rentals — always visible, used in PNL calculations -->
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Monthly Costs (Rentals)</div>
       <div class="ifield" style="margin-bottom:8px"><label>Salon Rent (₹)</label><input type="number" id="esl-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
       <div class="ifield" style="margin-bottom:8px"><label>Staff Room Rent (₹)</label><input type="number" id="esl-staff-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
-      <div class="ifield" style="margin-bottom:8px"><label>Extra Sunday Food (₹)</label><input type="number" id="esl-extra-food" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
-      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-top:12px;margin-bottom:8px">Profit Split</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
-        <div class="ifield"><label>Franchise Owner % </label>
-          <input type="number" id="esl-fr-pct" class="fi" placeholder="0" min="0" max="100" inputmode="numeric" oninput="updateCompanyPct()">
-        </div>
-        <div class="ifield"><label>Company %</label>
-          <input type="number" id="esl-co-pct" class="fi" placeholder="0" min="0" max="100" inputmode="numeric" readonly style="opacity:.6;cursor:not-allowed">
-        </div>
-      </div>
-      <div style="font-size:10px;color:var(--muted)">Company % = 100 − Franchise Owner %. These are saved to the salon record.</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:4px">These costs will be used in PNL calculations.</div>
+      <div class="ifield"><label>Extra Sunday Food (₹)</label><input type="number" id="esl-extra-food" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">These costs will be used in PNL calculations.</div>
     </div>
+
+    <!-- Incentive Structure — applies to all barbers/stylists at this salon -->
+    <div style="background:rgba(29,109,181,.07);border:1.5px solid rgba(29,109,181,.25);border-radius:var(--rs);padding:13px 14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:10px">🏆 Incentive Structure</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;transition:border-color .2s" id="esl-inc-opt1-label">
+          <input type="radio" name="esl-inc-mode" id="esl-inc-opt1" value="sales10" style="margin-top:2px;accent-color:var(--blue)" onchange="eslToggleIncMode()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Option 1 — Sales 10%</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Auto: <strong>Monthly Sales × 10%</strong><br>Straight 10% of total monthly sales.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px;transition:border-color .2s" id="esl-inc-opt2-label">
+          <input type="radio" name="esl-inc-mode" id="esl-inc-opt2" value="targets" style="margin-top:2px;accent-color:var(--blue)" onchange="eslToggleIncMode()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Option 2 — Daily Targets</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Per day: if sales ≥ Weekday/Weekend Target → fixed daily incentive earned.<br>Set amounts below.</div>
+          </div>
+        </label>
+      </div>
+      <div id="esl-target-inc-fields" style="display:none;margin-top:4px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="ifield"><label>Weekday Incentive (₹) <span style="font-size:9px;color:var(--muted);font-weight:400">per qualifying day</span></label><input type="number" class="fi" id="esl-wd-inc" placeholder="0" min="0"></div>
+          <div class="ifield"><label>Weekend Incentive (₹) <span style="font-size:9px;color:var(--muted);font-weight:400">per qualifying day</span></label><input type="number" class="fi" id="esl-we-inc" placeholder="0" min="0"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Each day a staff member's sales ≥ target → they earn the incentive for that day.</div>
+      </div>
+    </div>
+
     <!-- Camera Devices -->
     <div style="background:rgba(0,122,86,.06);border:1.5px solid rgba(0,122,86,.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px">
       <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px">📷 Live Camera Devices (Imou)</div>
@@ -1147,6 +1186,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <select id="est-role" onchange="_updateBackdateSection(this.value,document.getElementById('est-allow-backdate').checked);toggleEstSalesHead(this.value)">
         <option value="barber">Barber / Hairstylist</option>
         <option value="manager">Manager</option>
+        <option value="owner">🔑 Salon Owner</option>
         <option value="franchise">Franchise Owner</option>
         <option value="saleshead">📊 Sales Head</option>
       </select>
@@ -1855,28 +1895,26 @@ function renderSalonPNL(){
       if(fs) salaryDetail.push(u.name+': '+fINR(monthSal)+' ('+present+' full+'+half+' half/26d)');
     });
     var salonRec=(LS.get('salons')||[]).find(function(s){return s.id===sid;})||{};
-    var isCompany=salonRec.companyManaged==1||salonRec.companyManaged==='1'||salonRec.companyManaged===true;
-    var royalty=isCompany?0:5000;
-    // Manager incentives (from table) + Barber incentives (per incentiveMode)
+    // Manager incentives (from table) + Barber incentives (per salon incentiveMode)
     var managerInc=incRows.reduce(function(a,r){return a+Number(r.amount||0);},0);
     var barberInc=0;
+    var salIncMode=salonRec.incentiveMode||'sales10';
     allStaff.filter(function(u){return u.role==='barber'&&_isActive(u);}).forEach(function(u){
       var bEntries=allE.filter(function(e){return String(e.barberId)===String(u.id);});
       var bSales=bEntries.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
-      var uMode=u.incentiveMode||'sales10';
-      if(uMode==='sales10'){
+      if(salIncMode==='sales10'){
         barberInc+=Math.round(bSales*0.10);
       } else {
+        var wdInc=Number(salonRec.weekdayIncentive||0),weInc=Number(salonRec.weekendIncentive||0);
         var wdTgt=Number(u.weekdayTarget||0),weTgt=Number(u.weekendTarget||0);
-        var wdInc=Number(u.weekdayIncentive||0),weInc=Number(u.weekendIncentive||0);
-        var _dim=new Date(yr,mo,0).getDate();
-        var _bd={};
-        bEntries.forEach(function(e){var dk=e.date||'';_bd[dk]=(_bd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
-        for(var _di=1;_di<=_dim;_di++){
-          var _dw=new Date(yr,mo-1,_di).getDay(),_iw=(_dw===0||_dw===6);
-          var _dk=_di+'/'+mo+'/'+yr;
-          var _t=_iw?weTgt:wdTgt,_d=_iw?weInc:wdInc;
-          if(_t>0&&(_bd[_dk]||0)>=_t) barberInc+=_d;
+        var _dim2=new Date(yr,mo,0).getDate();
+        var _bd2={};
+        bEntries.forEach(function(e){var dk=e.date||'';_bd2[dk]=(_bd2[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
+        for(var _di3=1;_di3<=_dim2;_di3++){
+          var _dw3=new Date(yr,mo-1,_di3).getDay(),_iw3=(_dw3===0||_dw3===6);
+          var _dk3=_di3+'/'+mo+'/'+yr;
+          var _t3=_iw3?weTgt:wdTgt,_d3=_iw3?weInc:wdInc;
+          if(_t3>0&&(_bd2[_dk3]||0)>=_t3) barberInc+=_d3;
         }
       }
     });
@@ -1910,9 +1948,9 @@ function renderSalonPNL(){
     var projRev=Math.round(avgWd*totWd+avgWe*totWe);
     var projBreakdown='Avg weekday: '+fINR(Math.round(avgWd))+' × '+totWd+' days  +  Avg weekend: '+fINR(Math.round(avgWe))+' × '+totWe+' days'
       +'<br><span style="font-size:9px;opacity:.7">Avg based on '+elWd+' weekdays & '+elWe+' weekends elapsed so far</span>';
-    var actualOpex=totalSalary+rent+staffRent+cosmetics+ebStore+ebStaff+maid+totalFood+extraFood+wifi+mgrExp+totalInc+totalOT+royalty+marketing;
+    var actualOpex=totalSalary+rent+staffRent+cosmetics+ebStore+ebStaff+maid+totalFood+extraFood+wifi+mgrExp+totalInc+totalOT+marketing;
     var totalProjIncentives=totalInc; // proj = actual
-    var projOpex=totalSalary+rent+staffRent+cosmetics+ebStore+ebStaff+maid+totalFood+extraFood+wifi+mgrExp+totalProjIncentives+totalOT+royalty+marketing;
+    var projOpex=totalSalary+rent+staffRent+cosmetics+ebStore+ebStaff+maid+totalFood+extraFood+wifi+mgrExp+totalProjIncentives+totalOT+marketing;
     var profit=revenue-actualOpex, projProfit=projRev-projOpex;
     function fINR(n){return (n<0?'−₹':'₹')+Math.abs(Math.round(n)).toLocaleString('en-IN');}
     function colr(n){return n>=0?'var(--accent)':'var(--danger)';}
@@ -1950,7 +1988,7 @@ function renderSalonPNL(){
         '<div class="pnl-row pnl-auto"><span>Salaries (all staff)</span><span class="pnl-val-neg">'+fINR(totalSalary)+'</span></div>'+
         (salaryDetail.length ? '<div style="font-size:10px;color:var(--muted);padding:0 14px 6px;font-style:italic">'+
           salaryDetail.map(function(s){return '· '+s;}).join('<br>')+
-          (barberInc>0||managerInc>0 ? '<br><span style="color:var(--blue)">· Incentives — '+(barberInc>0?'Barbers auto: '+fINR(barberInc):'')+(barberInc>0&&managerInc>0?' + ':'')+(managerInc>0?'Manager: '+fINR(managerInc):'')+'</span>' : '')+
+          (barberInc>0||managerInc>0 ? '<br><span style="color:var(--blue)">· Incentives — '+(barberInc>0?'Barbers ('+(salIncMode==='sales10'?'Sales 10%':'Daily Targets')+'): '+fINR(barberInc):'')+(barberInc>0&&managerInc>0?' + ':'')+(managerInc>0?'Manager: '+fINR(managerInc):'')+'</span>' : '')+
         '</div>' : '')+
         '<div class="pnl-row pnl-auto"><span>Rent <span style="font-size:10px;color:var(--muted)">(from Salon tab)</span></span><span style="font-weight:700;color:var(--danger)">'+fINR(rent)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>Staff Rent <span style="font-size:10px;color:var(--muted)">(from Salon tab)</span></span><span style="font-weight:700;color:var(--danger)">'+fINR(staffRent)+'</span></div>'+
@@ -1961,11 +1999,10 @@ function renderSalonPNL(){
         '<div class="pnl-row pnl-auto"><span>Marketing <span style="font-size:10px;color:var(--muted)">(from Salon tab)</span></span><span style="font-weight:700;color:var(--danger)">'+fINR(marketing)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>Food Money (from staff profile)</span><span class="pnl-val-neg">'+fINR(totalFood)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>Extra Sunday Food <span style="font-size:10px;color:var(--muted)">(from Salon tab)</span></span><span style="font-weight:700;color:var(--danger)">'+fINR(extraFood)+'</span></div>'+
-        '<div class="pnl-row pnl-auto"><span>Actual Incentives <span style="font-size:10px;color:var(--muted)">(Barbers auto-calc + Manager from table)</span></span><span class="pnl-val-neg">'+fINR(totalInc)+'</span></div>'+
+        '<div class="pnl-row pnl-auto"><span>Actual Incentives <span style="font-size:10px;color:var(--muted)">(Barbers '+(salIncMode==='sales10'?'Sales 10%':'Daily Targets')+' + Manager from table)</span></span><span class="pnl-val-neg">'+fINR(totalInc)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>Overtime (OT) <span style="font-size:10px;color:var(--muted)">(from overtime table)</span></span><span class="pnl-val-neg">'+fINR(totalOT)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>WiFi <span style="font-size:10px;color:var(--muted)">(from Salon tab)</span></span><span style="font-weight:700;color:var(--danger)">'+fINR(wifi)+'</span></div>'+
         '<div class="pnl-row pnl-auto"><span>Expenses (daily manager expenses)</span><span style="font-weight:700;color:var(--danger)">'+fINR(mgrExp)+'</span></div>'+
-        (royalty>0?'<div class="pnl-row pnl-auto"><span>Franchise Royalty</span><span style="font-weight:700;color:var(--danger)">'+fINR(royalty)+'</span></div>':'')+
         '<div class="pnl-row pnl-total-row" style="margin-top:4px"><span>Actual Total Opex</span><span style="color:var(--danger);font-weight:800;font-size:15px">'+fINR(actualOpex)+'</span></div>'+
         '<div class="pnl-row pnl-muted-row"><span>Projected Incentives</span><span>'+fINR(totalProjIncentives)+'</span></div>'+
         '<div class="pnl-row pnl-muted-row"><span>Projected Total Opex</span><span>'+fINR(projOpex)+'</span></div>'+
@@ -1975,38 +2012,7 @@ function renderSalonPNL(){
         '<div class="pnl-sec-title" style="background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.25);color:#D97706">PROFIT / LOSS</div>'+
         '<div class="pnl-row pnl-total-row" style="background:'+(profit>=0?'rgba(0,196,140,.08)':'rgba(255,107,91,.08)')+'"><span>Profit / Loss</span><span style="font-size:16px;font-weight:900;color:'+colr(profit)+'">'+fINR(profit)+'</span></div>'+
         '<div class="pnl-row pnl-muted-row"><span>Projected Profit / Loss</span><span style="color:'+colr(projProfit)+'">'+fINR(projProfit)+'</span></div>'+
-      '</div>'+
-      // PROFIT SHARE — company-managed only
-      (isCompany ? (function(){
-        var frPct=Number(salonRec.franchisePct||0);
-        var coPct=Number(salonRec.companyPct||0);
-        // Auto-correct: if only one is set, derive the other to make total = 100%
-        if(frPct&&!coPct) coPct=100-frPct;
-        if(coPct&&!frPct) frPct=100-coPct;
-        // Fallback to partners array for older records
-        if(!frPct&&!coPct){
-          var _partners=[];
-          try{_partners=JSON.parse(salonRec.partners||'[]');}catch(e){}
-          var _ptotal=_partners.reduce(function(a,p){return a+Number(p.pct||0);},0);
-          frPct=_ptotal; coPct=Math.max(0,100-_ptotal);
-        }
-        var total=frPct+coPct;
-        var frAmt=Math.round(profit*frPct/100);
-        var coAmt=Math.round(profit*coPct/100);
-        return '<div class="pnl-section">'+
-          '<div class="pnl-sec-title" style="background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.25);color:var(--purple)">PROFIT SHARE</div>'+
-          '<div class="pnl-share-row" style="font-weight:800">'+
-            '<span style="flex:1">Franchise Owner ('+frPct+'%)</span>'+
-            '<span style="color:'+colr(frAmt)+';font-weight:800;font-size:15px">'+fINR(frAmt)+'</span>'+
-          '</div>'+
-          '<div class="pnl-share-row" style="font-weight:800">'+
-            '<span style="flex:1">Company ('+coPct+'%)</span>'+
-            '<span style="color:'+colr(coAmt)+';font-weight:800;font-size:15px">'+fINR(coAmt)+'</span>'+
-          '</div>'+
-          (total!==100?'<div style="font-size:10px;color:var(--warn);padding:6px 14px;font-style:italic">⚠ Franchise ('+frPct+'%) + Company ('+coPct+'%) = '+total+'% — must equal 100%. Fix in Edit Salon.</div>':
-            '<div style="font-size:10px;color:var(--muted2);padding:6px 14px">Based on actual profit '+fINR(profit)+'</div>')+
-        '</div>';
-      })() : '');
+      '</div>';
 
     if(el) el.innerHTML=html;
 
@@ -2037,21 +2043,13 @@ function renderSalonPNL(){
         ['"Overtime (OT)"','"'+fINR(totalOT)+'"'],
         ['"WiFi"','"'+fINR(wifi)+'"'],
         ['"Daily Expenses"','"'+fINR(mgrExp)+'"'],
-        (royalty>0?['"Franchise Royalty"','"'+fINR(royalty)+'"']:null),
         ['"Actual Total Opex"','"'+fINR(actualOpex)+'"'],
         ['"Projected Total Opex"','"'+fINR(projOpex)+'"'],
         ['',''],
         ['"PROFIT / LOSS"',''],
         ['"Profit / Loss"','"'+fINR(profit)+'"'],
         ['"Projected P/L"','"'+fINR(projProfit)+'"'],
-      ].filter(Boolean);
-      if(isCompany){
-        var frPct2=Number(salonRec.franchisePct||0),coPct2=Number(salonRec.companyPct||0);
-        if(frPct2&&!coPct2)coPct2=100-frPct2; if(coPct2&&!frPct2)frPct2=100-coPct2;
-        rows.push(['',''],['PROFIT SHARE',''],
-          ['"Franchise Owner ('+frPct2+'%)"','"'+fINR(Math.round(profit*frPct2/100))+'"'],
-          ['"Company ('+coPct2+'%)"','"'+fINR(Math.round(profit*coPct2/100))+'"']);
-      }
+      ];
       var csv=rows.map(function(r){return r.join(',');}).join('\n');
       var a=document.createElement('a');
       a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
@@ -2456,16 +2454,16 @@ function renderManage(){
   // Salon cards
   document.getElementById('mg-salons').innerHTML='<div class="salon-grid">'+salons.map(function(s){
     var sb=staff.filter(function(u){return u.salonId===s.id&&u.role==='barber'&&_actU(u);}).length;
-    var isCoMgd=s.companyManaged==1||s.companyManaged==='1';
+    var incMode=s.incentiveMode||'sales10';
     var act=_actS(s);
-    return '<div class="salon-card" style="'+(isCoMgd?'border:2px solid var(--accent);':'')+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
+    return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
           '<div class="sn-name" style="display:flex;align-items:center;gap:6px">'+s.name+
             (!act?'<span style="font-size:9px;font-weight:800;background:rgba(220,53,69,.12);color:var(--danger);border:1px solid rgba(220,53,69,.3);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">INACTIVE</span>':'')+
           '</div>'+
           '<div class="sn-loc">'+s.location+'</div>'+
-          (isCoMgd?'<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">🏢 Company Managed</div>':'')+
+          '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">🏆 '+(incMode==='sales10'?'Sales 10%':'Daily Targets')+'</div>'+
           '<div style="font-size:12px;color:var(--muted);margin-top:5px">'+sb+' barbers</div>'+
         '</div>'+
       '</div>'+
@@ -2498,7 +2496,7 @@ function renderManage(){
   // Staff rows — show active/inactive state
   document.getElementById('mg-staff').innerHTML=staff.map(function(u){
     var act=_actU(u);
-    var roleBadge=u.role==='admin'?'badge-red':u.role==='manager'?'badge-blue':u.role==='barber'?'badge-green':u.role==='franchise'?'badge-purple':u.role==='saleshead'?'badge-sh':'badge-gold';
+    var roleBadge=u.role==='admin'?'badge-red':u.role==='owner'?'badge-owner':u.role==='manager'?'badge-blue':u.role==='barber'?'badge-green':u.role==='franchise'?'badge-purple':u.role==='saleshead'?'badge-sh':'badge-gold';
     var salonName=u.salonId?(salonMap[u.salonId]||u.salonId).split('–').pop().trim():'—';
     var pinDisplay=u.loginPin
       ?'<span style="font-family:monospace;font-size:14px;font-weight:800;color:var(--accent);letter-spacing:2px">'+u.loginPin+'</span>'
@@ -2756,14 +2754,12 @@ function deleteCust(id){
 
 // Edit Salon
 var editingSalonId=null;
-function updateCompanyPct(){
-  var frVal=parseFloat(document.getElementById('esl-fr-pct').value)||0;
-  var coEl=document.getElementById('esl-co-pct');
-  if(coEl) coEl.value=Math.max(0,100-frVal);
-}
-function toggleEditSalonCosts(){
-  var chk=document.getElementById('esl-company');
-  document.getElementById('esl-costs-section').style.display=chk&&chk.checked?'block':'none';
+function eslToggleIncMode(){
+  var mode=document.querySelector('input[name="esl-inc-mode"]:checked');
+  var isTargets=mode&&mode.value==='targets';
+  document.getElementById('esl-target-inc-fields').style.display=isTargets?'block':'none';
+  document.getElementById('esl-inc-opt1-label').style.borderColor=(!isTargets)?'var(--blue)':'var(--border)';
+  document.getElementById('esl-inc-opt2-label').style.borderColor=(isTargets)?'var(--blue)':'var(--border)';
 }
 function openEditSalon(id){
   editingSalonId=id;
@@ -2783,26 +2779,24 @@ function openEditSalon(id){
     document.getElementById('esl-active-row').style.borderColor  = isActive?'rgba(0,0,0,.06)':'rgba(220,53,69,.4)';
     document.getElementById('esl-active-status-lbl').textContent = isActive?'Active — visible across all portals':'Deactivated — hidden from all portals';
   }
-  var isCo=s.companyManaged==1||s.companyManaged==='1'||s.companyManaged===true;
-  document.getElementById('esl-company').checked=isCo;
-  document.getElementById('esl-costs-section').style.display=isCo?'block':'none';
-  // Populate profit split
-  var frPct=Number(s.franchisePct||s.franchise_pct||0);
-  var coEl=document.getElementById('esl-fr-pct'); if(coEl) coEl.value=frPct||'';
-  var cpEl=document.getElementById('esl-co-pct'); if(cpEl) cpEl.value=Math.max(0,100-frPct)||'';
-  // Load current franchise costs from Supabase
-  if(isCo){
-    var curMo=new Date().toISOString().slice(0,7);
-    sbSelect('franchise_inputs',
-      'salon_id=eq.'+encodeURIComponent(id)+'&effective_from=lte.'+encodeURIComponent(curMo)+'&order=effective_from.desc'
-    ).then(function(rows){
-      rows=rows||[];
-      function lv(f){for(var i=0;i<rows.length;i++){if(rows[i][f]&&Number(rows[i][f])>0)return Number(rows[i][f]);}return 0;}
-      var rEl=document.getElementById('esl-rent'); if(rEl) rEl.value=lv('rent')||'';
-      var sEl=document.getElementById('esl-staff-rent'); if(sEl) sEl.value=lv('staff_rent')||'';
-      var eEl=document.getElementById('esl-extra-food'); if(eEl) eEl.value=lv('extra_food')||'';
-    }).catch(function(){});
-  }
+  // Incentive structure
+  var incMode=s.incentiveMode||'sales10';
+  document.getElementById('esl-inc-opt1').checked=(incMode==='sales10');
+  document.getElementById('esl-inc-opt2').checked=(incMode==='targets');
+  document.getElementById('esl-wd-inc').value=s.weekdayIncentive||0;
+  document.getElementById('esl-we-inc').value=s.weekendIncentive||0;
+  eslToggleIncMode();
+  // Load current rent costs from Supabase — always, regardless of company-managed
+  var curMo=new Date().toISOString().slice(0,7);
+  sbSelect('franchise_inputs',
+    'salon_id=eq.'+encodeURIComponent(id)+'&effective_from=lte.'+encodeURIComponent(curMo)+'&order=effective_from.desc'
+  ).then(function(rows){
+    rows=rows||[];
+    function lv(f){for(var i=0;i<rows.length;i++){if(rows[i][f]&&Number(rows[i][f])>0)return Number(rows[i][f]);}return 0;}
+    var rEl=document.getElementById('esl-rent'); if(rEl) rEl.value=lv('rent')||'';
+    var sEl=document.getElementById('esl-staff-rent'); if(sEl) sEl.value=lv('staff_rent')||'';
+    var eEl=document.getElementById('esl-extra-food'); if(eEl) eEl.value=lv('extra_food')||'';
+  }).catch(function(){});
   // Load cameras
   var cams = s.cameras;
   if (typeof cams === 'string') { try { cams = JSON.parse(cams); } catch(e) { cams = []; } }
@@ -2821,26 +2815,22 @@ function saveEditSalon(){
   salons[idx].active = eslActEl ? (eslActEl.checked ? 1 : 0) : 1;
   // Save cameras
   salons[idx].cameras = eslGetCameras();
-  var isCo=document.getElementById('esl-company').checked;
-  salons[idx].companyManaged=isCo?1:0;
-  // Save profit split
-  var frPct=isCo?(parseFloat(document.getElementById('esl-fr-pct').value)||0):0;
-  var coPct=isCo?Math.max(0,100-frPct):0;
-  salons[idx].franchisePct=frPct;
-  salons[idx].companyPct=coPct;
+  // Save incentive structure
+  var incModeEl=document.querySelector('input[name="esl-inc-mode"]:checked');
+  salons[idx].incentiveMode    =incModeEl?incModeEl.value:'sales10';
+  salons[idx].weekdayIncentive =parseFloat(document.getElementById('esl-wd-inc').value)||0;
+  salons[idx].weekendIncentive =parseFloat(document.getElementById('esl-we-inc').value)||0;
   LS.set('salons',salons);
   SB.updateSalon(salons[idx]).catch(function(){ updateRowInSheet('Salons',salons[idx],function(ok){if(!ok)toast('⚠ Saved locally');}); });
-  // Save costs to franchise_inputs if company managed
-  if(isCo){
-    var rent=parseFloat(document.getElementById('esl-rent').value)||0;
-    var staffRent=parseFloat(document.getElementById('esl-staff-rent').value)||0;
-    var extraFood=parseFloat(document.getElementById('esl-extra-food').value)||0;
-    var curMo=new Date().toISOString().slice(0,7);
-    var salonId=editingSalonId;
-    if(rent>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,rent:rent}).catch(function(){});
-    if(staffRent>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,staff_rent:staffRent}).catch(function(){});
-    if(extraFood>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,extra_food:extraFood}).catch(function(){});
-  }
+  // Save rent costs — always, regardless of company-managed
+  var rent=parseFloat(document.getElementById('esl-rent').value)||0;
+  var staffRent=parseFloat(document.getElementById('esl-staff-rent').value)||0;
+  var extraFood=parseFloat(document.getElementById('esl-extra-food').value)||0;
+  var curMo=new Date().toISOString().slice(0,7);
+  var salonId=editingSalonId;
+  if(rent>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,rent:rent}).catch(function(){});
+  if(staffRent>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,staff_rent:staffRent}).catch(function(){});
+  if(extraFood>0) sbInsert('franchise_inputs',{salon_id:salonId,effective_from:curMo,extra_food:extraFood}).catch(function(){});
   closeModal('editSalonModal');
   toast('✓ Salon updated');
   renderManage();
@@ -2969,7 +2959,7 @@ function saveEditStaff(){
   staff[idx].phone        =newPhone;
   staff[idx].role         =document.getElementById('est-role').value;
   staff[idx].salonId      =document.getElementById('est-salon').value||null;
-  staff[idx].loginPin     =newPin||staff[idx].loginPin.value.trim();
+  staff[idx].loginPin     =newPin||staff[idx].loginPin;
   staff[idx].fixedSalary  =parseFloat(document.getElementById('est-salary').value)||0;
   staff[idx].foodMoney    =parseFloat(document.getElementById('est-food').value)||0;
   staff[idx].cleaningMoney=parseFloat(document.getElementById('est-clean').value)||0;
@@ -2994,62 +2984,46 @@ function saveEditStaff(){
   renderManage();
 }
 
-var _salonPartners = [];
-function toggleSalonPartners(){
-  var checked = document.getElementById('sal-company').checked;
-  document.getElementById('sal-partners-section').style.display = checked ? 'block' : 'none';
-}
-function addSalonPartner(){
-  var name = document.getElementById('sal-p-name').value.trim();
-  var pct  = parseFloat(document.getElementById('sal-p-pct').value)||0;
-  if(!name||pct<=0){ toast('Enter name and %'); return; }
-  _salonPartners.push({name:name, pct:pct});
-  document.getElementById('sal-p-name').value='';
-  document.getElementById('sal-p-pct').value='';
-  renderSalonPartnersList();
-}
-function removeSalonPartner(i){
-  _salonPartners.splice(i,1);
-  renderSalonPartnersList();
-}
-function renderSalonPartnersList(){
-  var total = _salonPartners.reduce(function(a,p){return a+p.pct;},0);
-  var company = Math.max(0, 100-total);
-  document.getElementById('sal-partners-list').innerHTML =
-    _salonPartners.map(function(p,i){
-      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px">'+
-        '<span style="flex:1">'+p.name+'</span>'+
-        '<span style="color:var(--accent);font-weight:700">'+p.pct+'%</span>'+
-        '<button onclick="removeSalonPartner('+i+')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px">✕</button>'+
-      '</div>';
-    }).join('')+
-    '<div style="font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:4px;margin-top:4px">Company: <b style="color:var(--accent)">'+company+'%</b> (auto)</div>';
+function salToggleIncMode(){
+  var mode=document.querySelector('input[name="sal-inc-mode"]:checked');
+  var isTargets=mode&&mode.value==='targets';
+  document.getElementById('sal-target-inc-fields').style.display=isTargets?'block':'none';
+  document.getElementById('sal-inc-opt1-label').style.borderColor=(!isTargets)?'var(--blue)':'var(--border)';
+  document.getElementById('sal-inc-opt2-label').style.borderColor=(isTargets)?'var(--blue)':'var(--border)';
 }
 function saveSalon(){
   var name=document.getElementById('sal-name').value.trim();
   var loc=document.getElementById('sal-loc').value.trim();
   var mgr=document.getElementById('sal-mgr').value.trim();
-  var isCompany=document.getElementById('sal-company').checked;
   if(!name){toast('Enter salon name');return;}
   var salons=LS.get('salons')||[];
   var sid='s'+Date.now();
-  var partnerTotal=_salonPartners.reduce(function(a,p){return a+p.pct;},0);
-  var companyPct=Math.max(0,100-partnerTotal);
+  var incModeEl=document.querySelector('input[name="sal-inc-mode"]:checked');
   var newSalon={id:sid,name:name,location:loc||'',mgrPhone:mgr||'',
-    companyManaged:isCompany?1:0,
-    partners:isCompany?JSON.stringify(_salonPartners):'[]',
-    companyPct:isCompany?companyPct:0};
+    incentiveMode:incModeEl?incModeEl.value:'sales10',
+    weekdayIncentive:parseFloat(document.getElementById('sal-wd-inc').value)||0,
+    weekendIncentive:parseFloat(document.getElementById('sal-we-inc').value)||0};
   salons.push(newSalon);
   LS.set('salons',salons);
   appendRowToSheet('Salons',newSalon,function(ok){if(!ok)toast('⚠ Saved locally');});
+  // Save rentals to franchise_inputs
+  var rent=parseFloat(document.getElementById('sal-rent').value)||0;
+  var staffRent=parseFloat(document.getElementById('sal-staff-rent').value)||0;
+  var extraFood=parseFloat(document.getElementById('sal-extra-food').value)||0;
+  var curMo=new Date().toISOString().slice(0,7);
+  if(rent>0) sbInsert('franchise_inputs',{salon_id:sid,effective_from:curMo,rent:rent}).catch(function(){});
+  if(staffRent>0) sbInsert('franchise_inputs',{salon_id:sid,effective_from:curMo,staff_rent:staffRent}).catch(function(){});
+  if(extraFood>0) sbInsert('franchise_inputs',{salon_id:sid,effective_from:curMo,extra_food:extraFood}).catch(function(){});
   if(mgr){
     var staff=LS.get('staff')||[];
     if(!staff.find(function(u){return u.phone===mgr;})){staff.push({id:'u'+Date.now(),name:'Manager '+mgr.slice(-4),phone:mgr,role:'manager',salonId:sid});LS.set('staff',staff);}
   }
   document.getElementById('sal-name').value='';document.getElementById('sal-loc').value='';
-  document.getElementById('sal-mgr').value='';document.getElementById('sal-company').checked=false;
-  _salonPartners=[];
-  document.getElementById('sal-partners-section').style.display='none';
+  document.getElementById('sal-mgr').value='';
+  document.getElementById('sal-rent').value='';document.getElementById('sal-staff-rent').value='';document.getElementById('sal-extra-food').value='';
+  document.getElementById('sal-wd-inc').value='';document.getElementById('sal-we-inc').value='';
+  document.getElementById('sal-inc-opt1').checked=true;
+  salToggleIncMode();
   closeModal('addSalonModal');toast('✓ Salon added');renderManage();
 }
 
@@ -3096,7 +3070,7 @@ function copyStaffOTP(){
   var staffList=LS.get('staff')||[];
   var phone=document.getElementById('stf-phone').value.trim();
   var role=document.getElementById('stf-role').value;
-  var loginUrl={'barber':'login-barber.html','manager':'login-manager.html','franchise':'login-franchise.html','saleshead':'login-saleshead.html','admin':'login-superadmin.html'}[role]||'login-barber.html';
+  var loginUrl={'barber':'login-barber.html','manager':'login-manager.html','owner':'login-owner.html','franchise':'login-franchise.html','saleshead':'login-saleshead.html','admin':'login-superadmin.html'}[role]||'login-barber.html';
   var su=staffList.find(function(u){return u.loginPin===lastStaffOTP;})||{};
   var text='Budget Barber Login\nPhone: '+phone+'\nPIN: '+lastStaffOTP+'\nURL: '+window.location.origin+'/'+loginUrl;
   if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){toast('✅ Login details copied!');}).catch(function(){toast('PIN: '+lastStaffOTP);}); }
@@ -3215,14 +3189,14 @@ function downloadCSV(type){
   }
   function salonSummaryRows(){
     var salonsToUse=csvSid?salons.filter(function(s){return s.id===csvSid;}):salons;
-    var rows=[['Salon','Location','Company Managed','Customers','Total Sales','PhonePe','Cash','Tips','Avg Billing / Customer']];
+    var rows=[['Salon','Location','Incentive Mode','Customers','Total Sales','PhonePe','Cash','Tips','Avg Billing / Customer']];
     salonsToUse.forEach(function(s){
       var se=entries.filter(function(e){return e.salonId===s.id;});
       var tot=se.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
       var ph=se.reduce(function(a,e){return a+Number(e.phPay||0);},0);
       var cash=se.reduce(function(a,e){return a+Number(e.cash||0);},0);
       var tip=se.reduce(function(a,e){return a+Number(e.tip||e.phTip||0)+Number(e.cashTip||0);},0);
-      rows.push([s.name,s.location||'',(s.companyManaged?'Yes':'No'),se.length,tot,ph,cash,tip,se.length?Math.round(tot/se.length):0]);
+      rows.push([s.name,s.location||'',(s.incentiveMode==='targets'?'Daily Targets':'Sales 10%'),se.length,tot,ph,cash,tip,se.length?Math.round(tot/se.length):0]);
     });
     var totAll=entries.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
     rows.push(['TOTAL','','',entries.length,totAll,'','','',entries.length?Math.round(totAll/entries.length):0]);
@@ -3238,22 +3212,8 @@ function downloadCSV(type){
       var cash=ue.reduce(function(a,e){return a+Number(e.cash||0);},0);
       var tip=ue.reduce(function(a,e){return a+Number(e.tip||e.phTip||0)+Number(e.cashTip||0);},0);
       var fs=Number(u.fixedSalary||0);
-      var uMode=u.incentiveMode||'sales10';
-      var inc=uMode==='sales10'?Math.round(tot*0.10):0;
-      if(uMode==='targets'){
-        var wdTgt=Number(u.weekdayTarget||0),weTgt=Number(u.weekendTarget||0);
-        var wdInc=Number(u.weekdayIncentive||0),weInc=Number(u.weekendIncentive||0);
-        var _bd={};
-        ue.forEach(function(e){var dk=e.date||'';_bd[dk]=(_bd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
-        Object.keys(_bd).forEach(function(dk){
-          var parts=dk.split('/');
-          if(parts.length<3)return;
-          var _dw=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0])).getDay();
-          var _iw=(_dw===0||_dw===6);
-          var _t=_iw?weTgt:wdTgt,_d=_iw?weInc:wdInc;
-          if(_t>0&&_bd[dk]>=_t) inc+=_d;
-        });
-      }
+      var salonForU=salons.find(function(s){return s.id===u.salonId;})||{};
+      var inc=salonForU.incentiveMode==='targets'?0:Math.round(tot*0.10);
       rows.push([u.name,(salonMap[u.salonId]||''),ue.length,tot,ph,cash,tip,ue.length?Math.round(tot/ue.length):0,fs,inc]);
     });
     return rows;
@@ -6350,8 +6310,8 @@ function renderSalonStaff(){
       var monthSal=dim>0?Math.round(fs*(present+half*0.5)/dim):0;
       var moE=allE.filter(function(e){var p=(e.date||'').split('/');return String(e.barberId)===String(b.id)&&parseInt(p[1])===mo&&parseInt(p[2])===yr;});
       var moSales=moE.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
-      var roleColor=isBarber?'var(--accent)':isFranchise?'var(--purple)':'var(--blue)';
-      var roleLabel=isBarber?'Hairstylist':isFranchise?'Franchise Owner':'Manager';
+      var roleColor=isBarber?'var(--accent)':isFranchise?'var(--purple)':(b.role==='owner')?'#C8A800':'var(--blue)';
+      var roleLabel=isBarber?'Hairstylist':isFranchise?'Franchise Owner':(b.role==='owner')?'Salon Owner':'Manager';
       return '<div style="background:var(--surface);border-radius:var(--r);padding:12px;border:1px solid var(--border)">'+
         '<div style="font-weight:700;font-size:13px;color:var(--white)">'+b.name+'</div>'+
         '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+b.phone+'</div>'+
@@ -6444,19 +6404,19 @@ function renderAdminSalary(){
 
   var net, rows;
   if(isBarber){
-    // Barber — incentive per incentiveMode + PhonePe tips
+    // Barber — incentive per salon's incentiveMode + PhonePe tips
     var moE=filterByMonth((LS.get('entries')||[]).filter(function(e){return String(e.barberId)===String(_adminSalStaffId);}),mo);
     var moSales=moE.reduce(function(a,e){return a+Number(e.phPay||0)+Number(e.cash||0);},0);
     var moPhTips=moE.reduce(function(a,e){return a+Number(e.phTip||0);},0);
-    var uMode=b.incentiveMode||'sales10';
+    var salonRecForInc=(LS.get('salons')||[]).find(function(s){return s.id===b.salonId;})||{};
+    var incMode=salonRecForInc.incentiveMode||'sales10';
     var incentives=0;
-    if(uMode==='sales10'){
+    if(incMode==='sales10'){
       incentives=Math.round(moSales*0.10);
     } else {
       var wdTgt=Number(b.weekdayTarget||0),weTgt=Number(b.weekendTarget||0);
-      var wdInc=Number(b.weekdayIncentive||0),weInc=Number(b.weekendIncentive||0);
-      var _sdim=new Date(parseInt(mo.split('-')[0]),parseInt(mo.split('-')[1]),0).getDate();
-      var _smo=parseInt(mo.split('-')[1]),_syr=parseInt(mo.split('-')[0]);
+      var wdInc=Number(salonRecForInc.weekdayIncentive||0),weInc=Number(salonRecForInc.weekendIncentive||0);
+      var _sdim=dim,_smo=m,_syr=yr;
       var _sbd={};
       moE.forEach(function(e){var dk=e.date||'';_sbd[dk]=(_sbd[dk]||0)+Number(e.phPay||0)+Number(e.cash||0);});
       for(var _sdi=1;_sdi<=_sdim;_sdi++){
@@ -6466,7 +6426,7 @@ function renderAdminSalary(){
         if(_st>0&&(_sbd[_sdk]||0)>=_st) incentives+=_sd;
       }
     }
-    var incLabel=uMode==='sales10'?'Incentives (Sales × 10%)':'Incentives (Daily Targets)';
+    var incLabel=incMode==='sales10'?'Incentives (Sales × 10%)':'Incentives (Daily Targets)';
     net=monthSal+fm+cm+incentives+moPhTips+otAmt-cashAdv-ppAdv-totalDed;
     rows=mkR('Food Money',fm,'add')+mkR('Cleaning Money',cm,'add')+
       mkR(incLabel,incentives,'add')+
