@@ -1365,6 +1365,12 @@ function applyMeToDOM(){
 }
 
 // ── renderAll: refresh current visible tab ──
+function _isSalonPro(){
+  var salons = LS.get('salons') || [];
+  var sid = ME ? ME.salonId : null;
+  var s = salons.find(function(x){ return String(x.id) === String(sid); }) || {};
+  return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
+}
 function renderAll(){
   var activePage = document.querySelector('.page.active');
   if(!activePage) return;
@@ -2639,9 +2645,9 @@ function loadOffers(){
   var salonId = ME ? (ME.salonId||'') : '';
   var visits  = myBills().length;
 
-  // Referral card (always shown)
+  // Referral card — Pro feature only
   var rcEl = document.getElementById('referral-card-section');
-  if(rcEl) rcEl.innerHTML = buildReferralCard();
+  if(rcEl) rcEl.innerHTML = _isSalonPro() ? buildReferralCard() : '';
 
   // Savings card visual
   var scEl = document.getElementById('savings-card-section');
@@ -2913,6 +2919,7 @@ function _renderChunkLines(chunks){
 function renderCreditBadge(){
   var el = document.getElementById('creditBadgeSection');
   if(!el) return;
+  if(!_isSalonPro()){ el.innerHTML = ''; return; }
   var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
   var chunks = _activeCashbackChunks();
   var cbActive = _activeCashbackTotal();
@@ -2944,6 +2951,7 @@ function renderCreditBadge(){
 function renderHomeCreditBanner(){
   var el = document.getElementById('homeCreditBanner');
   if(!el) return;
+  if(!_isSalonPro()){ el.innerHTML = ''; return; }
   var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
   var chunks = _activeCashbackChunks();
   var cbActive = _activeCashbackTotal();

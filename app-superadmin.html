@@ -378,6 +378,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <button class="nt"    id="nt-salonqueue" onclick="showTab('salonqueue')">📺 Salon Queue</button>
   <button class="nt"    id="nt-customers2" onclick="showTab('customers2')">👥 Customers</button>
   <button class="nt"    id="nt-kpi2"       onclick="showTab('kpi2')">🎯 Salon KPIs</button>
+  <button class="nt"    id="nt-subscriptions" onclick="showTab('subscriptions')">🔓 Subscriptions</button>
   <button class="nt"    id="nt-manage"    onclick="showTab('manage')">⚙️ Manage</button>
 </div>
 
@@ -931,6 +932,40 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   </div>
 </div>
 
+<!-- SUBSCRIPTIONS -->
+<div class="panel" id="pn-subscriptions">
+  <div class="sec-hdr"><div class="sec-title">🔓 Pro Subscriptions</div></div>
+
+  <!-- Summary stat strip -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:#C8A800" id="sub-stat-pro">0</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Pro Salons</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:var(--muted)" id="sub-stat-free">0</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Free Salons</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:var(--warn)" id="sub-stat-pending">0</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Pending Review</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:var(--accent)" id="sub-stat-revenue">₹0</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Approved This Month</div>
+    </div>
+  </div>
+
+  <div class="sec-hdr" style="margin-bottom:8px"><div class="sec-title" style="font-size:14px">Payment Submissions</div></div>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="nt" id="subf-pending" onclick="filterSubPayments('pending')" style="padding:6px 14px;font-size:11px;border-radius:6px;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--warn)">⏳ Pending</button>
+    <button class="nt" id="subf-approved" onclick="filterSubPayments('approved')" style="padding:6px 14px;font-size:11px;border-radius:6px;background:rgba(0,196,140,.1);border:1px solid rgba(0,196,140,.3);color:var(--accent)">✅ Approved</button>
+    <button class="nt" id="subf-rejected" onclick="filterSubPayments('rejected')" style="padding:6px 14px;font-size:11px;border-radius:6px;background:rgba(220,53,69,.08);border:1px solid rgba(220,53,69,.25);color:var(--danger)">✕ Rejected</button>
+    <button class="nt" id="subf-all" onclick="filterSubPayments('all')" style="padding:6px 14px;font-size:11px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)">All</button>
+  </div>
+  <div id="sub-payments-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
 <!-- MANAGE -->
 <div class="panel" id="pn-manage">
   <div class="sec-hdr"><div class="sec-title">Salons</div><button class="btn-sm" onclick="openModal('addSalonModal')">+ Add Salon</button></div>
@@ -1109,7 +1144,18 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       </label>
     </div>
 
-    <!-- Rentals — always visible, used in PNL calculations -->
+    <!-- Pro Subscription toggle — replaces the old localStorage-only flag -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(200,168,0,.08);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;border:1.5px solid rgba(200,168,0,.3)" id="esl-pro-row">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--white)">🔓 Pro Subscription</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="esl-pro-status-lbl">Free plan — Queue, Offers & Customer Wallet locked</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0;cursor:pointer">
+        <input type="checkbox" id="esl-pro" style="opacity:0;width:0;height:0;position:absolute" onchange="var on=this.checked;document.getElementById('esl-pro-status-lbl').textContent=on?'Pro active — Queue, Offers & Customer Wallet unlocked':'Free plan — Queue, Offers & Customer Wallet locked';document.getElementById('esl-pro-track').style.background=on?'#C8A800':'var(--border)';document.getElementById('esl-pro-thumb').style.transform=on?'translateX(22px)':'translateX(0)'">
+        <span id="esl-pro-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border);transition:background .2s"></span>
+        <span id="esl-pro-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(0)"></span>
+      </label>
+    </div>
     <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
       <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Monthly Costs (Rentals)</div>
       <div class="ifield" style="margin-bottom:8px"><label>Salon Rent (₹)</label><input type="number" id="esl-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
@@ -1558,6 +1604,7 @@ function applyRestoredData(d){
         if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = existingSalon.incentiveMode;
         if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = existingSalon.weekdayIncentive;
         if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = existingSalon.weekendIncentive;
+        if(r.proEnabled === undefined || r.proEnabled === null) r.proEnabled = existingSalon.proEnabled;
       }
       return r;
     }));
@@ -2114,6 +2161,7 @@ function showTab(tab){
     if(tab==='kpi2'){ supaBootstrap(function(){ initKPI2(); }, function(){ initKPI2(); }); }
     if(tab==='salonpnl'){ populateSalonPNLSelect(); var sm=document.getElementById('spnl-month'); if(sm&&!sm.value)sm.value=new Date().toISOString().slice(0,7); renderSalonPNL(); }
     if(tab==='salonstaff'){ supaBootstrap(function(){ populateSalonStaffSelect(); var sm=document.getElementById('ss-month'); if(sm&&!sm.value)sm.value=new Date().toISOString().slice(0,7); renderSalonStaff(); }, function(){ populateSalonStaffSelect(); renderSalonStaff(); }); }
+    if(tab==='subscriptions'){ supaBootstrap(function(){ renderSubscriptions(); }, function(){ renderSubscriptions(); }); }
   }catch(e){
     toast('Tab error: '+e.message);
     console.error('[BB showTab]',e);
@@ -2465,6 +2513,93 @@ function renderReports(){
 }
 
 // ── MANAGE ──
+// ════════════════════════════════════════════════════════════════
+//  PRO SUBSCRIPTIONS — payment review
+// ════════════════════════════════════════════════════════════════
+var _subPaymentsCache = [];
+var _subFilter = 'pending';
+function renderSubscriptions(){
+  var salons = LS.get('salons') || [];
+  var proCount = salons.filter(function(s){ return s.proEnabled===true||s.proEnabled===1||s.proEnabled==='1'||s.proEnabled==='true'; }).length;
+  document.getElementById('sub-stat-pro').textContent = proCount;
+  document.getElementById('sub-stat-free').textContent = Math.max(0, salons.length - proCount);
+
+  sbSelect('pro_payments', 'order=submitted_at.desc').then(function(rows){
+    _subPaymentsCache = rows || [];
+    var pendingCount = _subPaymentsCache.filter(function(p){ return p.status==='pending'; }).length;
+    document.getElementById('sub-stat-pending').textContent = pendingCount;
+    var now = new Date();
+    var thisMonthApproved = _subPaymentsCache.filter(function(p){
+      if(p.status!=='approved' || !p.reviewed_at) return false;
+      var d = new Date(p.reviewed_at);
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+    }).reduce(function(a,p){ return a + Number(p.amount||0); }, 0);
+    document.getElementById('sub-stat-revenue').textContent = '₹'+thisMonthApproved.toLocaleString('en-IN');
+    filterSubPayments(_subFilter);
+  }).catch(function(e){ console.warn('[Subscriptions] load failed:', e); });
+}
+function filterSubPayments(which){
+  _subFilter = which;
+  ['pending','approved','rejected','all'].forEach(function(k){
+    var b=document.getElementById('subf-'+k);
+    if(b) b.style.opacity = (k===which) ? '1' : '.55';
+  });
+  var list = which==='all' ? _subPaymentsCache : _subPaymentsCache.filter(function(p){ return p.status===which; });
+  var el = document.getElementById('sub-payments-list');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted2);font-size:13px">No '+(which==='all'?'':which+' ')+'payments'+(which==='all'?' yet':'')+'.</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(p){
+    var statusColor = p.status==='approved' ? 'var(--accent)' : p.status==='rejected' ? 'var(--danger)' : 'var(--warn)';
+    var statusBg = p.status==='approved' ? 'rgba(0,196,140,.08)' : p.status==='rejected' ? 'rgba(220,53,69,.06)' : 'rgba(245,166,35,.08)';
+    var dateStr = p.submitted_at ? new Date(p.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    return '<div style="background:'+statusBg+';border:1.5px solid '+statusColor+';border-radius:var(--r);padding:14px;display:flex;gap:14px;align-items:flex-start">'+
+      (p.screenshot_url ? '<img src="'+p.screenshot_url+'" onclick="window.open(\''+p.screenshot_url+'\',\'_blank\')" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);flex-shrink:0">' : '<div style="width:64px;height:64px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🧾</div>')+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:800;color:var(--white)">'+(p.salon_name||p.salon_id||'Unknown salon')+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">₹'+Number(p.amount||299).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
+        (p.notes ? '<div style="font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic">'+p.notes+'</div>' : '')+
+        '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:'+statusColor+';margin-top:6px">'+p.status+'</div>'+
+      '</div>'+
+      (p.status==='pending' ? (
+        '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">'+
+          '<button onclick="approveSubPayment(\''+p.id+'\')" style="padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">✅ Approve</button>'+
+          '<button onclick="rejectSubPayment(\''+p.id+'\')" style="padding:7px 14px;background:rgba(220,53,69,.1);color:var(--danger);border:1px solid rgba(220,53,69,.3);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">✕ Reject</button>'+
+        '</div>'
+      ) : '')+
+    '</div>';
+  }).join('');
+}
+function approveSubPayment(id){
+  var p = _subPaymentsCache.find(function(x){ return x.id===id; });
+  if(!p) return;
+  if(!confirm('Approve this payment and activate Pro for "'+(p.salon_name||p.salon_id)+'"?')) return;
+  sbUpdate('pro_payments', id, {status:'approved', reviewed_at:new Date().toISOString()}).then(function(){
+    // Auto-enable Pro for the salon
+    var salons = LS.get('salons')||[];
+    var idx = salons.findIndex(function(s){ return s.id===p.salon_id; });
+    if(idx!==-1){
+      salons[idx].proEnabled = true;
+      LS.set('salons', salons);
+      sbUpdate('salons', p.salon_id, {proEnabled:true}).catch(function(){});
+    }
+    toast('✅ Approved — Pro activated for '+(p.salon_name||p.salon_id));
+    renderSubscriptions();
+  }).catch(function(err){ toast('⚠ Failed to approve'); console.warn(err); });
+}
+function rejectSubPayment(id){
+  var p = _subPaymentsCache.find(function(x){ return x.id===id; });
+  if(!p) return;
+  var reason = prompt('Reason for rejecting (optional):','');
+  if(reason===null) return; // cancelled
+  sbUpdate('pro_payments', id, {status:'rejected', reviewed_at:new Date().toISOString(), notes:reason||p.notes||''}).then(function(){
+    toast('Payment rejected');
+    renderSubscriptions();
+  }).catch(function(err){ toast('⚠ Failed to reject'); console.warn(err); });
+}
+
 function renderManage(){
   // One-time diagnostic — logs the raw shape of a salon row as Supabase
   // actually returns it, so we can see in the console whether the
@@ -2489,12 +2624,14 @@ function renderManage(){
   document.getElementById('mg-salons').innerHTML='<div class="salon-grid">'+salons.map(function(s){
     var sb=staff.filter(function(u){return u.salonId===s.id&&u.role==='barber'&&_actU(u);}).length;
     var incMode=s.incentiveMode||'sales10';
+    var isProSalon=s.proEnabled===true||s.proEnabled===1||s.proEnabled==='1'||s.proEnabled==='true';
     var act=_actS(s);
     return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
           '<div class="sn-name" style="display:flex;align-items:center;gap:6px">'+s.name+
             (!act?'<span style="font-size:9px;font-weight:800;background:rgba(220,53,69,.12);color:var(--danger);border:1px solid rgba(220,53,69,.3);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">INACTIVE</span>':'')+
+            (isProSalon?'<span style="font-size:9px;font-weight:800;background:rgba(200,168,0,.15);color:#C8A800;border:1px solid rgba(200,168,0,.35);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">🔓 PRO</span>':'<span style="font-size:9px;font-weight:800;background:rgba(0,0,0,.05);color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">FREE</span>')+
           '</div>'+
           '<div class="sn-loc">'+s.location+'</div>'+
           '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">🏆 '+(incMode==='sales10'?'Sales 10%':'Daily Targets')+'</div>'+
@@ -2820,6 +2957,15 @@ function openEditSalon(id){
   document.getElementById('esl-wd-inc').value=s.weekdayIncentive||0;
   document.getElementById('esl-we-inc').value=s.weekendIncentive||0;
   eslToggleIncMode();
+  // Pro subscription toggle
+  var isPro = s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
+  var eslPro = document.getElementById('esl-pro');
+  if(eslPro){
+    eslPro.checked = isPro;
+    document.getElementById('esl-pro-track').style.background = isPro?'#C8A800':'var(--border)';
+    document.getElementById('esl-pro-thumb').style.transform  = isPro?'translateX(22px)':'translateX(0)';
+    document.getElementById('esl-pro-status-lbl').textContent = isPro?'Pro active — Queue, Offers & Customer Wallet unlocked':'Free plan — Queue, Offers & Customer Wallet locked';
+  }
   // Load current rent costs from Supabase — always, regardless of company-managed
   var curMo=new Date().toISOString().slice(0,7);
   sbSelect('franchise_inputs',
@@ -2854,6 +3000,9 @@ function saveEditSalon(){
   salons[idx].incentiveMode    =incModeEl?incModeEl.value:'sales10';
   salons[idx].weekdayIncentive =parseFloat(document.getElementById('esl-wd-inc').value)||0;
   salons[idx].weekendIncentive =parseFloat(document.getElementById('esl-we-inc').value)||0;
+  // Save Pro subscription toggle
+  var eslProEl=document.getElementById('esl-pro');
+  salons[idx].proEnabled = eslProEl ? !!eslProEl.checked : false;
   LS.set('salons',salons);
   // Split into separate PATCH calls so we can see exactly which fields
   // Supabase accepts vs rejects, instead of one all-or-nothing call.
@@ -2869,6 +3018,18 @@ function saveEditSalon(){
     weekdayIncentive: salons[idx].weekdayIncentive,
     weekendIncentive: salons[idx].weekendIncentive
   };
+  var _proSalonPatch = {
+    proEnabled: salons[idx].proEnabled
+  };
+  sbUpdate('salons', salons[idx].id, _proSalonPatch).then(function(result){
+    if(!result){
+      var errInfoP = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+      console.error('[Salon Save] PRO toggle rejected. Details:', errInfoP);
+      alert('Supabase rejected the Pro toggle update:\n\n'+errInfoP);
+    } else {
+      console.log('[Salon Save] PRO toggle saved OK:', result);
+    }
+  }).catch(function(err){ console.warn('[Salon Save] PRO toggle — network/JS error:', err); });
   sbUpdate('salons', salons[idx].id, _baseSalonPatch).then(function(result){
     if(!result){
       var errInfo2 = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
@@ -3375,6 +3536,7 @@ function applyRestoredData(d){
         if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = ex.incentiveMode;
         if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = ex.weekdayIncentive;
         if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = ex.weekendIncentive;
+        if(r.proEnabled === undefined || r.proEnabled === null) r.proEnabled = ex.proEnabled;
       }
       return r;
     }));

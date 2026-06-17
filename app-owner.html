@@ -956,6 +956,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <button class="manage-sub"   id="mst-mgrprofile" onclick="manageSubTab('mgrprofile')">👤 Manager Profile</button>
     <button class="manage-sub"   id="mst-saloninfo"  onclick="manageSubTab('saloninfo')">🏪 Salon Info</button>
     <button class="manage-sub"   id="mst-salon"      onclick="manageSubTab('salon')">📊 Expenses</button>
+    <button class="manage-sub"   id="mst-subscription" onclick="manageSubTab('subscription')">🔓 Subscription</button>
   </div>
 
   <!-- ── STAFF SUB-TAB ── -->
@@ -1058,6 +1059,49 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- ── SALON EXPENSES SUB-TAB (moved from main Salon tab) ── -->
   <div id="msp-salon" style="display:none">
     <div id="pn-salon-inner"></div>
+  </div>
+
+  <!-- ── SUBSCRIPTION SUB-TAB ── -->
+  <div id="msp-subscription" style="display:none">
+    <div id="sub-current-status" style="margin-bottom:16px"></div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--white);margin-bottom:4px">Upgrade to Pro — ₹299/month</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px">Unlocks the Save-the-Time Queue, Offers &amp; cashback campaigns, and the customer Cashback Wallet &amp; Referral program.</div>
+
+      <div style="text-align:center;margin-bottom:16px">
+        <img src="https://sgliztuggyksdemzkaxr.supabase.co/storage/v1/object/public/salon-assets/payment-qr.png"
+             alt="Payment QR code" style="width:200px;height:200px;border-radius:12px;border:2px solid var(--border);object-fit:contain;background:#fff;padding:8px"
+             onerror="this.style.display='none';document.getElementById('sub-qr-fallback').style.display='block'">
+        <div id="sub-qr-fallback" style="display:none;width:200px;height:200px;margin:0 auto;border-radius:12px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:12px;text-align:center;padding:16px">QR code not configured yet — contact support</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Scan with any UPI app to pay ₹299</div>
+      </div>
+
+      <div class="ifield" style="margin-bottom:12px">
+        <label>Upload Payment Screenshot</label>
+        <input type="file" id="sub-screenshot-input" accept="image/*" onchange="subPreviewScreenshot(this)" style="display:none">
+        <div onclick="document.getElementById('sub-screenshot-input').click()" id="sub-upload-box"
+          style="border:2px dashed var(--border);border-radius:var(--rs);padding:24px;text-align:center;cursor:pointer;background:var(--surface2)">
+          <div id="sub-upload-icon" style="font-size:32px;margin-bottom:6px">📤</div>
+          <img id="sub-upload-preview" style="display:none;max-width:100%;max-height:160px;border-radius:8px;margin-bottom:6px">
+          <div id="sub-upload-txt" style="font-size:12px;color:var(--muted)">Tap to choose a screenshot of your payment</div>
+        </div>
+      </div>
+
+      <div class="ifield" style="margin-bottom:14px">
+        <label>Notes (optional)</label>
+        <input type="text" class="fi" id="sub-notes" placeholder="e.g. UTR number, transaction ID">
+      </div>
+
+      <div id="sub-upload-progress" style="display:none;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:12px">
+        <div id="sub-upload-bar" style="height:100%;width:0%;background:var(--accent);transition:width .3s"></div>
+      </div>
+
+      <button class="btn-primary" style="width:100%" onclick="submitProPayment()" id="sub-submit-btn">Submit Payment for Review</button>
+    </div>
+
+    <div class="sec-hdr" style="margin-bottom:8px"><div class="sec-title" style="font-size:13px">Your Submissions</div></div>
+    <div id="sub-history-list" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 
 
@@ -6447,7 +6491,23 @@ function applyRestoredData(d){
   // Always overwrite entries — even if empty — so stale data never persists
   LS.set('entries', (d.entries||[]).map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
   if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
-  if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.salons&&d.salons.length){
+    var existingSalonsO = LS.get('salons') || [];
+    var existingSalonMapO = {};
+    existingSalonsO.forEach(function(s){ existingSalonMapO[s.id] = s; });
+    LS.set('salons', d.salons.map(function(r){
+      r = toStr(r,['id','mgrPhone']);
+      var exO = existingSalonMapO[r.id];
+      if(exO){
+        if(r.active === undefined || r.active === null) r.active = exO.active;
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = exO.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = exO.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = exO.weekendIncentive;
+        if(r.proEnabled === undefined || r.proEnabled === null) r.proEnabled = exO.proEnabled;
+      }
+      return r;
+    }));
+  }
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
   if(d.cashIn&&d.cashIn.length)      LS.set('cashIn',     d.cashIn.map(function(r){return toStr(r,['barberId']);}));
   if(d.expenses&&d.expenses.length)  LS.set('expenses',   d.expenses.map(function(r){return toStr(r,['barberId']);}));
@@ -8047,7 +8107,7 @@ supaBootstrap = function(onDone, onError) {
 // Queue tab — Pro gate
 function showQueueGated(){
   showTab('queue');
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   var gate    = document.getElementById('queue-pro-gate');
   var content = document.getElementById('queue-pro-content');
   if(plan === 'free'){
@@ -8061,7 +8121,7 @@ function showQueueGated(){
 
 // WhatsApp — Pro gate
 function mgrWaGated(type, customerId, phone, name, lastVisit, daysSince, dueStatus){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
     return;
@@ -8318,7 +8378,7 @@ function hideUpgradeBanner(){
 
 // ── Offers — Pro gate ─────────────────────────────────────────
 function showOffersGated(){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     // Don't show actual offers content — just show upgrade wall
     // Still need to show the panel
@@ -8364,7 +8424,7 @@ function showOffersGated(){
 }
 
 function createOfferGated(){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     showUpgradeBanner('Creating offers requires <strong>Pro plan (₹299/mo)</strong>');
     return;
@@ -9214,7 +9274,7 @@ function cosReorder(orderId){
 // ════════════════════════════════════════════════════════════════
 
 function manageSubTab(tab){
-  ['fullstaff','mgrprofile','saloninfo','salon'].forEach(function(t){
+  ['fullstaff','mgrprofile','saloninfo','salon','subscription'].forEach(function(t){
     var p=document.getElementById('msp-'+t);
     var b=document.getElementById('mst-'+t);
     if(p) p.style.display = t===tab?'block':'none';
@@ -9224,6 +9284,132 @@ function manageSubTab(tab){
   if(tab==='fullstaff')  _loadFullStaffPanel();
   if(tab==='salon')      _loadSalonExpensesPanel();
   if(tab==='mgrprofile') loadMgrProfileTab();
+  if(tab==='subscription') loadSubscriptionTab();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  PRO SUBSCRIPTION — Manage > Subscription sub-tab
+// ════════════════════════════════════════════════════════════════
+var _subScreenshotFile = null;
+function _isSalonPro(){
+  var salons = LS.get('salons') || [];
+  var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
+  return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
+}
+function loadSubscriptionTab(){
+  var isPro = _isSalonPro();
+  var statusEl = document.getElementById('sub-current-status');
+  if(statusEl){
+    statusEl.innerHTML = isPro
+      ? '<div style="background:rgba(0,196,140,.08);border:1.5px solid var(--accent);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
+          '<div style="font-size:28px">🔓</div>'+
+          '<div><div style="font-size:14px;font-weight:800;color:var(--accent)">Pro Plan Active</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Queue, Offers, and Customer Wallet are unlocked for your salon.</div></div>'+
+        '</div>'
+      : '<div style="background:rgba(245,166,35,.08);border:1.5px solid var(--warn);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
+          '<div style="font-size:28px">🔒</div>'+
+          '<div><div style="font-size:14px;font-weight:800;color:var(--warn)">Free Plan</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Submit a payment below to unlock Pro features. Activation happens after admin review.</div></div>'+
+        '</div>';
+  }
+  // Load this salon's submission history
+  sbSelect('pro_payments', 'salon_id=eq.'+encodeURIComponent(mySalonId)+'&order=submitted_at.desc').then(function(rows){
+    var el = document.getElementById('sub-history-list');
+    if(!el) return;
+    if(!rows || !rows.length){
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted2);font-size:12px">No submissions yet.</div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(p){
+      var statusColor = p.status==='approved' ? 'var(--accent)' : p.status==='rejected' ? 'var(--danger)' : 'var(--warn)';
+      var statusLabel = p.status==='approved' ? '✅ Approved' : p.status==='rejected' ? '✕ Rejected' : '⏳ Pending review';
+      var dateStr = p.submitted_at ? new Date(p.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div><div style="font-size:12px;color:var(--white);font-weight:700">₹'+Number(p.amount||299).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
+        (p.notes?'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+p.notes+'</div>':'')+
+        (p.status==='rejected'&&p.notes?'':'')+
+        '</div>'+
+        '<div style="font-size:11px;font-weight:800;color:'+statusColor+'">'+statusLabel+'</div>'+
+      '</div>';
+    }).join('');
+  }).catch(function(){
+    var el = document.getElementById('sub-history-list');
+    if(el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted2);font-size:12px">Could not load history.</div>';
+  });
+}
+function subPreviewScreenshot(input){
+  if(!input.files || !input.files[0]) return;
+  _subScreenshotFile = input.files[0];
+  if(_subScreenshotFile.size > 5*1024*1024){
+    toast('⚠ Image must be under 5MB');
+    _subScreenshotFile = null;
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    document.getElementById('sub-upload-preview').src = e.target.result;
+    document.getElementById('sub-upload-preview').style.display = 'block';
+    document.getElementById('sub-upload-icon').style.display = 'none';
+    document.getElementById('sub-upload-txt').textContent = _subScreenshotFile.name;
+  };
+  reader.readAsDataURL(_subScreenshotFile);
+}
+function _uploadProScreenshot(file){
+  var ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+  var path = mySalonId+'-'+Date.now()+'.'+ext;
+  var bar = document.getElementById('sub-upload-bar');
+  var prog = document.getElementById('sub-upload-progress');
+  if(prog) prog.style.display = 'block';
+  if(bar) bar.style.width = '25%';
+  return fetch(SUPA_URL+'/storage/v1/object/payment-screenshots/'+path, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer '+SUPA_KEY, 'Content-Type': file.type, 'x-upsert': 'true' },
+    body: file
+  }).then(function(res){
+    if(bar) bar.style.width = '80%';
+    if(!res.ok) return res.text().then(function(t){ console.warn('[Sub] screenshot upload error:', t); return ''; });
+    if(bar) bar.style.width = '100%';
+    return SUPA_URL+'/storage/v1/object/public/payment-screenshots/'+path;
+  }).catch(function(err){ console.warn('[Sub] screenshot upload failed:', err); return ''; });
+}
+function submitProPayment(){
+  if(!_subScreenshotFile){ toast('Please upload a payment screenshot first'); return; }
+  var notes = (document.getElementById('sub-notes').value||'').trim();
+  var btn = document.getElementById('sub-submit-btn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Uploading…'; }
+  _uploadProScreenshot(_subScreenshotFile).then(function(url){
+    var salons = LS.get('salons')||[];
+    var sal = salons.find(function(s){ return s.id===mySalonId; }) || {};
+    var row = {
+      salon_id: mySalonId,
+      salon_name: sal.name||mySalonName||'',
+      amount: 299,
+      screenshot_url: url||'',
+      status: 'pending',
+      notes: notes
+    };
+    return sbInsert('pro_payments', row);
+  }).then(function(result){
+    if(btn){ btn.disabled = false; btn.textContent = 'Submit Payment for Review'; }
+    if(!result){
+      toast('⚠ Could not submit — please try again');
+      return;
+    }
+    toast('✅ Submitted! We\'ll activate Pro once payment is verified.');
+    _subScreenshotFile = null;
+    var fi = document.getElementById('sub-screenshot-input'); if(fi) fi.value = '';
+    var pv = document.getElementById('sub-upload-preview'); if(pv){ pv.style.display='none'; pv.src=''; }
+    document.getElementById('sub-upload-icon').style.display = 'block';
+    document.getElementById('sub-upload-txt').textContent = 'Tap to choose a screenshot of your payment';
+    document.getElementById('sub-notes').value = '';
+    document.getElementById('sub-upload-progress').style.display = 'none';
+    document.getElementById('sub-upload-bar').style.width = '0%';
+    loadSubscriptionTab();
+  }).catch(function(err){
+    if(btn){ btn.disabled = false; btn.textContent = 'Submit Payment for Review'; }
+    toast('⚠ Submission failed');
+    console.warn('[Sub] submit failed:', err);
+  });
 }
 function loadMgrProfileTab(){
   var s=document.getElementById('mgp-salon'); if(s) s.value=mySalonName||'';

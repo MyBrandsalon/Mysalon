@@ -3418,7 +3418,23 @@ function applyRestoredData(d){
   };
   // entries are intentionally NOT written here — supaBootstrap handles the merge
   if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
-  if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.salons&&d.salons.length){
+    var existingSalonsS2 = LS.get('salons') || [];
+    var existingSalonMapS2 = {};
+    existingSalonsS2.forEach(function(s){ existingSalonMapS2[s.id] = s; });
+    LS.set('salons', d.salons.map(function(r){
+      r = toStr(r,['id','mgrPhone']);
+      var exS2 = existingSalonMapS2[r.id];
+      if(exS2){
+        if(r.active === undefined || r.active === null) r.active = exS2.active;
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = exS2.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = exS2.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = exS2.weekendIncentive;
+        if(r.proEnabled === undefined || r.proEnabled === null) r.proEnabled = exS2.proEnabled;
+      }
+      return r;
+    }));
+  }
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
   if(d.cashIn&&d.cashIn.length)      LS.set('cashIn',     d.cashIn.map(function(r){return toStr(r,['barberId']);}));
   if(d.expenses&&d.expenses.length)  LS.set('expenses',   d.expenses.map(function(r){return toStr(r,['barberId']);}));
@@ -3916,8 +3932,14 @@ supaBootstrap = function(onDone, onError) {
 // ════════════════════════════════════════════════════════════
 //  STYLIST PRO GATE
 // ════════════════════════════════════════════════════════════
+function _isSalonPro(){
+  var salons = LS.get('salons') || [];
+  var sid = ME ? ME.salonId : null;
+  var s = salons.find(function(x){ return x.id === sid; }) || {};
+  return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
+}
 function stylistProGate(tab){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     _showStylistUpgradeBanner(tab);
     return;

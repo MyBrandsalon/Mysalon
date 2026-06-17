@@ -2433,6 +2433,11 @@ function filterByMonth(entries,mo){
 }
 // ── INIT ──
 var ME=null, mySalonId=null, mySalonName='My Salon';
+function _isSalonPro(){
+  var salons = LS.get('salons') || [];
+  var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
+  return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
+}
 
 function _initApp(){
   var staff=LS.get('staff')||[];
@@ -5390,6 +5395,8 @@ function renderCustomers(){
 }
 
 function _doRenderCustomers(){
+  var _custTbody = document.getElementById('cust-tbody');
+  if(!_custTbody) return;
   var custs  = (LS.get('customers')||[]).filter(function(c){
     // Show customers linked to this salon by salonId, or by billing entry phone for legacy records
     if(c.salonId) return String(c.salonId)===String(mySalonId);
@@ -5399,7 +5406,7 @@ function _doRenderCustomers(){
   var visits = LS.get('visits')||[];
   var allE   = getEntries().filter(function(e){ return e.salonId===mySalonId; });
 
-  document.getElementById('cust-tbody').innerHTML=custs.map(function(c){
+  _custTbody.innerHTML=custs.map(function(c){
     var cv = visits.filter(function(v){return v.customerId===c.id;})
                    .sort(function(a,b){return b.date.localeCompare(a.date);});
     var billCount = allE.filter(function(e){return e.customerPhone===c.phone;}).length;
@@ -6205,7 +6212,23 @@ function applyRestoredData(d){
   };
   if(d.entries&&d.entries.length)    LS.set('entries',    d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
   if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
-  if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.salons&&d.salons.length){
+    var existingSalonsM = LS.get('salons') || [];
+    var existingSalonMapM = {};
+    existingSalonsM.forEach(function(s){ existingSalonMapM[s.id] = s; });
+    LS.set('salons', d.salons.map(function(r){
+      r = toStr(r,['id','mgrPhone']);
+      var exM = existingSalonMapM[r.id];
+      if(exM){
+        if(r.active === undefined || r.active === null) r.active = exM.active;
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = exM.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = exM.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = exM.weekendIncentive;
+        if(r.proEnabled === undefined || r.proEnabled === null) r.proEnabled = exM.proEnabled;
+      }
+      return r;
+    }));
+  }
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin']);}));
   if(d.cashIn&&d.cashIn.length)      LS.set('cashIn',     d.cashIn.map(function(r){return toStr(r,['barberId']);}));
   if(d.expenses&&d.expenses.length)  LS.set('expenses',   d.expenses.map(function(r){return toStr(r,['barberId']);}));
@@ -7797,7 +7820,7 @@ supaBootstrap = function(onDone, onError) {
 // Queue tab — Pro gate
 function showQueueGated(){
   showTab('queue');
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   var gate    = document.getElementById('queue-pro-gate');
   var content = document.getElementById('queue-pro-content');
   if(plan === 'free'){
@@ -7811,7 +7834,7 @@ function showQueueGated(){
 
 // WhatsApp — Pro gate
 function mgrWaGated(type, customerId, phone, name, lastVisit, daysSince, dueStatus){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
     return;
@@ -8068,7 +8091,7 @@ function hideUpgradeBanner(){
 
 // ── Offers — Pro gate ─────────────────────────────────────────
 function showOffersGated(){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     // Don't show actual offers content — just show upgrade wall
     // Still need to show the panel
@@ -8114,7 +8137,7 @@ function showOffersGated(){
 }
 
 function createOfferGated(){
-  var plan = localStorage.getItem('ms_plan') || sessionStorage.getItem('ms_plan') || 'free';
+  var plan = _isSalonPro() ? 'pro' : 'free';
   if(plan === 'free'){
     showUpgradeBanner('Creating offers requires <strong>Pro plan (₹299/mo)</strong>');
     return;
