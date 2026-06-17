@@ -2156,12 +2156,19 @@ var SB = {
 // This is called once on app load. Supabase is source of truth.
 function supaBootstrap(onDone, onError){
   SB.readAll().then(function(data){
-    // Preserve locally-saved attendance records before wiping LS
+    // Preserve locally-saved attendance records before merging
     // (manager may have clocked in/out and Supabase hasn't confirmed yet)
     var localAtt = LS.get('attendance') || [];
+    // IMPORTANT: only clear a cached key if we actually got replacement data
+    // for it. Wiping unconditionally here used to delete localStorage entries
+    // for any table whose network fetch failed (sbSelect never rejects — it
+    // swallows errors and resolves with []), which silently emptied 'staff'
+    // mid-session and made _initApp() think the manager wasn't found,
+    // redirecting them out to salon-portal.html with no visible error.
     ['entries','staff','salons','customers','cashIn','expenses',
      'attendance','styleCards','visits','advances','mgrCashIn','mgrExpenses'].forEach(function(k){
-      localStorage.removeItem('ms_'+k);
+      var fetched = data && data[k];
+      if(fetched && fetched.length) localStorage.removeItem('ms_'+k);
     });
     applyRestoredData(data);
     // Merge back any local attendance records not yet in Supabase
@@ -2441,7 +2448,15 @@ function _isSalonPro(){
 
 function _initApp(){
   var staff=LS.get('staff')||[];
-  ME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  var foundME=staff.find(function(u){return u.phone===SESSION_PHONE&&(u.role==='manager'||u.role==='admin'||u.role==='owner')&&(u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true);});
+  if(!foundME && ME && ME.phone===SESSION_PHONE){
+    // We already resolved ME successfully earlier this session, and the
+    // staff list is now empty/missing this record — almost certainly a
+    // transient fetch failure, not a real "logged out" state. Keep the
+    // previously-resolved ME instead of redirecting the manager out.
+    foundME = ME;
+  }
+  ME = foundME;
   if(!ME && SESSION_ROLE!=='owner'){ sessionStorage.clear(); var _as=localStorage.getItem('ms_slug')||sessionStorage.getItem('ms_slug')||''; window.location.href='salon-portal.html'+(_as?'?salon='+encodeURIComponent(_as):''); return; }
   if(!ME){ ME={id:sessionStorage.getItem('ms_tenant_id')||'owner',name:sessionStorage.getItem('ms_user_name')||'Owner',phone:SESSION_PHONE,role:'owner',salonId:sessionStorage.getItem('ms_salon_id')||'',active:true,fixedSalary:0,foodMoney:0,cleaningMoney:0,allowBackdate:true,"loginPin":''}; }
   mySalonId = ME.salonId;
@@ -4421,17 +4436,16 @@ function mgrRenderCustStats(){
       hdr('📊 Overall','var(--muted)')+
       card('Total Customers',customers.length,repeatC+' repeat','var(--white)')+
       card('Total Visits',entries.length,'Avg '+fmtINR(avgV)+'/visit','#D97706','#D97706')+
-      card('SC Eligible',eligCount(entries),'≥ ₹299/visit','var(--green)','var(--green)')+
       card('Total Revenue',fmtINR(sumSpent(entries)),'all time','var(--accent)','var(--accent)')+
       hdr('📅 Today — '+todayStr,'var(--accent)')+
       card('New Customers',newToday,'first-time today','var(--accent)')+
       card('Visitors Today',uniqPh(todayEnts),'unique phones','var(--blue)','var(--blue)')+
-      card('Visits Today',todayEnts.length,eligCount(todayEnts)+' SC eligible','#D97706','#D97706')+
+      card('Visits Today',todayEnts.length,'','#D97706','#D97706')+
       card('Revenue Today',fmtINR(sumSpent(todayEnts)),'','var(--green)','var(--green)')+
       hdr('\uD83D\uDDD3\uFE0F This Month','#9333ea')+
       card('New This Month',newMonth,'first-time this month','#9333ea','#9333ea')+
       card('Monthly Visitors',uniqPh(monthEnts),'unique phones','var(--blue)','var(--blue)')+
-      card('Monthly Visits',monthEnts.length,eligCount(monthEnts)+' SC eligible','#D97706','#D97706')+
+      card('Monthly Visits',monthEnts.length,'','#D97706','#D97706')+
       card('Monthly Revenue',fmtINR(sumSpent(monthEnts)),'','var(--green)','var(--green)');
   }
 }
