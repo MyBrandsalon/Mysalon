@@ -2829,7 +2829,29 @@ function saveEditSalon(){
   salons[idx].weekdayIncentive =parseFloat(document.getElementById('esl-wd-inc').value)||0;
   salons[idx].weekendIncentive =parseFloat(document.getElementById('esl-we-inc').value)||0;
   LS.set('salons',salons);
-  SB.updateSalon(salons[idx]).catch(function(){ updateRowInSheet('Salons',salons[idx],function(ok){if(!ok)toast('⚠ Saved locally');}); });
+  // Send an explicit, minimal payload — avoids any stale/mistyped fields on
+  // the full local object (e.g. cameras array) silently breaking the PATCH
+  // and masking why incentive fields don't persist.
+  var _saveSalonPatch = {
+    id: salons[idx].id,
+    name: salons[idx].name,
+    location: salons[idx].location,
+    mgrPhone: salons[idx].mgrPhone,
+    active: salons[idx].active,
+    cameras: JSON.stringify(salons[idx].cameras||[]),
+    incentiveMode: salons[idx].incentiveMode,
+    weekdayIncentive: salons[idx].weekdayIncentive,
+    weekendIncentive: salons[idx].weekendIncentive
+  };
+  sbUpdate('salons', salons[idx].id, _saveSalonPatch).then(function(result){
+    if(!result){
+      console.warn('[Salon Save] PATCH returned empty — likely rejected by Supabase. Check console above for the actual error.');
+      toast('⚠ Saved locally — Supabase rejected the update, check console');
+    }
+  }).catch(function(err){
+    console.warn('[Salon Save] PATCH failed:', err);
+    updateRowInSheet('Salons',salons[idx],function(ok){if(!ok)toast('⚠ Saved locally');});
+  });
   // Save rent costs — always, regardless of company-managed
   var rent=parseFloat(document.getElementById('esl-rent').value)||0;
   var staffRent=parseFloat(document.getElementById('esl-staff-rent').value)||0;
