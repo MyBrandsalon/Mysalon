@@ -3278,6 +3278,11 @@ function mgrShowOfferSelector(phone){
   var TIERS = [{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
   var tier = visitCount < TIERS.length ? TIERS[visitCount] : TIERS[TIERS.length-1];
   sel.innerHTML = '<option value="">— No offer —</option>'; // Savings Card removed
+  // Salon-created Offers are a Pro feature
+  if(!_isSalonPro()){
+    mgrApplyOfferDiscount();
+    return;
+  }
   var qs = 'active=eq.true&or=(salon_id.eq.'+encodeURIComponent(mySalonId)+',is_global.eq.true)&order=created_at.desc';
   sbSelect('offers', qs).then(function(offers){
     var now = new Date();
@@ -6952,6 +6957,10 @@ var OFFER_COLORS_MGR = ['','gold','purple','orange'];
 
 function renderMgrOffers(){
   var el = document.getElementById('mgr-offers-list');
+  if(!_isSalonPro()){
+    if(el) el.innerHTML = '';
+    return;
+  }
   if(el) el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Loading…</div>';
   var qs = 'or=(salon_id.eq.'+encodeURIComponent(mySalonId)+',is_global.eq.true)&order=created_at.desc';
   sbSelect('offers', qs).then(function(offers){

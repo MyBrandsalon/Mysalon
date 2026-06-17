@@ -2028,6 +2028,14 @@ function showOfferSelector(phone){
   var savingsLabel = '💳 Savings Card — Visit '+(visitCount+1)+' → '+tier.pct+'% OFF (Min ₹299)';
   // Rebuild options: savings card first, then active offers for this salon
   sel.innerHTML = '<option value="savings" data-pct="'+tier.pct+'" data-minbill="299">'+savingsLabel+'</option>';
+  // Salon-created Offers are a Pro feature — Savings Card stays available either way
+  if(!_isSalonPro()){
+    var noOpt0 = document.createElement('option');
+    noOpt0.value = 'none'; noOpt0.textContent = '— No Offer';
+    sel.appendChild(noOpt0);
+    applyOfferDiscount();
+    return;
+  }
   // Load active offers for this salon
   var salonId = ME ? (ME.salonId||'') : '';
   var qs = salonId

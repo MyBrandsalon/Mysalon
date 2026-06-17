@@ -566,7 +566,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <button class="btn btn-g" onclick="go('bills')">💰 My Bills</button>
       <button class="btn btn-y" onclick="showQR()">📱 My QR</button>
       <button class="btn btn-s" onclick="go('offers')">🎁 Offers & Deals</button>
-      <button class="btn btn-s" onclick="go('cards')">💈 Style Cards</button>
+      <button class="btn btn-s" id="home-cards-btn" onclick="go('cards')">💈 Style Cards</button>
     </div>
 
     <!-- Complaints summary — shown above bills -->
@@ -582,12 +582,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       <div style="font-size:13px;color:var(--muted2)">Loading…</div>
     </div></div>
 
-    <!-- Style cards preview -->
-    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
-      <span>My Style Cards</span>
-      <button class="btn btn-s btn-sm btn-inline" onclick="go('cards')">See All →</button>
+    <!-- Style cards preview — Pro feature only -->
+    <div id="homeCardsSection">
+      <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+        <span>My Style Cards</span>
+        <button class="btn btn-s btn-sm btn-inline" onclick="go('cards')">See All →</button>
+      </div>
+      <div id="homeCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
     </div>
-    <div id="homeCards"><div style="font-size:13px;color:var(--muted2)">Loading…</div></div>
 
     <!-- Current offers preview -->
     <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
@@ -1372,9 +1374,18 @@ function _isSalonPro(){
   return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
 }
 function renderAll(){
+  // Hide Style Cards entry points entirely for non-Pro salons
+  var isPro = _isSalonPro();
+  var cardsBtn = document.getElementById('home-cards-btn');
+  if(cardsBtn) cardsBtn.style.display = isPro ? '' : 'none';
+  var navCardsBtn = document.getElementById('nb-cards');
+  if(navCardsBtn) navCardsBtn.style.display = isPro ? '' : 'none';
+
   var activePage = document.querySelector('.page.active');
   if(!activePage) return;
   var id = activePage.id.replace('pg-','');
+  // If somehow landed on the cards page while not Pro (e.g. reload), bounce home
+  if(id==='cards' && !isPro){ go('home'); return; }
   if(id==='home')    loadHome();
   if(id==='bills')   loadBills();
   if(id==='cards')   loadCards();
@@ -1410,6 +1421,10 @@ function myCards() {
 
 // ── NAVIGATE ──
 function go(tab) {
+  if (tab==='cards' && !_isSalonPro()){
+    toast('💈 Style Cards is a Pro feature. Ask your salon to upgrade!');
+    tab = 'home';
+  }
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('pg-'+tab).classList.add('active');
@@ -1447,12 +1462,13 @@ function loadHome() {
   // Referral credit banner (above Quick Actions)
   renderHomeCreditBanner();
 
-  // Referral card — rendered above Quick Actions so customers see their share code first
+  // Referral card — Pro feature only, rendered above Quick Actions so
+  // customers see their share code first when their salon has Pro enabled
   var hRefEl = document.getElementById('homeReferralCard');
-  if(hRefEl) hRefEl.innerHTML = buildReferralCard();
+  if(hRefEl) hRefEl.innerHTML = _isSalonPro() ? buildReferralCard() : '';
 
-  // Active style strip
-  var def = cards.find(function(c){return c.isDefault;}) || cards[0];
+  // Active style strip — Pro feature only
+  var def = _isSalonPro() ? (cards.find(function(c){return c.isDefault;}) || cards[0]) : null;
   var strip = document.getElementById('activeStrip');
   if (def) {
     var tags = [def.fade, def.guard, def.texture].filter(Boolean).map(function(t){return '<span class="as-tag">'+t+'</span>';}).join('');
@@ -1474,12 +1490,16 @@ function loadHome() {
   // Complaints summary (above bills)
   loadHomeComplaints();
 
-  // Style cards preview
+  // Style cards preview — Pro feature only
+  var hcSection = document.getElementById('homeCardsSection');
+  if(hcSection) hcSection.style.display = _isSalonPro() ? 'block' : 'none';
   var hc = document.getElementById('homeCards');
-  if (!cards.length) {
-    hc.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0 4px">No style cards yet. Your barber will create one for you.</div>';
-  } else {
-    hc.innerHTML = cards.slice(0,2).map(function(c){ return sciHTML(c); }).join('');
+  if(_isSalonPro()){
+    if (!cards.length) {
+      hc.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0 4px">No style cards yet. Your barber will create one for you.</div>';
+    } else {
+      hc.innerHTML = cards.slice(0,2).map(function(c){ return sciHTML(c); }).join('');
+    }
   }
 
   // Load offers preview (show max 2)
