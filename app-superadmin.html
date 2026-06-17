@@ -1541,6 +1541,14 @@ function applyRestoredData(d){
         var existing = existingSalonMap[r.id];
         if(existing && existing.active !== undefined) r.active = existing.active;
       }
+      // Incentive structure — preserve from localStorage if Supabase doesn't
+      // return these columns (e.g. the salons table hasn't been migrated yet)
+      var existingSalon = existingSalonMap[r.id];
+      if(existingSalon){
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = existingSalon.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = existingSalon.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = existingSalon.weekendIncentive;
+      }
       return r;
     }));
   }
@@ -3278,8 +3286,40 @@ function applyRestoredData(d){
     return rec;
   };
   if(d.entries&&d.entries.length)    LS.set('entries',    d.entries.map(function(r){return toStr(r,['id','barberId','salonId','customerPhone']);}));
-  if(d.staff&&d.staff.length)        LS.set('staff',      d.staff.map(function(r){return toStr(r,['id','phone','salonId','loginPin']);}));
-  if(d.salons&&d.salons.length)      LS.set('salons',     d.salons.map(function(r){return toStr(r,['id','mgrPhone']);}));
+  if(d.staff&&d.staff.length){
+    var existingStaff2 = LS.get('staff') || [];
+    var existingStaffMap2 = {};
+    existingStaff2.forEach(function(u){ existingStaffMap2[u.id] = u; });
+    LS.set('staff', d.staff.map(function(r){
+      r = toStr(r,['id','phone','salonId','loginPin']);
+      var ex = existingStaffMap2[r.id];
+      if(ex){
+        if(r.active === undefined || r.active === null) r.active = ex.active;
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = ex.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = ex.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = ex.weekendIncentive;
+      }
+      return r;
+    }));
+  }
+  if(d.salons&&d.salons.length){
+    var existingSalons2 = LS.get('salons') || [];
+    var existingSalonMap2 = {};
+    existingSalons2.forEach(function(s){ existingSalonMap2[s.id] = s; });
+    LS.set('salons', d.salons.map(function(r){
+      r = toStr(r,['id','mgrPhone']);
+      var ex = existingSalonMap2[r.id];
+      if(ex){
+        if(r.active === undefined || r.active === null) r.active = ex.active;
+        // Incentive structure — preserve from localStorage if Supabase doesn't
+        // return these columns (e.g. the salons table hasn't been migrated yet)
+        if(r.incentiveMode === undefined || r.incentiveMode === null) r.incentiveMode = ex.incentiveMode;
+        if(r.weekdayIncentive === undefined || r.weekdayIncentive === null) r.weekdayIncentive = ex.weekdayIncentive;
+        if(r.weekendIncentive === undefined || r.weekendIncentive === null) r.weekendIncentive = ex.weekendIncentive;
+      }
+      return r;
+    }));
+  }
   if(d.customers&&d.customers.length)LS.set('customers',  d.customers.map(function(r){return toStr(r,['id','phone','loginPin','created_at','referred_by','referral_reward_paid','self_registered']);}));
   if(d.cashIn&&d.cashIn.length)      LS.set('cashIn',     d.cashIn.map(function(r){return toStr(r,['barberId']);}));
   if(d.expenses&&d.expenses.length)  LS.set('expenses',   d.expenses.map(function(r){return toStr(r,['barberId']);}));
