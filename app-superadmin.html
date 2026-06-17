@@ -1311,19 +1311,29 @@ function _supaHeaders(){
   };
 }
 
+window._lastSupaError = null;
 function _supaFetch(path, opts){
   return fetch(SUPA_URL+'/rest/v1/'+path, Object.assign({ headers: _supaHeaders() }, opts||{}))
     .then(function(r){
       if(!r.ok) return r.text().then(function(t){
-        console.warn('[MySalon] '+path+':', t);
+        window._lastSupaError = {path:path, status:r.status, body:t};
+        console.error('[MySalon SUPABASE ERROR] '+r.status+' on '+path+':', t);
         return [];
       });
       var ct = r.headers.get('content-type')||'';
       return ct.indexOf('application/json')!==-1 ? r.json() : [];
     }).then(function(d){
-      if(d && !Array.isArray(d) && d.code){ console.warn('[MySalon] error:', d.message); return []; }
+      if(d && !Array.isArray(d) && d.code){
+        window._lastSupaError = {path:path, body:d};
+        console.error('[MySalon SUPABASE ERROR] '+path+':', d.message, d);
+        return [];
+      }
       return d || [];
-    }).catch(function(){ return []; });
+    }).catch(function(err){
+      window._lastSupaError = {path:path, body:String(err)};
+      console.error('[MySalon NETWORK/JS ERROR] '+path+':', err);
+      return [];
+    });
 }
 
 function sbSelect(table, qs){
@@ -2456,6 +2466,22 @@ function renderReports(){
 
 // ── MANAGE ──
 function renderManage(){
+  // One-time diagnostic — logs the raw shape of a salon row as Supabase
+  // actually returns it, so we can see in the console whether the
+  // incentiveMode/weekdayIncentive/weekendIncentive columns are really
+  // present and what they're named/typed as.
+  if(!window._salonShapeLogged){
+    window._salonShapeLogged = true;
+    sbSelect('salons','limit=1').then(function(rows){
+      if(rows && rows[0]){
+        console.log('[Salon Shape Check] Raw row from Supabase:', rows[0]);
+        console.log('[Salon Shape Check] Keys present:', Object.keys(rows[0]));
+        console.log('[Salon Shape Check] incentiveMode value:', rows[0].incentiveMode, '| typeof:', typeof rows[0].incentiveMode);
+      } else {
+        console.warn('[Salon Shape Check] No salon rows returned at all.');
+      }
+    }).catch(function(e){ console.warn('[Salon Shape Check] fetch failed:', e); });
+  }
   var salons=LS.get('salons')||[];var staff=LS.get('staff')||[];
   function _actS(s){ return s.active===undefined||s.active===null||s.active===1||s.active==='1'||s.active===true; }
   function _actU(u){ return u.active===undefined||u.active===null||u.active===1||u.active==='1'||u.active===true; }
@@ -2829,27 +2855,38 @@ function saveEditSalon(){
   salons[idx].weekdayIncentive =parseFloat(document.getElementById('esl-wd-inc').value)||0;
   salons[idx].weekendIncentive =parseFloat(document.getElementById('esl-we-inc').value)||0;
   LS.set('salons',salons);
-  // Send an explicit, minimal payload — avoids any stale/mistyped fields on
-  // the full local object (e.g. cameras array) silently breaking the PATCH
-  // and masking why incentive fields don't persist.
-  var _saveSalonPatch = {
-    id: salons[idx].id,
+  // Split into separate PATCH calls so we can see exactly which fields
+  // Supabase accepts vs rejects, instead of one all-or-nothing call.
+  var _baseSalonPatch = {
     name: salons[idx].name,
     location: salons[idx].location,
     mgrPhone: salons[idx].mgrPhone,
-    active: salons[idx].active,
-    cameras: JSON.stringify(salons[idx].cameras||[]),
+    is_active: salons[idx].active ? true : false,
+    cameras: JSON.stringify(salons[idx].cameras||[])
+  };
+  var _incSalonPatch = {
     incentiveMode: salons[idx].incentiveMode,
     weekdayIncentive: salons[idx].weekdayIncentive,
     weekendIncentive: salons[idx].weekendIncentive
   };
-  sbUpdate('salons', salons[idx].id, _saveSalonPatch).then(function(result){
+  sbUpdate('salons', salons[idx].id, _baseSalonPatch).then(function(result){
     if(!result){
-      console.warn('[Salon Save] PATCH returned empty — likely rejected by Supabase. Check console above for the actual error.');
-      toast('⚠ Saved locally — Supabase rejected the update, check console');
+      var errInfo2 = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+      console.error('[Salon Save] BASE fields rejected. Details:', errInfo2);
+    }
+    else console.log('[Salon Save] BASE fields saved OK.');
+  }).catch(function(err){ console.warn('[Salon Save] BASE fields — network/JS error:', err); });
+  sbUpdate('salons', salons[idx].id, _incSalonPatch).then(function(result){
+    if(!result){
+      var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+      console.error('[Salon Save] INCENTIVE fields rejected. Details:', errInfo);
+      alert('Supabase rejected the incentive update:\n\n'+errInfo);
+      toast('⚠ Saved locally — see error popup');
+    } else {
+      console.log('[Salon Save] INCENTIVE fields saved OK:', result);
     }
   }).catch(function(err){
-    console.warn('[Salon Save] PATCH failed:', err);
+    console.warn('[Salon Save] INCENTIVE fields — network/JS error:', err);
     updateRowInSheet('Salons',salons[idx],function(ok){if(!ok)toast('⚠ Saved locally');});
   });
   // Save rent costs — always, regardless of company-managed
