@@ -536,7 +536,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <div id="offer-selector-wrap" style="display:none;margin-bottom:10px">
     <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">🎁 Apply Offer / Discount</label>
     <select id="inp-offer" class="fi" onchange="applyOfferDiscount()" style="width:100%">
-      <option value="savings">💳 Savings Card (auto)</option>
+      <option value="none">— No Offer</option>
     </select>
     <!-- Cashback mode is the only mode in the barber app — offers always
          credit cashback for the next visit. Managers can still apply an offer
@@ -2018,6 +2018,12 @@ function hideOfferSelector(){
 function showOfferSelector(phone){
   var w = document.getElementById('offer-selector-wrap');
   if(!w) return;
+  // Offers (including the Savings Card) are a Pro feature — hide the whole
+  // selector for free-tier salons instead of leaking any discount option.
+  if(!_isSalonPro()){
+    w.style.display='none';
+    return;
+  }
   w.style.display='block';
   var sel = document.getElementById('inp-offer');
   if(!sel) return;
@@ -2028,14 +2034,6 @@ function showOfferSelector(phone){
   var savingsLabel = '💳 Savings Card — Visit '+(visitCount+1)+' → '+tier.pct+'% OFF (Min ₹299)';
   // Rebuild options: savings card first, then active offers for this salon
   sel.innerHTML = '<option value="savings" data-pct="'+tier.pct+'" data-minbill="299">'+savingsLabel+'</option>';
-  // Salon-created Offers are a Pro feature — Savings Card stays available either way
-  if(!_isSalonPro()){
-    var noOpt0 = document.createElement('option');
-    noOpt0.value = 'none'; noOpt0.textContent = '— No Offer';
-    sel.appendChild(noOpt0);
-    applyOfferDiscount();
-    return;
-  }
   // Load active offers for this salon
   var salonId = ME ? (ME.salonId||'') : '';
   var qs = salonId
