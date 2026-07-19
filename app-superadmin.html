@@ -3025,10 +3025,24 @@ function eslGenerateOwnerPin(){
     });
     updateRowInSheet('Staff', owner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
   } else {
+    // The staff table requires tenant_id (NOT NULL) for multi-tenant data
+    // isolation. Nothing in this app sets it manually — it's normally
+    // present because it's read straight from Supabase on other records.
+    // Reuse it from any existing staff member at the same salon; if none
+    // exist yet, fall back to any staff record anywhere in this tenant.
+    var tenantSource = staff.find(function(u){ return u.salonId===editingSalonId && u.tenant_id; })
+                    || staff.find(function(u){ return u.tenant_id; });
+    var tenantId = tenantSource ? tenantSource.tenant_id : null;
+    if(!tenantId){
+      alert('⚠ Could not find an existing tenant_id to copy from any staff record. '+
+        'This salon may have no other staff yet, and this superadmin session has no staff at all to copy from. '+
+        'Please add one barber/manager to this salon manually first (via Add Staff), then try generating the owner PIN again.');
+      return;
+    }
     // Don't send a client-made id — the staff.id column is type uuid in
     // Supabase, and a string like "u1234567890" gets rejected outright.
     // Let Postgres generate the UUID, then use whatever it returns locally.
-    var newOwnerForSb = {name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin};
+    var newOwnerForSb = {name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin, tenant_id:tenantId};
     sbInsert('staff', newOwnerForSb).then(function(result){
       if(!result){
         var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
