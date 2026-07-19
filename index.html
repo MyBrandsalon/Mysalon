@@ -69,7 +69,8 @@ h1 em{color:var(--accent);font-style:normal}
 .plans-inner{max-width:900px;margin:0 auto}
 .plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
 @media (max-width:900px){.plans-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.plan{padding:16px 10px}.plan-price{font-size:32px}.plan-name{font-size:16px}.plan-features li{font-size:11px}.btn-plan{font-size:11px;padding:9px 4px}}
-.plan{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;position:relative}
+.plan{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;position:relative;display:flex;flex-direction:column}
+.plan-features{flex:1 0 auto}
 .plan.pop{border-color:#C8A800;background:rgba(200,168,0,.06)}
 .plan-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#C8A800;color:#003D2B;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:3px 12px;border-radius:8px;white-space:nowrap;font-family:var(--BF)}
 .plan-name{font-family:var(--HF);font-size:22px;color:white;letter-spacing:1px;margin-bottom:4px}
@@ -98,14 +99,12 @@ footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
     <span class="nav-logo-bot">SALON</span>
   </a>
   <div class="nav-actions">
-    <a href="login-superadmin.html" class="btn-nav btn-nav-ghost">Platform Admin</a>
     <a href="register-salon.html" class="btn-nav btn-nav-primary">Register Your Salon →</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">🟢 Live — 10 lakh+ salons across India</div>
   <h1>YOUR SALON.<br><em>YOUR SYSTEM.</em></h1>
   <p class="hero-sub">Digital tools built for Indian salons — entries, attendance, payroll, style cards, queue & more. No app download needed. Free forever for core features.</p>
   <div class="hero-cta">
@@ -116,7 +115,6 @@ footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
 
 <!-- STATS -->
 <div class="stats-bar">
-  <div class="stat"><span class="stat-val">10L+</span><span class="stat-lbl">Salons</span></div>
   <div class="stat"><span class="stat-val">FREE</span><span class="stat-lbl">Core features</span></div>
   <div class="stat"><span class="stat-val">₹299</span><span class="stat-lbl">Pro / month</span></div>
   <div class="stat"><span class="stat-val">NO APP</span><span class="stat-lbl">Browser-based</span></div>
@@ -207,7 +205,6 @@ footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
 
 <footer>
   <strong>MYSALON</strong> &nbsp;·&nbsp; Digital Salon Platform for India &nbsp;·&nbsp;
-  <a href="login-superadmin.html" style="color:rgba(255,255,255,.4);text-decoration:none">Platform Admin</a> &nbsp;·&nbsp;
   © 2026 MySalon
 </footer>
 
