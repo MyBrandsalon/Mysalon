@@ -466,14 +466,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="nav-tabs">
   <button class="nt on" id="nt-dashboard" onclick="showTab('dashboard')">📊 Dashboard</button>
   <button class="nt"    id="nt-sales"     onclick="showTab('sales')">📋 Sales</button>
-  <button class="nt"    id="nt-yearly"    onclick="showTab('yearly')">📅 Yearly</button>
-  <button class="nt"    id="nt-customers" onclick="showTab('customers')">👤 Customers</button>
+  <button class="nt"    id="nt-yearly"    onclick="showYearlyGated()">📅 Yearly</button>
+  <button class="nt"    id="nt-customers" onclick="showCustomersGated()">👤 Customers</button>
   <button class="nt"    id="nt-staff"     onclick="showTab('staff')">👥 Staff</button>
   <button class="nt" id="nt-cosmetics" onclick="showTab('cosmetics')">🧴 Cosmetics</button>
   <button class="nt" id="nt-salon" onclick="showTab('salon')">🏪 Salon</button>
   <button class="nt" id="nt-offers" onclick="showOffersGated()">🎁 Offers</button>
   <button class="nt" id="nt-queue"  onclick="showQueueGated()">🔢 Queue</button>
-  <button class="nt" id="nt-pnl" onclick="showTab('pnl')">📊 P&L</button>
+  <button class="nt" id="nt-pnl" onclick="showPnlGated()">📊 P&L</button>
   <button class="nt" id="nt-profile" onclick="showTab('profile')">👤 My Profile</button>
 </div>
 
@@ -1577,14 +1577,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- Pro gate overlay — shown for free plan, hidden for pro/business -->
   <div id="queue-pro-gate" style="display:none;text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border)">
     <div style="font-size:56px;margin-bottom:16px">🔒</div>
-    <div style="font-family:var(--HF);font-size:28px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>
+    <div style="font-family:var(--HF);font-size:28px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO+ FEATURE</div>
     <div style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.7;max-width:320px;margin-left:auto;margin-right:auto">
       The <strong>Save-the-Time Queue</strong> lets customers join digitally and see live wait times.<br><br>
-      Upgrade to <strong>Pro (₹299/mo)</strong> to unlock the full queue system.
+      Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock the full queue system.
     </div>
     <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
        style="display:inline-block;padding:14px 32px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:18px;letter-spacing:1px;text-decoration:none">
-      UPGRADE TO PRO →
+      UPGRADE TO PRO+ →
     </a>
     <div style="margin-top:16px;font-size:12px;color:var(--muted2)">
       <a href="https://wa.me/919999999999?text=I want to upgrade MySalon to Pro" target="_blank"
@@ -2445,6 +2445,79 @@ function _isSalonPro(){
   var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
   return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
 }
+// Returns a numeric plan tier: 0=Free, 1=Pro, 2=Pro+, 3=Business.
+// Looks for an explicit plan/tier field first (e.g. s.plan = 'pro-plus' or
+// 'business'); falls back to the legacy proEnabled boolean, which predates
+// the Pro+ tier split and only ever meant "Pro" (tier 1).
+function _salonPlanTier(){
+  var salons = LS.get('salons') || [];
+  var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
+  var raw = String(s.plan || s.planTier || s.subscriptionPlan || '').toLowerCase().replace(/[\s_-]+/g,'');
+  if(raw === 'business') return 3;
+  if(raw === 'pro+' || raw === 'proplus') return 2;
+  if(raw === 'pro') return 1;
+  if(_isSalonPro()) return 1; // legacy flag, pre-dates Pro+
+  return 0;
+}
+function _isSalonProPlus(){
+  return _salonPlanTier() >= 2;
+}
+// Generic full-panel upgrade wall, reused across Customers/Yearly/P&L etc.
+function _showPlanGateWall(panelId, icon, desc, tierLabel){
+  var panel = document.getElementById(panelId);
+  if(!panel) return;
+  var wallId = panelId+'-gate-wall';
+  if(panel.querySelector('#'+wallId)) return;
+  var wall = document.createElement('div');
+  wall.id = wallId;
+  wall.style.cssText = 'text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);margin-top:8px';
+  wall.innerHTML =
+    '<div style="font-size:52px;margin-bottom:14px">'+icon+'</div>'+
+    '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">'+tierLabel+' FEATURE</div>'+
+    '<div style="font-size:13px;color:var(--muted);line-height:1.7;max-width:320px;margin:0 auto 24px">'+desc+'</div>'+
+    '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" style="display:inline-block;padding:13px 28px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:17px;letter-spacing:1px;text-decoration:none">UPGRADE →</a>';
+  panel.insertBefore(wall, panel.children[1] || panel.firstChild);
+  Array.from(panel.children).forEach(function(el){ if(el.id !== wallId) el.style.display = 'none'; });
+}
+function _clearPlanGateWall(panelId){
+  var wall = document.getElementById(panelId+'-gate-wall');
+  if(wall) wall.remove();
+  var panel = document.getElementById(panelId);
+  if(panel) Array.from(panel.children).forEach(function(el){ if(el.id !== panelId+'-gate-wall') el.style.display = ''; });
+}
+// Customers — Pro (or higher) gate
+function showCustomersGated(){
+  showTab('customers');
+  if(_salonPlanTier() >= 1){
+    _clearPlanGateWall('pn-customers');
+  } else {
+    _showPlanGateWall('pn-customers', '👤',
+      'View and manage your <strong>customer directory</strong> — visit history, contact details, and repeat-customer trends.<br><br>Upgrade to <strong>Pro (₹499/mo)</strong> to unlock Customers.',
+      'PRO');
+  }
+}
+// Yearly analytics — Pro+ gate
+function showYearlyGated(){
+  showTab('yearly');
+  if(_isSalonProPlus()){
+    _clearPlanGateWall('pn-yearly');
+  } else {
+    _showPlanGateWall('pn-yearly', '📅',
+      '<strong>Yearly revenue trends</strong> and month-by-month breakdowns for your salon.<br><br>Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock Advanced Analytics.',
+      'PRO+');
+  }
+}
+// P&L — Pro+ gate
+function showPnlGated(){
+  showTab('pnl');
+  if(_isSalonProPlus()){
+    _clearPlanGateWall('pn-pnl');
+  } else {
+    _showPlanGateWall('pn-pnl', '📊',
+      '<strong>Profit &amp; Loss</strong> with custom cost inputs and per-stylist revenue breakdowns.<br><br>Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock Advanced Analytics.',
+      'PRO+');
+  }
+}
 
 function _initApp(){
   var staff=LS.get('staff')||[];
@@ -3293,8 +3366,8 @@ function mgrShowOfferSelector(phone){
   var TIERS = [{visit:1,pct:10},{visit:2,pct:10},{visit:3,pct:15},{visit:4,pct:15},{visit:5,pct:25},{visit:6,pct:25}];
   var tier = visitCount < TIERS.length ? TIERS[visitCount] : TIERS[TIERS.length-1];
   sel.innerHTML = '<option value="">— No offer —</option>'; // Savings Card removed
-  // Salon-created Offers are a Pro feature
-  if(!_isSalonPro()){
+  // Salon-created Offers are a Pro+ feature
+  if(!_isSalonProPlus()){
     mgrApplyOfferDiscount();
     return;
   }
@@ -6971,7 +7044,7 @@ var OFFER_COLORS_MGR = ['','gold','purple','orange'];
 
 function renderMgrOffers(){
   var el = document.getElementById('mgr-offers-list');
-  if(!_isSalonPro()){
+  if(!_isSalonProPlus()){
     if(el) el.innerHTML = '';
     return;
   }
@@ -7843,7 +7916,7 @@ supaBootstrap = function(onDone, onError) {
 // Queue tab — Pro gate
 function showQueueGated(){
   showTab('queue');
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   var gate    = document.getElementById('queue-pro-gate');
   var content = document.getElementById('queue-pro-content');
   if(plan === 'free'){
@@ -7855,11 +7928,11 @@ function showQueueGated(){
   }
 }
 
-// WhatsApp — Pro gate
+// WhatsApp — Pro+ gate
 function mgrWaGated(type, customerId, phone, name, lastVisit, daysSince, dueStatus){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
-    showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
+    showUpgradeBanner('WhatsApp reminders require <strong>Pro+ plan (₹999/mo)</strong>');
     return;
   }
   if(type === 'reminder'){
@@ -7894,10 +7967,10 @@ function _showWaUpgradeModal(){
   txt.style.cssText = 'flex:1;min-width:0';
   var h = document.createElement('div');
   h.style.cssText = 'font-family:"Bebas Neue",Barlow,sans-serif;font-size:17px;color:#F5E030;letter-spacing:1px';
-  h.textContent = 'PRO FEATURE';
+  h.textContent = 'PRO+ FEATURE';
   var p = document.createElement('div');
   p.style.cssText = 'font-size:12px;color:rgba(255,255,255,.75);margin-top:3px';
-  p.innerHTML = 'WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>';
+  p.innerHTML = 'WhatsApp reminders require <strong>Pro+ plan (₹999/mo)</strong>';
   txt.appendChild(h);
   txt.appendChild(p);
   wrap.appendChild(txt);
@@ -8084,8 +8157,8 @@ function sdBuildTbl(entries, limit){
 <div id="wa-upgrade-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:99999;display:none;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.4);transform:translateY(100%);transition:transform .3s ease">
   <div style="font-size:28px;flex-shrink:0">🔒</div>
   <div style="flex:1">
-    <div style="font-family:var(--HF);font-size:17px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro plan (₹299/mo)</strong></div>
+    <div style="font-family:var(--HF);font-size:17px;color:#F5E030;letter-spacing:1px">PRO+ FEATURE</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro+ plan (₹999/mo)</strong></div>
   </div>
   <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
      style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:var(--HF);font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0">UPGRADE →</a>
@@ -8114,7 +8187,7 @@ function hideUpgradeBanner(){
 
 // ── Offers — Pro gate ─────────────────────────────────────────
 function showOffersGated(){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
     // Don't show actual offers content — just show upgrade wall
     // Still need to show the panel
@@ -8129,14 +8202,14 @@ function showOffersGated(){
         wall.style.cssText = 'text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);margin-top:8px';
         wall.innerHTML =
           '<div style="font-size:52px;margin-bottom:14px">🎁</div>'+
-          '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>'+
+          '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO+ FEATURE</div>'+
           '<div style="font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;margin:0 auto 24px">'+
             'Create <strong>discount offers & cashback campaigns</strong> to attract and retain customers.<br><br>'+
-            'Upgrade to <strong>Pro (₹299/mo)</strong> to unlock Offers.'+
+            'Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock Offers.'+
           '</div>'+
           '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" '+
              'style="display:inline-block;padding:13px 28px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:17px;letter-spacing:1px;text-decoration:none">'+
-            'UPGRADE TO PRO →'+
+            'UPGRADE TO PRO+ →'+
           '</a>'+
           '<div style="margin-top:14px">'+
             '<a href="https://wa.me/919999999999?text=Upgrade MySalon to Pro" target="_blank" '+
@@ -8160,9 +8233,9 @@ function showOffersGated(){
 }
 
 function createOfferGated(){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
-    showUpgradeBanner('Creating offers requires <strong>Pro plan (₹299/mo)</strong>');
+    showUpgradeBanner('Creating offers requires <strong>Pro+ plan (₹999/mo)</strong>');
     return;
   }
   openModal('addOfferModal');
