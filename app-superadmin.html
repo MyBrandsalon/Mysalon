@@ -1131,6 +1131,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div class="ifield" style="margin-bottom:12px"><label>Salon Name</label><input type="text" id="esl-name" placeholder="Budget Barber – City Name"></div>
     <div class="ifield" style="margin-bottom:12px"><label>Location</label><input type="text" id="esl-loc" placeholder="Area, City"></div>
     <div class="ifield" style="margin-bottom:12px"><label>Manager Phone</label><input type="tel" id="esl-mgr" placeholder="10-digit phone" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <!-- Owner Login PIN — read/generate from the matching 'owner' staff record -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;border:1.5px solid rgba(0,0,0,.06)" id="esl-owner-pin-row">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--white)">🔑 Owner Login PIN</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="esl-owner-pin-display">—</div>
+      </div>
+      <button id="esl-owner-pin-btn" onclick="eslGenerateOwnerPin()" style="padding:8px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--BF);white-space:nowrap">Generate PIN</button>
+    </div>
     <!-- Active / Deactivate toggle -->
     <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;border:1.5px solid rgba(0,0,0,.06)" id="esl-active-row">
       <div>
@@ -2646,6 +2654,10 @@ function renderManage(){
     var incMode=s.incentiveMode||'sales10';
     var salonTier=_salonPlanTier(s);
     var act=_actS(s);
+    var ownerRec=staff.find(function(u){return u.salonId===s.id&&u.role==='owner';});
+    var ownerPinHtml=ownerRec&&ownerRec.loginPin
+      ?'<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px">'+ownerRec.loginPin+'</span>'
+      :'<span style="color:var(--muted2);font-style:italic">not set</span>';
     return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
@@ -2656,6 +2668,7 @@ function renderManage(){
           '<div class="sn-loc">'+s.location+'</div>'+
           '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">🏆 '+(incMode==='sales10'?'Sales 10%':'Daily Targets')+'</div>'+
           '<div style="font-size:12px;color:var(--muted);margin-top:5px">'+sb+' barbers</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:4px">🔑 Owner PIN: '+ownerPinHtml+'</div>'+
         '</div>'+
       '</div>'+
       '<div style="display:flex;gap:6px;margin-top:10px">'+
@@ -2952,6 +2965,50 @@ function eslToggleIncMode(){
   document.getElementById('esl-inc-opt1-label').style.borderColor=(!isTargets)?'var(--blue)':'var(--border)';
   document.getElementById('esl-inc-opt2-label').style.borderColor=(isTargets)?'var(--blue)':'var(--border)';
 }
+function _eslRefreshOwnerPin(salonId){
+  var staff = LS.get('staff')||[];
+  var owner = staff.find(function(u){ return u.salonId===salonId && u.role==='owner'; });
+  var disp = document.getElementById('esl-owner-pin-display');
+  var btn  = document.getElementById('esl-owner-pin-btn');
+  if(!disp||!btn) return;
+  if(owner && owner.loginPin){
+    disp.innerHTML = '<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px;font-size:14px">'+owner.loginPin+'</span> — '+esc(owner.name||'Owner');
+    btn.textContent = 'Regenerate';
+  } else {
+    disp.textContent = 'No owner record yet — generate one below.';
+    btn.textContent = 'Generate PIN';
+  }
+}
+function eslGenerateOwnerPin(){
+  var salons = LS.get('salons')||[];
+  var s = salons.find(function(x){ return x.id===editingSalonId; });
+  if(!s) return;
+  var mgrPhone = (document.getElementById('esl-mgr')||{}).value || s.mgrPhone || '';
+  if(!mgrPhone || mgrPhone.length<10){
+    toast('Enter a 10-digit Manager Phone first — it becomes the owner login number');
+    return;
+  }
+  var staff = LS.get('staff')||[];
+  var owner = staff.find(function(u){ return u.salonId===editingSalonId && u.role==='owner'; });
+  var pin = String(Math.floor(100000+Math.random()*900000));
+  if(owner){
+    owner.loginPin = pin;
+    owner.phone = mgrPhone;
+    LS.set('staff', staff);
+    sbUpdate('staff', owner.id, {loginPin:pin, phone:mgrPhone}).catch(function(){});
+    updateRowInSheet('Staff', owner, function(ok){ if(!ok) toast('⚠ Saved locally'); });
+    toast('✅ Owner PIN regenerated: '+pin);
+  } else {
+    var newOwner = {id:'u'+Date.now(), name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin};
+    staff.push(newOwner);
+    LS.set('staff', staff);
+    sbInsert('staff', newOwner).catch(function(){});
+    appendRowToSheet('Staff', newOwner, function(ok){ if(!ok) toast('⚠ Saved locally'); });
+    toast('✅ Owner record created — PIN: '+pin);
+  }
+  _eslRefreshOwnerPin(editingSalonId);
+  renderManage();
+}
 function openEditSalon(id){
   editingSalonId=id;
   var salons=LS.get('salons')||[];
@@ -2960,6 +3017,8 @@ function openEditSalon(id){
   document.getElementById('esl-name').value=s.name||'';
   document.getElementById('esl-loc').value=s.location||'';
   document.getElementById('esl-mgr').value=s.mgrPhone||'';
+  // Owner login PIN — look up the staff record with role='owner' for this salon
+  _eslRefreshOwnerPin(id);
   // Active toggle
   var isActive = s.active===undefined || s.active===null || s.active===1 || s.active==='1' || s.active===true;
   var eslAct = document.getElementById('esl-active');
