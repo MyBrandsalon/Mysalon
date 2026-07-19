@@ -484,9 +484,9 @@ select option { background: var(--surface) !important; color: var(--white) !impo
 <div class="nav-tabs">
   <button class="nt on" id="nt-billing"  onclick="showTab('billing')">✂️ Billing</button>
   <button class="nt"    id="nt-mysales"  onclick="showTab('mysales')">📋 My Sales</button>
-  <button class="nt"    id="nt-queue"    onclick="stylistProGate('queue')">🔢 Queue <span class="pro-tag">PRO</span></button>
-  <button class="nt"    id="nt-scan"     onclick="stylistProGate('scan')">📷 Scan <span class="pro-tag">PRO</span></button>
-  <button class="nt"    id="nt-style"    onclick="stylistProGate('style')">💈 Style Card <span class="pro-tag">PRO</span></button>
+  <button class="nt"    id="nt-queue"    onclick="stylistProGate('queue')">🔢 Queue <span class="pro-tag">PRO+</span></button>
+  <button class="nt"    id="nt-scan"     onclick="stylistProGate('scan')">📷 Scan <span class="pro-tag">PRO+</span></button>
+  <button class="nt"    id="nt-style"    onclick="stylistProGate('style')">💈 Style Card <span class="pro-tag">PRO+</span></button>
   <button class="nt"    id="nt-profile"  onclick="showTab('profile')">👤 My Profile</button>
 </div>
 
@@ -3944,9 +3944,26 @@ function _isSalonPro(){
   var s = salons.find(function(x){ return x.id === sid; }) || {};
   return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
 }
+// Returns a numeric plan tier: 0=Free, 1=Pro, 2=Pro+, 3=Business.
+// Looks for an explicit plan/tier field first (e.g. s.plan = 'pro-plus' or
+// 'business'); falls back to the legacy proEnabled boolean, which predates
+// the Pro+ tier split and only ever meant "Pro" (tier 1).
+function _salonPlanTier(){
+  var salons = LS.get('salons') || [];
+  var sid = ME ? ME.salonId : null;
+  var s = salons.find(function(x){ return x.id === sid; }) || {};
+  var raw = String(s.plan || s.planTier || s.subscriptionPlan || '').toLowerCase().replace(/[\s_-]+/g,'');
+  if(raw === 'business') return 3;
+  if(raw === 'pro+' || raw === 'proplus') return 2;
+  if(raw === 'pro') return 1;
+  if(_isSalonPro()) return 1; // legacy flag, pre-dates Pro+
+  return 0;
+}
+function _isSalonProPlus(){
+  return _salonPlanTier() >= 2;
+}
 function stylistProGate(tab){
-  var plan = _isSalonPro() ? 'pro' : 'free';
-  if(plan === 'free'){
+  if(!_isSalonProPlus()){
     _showStylistUpgradeBanner(tab);
     return;
   }
@@ -3975,10 +3992,10 @@ function _showStylistUpgradeBanner(tab){
   txt.style.cssText = 'flex:1';
   var h = document.createElement('div');
   h.style.cssText = 'font-family:var(--HF);font-size:16px;color:#F5E030;letter-spacing:1px';
-  h.textContent   = 'PRO FEATURE';
+  h.textContent   = 'PRO+ FEATURE';
   var p = document.createElement('div');
   p.style.cssText = 'font-size:12px;color:rgba(255,255,255,.7);margin-top:2px';
-  p.innerHTML     = tabName + ' requires <strong>Pro plan (₹299/mo)</strong> — Contact salon owner to upgrade';
+  p.innerHTML     = tabName + ' requires <strong>Pro+ plan (₹999/mo)</strong> — Contact salon owner to upgrade';
   txt.appendChild(h); txt.appendChild(p);
   wrap.appendChild(txt);
 

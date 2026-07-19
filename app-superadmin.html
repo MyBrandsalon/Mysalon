@@ -940,7 +940,7 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
       <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:#C8A800" id="sub-stat-pro">0</div>
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Pro Salons</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Paid Salons</div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
       <div style="font-family:var(--HF,'Bebas Neue',sans-serif);font-size:26px;color:var(--muted)" id="sub-stat-free">0</div>
@@ -1144,18 +1144,18 @@ select option { background: var(--surface) !important; color: var(--white) !impo
       </label>
     </div>
 
-    <!-- Pro Subscription toggle — replaces the old localStorage-only flag -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(200,168,0,.08);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;border:1.5px solid rgba(200,168,0,.3)" id="esl-pro-row">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--white)">🔓 Pro Subscription</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="esl-pro-status-lbl">Free plan — Queue, Offers & Customer Wallet locked</div>
-      </div>
-      <label style="position:relative;display:inline-block;width:48px;height:26px;flex-shrink:0;cursor:pointer">
-        <input type="checkbox" id="esl-pro" style="opacity:0;width:0;height:0;position:absolute" onchange="var on=this.checked;document.getElementById('esl-pro-status-lbl').textContent=on?'Pro active — Queue, Offers & Customer Wallet unlocked':'Free plan — Queue, Offers & Customer Wallet locked';document.getElementById('esl-pro-track').style.background=on?'#C8A800':'var(--border)';document.getElementById('esl-pro-thumb').style.transform=on?'translateX(22px)':'translateX(0)'">
-        <span id="esl-pro-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border);transition:background .2s"></span>
-        <span id="esl-pro-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(0)"></span>
-      </label>
+    <!-- Plan Tier — replaces the old binary Pro toggle -->
+    <div style="background:rgba(200,168,0,.08);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;border:1.5px solid rgba(200,168,0,.3)" id="esl-plan-row">
+      <div style="font-size:12px;font-weight:700;color:var(--white);margin-bottom:8px">🔓 Plan Tier</div>
+      <select id="esl-plan" style="width:100%;padding:10px 12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--white);font-family:var(--BF);font-size:13px;font-weight:700;outline:none" onchange="eslUpdatePlanLabel()">
+        <option value="free">Free</option>
+        <option value="pro">Pro (₹499/mo)</option>
+        <option value="pro-plus">Pro+ (₹999/mo)</option>
+        <option value="business">Business</option>
+      </select>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px" id="esl-plan-status-lbl">Free plan — Queue, Style Cards, Offers &amp; Customer Wallet locked</div>
     </div>
+
     <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
       <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Monthly Costs (Rentals)</div>
       <div class="ifield" style="margin-bottom:8px"><label>Salon Rent (₹)</label><input type="number" id="esl-rent" class="fi" placeholder="0" min="0" inputmode="numeric"></div>
@@ -2518,9 +2518,26 @@ function renderReports(){
 // ════════════════════════════════════════════════════════════════
 var _subPaymentsCache = [];
 var _subFilter = 'pending';
+// Returns a numeric plan tier for a given salon record: 0=Free, 1=Pro, 2=Pro+, 3=Business.
+// Looks for an explicit plan/tier field first (e.g. s.plan = 'pro-plus' or
+// 'business'); falls back to the legacy proEnabled boolean, which predates
+// the Pro+ tier split and only ever meant "Pro" (tier 1).
+function _salonPlanTier(s){
+  s = s || {};
+  var raw = String(s.plan || s.planTier || s.subscriptionPlan || '').toLowerCase().replace(/[\s_-]+/g,'');
+  if(raw === 'business') return 3;
+  if(raw === 'pro+' || raw === 'proplus') return 2;
+  if(raw === 'pro') return 1;
+  var legacyPro = s.proEnabled===true||s.proEnabled===1||s.proEnabled==='1'||s.proEnabled==='true';
+  if(legacyPro) return 1; // legacy flag, pre-dates Pro+
+  return 0;
+}
+function _planTierName(tier){
+  return tier===3?'Business':tier===2?'Pro+':tier===1?'Pro':'Free';
+}
 function renderSubscriptions(){
   var salons = LS.get('salons') || [];
-  var proCount = salons.filter(function(s){ return s.proEnabled===true||s.proEnabled===1||s.proEnabled==='1'||s.proEnabled==='true'; }).length;
+  var proCount = salons.filter(function(s){ return _salonPlanTier(s) >= 1; }).length;
   document.getElementById('sub-stat-pro').textContent = proCount;
   document.getElementById('sub-stat-free').textContent = Math.max(0, salons.length - proCount);
 
@@ -2559,7 +2576,7 @@ function filterSubPayments(which){
       (p.screenshot_url ? '<img src="'+p.screenshot_url+'" onclick="window.open(\''+p.screenshot_url+'\',\'_blank\')" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);flex-shrink:0">' : '<div style="width:64px;height:64px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🧾</div>')+
       '<div style="flex:1;min-width:0">'+
         '<div style="font-size:13px;font-weight:800;color:var(--white)">'+(p.salon_name||p.salon_id||'Unknown salon')+'</div>'+
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px">₹'+Number(p.amount||299).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px">'+(p.requested_plan==='pro-plus'?'Pro+':p.requested_plan==='business'?'Business':'Pro')+' · ₹'+Number(p.amount||499).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
         (p.notes ? '<div style="font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic">'+p.notes+'</div>' : '')+
         '<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:'+statusColor+';margin-top:6px">'+p.status+'</div>'+
       '</div>'+
@@ -2575,17 +2592,20 @@ function filterSubPayments(which){
 function approveSubPayment(id){
   var p = _subPaymentsCache.find(function(x){ return x.id===id; });
   if(!p) return;
-  if(!confirm('Approve this payment and activate Pro for "'+(p.salon_name||p.salon_id)+'"?')) return;
+  var requestedPlan = p.requested_plan || 'pro'; // legacy rows had no plan field — they were always "Pro"
+  var planLabel = requestedPlan === 'pro-plus' ? 'Pro+' : requestedPlan === 'business' ? 'Business' : 'Pro';
+  if(!confirm('Approve this payment and activate '+planLabel+' for "'+(p.salon_name||p.salon_id)+'"?')) return;
   sbUpdate('pro_payments', id, {status:'approved', reviewed_at:new Date().toISOString()}).then(function(){
-    // Auto-enable Pro for the salon
+    // Auto-activate the requested plan for the salon
     var salons = LS.get('salons')||[];
     var idx = salons.findIndex(function(s){ return s.id===p.salon_id; });
     if(idx!==-1){
-      salons[idx].proEnabled = true;
+      salons[idx].plan = requestedPlan;
+      salons[idx].proEnabled = true; // kept in sync for any legacy code still reading this flag
       LS.set('salons', salons);
-      sbUpdate('salons', p.salon_id, {proEnabled:true}).catch(function(){});
+      sbUpdate('salons', p.salon_id, {plan:requestedPlan, proEnabled:true}).catch(function(){});
     }
-    toast('✅ Approved — Pro activated for '+(p.salon_name||p.salon_id));
+    toast('✅ Approved — '+planLabel+' activated for '+(p.salon_name||p.salon_id));
     renderSubscriptions();
   }).catch(function(err){ toast('⚠ Failed to approve'); console.warn(err); });
 }
@@ -2624,14 +2644,14 @@ function renderManage(){
   document.getElementById('mg-salons').innerHTML='<div class="salon-grid">'+salons.map(function(s){
     var sb=staff.filter(function(u){return u.salonId===s.id&&u.role==='barber'&&_actU(u);}).length;
     var incMode=s.incentiveMode||'sales10';
-    var isProSalon=s.proEnabled===true||s.proEnabled===1||s.proEnabled==='1'||s.proEnabled==='true';
+    var salonTier=_salonPlanTier(s);
     var act=_actS(s);
     return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
           '<div class="sn-name" style="display:flex;align-items:center;gap:6px">'+s.name+
             (!act?'<span style="font-size:9px;font-weight:800;background:rgba(220,53,69,.12);color:var(--danger);border:1px solid rgba(220,53,69,.3);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">INACTIVE</span>':'')+
-            (isProSalon?'<span style="font-size:9px;font-weight:800;background:rgba(200,168,0,.15);color:#C8A800;border:1px solid rgba(200,168,0,.35);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">🔓 PRO</span>':'<span style="font-size:9px;font-weight:800;background:rgba(0,0,0,.05);color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">FREE</span>')+
+            (salonTier>=1?'<span style="font-size:9px;font-weight:800;background:rgba(200,168,0,.15);color:#C8A800;border:1px solid rgba(200,168,0,.35);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">🔓 '+_planTierName(salonTier).toUpperCase()+'</span>':'<span style="font-size:9px;font-weight:800;background:rgba(0,0,0,.05);color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px;text-transform:uppercase;letter-spacing:.5px">FREE</span>')+
           '</div>'+
           '<div class="sn-loc">'+s.location+'</div>'+
           '<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">🏆 '+(incMode==='sales10'?'Sales 10%':'Daily Targets')+'</div>'+
@@ -2957,14 +2977,12 @@ function openEditSalon(id){
   document.getElementById('esl-wd-inc').value=s.weekdayIncentive||0;
   document.getElementById('esl-we-inc').value=s.weekendIncentive||0;
   eslToggleIncMode();
-  // Pro subscription toggle
-  var isPro = s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
-  var eslPro = document.getElementById('esl-pro');
-  if(eslPro){
-    eslPro.checked = isPro;
-    document.getElementById('esl-pro-track').style.background = isPro?'#C8A800':'var(--border)';
-    document.getElementById('esl-pro-thumb').style.transform  = isPro?'translateX(22px)':'translateX(0)';
-    document.getElementById('esl-pro-status-lbl').textContent = isPro?'Pro active — Queue, Offers & Customer Wallet unlocked':'Free plan — Queue, Offers & Customer Wallet locked';
+  // Plan tier selector
+  var curTier = _salonPlanTier(s);
+  var eslPlan = document.getElementById('esl-plan');
+  if(eslPlan){
+    eslPlan.value = curTier===3?'business':curTier===2?'pro-plus':curTier===1?'pro':'free';
+    eslUpdatePlanLabel();
   }
   // Load current rent costs from Supabase — always, regardless of company-managed
   var curMo=new Date().toISOString().slice(0,7);
@@ -2983,6 +3001,16 @@ function openEditSalon(id){
   eslRenderCameras(Array.isArray(cams) ? cams : []);
   openModal('editSalonModal');
 }
+function eslUpdatePlanLabel(){
+  var eslPlan = document.getElementById('esl-plan');
+  var lbl = document.getElementById('esl-plan-status-lbl');
+  if(!eslPlan || !lbl) return;
+  var v = eslPlan.value;
+  if(v==='free') lbl.textContent = 'Free plan — Queue, Style Cards, Offers & Customer Wallet locked';
+  else if(v==='pro') lbl.textContent = 'Pro active — Customers & Staff Hiring unlocked. Queue, Style Cards & Wallet still require Pro+.';
+  else if(v==='pro-plus') lbl.textContent = 'Pro+ active — Queue, Style Cards, Offers & Customer Wallet unlocked.';
+  else lbl.textContent = 'Business active — everything unlocked, including franchise & hire board.';
+}
 function saveEditSalon(){
   var salons=LS.get('salons')||[];
   var idx=salons.findIndex(function(s){return s.id===editingSalonId;});
@@ -3000,9 +3028,10 @@ function saveEditSalon(){
   salons[idx].incentiveMode    =incModeEl?incModeEl.value:'sales10';
   salons[idx].weekdayIncentive =parseFloat(document.getElementById('esl-wd-inc').value)||0;
   salons[idx].weekendIncentive =parseFloat(document.getElementById('esl-we-inc').value)||0;
-  // Save Pro subscription toggle
-  var eslProEl=document.getElementById('esl-pro');
-  salons[idx].proEnabled = eslProEl ? !!eslProEl.checked : false;
+  // Save plan tier
+  var eslPlanEl=document.getElementById('esl-plan');
+  salons[idx].plan = eslPlanEl ? eslPlanEl.value : 'free';
+  salons[idx].proEnabled = (salons[idx].plan !== 'free'); // kept in sync for any legacy code still reading this flag
   LS.set('salons',salons);
   // Split into separate PATCH calls so we can see exactly which fields
   // Supabase accepts vs rejects, instead of one all-or-nothing call.

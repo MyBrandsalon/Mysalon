@@ -1066,15 +1066,31 @@ select option { background: var(--surface) !important; color: var(--white) !impo
     <div id="sub-current-status" style="margin-bottom:16px"></div>
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:800;color:var(--white);margin-bottom:4px">Upgrade to Pro — ₹299/month</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px">Unlocks the Save-the-Time Queue, Offers &amp; cashback campaigns, and the customer Cashback Wallet &amp; Referral program.</div>
+      <div style="font-size:13px;font-weight:800;color:var(--white);margin-bottom:10px">Choose a plan to upgrade to</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px" id="sub-plan-pro-label">
+          <input type="radio" name="sub-plan" id="sub-plan-pro" value="pro" style="margin-top:2px" onchange="subSelectPlan()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Pro — ₹499/month</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Customer directory, staff hiring board, up to 6 stylist logins.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 12px" id="sub-plan-proplus-label">
+          <input type="radio" name="sub-plan" id="sub-plan-proplus" value="pro-plus" checked style="margin-top:2px" onchange="subSelectPlan()">
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--white)">Pro+ — ₹999/month</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5">Everything in Pro, plus the Save-the-Time Queue, Style Cards, Customer app &amp; loyalty wallet, advanced analytics, and unlimited stylists.</div>
+          </div>
+        </label>
+      </div>
 
       <div style="text-align:center;margin-bottom:16px">
         <img src="https://sgliztuggyksdemzkaxr.supabase.co/storage/v1/object/public/salon-assets/payment-qr.png"
              alt="Payment QR code" style="width:200px;height:200px;border-radius:12px;border:2px solid var(--border);object-fit:contain;background:#fff;padding:8px"
              onerror="this.style.display='none';document.getElementById('sub-qr-fallback').style.display='block'">
         <div id="sub-qr-fallback" style="display:none;width:200px;height:200px;margin:0 auto;border-radius:12px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:12px;text-align:center;padding:16px">QR code not configured yet — contact support</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px">Scan with any UPI app to pay ₹299</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Scan with any UPI app to pay <span id="sub-pay-amount">₹999</span></div>
       </div>
 
       <div class="ifield" style="margin-bottom:12px">
@@ -1739,14 +1755,14 @@ select option { background: var(--surface) !important; color: var(--white) !impo
   <!-- Pro gate overlay — shown for free plan, hidden for pro/business -->
   <div id="queue-pro-gate" style="display:none;text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border)">
     <div style="font-size:56px;margin-bottom:16px">🔒</div>
-    <div style="font-family:var(--HF);font-size:28px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>
+    <div style="font-family:var(--HF);font-size:28px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO+ FEATURE</div>
     <div style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.7;max-width:320px;margin-left:auto;margin-right:auto">
       The <strong>Save-the-Time Queue</strong> lets customers join digitally and see live wait times.<br><br>
-      Upgrade to <strong>Pro (₹299/mo)</strong> to unlock the full queue system.
+      Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock the full queue system.
     </div>
     <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
        style="display:inline-block;padding:14px 32px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:18px;letter-spacing:1px;text-decoration:none">
-      UPGRADE TO PRO →
+      UPGRADE TO PRO+ →
     </a>
     <div style="margin-top:16px;font-size:12px;color:var(--muted2)">
       <a href="https://wa.me/919999999999?text=I want to upgrade MySalon to Pro" target="_blank"
@@ -8107,7 +8123,7 @@ supaBootstrap = function(onDone, onError) {
 // Queue tab — Pro gate
 function showQueueGated(){
   showTab('queue');
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   var gate    = document.getElementById('queue-pro-gate');
   var content = document.getElementById('queue-pro-content');
   if(plan === 'free'){
@@ -8121,9 +8137,9 @@ function showQueueGated(){
 
 // WhatsApp — Pro gate
 function mgrWaGated(type, customerId, phone, name, lastVisit, daysSince, dueStatus){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
-    showUpgradeBanner('WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>');
+    showUpgradeBanner('WhatsApp reminders require <strong>Pro+ plan (₹999/mo)</strong>');
     return;
   }
   if(type === 'reminder'){
@@ -8158,10 +8174,10 @@ function _showWaUpgradeModal(){
   txt.style.cssText = 'flex:1;min-width:0';
   var h = document.createElement('div');
   h.style.cssText = 'font-family:"Bebas Neue",Barlow,sans-serif;font-size:17px;color:#F5E030;letter-spacing:1px';
-  h.textContent = 'PRO FEATURE';
+  h.textContent = 'PRO+ FEATURE';
   var p = document.createElement('div');
   p.style.cssText = 'font-size:12px;color:rgba(255,255,255,.75);margin-top:3px';
-  p.innerHTML = 'WhatsApp reminders require <strong>Pro plan (₹299/mo)</strong>';
+  p.innerHTML = 'WhatsApp reminders require <strong>Pro+ plan (₹999/mo)</strong>';
   txt.appendChild(h);
   txt.appendChild(p);
   wrap.appendChild(txt);
@@ -8348,8 +8364,8 @@ function sdBuildTbl(entries, limit){
 <div id="wa-upgrade-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#003D2B;color:white;padding:16px 20px;z-index:99999;display:none;align-items:center;gap:14px;box-shadow:0 -4px 20px rgba(0,0,0,.4);transform:translateY(100%);transition:transform .3s ease">
   <div style="font-size:28px;flex-shrink:0">🔒</div>
   <div style="flex:1">
-    <div style="font-family:var(--HF);font-size:17px;color:#F5E030;letter-spacing:1px">PRO FEATURE</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro plan (₹299/mo)</strong></div>
+    <div style="font-family:var(--HF);font-size:17px;color:#F5E030;letter-spacing:1px">PRO+ FEATURE</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px" id="wa-upgrade-msg">This feature requires <strong>Pro+ plan (₹999/mo)</strong></div>
   </div>
   <a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank"
      style="padding:10px 18px;background:#C8A800;color:#003D2B;border-radius:8px;font-family:var(--HF);font-size:15px;letter-spacing:.5px;text-decoration:none;white-space:nowrap;flex-shrink:0">UPGRADE →</a>
@@ -8378,7 +8394,7 @@ function hideUpgradeBanner(){
 
 // ── Offers — Pro gate ─────────────────────────────────────────
 function showOffersGated(){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
     // Don't show actual offers content — just show upgrade wall
     // Still need to show the panel
@@ -8393,14 +8409,14 @@ function showOffersGated(){
         wall.style.cssText = 'text-align:center;padding:48px 24px;background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);margin-top:8px';
         wall.innerHTML =
           '<div style="font-size:52px;margin-bottom:14px">🎁</div>'+
-          '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO FEATURE</div>'+
+          '<div style="font-family:var(--HF);font-size:26px;color:var(--white);letter-spacing:1px;margin-bottom:8px">PRO+ FEATURE</div>'+
           '<div style="font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;margin:0 auto 24px">'+
             'Create <strong>discount offers & cashback campaigns</strong> to attract and retain customers.<br><br>'+
-            'Upgrade to <strong>Pro (₹299/mo)</strong> to unlock Offers.'+
+            'Upgrade to <strong>Pro+ (₹999/mo)</strong> to unlock Offers.'+
           '</div>'+
           '<a href="https://mybrandsalon.github.io/Mysalon/upgrade.html" target="_blank" '+
              'style="display:inline-block;padding:13px 28px;background:#003D2B;color:#F5E030;border-radius:8px;font-family:var(--HF);font-size:17px;letter-spacing:1px;text-decoration:none">'+
-            'UPGRADE TO PRO →'+
+            'UPGRADE TO PRO+ →'+
           '</a>'+
           '<div style="margin-top:14px">'+
             '<a href="https://wa.me/919999999999?text=Upgrade MySalon to Pro" target="_blank" '+
@@ -8424,9 +8440,9 @@ function showOffersGated(){
 }
 
 function createOfferGated(){
-  var plan = _isSalonPro() ? 'pro' : 'free';
+  var plan = _isSalonProPlus() ? 'proplus' : 'free';
   if(plan === 'free'){
-    showUpgradeBanner('Creating offers requires <strong>Pro plan (₹299/mo)</strong>');
+    showUpgradeBanner('Creating offers requires <strong>Pro+ plan (₹999/mo)</strong>');
     return;
   }
   openModal('addOfferModal');
@@ -9296,22 +9312,49 @@ function _isSalonPro(){
   var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
   return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
 }
+// Returns a numeric plan tier: 0=Free, 1=Pro, 2=Pro+, 3=Business.
+// Looks for an explicit plan/tier field first (e.g. s.plan = 'pro-plus' or
+// 'business'); falls back to the legacy proEnabled boolean, which predates
+// the Pro+ tier split and only ever meant "Pro" (tier 1).
+function _salonPlanTier(){
+  var salons = LS.get('salons') || [];
+  var s = salons.find(function(x){ return x.id === mySalonId; }) || {};
+  var raw = String(s.plan || s.planTier || s.subscriptionPlan || '').toLowerCase().replace(/[\s_-]+/g,'');
+  if(raw === 'business') return 3;
+  if(raw === 'pro+' || raw === 'proplus') return 2;
+  if(raw === 'pro') return 1;
+  if(_isSalonPro()) return 1; // legacy flag, pre-dates Pro+
+  return 0;
+}
+function _isSalonProPlus(){
+  return _salonPlanTier() >= 2;
+}
 function loadSubscriptionTab(){
-  var isPro = _isSalonPro();
+  var tier = _salonPlanTier();
   var statusEl = document.getElementById('sub-current-status');
   if(statusEl){
-    statusEl.innerHTML = isPro
-      ? '<div style="background:rgba(0,196,140,.08);border:1.5px solid var(--accent);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
+    if(tier >= 2){
+      var tierName = tier === 3 ? 'Business' : 'Pro+';
+      statusEl.innerHTML = '<div style="background:rgba(0,196,140,.08);border:1.5px solid var(--accent);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
           '<div style="font-size:28px">🔓</div>'+
-          '<div><div style="font-size:14px;font-weight:800;color:var(--accent)">Pro Plan Active</div>'+
-          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Queue, Offers, and Customer Wallet are unlocked for your salon.</div></div>'+
-        '</div>'
-      : '<div style="background:rgba(245,166,35,.08);border:1.5px solid var(--warn);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
+          '<div><div style="font-size:14px;font-weight:800;color:var(--accent)">'+tierName+' Plan Active</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Queue, Style Cards, Offers, and Customer Wallet are unlocked for your salon.</div></div>'+
+        '</div>';
+    } else if(tier === 1){
+      statusEl.innerHTML = '<div style="background:rgba(29,109,181,.08);border:1.5px solid var(--blue);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
+          '<div style="font-size:28px">🔓</div>'+
+          '<div><div style="font-size:14px;font-weight:800;color:var(--blue)">Pro Plan Active</div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Customer directory and staff hiring are unlocked. Upgrade to Pro+ for Queue, Style Cards, and the loyalty wallet.</div></div>'+
+        '</div>';
+    } else {
+      statusEl.innerHTML = '<div style="background:rgba(245,166,35,.08);border:1.5px solid var(--warn);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px">'+
           '<div style="font-size:28px">🔒</div>'+
           '<div><div style="font-size:14px;font-weight:800;color:var(--warn)">Free Plan</div>'+
-          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Submit a payment below to unlock Pro features. Activation happens after admin review.</div></div>'+
+          '<div style="font-size:12px;color:var(--muted);margin-top:2px">Submit a payment below to upgrade. Activation happens after admin review.</div></div>'+
         '</div>';
+    }
   }
+  subSelectPlan();
   // Load this salon's submission history
   sbSelect('pro_payments', 'salon_id=eq.'+encodeURIComponent(mySalonId)+'&order=submitted_at.desc').then(function(rows){
     var el = document.getElementById('sub-history-list');
@@ -9325,7 +9368,7 @@ function loadSubscriptionTab(){
       var statusLabel = p.status==='approved' ? '✅ Approved' : p.status==='rejected' ? '✕ Rejected' : '⏳ Pending review';
       var dateStr = p.submitted_at ? new Date(p.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
       return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;display:flex;justify-content:space-between;align-items:center">'+
-        '<div><div style="font-size:12px;color:var(--white);font-weight:700">₹'+Number(p.amount||299).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
+        '<div><div style="font-size:12px;color:var(--white);font-weight:700">'+(p.requested_plan==='pro-plus'?'Pro+':'Pro')+' · ₹'+Number(p.amount||499).toLocaleString('en-IN')+' · '+dateStr+'</div>'+
         (p.notes?'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+p.notes+'</div>':'')+
         (p.status==='rejected'&&p.notes?'':'')+
         '</div>'+
@@ -9354,6 +9397,15 @@ function subPreviewScreenshot(input){
   };
   reader.readAsDataURL(_subScreenshotFile);
 }
+function subSelectPlan(){
+  var isProPlus = document.getElementById('sub-plan-proplus').checked;
+  var amtEl = document.getElementById('sub-pay-amount');
+  if(amtEl) amtEl.textContent = isProPlus ? '₹999' : '₹499';
+  var proLbl = document.getElementById('sub-plan-pro-label');
+  var plusLbl = document.getElementById('sub-plan-proplus-label');
+  if(proLbl) proLbl.style.borderColor = isProPlus ? 'var(--border)' : 'var(--accent)';
+  if(plusLbl) plusLbl.style.borderColor = isProPlus ? 'var(--accent)' : 'var(--border)';
+}
 function _uploadProScreenshot(file){
   var ext = (file.name.split('.').pop()||'jpg').toLowerCase();
   var path = mySalonId+'-'+Date.now()+'.'+ext;
@@ -9380,10 +9432,14 @@ function submitProPayment(){
   _uploadProScreenshot(_subScreenshotFile).then(function(url){
     var salons = LS.get('salons')||[];
     var sal = salons.find(function(s){ return s.id===mySalonId; }) || {};
+    var isProPlus = document.getElementById('sub-plan-proplus').checked;
+    var requestedPlan = isProPlus ? 'pro-plus' : 'pro';
+    var amount = isProPlus ? 999 : 499;
     var row = {
       salon_id: mySalonId,
       salon_name: sal.name||mySalonName||'',
-      amount: 299,
+      amount: amount,
+      requested_plan: requestedPlan,
       screenshot_url: url||'',
       status: 'pending',
       notes: notes
