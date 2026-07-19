@@ -2995,16 +2995,36 @@ function eslGenerateOwnerPin(){
     owner.loginPin = pin;
     owner.phone = mgrPhone;
     LS.set('staff', staff);
-    sbUpdate('staff', owner.id, {loginPin:pin, phone:mgrPhone}).catch(function(){});
-    updateRowInSheet('Staff', owner, function(ok){ if(!ok) toast('⚠ Saved locally'); });
-    toast('✅ Owner PIN regenerated: '+pin);
+    sbUpdate('staff', owner.id, {loginPin:pin, phone:mgrPhone}).then(function(result){
+      if(!result){
+        var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+        console.error('[Owner PIN] Supabase update rejected:', errInfo);
+        alert('⚠ Supabase rejected the owner PIN update — it only saved locally, other devices/pages won\'t see it yet:\n\n'+errInfo);
+      } else {
+        toast('✅ Owner PIN regenerated: '+pin);
+      }
+    }).catch(function(err){
+      console.error('[Owner PIN] Network/JS error:', err);
+      alert('⚠ Could not reach Supabase — PIN saved locally only:\n\n'+err);
+    });
+    updateRowInSheet('Staff', owner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
   } else {
     var newOwner = {id:'u'+Date.now(), name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin};
     staff.push(newOwner);
     LS.set('staff', staff);
-    sbInsert('staff', newOwner).catch(function(){});
-    appendRowToSheet('Staff', newOwner, function(ok){ if(!ok) toast('⚠ Saved locally'); });
-    toast('✅ Owner record created — PIN: '+pin);
+    sbInsert('staff', newOwner).then(function(result){
+      if(!result){
+        var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+        console.error('[Owner PIN] Supabase insert rejected:', errInfo);
+        alert('⚠ Supabase rejected the new owner record — it only saved locally, the owner won\'t be able to log in from another device/browser until this is fixed:\n\n'+errInfo);
+      } else {
+        toast('✅ Owner record created — PIN: '+pin);
+      }
+    }).catch(function(err){
+      console.error('[Owner PIN] Network/JS error:', err);
+      alert('⚠ Could not reach Supabase — owner record saved locally only:\n\n'+err);
+    });
+    appendRowToSheet('Staff', newOwner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
   }
   _eslRefreshOwnerPin(editingSalonId);
   renderManage();
