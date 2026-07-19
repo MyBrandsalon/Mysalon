@@ -1373,19 +1373,82 @@ function _isSalonPro(){
   var s = salons.find(function(x){ return String(x.id) === String(sid); }) || {};
   return s.proEnabled===true || s.proEnabled===1 || s.proEnabled==='1' || s.proEnabled==='true';
 }
+// Returns a numeric plan tier: 0=Free, 1=Pro, 2=Pro+, 3=Business.
+// Looks for an explicit plan/tier field first (e.g. s.plan = 'pro-plus' or
+// 'business'); falls back to the legacy proEnabled boolean, which predates
+// the Pro+ tier split and only ever meant "Pro" (tier 1).
+function _salonPlanTier(){
+  var salons = LS.get('salons') || [];
+  var sid = ME ? ME.salonId : null;
+  var s = salons.find(function(x){ return String(x.id) === String(sid); }) || {};
+  var raw = String(s.plan || s.planTier || s.subscriptionPlan || '').toLowerCase().replace(/[\s_-]+/g,'');
+  if(raw === 'business') return 3;
+  if(raw === 'pro+' || raw === 'proplus') return 2;
+  if(raw === 'pro') return 1;
+  if(_isSalonPro()) return 1; // legacy flag, pre-dates Pro+
+  return 0;
+}
+function _isSalonProPlus(){
+  return _salonPlanTier() >= 2;
+}
+
+// ── FULL-APP GATE — the whole customer app requires the salon to be on Pro+ ──
+function _showAppLockedScreen(){
+  if(document.getElementById('app-locked-screen')) return;
+  var topbar = document.querySelector('.topbar'); if(topbar) topbar.style.display='none';
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; });
+  var nav = document.querySelector('.bnav'); if(nav) nav.style.display='none';
+  var salons = LS.get('salons') || [];
+  var sid = ME ? ME.salonId : null;
+  var s = salons.find(function(x){ return String(x.id) === String(sid); }) || {};
+  var salonName = s.name || 'This salon';
+  var wrap = document.createElement('div');
+  wrap.id = 'app-locked-screen';
+  wrap.style.cssText = 'position:fixed;inset:0;background:#0d2019;display:flex;align-items:center;justify-content:center;padding:24px;z-index:99999;text-align:center';
+  wrap.innerHTML =
+    '<div style="max-width:340px">'+
+      '<div style="font-size:56px;margin-bottom:18px">🔒</div>'+
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:#fff;letter-spacing:1px;margin-bottom:12px">CUSTOMER APP LOCKED</div>'+
+      '<div style="font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:10px">'+_esc(salonName)+' hasn\u2019t upgraded to <strong style="color:#F5E030">Pro+</strong> yet.</div>'+
+      '<div style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.7">Ask your salon to upgrade to Pro+ (\u20b9999/mo) to unlock the customer app \u2014 bills, style cards, queue, offers &amp; the loyalty wallet.</div>'+
+    '</div>';
+  document.body.appendChild(wrap);
+}
+function _hideAppLockedScreen(){
+  var wrap = document.getElementById('app-locked-screen');
+  if(wrap) wrap.remove();
+  var topbar = document.querySelector('.topbar'); if(topbar) topbar.style.display='';
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display=''; });
+  var nav = document.querySelector('.bnav'); if(nav) nav.style.display='';
+}
+// Returns true if the app should proceed rendering, false if it's locked.
+function _appPlanGateCheck(){
+  if(_isSalonProPlus()){
+    _hideAppLockedScreen();
+    return true;
+  }
+  _showAppLockedScreen();
+  return false;
+}
 function renderAll(){
-  // Hide Style Cards entry points entirely for non-Pro salons
-  var isPro = _isSalonPro();
+  if(!_appPlanGateCheck()) return; // whole app is locked below Pro+
+
+  // Hide Style Cards / Queue / Offers entry points entirely for salons below Pro+
+  var isProPlus = _isSalonProPlus();
   var cardsBtn = document.getElementById('home-cards-btn');
-  if(cardsBtn) cardsBtn.style.display = isPro ? '' : 'none';
+  if(cardsBtn) cardsBtn.style.display = isProPlus ? '' : 'none';
   var navCardsBtn = document.getElementById('nb-cards');
-  if(navCardsBtn) navCardsBtn.style.display = isPro ? '' : 'none';
+  if(navCardsBtn) navCardsBtn.style.display = isProPlus ? '' : 'none';
+  var navQueueBtn = document.getElementById('nb-queue');
+  if(navQueueBtn) navQueueBtn.style.display = isProPlus ? '' : 'none';
+  var navOffersBtn = document.getElementById('nb-offers');
+  if(navOffersBtn) navOffersBtn.style.display = isProPlus ? '' : 'none';
 
   var activePage = document.querySelector('.page.active');
   if(!activePage) return;
   var id = activePage.id.replace('pg-','');
-  // If somehow landed on the cards page while not Pro (e.g. reload), bounce home
-  if(id==='cards' && !isPro){ go('home'); return; }
+  // If somehow landed on a Pro+ page while not Pro+ (e.g. reload), bounce home
+  if((id==='cards'||id==='queue'||id==='offers') && !isProPlus){ go('home'); return; }
   if(id==='home')    loadHome();
   if(id==='bills')   loadBills();
   if(id==='cards')   loadCards();
@@ -1421,8 +1484,9 @@ function myCards() {
 
 // ── NAVIGATE ──
 function go(tab) {
-  if (tab==='cards' && !_isSalonPro()){
-    toast('💈 Style Cards is a Pro feature. Ask your salon to upgrade!');
+  if ((tab==='cards' || tab==='queue' || tab==='offers') && !_isSalonProPlus()){
+    var featureName = tab==='cards' ? 'Style Cards' : tab==='queue' ? 'The Queue' : 'Offers & Loyalty';
+    toast('🔒 '+featureName+' is a Pro+ feature. Ask your salon to upgrade!');
     tab = 'home';
   }
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
@@ -1462,13 +1526,13 @@ function loadHome() {
   // Referral credit banner (above Quick Actions)
   renderHomeCreditBanner();
 
-  // Referral card — Pro feature only, rendered above Quick Actions so
-  // customers see their share code first when their salon has Pro enabled
+  // Referral card — Pro+ feature only, rendered above Quick Actions so
+  // customers see their share code first when their salon has Pro+ enabled
   var hRefEl = document.getElementById('homeReferralCard');
-  if(hRefEl) hRefEl.innerHTML = _isSalonPro() ? buildReferralCard() : '';
+  if(hRefEl) hRefEl.innerHTML = _isSalonProPlus() ? buildReferralCard() : '';
 
-  // Active style strip — Pro feature only
-  var def = _isSalonPro() ? (cards.find(function(c){return c.isDefault;}) || cards[0]) : null;
+  // Active style strip — Pro+ feature only
+  var def = _isSalonProPlus() ? (cards.find(function(c){return c.isDefault;}) || cards[0]) : null;
   var strip = document.getElementById('activeStrip');
   if (def) {
     var tags = [def.fade, def.guard, def.texture].filter(Boolean).map(function(t){return '<span class="as-tag">'+t+'</span>';}).join('');
@@ -1490,11 +1554,11 @@ function loadHome() {
   // Complaints summary (above bills)
   loadHomeComplaints();
 
-  // Style cards preview — Pro feature only
+  // Style cards preview — Pro+ feature only
   var hcSection = document.getElementById('homeCardsSection');
-  if(hcSection) hcSection.style.display = _isSalonPro() ? 'block' : 'none';
+  if(hcSection) hcSection.style.display = _isSalonProPlus() ? 'block' : 'none';
   var hc = document.getElementById('homeCards');
-  if(_isSalonPro()){
+  if(_isSalonProPlus()){
     if (!cards.length) {
       hc.innerHTML = '<div style="font-size:13px;color:var(--muted2);padding:10px 0 4px">No style cards yet. Your barber will create one for you.</div>';
     } else {
@@ -2665,9 +2729,9 @@ function loadOffers(){
   var salonId = ME ? (ME.salonId||'') : '';
   var visits  = myBills().length;
 
-  // Referral card — Pro feature only
+  // Referral card — Pro+ feature only
   var rcEl = document.getElementById('referral-card-section');
-  if(rcEl) rcEl.innerHTML = _isSalonPro() ? buildReferralCard() : '';
+  if(rcEl) rcEl.innerHTML = _isSalonProPlus() ? buildReferralCard() : '';
 
   // Savings card visual
   var scEl = document.getElementById('savings-card-section');
@@ -2939,7 +3003,7 @@ function _renderChunkLines(chunks){
 function renderCreditBadge(){
   var el = document.getElementById('creditBadgeSection');
   if(!el) return;
-  if(!_isSalonPro()){ el.innerHTML = ''; return; }
+  if(!_isSalonProPlus()){ el.innerHTML = ''; return; }
   var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
   var chunks = _activeCashbackChunks();
   var cbActive = _activeCashbackTotal();
@@ -2971,7 +3035,7 @@ function renderCreditBadge(){
 function renderHomeCreditBanner(){
   var el = document.getElementById('homeCreditBanner');
   if(!el) return;
-  if(!_isSalonPro()){ el.innerHTML = ''; return; }
+  if(!_isSalonProPlus()){ el.innerHTML = ''; return; }
   var refCredit = (ME && ME.referral_credit) ? Number(ME.referral_credit) : 0;
   var chunks = _activeCashbackChunks();
   var cbActive = _activeCashbackTotal();
