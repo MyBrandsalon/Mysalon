@@ -3009,22 +3009,37 @@ function eslGenerateOwnerPin(){
     });
     updateRowInSheet('Staff', owner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
   } else {
-    var newOwner = {id:'u'+Date.now(), name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin};
-    staff.push(newOwner);
-    LS.set('staff', staff);
-    sbInsert('staff', newOwner).then(function(result){
+    // Don't send a client-made id — the staff.id column is type uuid in
+    // Supabase, and a string like "u1234567890" gets rejected outright.
+    // Let Postgres generate the UUID, then use whatever it returns locally.
+    var newOwnerForSb = {name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin};
+    sbInsert('staff', newOwnerForSb).then(function(result){
       if(!result){
         var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
         console.error('[Owner PIN] Supabase insert rejected:', errInfo);
         alert('⚠ Supabase rejected the new owner record — it only saved locally, the owner won\'t be able to log in from another device/browser until this is fixed:\n\n'+errInfo);
+        var localOwner = Object.assign({id:'u'+Date.now()}, newOwnerForSb);
+        staff.push(localOwner);
+        LS.set('staff', staff);
       } else {
+        var savedOwner = Object.assign({}, newOwnerForSb, {id: result.id});
+        staff.push(savedOwner);
+        LS.set('staff', staff);
         toast('✅ Owner record created — PIN: '+pin);
       }
+      _eslRefreshOwnerPin(editingSalonId);
+      renderManage();
     }).catch(function(err){
       console.error('[Owner PIN] Network/JS error:', err);
       alert('⚠ Could not reach Supabase — owner record saved locally only:\n\n'+err);
+      var localOwner = Object.assign({id:'u'+Date.now()}, newOwnerForSb);
+      staff.push(localOwner);
+      LS.set('staff', staff);
+      _eslRefreshOwnerPin(editingSalonId);
+      renderManage();
     });
-    appendRowToSheet('Staff', newOwner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
+    appendRowToSheet('Staff', newOwnerForSb, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
+    return; // async branch above handles its own refresh
   }
   _eslRefreshOwnerPin(editingSalonId);
   renderManage();
