@@ -67,7 +67,8 @@ h1 em{color:var(--accent);font-style:normal}
 /* PLANS */
 .plans-section{background:#003D2B;padding:56px 20px}
 .plans-inner{max-width:900px;margin:0 auto}
-.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:36px}
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+@media (max-width:900px){.plans-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.plan{padding:16px 10px}.plan-price{font-size:32px}.plan-name{font-size:16px}.plan-features li{font-size:11px}.btn-plan{font-size:11px;padding:9px 4px}}
 .plan{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;position:relative}
 .plan.pop{border-color:#C8A800;background:rgba(200,168,0,.06)}
 .plan-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#C8A800;color:#003D2B;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:3px 12px;border-radius:8px;white-space:nowrap;font-family:var(--BF)}
@@ -162,7 +163,7 @@ footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
           <li>Everything in Free</li><li>Customers</li><li>Staff hiring</li><li>Stylist login – 6 nos</li>
           <li class="off">Queue system</li><li class="off">Advanced analytics</li><li class="off">Multi-branch</li>
         </ul>
-        <a href="register-salon.html?plan=pro" class="btn-plan btn-plan-outline">Start Pro Trial</a>
+        <a href="register-salon.html?plan=pro" class="btn-plan btn-plan-outline">Start Pro</a>
       </div>
       <div class="plan pop">
         <div class="plan-tag">Most Popular</div>
@@ -173,7 +174,7 @@ footer strong{color:var(--gold);font-family:var(--HF);letter-spacing:1px}
           <li>Everything in Pro</li><li>Style cards</li><li>Save-the-time queue</li><li>Customer app + loyalty</li><li>Advanced analytics</li><li>Unlimited stylists</li>
           <li class="off">Franchise view</li><li class="off">Hire board</li>
         </ul>
-        <a href="register-salon.html?plan=pro-plus" class="btn-plan btn-plan-gold">Start Pro+ Trial</a>
+        <a href="register-salon.html?plan=pro-plus" class="btn-plan btn-plan-gold">Start Pro+</a>
       </div>
       <div class="plan">
         <div class="plan-name">BUSINESS</div>
