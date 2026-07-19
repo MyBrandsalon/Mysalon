@@ -2655,9 +2655,10 @@ function renderManage(){
     var salonTier=_salonPlanTier(s);
     var act=_actS(s);
     var ownerRec=staff.find(function(u){return u.salonId===s.id&&u.role==='owner';});
-    var ownerPinHtml=ownerRec&&ownerRec.loginPin
+    var _UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    var ownerPinHtml=(ownerRec&&ownerRec.loginPin&&_UUID_RE.test(String(ownerRec.id)))
       ?'<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px">'+ownerRec.loginPin+'</span>'
-      :'<span style="color:var(--muted2);font-style:italic">not set</span>';
+      :(ownerRec&&ownerRec.loginPin?'<span style="color:var(--danger);font-style:italic">not saved — regenerate</span>':'<span style="color:var(--muted2);font-style:italic">not set</span>');
     return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
@@ -2967,11 +2968,15 @@ function eslToggleIncMode(){
 }
 function _eslRefreshOwnerPin(salonId){
   var staff = LS.get('staff')||[];
+  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var owner = staff.find(function(u){ return u.salonId===salonId && u.role==='owner'; });
   var disp = document.getElementById('esl-owner-pin-display');
   var btn  = document.getElementById('esl-owner-pin-btn');
   if(!disp||!btn) return;
-  if(owner && owner.loginPin){
+  if(owner && owner.loginPin && !UUID_RE.test(String(owner.id))){
+    disp.innerHTML = '<span style="color:var(--danger);font-weight:700">⚠ Not saved to Supabase</span> — click Generate again to retry.';
+    btn.textContent = 'Generate PIN';
+  } else if(owner && owner.loginPin){
     disp.innerHTML = '<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px;font-size:14px">'+owner.loginPin+'</span> — '+esc(owner.name||'Owner');
     btn.textContent = 'Regenerate';
   } else {
@@ -2989,7 +2994,18 @@ function eslGenerateOwnerPin(){
     return;
   }
   var staff = LS.get('staff')||[];
+  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var owner = staff.find(function(u){ return u.salonId===editingSalonId && u.role==='owner'; });
+  // A record with a non-UUID id (e.g. the old "u1234567890" client-generated
+  // style) never actually made it into Supabase — it only exists in this
+  // browser's local storage from a previous failed attempt. Discard it so we
+  // go through the INSERT path again instead of retrying a doomed UPDATE.
+  if(owner && !UUID_RE.test(String(owner.id))){
+    console.warn('[Owner PIN] Discarding stale local-only owner record with invalid id:', owner.id);
+    staff = staff.filter(function(u){ return u !== owner; });
+    LS.set('staff', staff);
+    owner = null;
+  }
   var pin = String(Math.floor(100000+Math.random()*900000));
   if(owner){
     owner.loginPin = pin;
