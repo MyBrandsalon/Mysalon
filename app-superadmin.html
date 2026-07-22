@@ -2665,11 +2665,7 @@ function renderManage(){
     var incMode=s.incentiveMode||'sales10';
     var salonTier=_salonPlanTier(s);
     var act=_actS(s);
-    var ownerRec=staff.find(function(u){return u.salonId===s.id&&u.role==='owner';});
-    var _UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    var ownerPinHtml=(ownerRec&&ownerRec.loginPin&&_UUID_RE.test(String(ownerRec.id)))
-      ?'<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px">'+ownerRec.loginPin+'</span>'
-      :(ownerRec&&ownerRec.loginPin?'<span style="color:var(--danger);font-style:italic">not saved — regenerate</span>':'<span style="color:var(--muted2);font-style:italic">not set</span>');
+    var ownerPinHtml='<span style="color:var(--muted2);font-style:italic">see Edit →</span>';
     return '<div class="salon-card" style="'+(!act?'opacity:.55;border:2px dashed rgba(220,53,69,.5);':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between">'+
         '<div>'+
@@ -2978,22 +2974,26 @@ function eslToggleIncMode(){
   document.getElementById('esl-inc-opt2-label').style.borderColor=(isTargets)?'var(--blue)':'var(--border)';
 }
 function _eslRefreshOwnerPin(salonId){
-  var staff = LS.get('staff')||[];
-  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  var owner = staff.find(function(u){ return u.salonId===salonId && u.role==='owner'; });
   var disp = document.getElementById('esl-owner-pin-display');
   var btn  = document.getElementById('esl-owner-pin-btn');
   if(!disp||!btn) return;
-  if(owner && owner.loginPin && !UUID_RE.test(String(owner.id))){
-    disp.innerHTML = '<span style="color:var(--danger);font-weight:700">⚠ Not saved to Supabase</span> — click Generate again to retry.';
-    btn.textContent = 'Generate PIN';
-  } else if(owner && owner.loginPin){
-    disp.innerHTML = '<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px;font-size:14px">'+owner.loginPin+'</span> — '+esc(owner.name||'Owner');
-    btn.textContent = 'Regenerate';
-  } else {
-    disp.textContent = 'No owner record yet — generate one below.';
-    btn.textContent = 'Generate PIN';
-  }
+  disp.textContent = 'Loading…';
+  btn.textContent = 'Generate PIN';
+  var staff = LS.get('staff')||[];
+  var tenantSource = staff.find(function(u){ return u.salonId===salonId && (u.tenant_id||u.tenantId); })
+                  || staff.find(function(u){ return u.tenant_id||u.tenantId; });
+  var tenantId = tenantSource ? (tenantSource.tenant_id||tenantSource.tenantId) : null;
+  if(!tenantId){ disp.textContent = 'No owner PIN set yet — generate one below.'; return; }
+  sbSelect('tenants', 'id=eq.'+encodeURIComponent(tenantId)+'&select=owner_phone,owner_pin,owner_name').then(function(rows){
+    var t = rows && rows[0];
+    if(t && t.owner_pin){
+      disp.innerHTML = '<span style="font-family:monospace;font-weight:800;color:var(--accent);letter-spacing:2px;font-size:14px">'+t.owner_pin+'</span> — phone '+esc(t.owner_phone||'');
+      btn.textContent = 'Regenerate';
+    } else {
+      disp.textContent = 'No owner PIN set yet — generate one below.';
+      btn.textContent = 'Generate PIN';
+    }
+  }).catch(function(){ disp.textContent = 'Could not load owner PIN status.'; });
 }
 function eslGenerateOwnerPin(){
   var salons = LS.get('salons')||[];
@@ -3004,87 +3004,35 @@ function eslGenerateOwnerPin(){
     toast('Enter a 10-digit Manager Phone first — it becomes the owner login number');
     return;
   }
+  // login-owner.html authenticates the owner against tenants.owner_phone /
+  // tenants.owner_pin directly — it never looks at the staff table for the
+  // owner role. So the tenants row (matched to this salon via tenant_id) is
+  // the only place this PIN can actually live for login to work.
   var staff = LS.get('staff')||[];
-  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  var owner = staff.find(function(u){ return u.salonId===editingSalonId && u.role==='owner'; });
-  // A record with a non-UUID id (e.g. the old "u1234567890" client-generated
-  // style) never actually made it into Supabase — it only exists in this
-  // browser's local storage from a previous failed attempt. Discard it so we
-  // go through the INSERT path again instead of retrying a doomed UPDATE.
-  if(owner && !UUID_RE.test(String(owner.id))){
-    console.warn('[Owner PIN] Discarding stale local-only owner record with invalid id:', owner.id);
-    staff = staff.filter(function(u){ return u !== owner; });
-    LS.set('staff', staff);
-    owner = null;
+  var tenantSource = staff.find(function(u){ return u.salonId===editingSalonId && (u.tenant_id||u.tenantId); })
+                  || staff.find(function(u){ return u.tenant_id||u.tenantId; });
+  var tenantId = tenantSource ? (tenantSource.tenant_id||tenantSource.tenantId) : null;
+  console.log('[Owner PIN] tenantSource found:', tenantSource ? {id:tenantSource.id,name:tenantSource.name,tenant_id:tenantSource.tenant_id,tenantId:tenantSource.tenantId} : null, 'total staff in memory:', staff.length);
+  if(!tenantId){
+    alert('⚠ Could not find the tenants row for this salon (no staff member here has a tenant_id to identify it). '+
+      'Please add one staff member to this salon first (via Add Staff), then try generating the owner PIN again.');
+    return;
   }
   var pin = String(Math.floor(100000+Math.random()*900000));
-  if(owner){
-    owner.loginPin = pin;
-    owner.phone = mgrPhone;
-    LS.set('staff', staff);
-    sbUpdate('staff', owner.id, {loginPin:pin, phone:mgrPhone}).then(function(result){
-      if(!result){
-        var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
-        console.error('[Owner PIN] Supabase update rejected:', errInfo);
-        alert('⚠ Supabase rejected the owner PIN update — it only saved locally, other devices/pages won\'t see it yet:\n\n'+errInfo);
-      } else {
-        toast('✅ Owner PIN regenerated: '+pin);
-      }
-    }).catch(function(err){
-      console.error('[Owner PIN] Network/JS error:', err);
-      alert('⚠ Could not reach Supabase — PIN saved locally only:\n\n'+err);
-    });
-    updateRowInSheet('Staff', owner, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
-  } else {
-    // The staff table requires tenant_id (NOT NULL) for multi-tenant data
-    // isolation. Nothing in this app sets it manually — it's normally
-    // present because it's read straight from Supabase on other records.
-    // Reuse it from any existing staff member at the same salon; if none
-    // exist yet, fall back to any staff record anywhere in this tenant.
-    var tenantSource = staff.find(function(u){ return u.salonId===editingSalonId && u.tenant_id; })
-                    || staff.find(function(u){ return u.tenant_id; });
-    var tenantId = tenantSource ? tenantSource.tenant_id : null;
-    console.log('[Owner PIN] tenantSource found:', tenantSource ? {id:tenantSource.id,name:tenantSource.name,tenant_id:tenantSource.tenant_id} : null, 'total staff in memory:', staff.length);
-    if(!tenantId){
-      alert('⚠ Could not find an existing tenant_id to copy from any staff record. '+
-        'This salon may have no other staff yet, and this superadmin session has no staff at all to copy from. '+
-        'Please add one barber/manager to this salon manually first (via Add Staff), then try generating the owner PIN again.');
-      return;
+  sbUpdate('tenants', tenantId, {owner_phone:mgrPhone, owner_pin:pin, owner_name:(s.name||'Salon')+' Owner'}).then(function(result){
+    if(!result){
+      var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
+      console.error('[Owner PIN] Supabase tenants update rejected:', errInfo);
+      alert('⚠ Supabase rejected the owner PIN write to the tenants table — the owner will NOT be able to log in until this is fixed:\n\n'+errInfo);
+    } else {
+      toast('✅ Owner PIN saved: '+pin);
     }
-    // Don't send a client-made id — the staff.id column is type uuid in
-    // Supabase, and a string like "u1234567890" gets rejected outright.
-    // Let Postgres generate the UUID, then use whatever it returns locally.
-    var newOwnerForSb = {name:(s.name||'Salon')+' Owner', phone:mgrPhone, role:'owner', salonId:editingSalonId, loginPin:pin, tenant_id:tenantId};
-    sbInsert('staff', newOwnerForSb).then(function(result){
-      if(!result){
-        var errInfo = window._lastSupaError ? JSON.stringify(window._lastSupaError) : '(no error captured)';
-        console.error('[Owner PIN] Supabase insert rejected:', errInfo);
-        alert('⚠ Supabase rejected the new owner record — it only saved locally, the owner won\'t be able to log in from another device/browser until this is fixed:\n\n'+errInfo);
-        var localOwner = Object.assign({id:'u'+Date.now()}, newOwnerForSb);
-        staff.push(localOwner);
-        LS.set('staff', staff);
-      } else {
-        var savedOwner = Object.assign({}, newOwnerForSb, {id: result.id});
-        staff.push(savedOwner);
-        LS.set('staff', staff);
-        toast('✅ Owner record created — PIN: '+pin);
-      }
-      _eslRefreshOwnerPin(editingSalonId);
-      renderManage();
-    }).catch(function(err){
-      console.error('[Owner PIN] Network/JS error:', err);
-      alert('⚠ Could not reach Supabase — owner record saved locally only:\n\n'+err);
-      var localOwner = Object.assign({id:'u'+Date.now()}, newOwnerForSb);
-      staff.push(localOwner);
-      LS.set('staff', staff);
-      _eslRefreshOwnerPin(editingSalonId);
-      renderManage();
-    });
-    appendRowToSheet('Staff', newOwnerForSb, function(ok){ if(!ok) console.warn('[Owner PIN] Sheet mirror failed'); });
-    return; // async branch above handles its own refresh
-  }
-  _eslRefreshOwnerPin(editingSalonId);
-  renderManage();
+    _eslRefreshOwnerPin(editingSalonId);
+  }).catch(function(err){
+    console.error('[Owner PIN] Network/JS error:', err);
+    alert('⚠ Could not reach Supabase — nothing was saved. The owner will NOT be able to log in:\n\n'+err);
+    _eslRefreshOwnerPin(editingSalonId);
+  });
 }
 function openEditSalon(id){
   editingSalonId=id;
